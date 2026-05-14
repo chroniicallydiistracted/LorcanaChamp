@@ -1,0 +1,1089 @@
+{
+  "archetype": "A/S Steelsong",
+  "cards": [
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "dQB"
+      ],
+      "canonical_id": "ci_dQB",
+      "card_id": "dQB",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "modify-stat": 2
+      },
+      "full_name": "Rhino - One-Sixteenth Wolf",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Rhino",
+      "raw_name": "Rhino - One-Sixteenth Wolf",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "One-Sixteenth Wolf"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "static": 1
+      },
+      "candidate_ids": [
+        "FwE"
+      ],
+      "canonical_id": "ci_HaX",
+      "card_id": "FwE",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {
+        "first-turn-non-otp": 1
+      },
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "cost-reduction": 2
+      },
+      "full_name": "Angel - Siren Singer",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "SINGER",
+          "raw": {
+            "_source_index": 1,
+            "args": [
+              3
+            ],
+            "helper": "singer",
+            "keyword": "Singer",
+            "rawExpression": "singer(3)",
+            "rawHelper": "singer(3)",
+            "type": "keyword",
+            "value": 3
+          },
+          "target_name": null,
+          "value": 3
+        }
+      ],
+      "name": "Angel",
+      "raw_name": "Angel - Siren Singer",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "keyword:SINGER",
+        "unsupported_static_effect"
+      ],
+      "version": "Siren Singer"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "qUy"
+      ],
+      "canonical_id": "ci_qUy",
+      "card_id": "qUy",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Doc - Bold Knight",
+      "ink": "steel",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Doc",
+      "raw_name": "Doc - Bold Knight",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Bold Knight"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 2
+      },
+      "candidate_ids": [
+        "bN7",
+        "05w"
+      ],
+      "canonical_id": "ci_Qej",
+      "card_id": "bN7",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "cost-reduction": 4
+      },
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "ink": "amber",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Grandmother Willow",
+      "raw_name": "Grandmother Willow - Ancient Advisor",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1,
+        "start-turn": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Ancient Advisor"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "ZCd"
+      ],
+      "canonical_id": "ci_ZCd",
+      "card_id": "ZCd",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Lilo - Escape Artist",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Lilo",
+      "raw_name": "Lilo - Escape Artist",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_trigger",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "start-turn": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Escape Artist"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "65q"
+      ],
+      "canonical_id": "ci_65q",
+      "card_id": "65q",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Mowgli - Man Cub",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Mowgli",
+      "raw_name": "Mowgli - Man Cub",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Man Cub"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 2
+      },
+      "candidate_ids": [
+        "k1P"
+      ],
+      "canonical_id": "ci_k1P",
+      "card_id": "k1P",
+      "card_type": "character",
+      "colors": [
+        "amber",
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "The Troubadour - Musical Narrator",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "RESIST",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              1
+            ],
+            "helper": "resist",
+            "keyword": "Resist",
+            "rawExpression": "resist(1)",
+            "rawHelper": "resist(1)",
+            "type": "keyword",
+            "value": 1
+          },
+          "target_name": null,
+          "value": 1
+        },
+        {
+          "keyword": "SINGER",
+          "raw": {
+            "_source_index": 1,
+            "args": [
+              4
+            ],
+            "helper": "singer",
+            "keyword": "Singer",
+            "rawExpression": "singer(4)",
+            "rawHelper": "singer(4)",
+            "type": "keyword",
+            "value": 4
+          },
+          "target_name": null,
+          "value": 4
+        }
+      ],
+      "name": "The Troubadour",
+      "raw_name": "The Troubadour - Musical Narrator",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "keyword:SINGER"
+      ],
+      "version": "Musical Narrator"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "dBq"
+      ],
+      "canonical_id": "ci_dBq",
+      "card_id": "dBq",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Nani - Stage Manager",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Nani",
+      "raw_name": "Nani - Stage Manager",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry",
+        "unsupported_trigger"
+      ],
+      "version": "Stage Manager"
+    },
+    {
+      "ability_type_counts": {
+        "activated": 1,
+        "static": 1
+      },
+      "candidate_ids": [
+        "oBs",
+        "7JX"
+      ],
+      "canonical_id": "ci_oxv",
+      "card_id": "oBs",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {
+        "resource-count": 1
+      },
+      "cost": 4,
+      "cost_type_counts": {
+        "discardCards": 1,
+        "discardChosen": 1
+      },
+      "count": 4,
+      "effect_type_counts": {
+        "deal-damage": 2,
+        "gain-keyword": 2
+      },
+      "full_name": "Angel - Experiment 624",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Angel",
+      "raw_name": "Angel - Experiment 624",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_activated_ability",
+        "unsupported_cost:discardCards",
+        "unsupported_cost:discardChosen",
+        "unsupported_effect:deal-damage",
+        "unsupported_static_effect",
+        "unsupported_target:chosen"
+      ],
+      "version": "Experiment 624"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "Mni",
+        "P7j"
+      ],
+      "canonical_id": "ci_izM",
+      "card_id": "Mni",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {
+        "has-card-under": 1
+      },
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Ariel - Ethereal Voice",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "BOOST",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              1
+            ],
+            "helper": "boost",
+            "keyword": "Boost",
+            "rawExpression": "boost(1)",
+            "rawHelper": "boost(1)",
+            "type": "keyword",
+            "value": 1
+          },
+          "target_name": null,
+          "value": 1
+        }
+      ],
+      "name": "Ariel",
+      "raw_name": "Ariel - Ethereal Voice",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger_on:complex_filter"
+      ],
+      "version": "Ethereal Voice"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "static": 1
+      },
+      "candidate_ids": [
+        "9DJ"
+      ],
+      "canonical_id": "ci_9DJ",
+      "card_id": "9DJ",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "restriction": 2
+      },
+      "full_name": "Chief Powhatan - Protective Leader",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "BODYGUARD",
+          "raw": {
+            "_source_index": 0,
+            "helper": "bodyguard",
+            "id": "helper-ref-0",
+            "keyword": "Bodyguard",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Bodyguard\",\n  text: \"Bodyguard\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "bodyguard",
+            "rawReference": "bodyguard",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/bodyguard.ts",
+            "text": "Bodyguard",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Chief Powhatan",
+      "raw_name": "Chief Powhatan - Protective Leader",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_effect:restriction",
+        "unsupported_static_effect"
+      ],
+      "version": "Protective Leader"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "static": 1
+      },
+      "candidate_ids": [
+        "I1B"
+      ],
+      "canonical_id": "ci_I1B",
+      "card_id": "I1B",
+      "card_type": "character",
+      "colors": [
+        "amber",
+        "steel"
+      ],
+      "condition_type_counts": {
+        "no-damage": 1
+      },
+      "cost": 4,
+      "cost_type_counts": {
+        "ink": 1
+      },
+      "count": 4,
+      "effect_type_counts": {
+        "gain-keyword": 2
+      },
+      "full_name": "Rhino - Power Hamster",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "SHIFT",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              2
+            ],
+            "cost": {
+              "ink": 2
+            },
+            "helper": "shift",
+            "keyword": "Shift",
+            "rawExpression": "shift(2)",
+            "rawHelper": "shift(2)",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": 2
+        }
+      ],
+      "name": "Rhino",
+      "raw_name": "Rhino - Power Hamster",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "keyword:SHIFT",
+        "unsupported_cost:ink",
+        "unsupported_static_effect"
+      ],
+      "version": "Power Hamster"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "7zq",
+        "VLK"
+      ],
+      "canonical_id": "ci_vWQ",
+      "card_id": "7zq",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {
+        "target-query": 1
+      },
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Stitch - Carefree Snowboarder",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Stitch",
+      "raw_name": "Stitch - Carefree Snowboarder",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "quest": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Carefree Snowboarder"
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "Y3X"
+      ],
+      "canonical_id": "ci_Y3X",
+      "card_id": "Y3X",
+      "card_type": "action",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Akood et Emuti",
+      "ink": "amber",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Akood et Emuti",
+      "raw_name": "Akood et Emuti",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "rHN",
+        "sQ9"
+      ],
+      "canonical_id": "ci_s73",
+      "card_id": "rHN",
+      "card_type": "action",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "deal-damage": 2
+      },
+      "full_name": "Strength of a Raging Fire",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Strength of a Raging Fire",
+      "raw_name": "Strength of a Raging Fire",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "3ft",
+        "kw2"
+      ],
+      "canonical_id": "ci_2tJ",
+      "card_id": "3ft",
+      "card_type": "action",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "He Hurled His Thunderbolt",
+      "ink": "steel",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "He Hurled His Thunderbolt",
+      "raw_name": "He Hurled His Thunderbolt",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    }
+  ],
+  "deck_total_declared": 60,
+  "deck_total_resolved": 60,
+  "event": "Forge and Finds Winterspell - Set Championship",
+  "event_date": "2026-04-04",
+  "format": "core_constructed",
+  "id": "as_value_harlan_2026_04_04",
+  "mapping_summary": {
+    "best_use": "coverage_discovery",
+    "deck_id": "as_value_harlan_2026_04_04",
+    "executable_copies": 12,
+    "executable_unique_cards": 3,
+    "mapped_not_executable_copies": 29,
+    "mapped_not_executable_unique_cards": 8,
+    "name": "AmberSteel Value",
+    "playability": "partially_executable",
+    "recommended_engine_work": [
+      {
+        "affected_copies": 25,
+        "affected_decks": 1,
+        "affected_unique_cards": 7,
+        "category": "other_source_execution"
+      },
+      {
+        "affected_copies": 22,
+        "affected_decks": 1,
+        "affected_unique_cards": 6,
+        "category": "real_bag_and_triggers"
+      },
+      {
+        "affected_copies": 16,
+        "affected_decks": 1,
+        "affected_unique_cards": 4,
+        "category": "activated_abilities"
+      },
+      {
+        "affected_copies": 15,
+        "affected_decks": 1,
+        "affected_unique_cards": 4,
+        "category": "static_effect_registry"
+      },
+      {
+        "affected_copies": 8,
+        "affected_decks": 1,
+        "affected_unique_cards": 2,
+        "category": "singer_songs"
+      },
+      {
+        "affected_copies": 4,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "shift"
+      },
+      {
+        "affected_copies": 4,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "target_choice_prompts"
+      },
+      {
+        "affected_copies": 4,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "scry_search_reveal"
+      }
+    ],
+    "resolved_unique_cards": 16,
+    "schema_version": 1,
+    "top_blockers_by_copies": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 22
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 15
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 11
+      },
+      {
+        "blocker": "keyword:SINGER",
+        "count": 8
+      },
+      {
+        "blocker": "keyword:SHIFT",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_activated_ability",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_cost:discardCards",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_cost:discardChosen",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:deal-damage",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:scry",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:restriction",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_trigger_on:complex_filter",
+        "count": 3
+      }
+    ],
+    "top_blockers_by_unique_cards": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 6
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 3
+      },
+      {
+        "blocker": "keyword:SINGER",
+        "count": 2
+      },
+      {
+        "blocker": "keyword:SHIFT",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_activated_ability",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_cost:discardCards",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_cost:discardChosen",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:deal-damage",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:restriction",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:scry",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_trigger_on:complex_filter",
+        "count": 1
+      }
+    ],
+    "total_cards": 60,
+    "unique_cards": 16,
+    "unresolved_unique_cards": 0,
+    "unsupported_copies": 48,
+    "unsupported_unique_cards": 4,
+    "valid": true
+  },
+  "name": "AmberSteel Value",
+  "placement": "1st",
+  "playability": "partially_executable",
+  "playable_decklist_ids": [
+    "dQB",
+    "dQB",
+    "dQB",
+    "dQB",
+    "FwE",
+    "FwE",
+    "FwE",
+    "FwE",
+    "qUy",
+    "qUy",
+    "qUy",
+    "qUy",
+    "bN7",
+    "bN7",
+    "bN7",
+    "bN7",
+    "ZCd",
+    "ZCd",
+    "ZCd",
+    "65q",
+    "65q",
+    "65q",
+    "k1P",
+    "k1P",
+    "k1P",
+    "k1P",
+    "dBq",
+    "dBq",
+    "dBq",
+    "dBq",
+    "oBs",
+    "oBs",
+    "oBs",
+    "oBs",
+    "Mni",
+    "Mni",
+    "Mni",
+    "9DJ",
+    "9DJ",
+    "9DJ",
+    "I1B",
+    "I1B",
+    "I1B",
+    "I1B",
+    "7zq",
+    "7zq",
+    "7zq",
+    "7zq",
+    "Y3X",
+    "Y3X",
+    "Y3X",
+    "Y3X",
+    "rHN",
+    "rHN",
+    "rHN",
+    "rHN",
+    "3ft",
+    "3ft",
+    "3ft",
+    "3ft"
+  ],
+  "player": "HarlanSweete",
+  "purpose": [
+    "meta",
+    "songs",
+    "value"
+  ],
+  "raw_ink_colors": [
+    "amber",
+    "steel"
+  ],
+  "resolved_ink_colors": [
+    "amber",
+    "steel"
+  ],
+  "schema_version": 1,
+  "source_deck_id": 508577,
+  "source_site": "inkdecks",
+  "validation": {
+    "ambiguous_cards": [],
+    "banned_cards": [],
+    "copy_limit_violations": [],
+    "deck_total_actual": 60,
+    "deck_total_declared": 60,
+    "errors": [],
+    "resolved_ink_colors": [
+      "amber",
+      "steel"
+    ],
+    "schema_version": 1,
+    "unknown_legality_cards": [
+      "Akood et Emuti",
+      "Angel - Experiment 624",
+      "Angel - Siren Singer",
+      "Ariel - Ethereal Voice",
+      "Chief Powhatan - Protective Leader",
+      "Doc - Bold Knight",
+      "Grandmother Willow - Ancient Advisor",
+      "He Hurled His Thunderbolt",
+      "Lilo - Escape Artist",
+      "Mowgli - Man Cub",
+      "Nani - Stage Manager",
+      "Rhino - One-Sixteenth Wolf",
+      "Rhino - Power Hamster",
+      "Stitch - Carefree Snowboarder",
+      "Strength of a Raging Fire",
+      "The Troubadour - Musical Narrator"
+    ],
+    "unresolved_cards": [],
+    "valid": true,
+    "warnings": []
+  }
+}

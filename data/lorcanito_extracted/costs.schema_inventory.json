@@ -1,0 +1,166 @@
+{
+  "counts": {
+    "banishCharacter": 4,
+    "banishCharacterTarget": 1,
+    "banishItem": 6,
+    "banishSelf": 49,
+    "discardCardType": 7,
+    "discardCards": 15,
+    "discardChosen": 10,
+    "exert": 176,
+    "exertCharacters": 4,
+    "exertCharactersClassification": 1,
+    "exertItems": 1,
+    "ink": 260
+  },
+  "examples": {
+    "banishCharacter": true,
+    "banishCharacterTarget": "another",
+    "banishItem": true,
+    "banishSelf": true,
+    "discardCardType": "character",
+    "discardCards": 1,
+    "discardChosen": true,
+    "exert": true,
+    "exertCharacters": 1,
+    "exertCharactersClassification": "Prince",
+    "exertItems": 1,
+    "ink": 6
+  },
+  "schema_version": 1,
+  "source_files": {
+    "banishCharacter": [
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/074-hades-double-dealer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/125-hades-strong-arm.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/items/132-lonely-grave.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/items/099-the-claw.ts"
+    ],
+    "banishCharacterTarget": [
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/074-hades-double-dealer.ts"
+    ],
+    "banishItem": [
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/159-triton-discerning-king.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/168-sapphire-chromicon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/136-beast-frustrated-designer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/138-lefou-cake-thief.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/161-mrs-potts-head-housekeeper.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/items/179-belles-favorite-book.ts"
+    ],
+    "banishSelf": [
+      "packages/lorcana/lorcana-cards/src/cards/001/items/134-poisoned-apple.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/136-sword-of-truth.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/169-magic-golden-flower.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/202-frying-pan.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/118-namaari-nemesis.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/066-croquet-mallet.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/067-perplexing-signposts.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/102-ratigans-marvelous-trap.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/166-fang-crossbow.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/169-pawpsicle.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/202-last-cannon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/029-cleansing-rainwater.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/064-the-lamp.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/099-starlight-vial.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/200-gizmosuit.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/031-miracle-candle.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/064-mystical-rose.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/066-tritons-trident.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/133-the-plank.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/134-vitalisphere.ts"
+    ],
+    "discardCardType": [
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/093-the-queen-disguised-peddler.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/024-ursula-erics-bride.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/070-diablo-devoted-herald.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/112-li-shang-valorous-general.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/149-olaf-carrot-enthusiast.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/171-aladdin-brave-rescuer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/160-the-wardrobe-perceptive-friend.ts"
+    ],
+    "discardCards": [
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/093-the-queen-disguised-peddler.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/024-ursula-erics-bride.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/044-flotsam-jetsam-entangling-eels.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/070-diablo-devoted-herald.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/112-li-shang-valorous-general.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/149-olaf-carrot-enthusiast.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/171-aladdin-brave-rescuer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/202-rls-legacys-cannon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/065-half-hexwell-crown.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/055-madam-mim-truly-marvelous.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/060-elsa-fierce-protector.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/064-monstro-infamous-whale.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/160-the-wardrobe-perceptive-friend.ts",
+      "packages/lorcana/lorcana-cards/src/cards/009/characters/178-jasmine-fearless-princess.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/191-angel-experiment-624.ts"
+    ],
+    "discardChosen": [
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/093-the-queen-disguised-peddler.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/070-diablo-devoted-herald.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/202-rls-legacys-cannon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/065-half-hexwell-crown.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/055-madam-mim-truly-marvelous.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/060-elsa-fierce-protector.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/064-monstro-infamous-whale.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/160-the-wardrobe-perceptive-friend.ts",
+      "packages/lorcana/lorcana-cards/src/cards/009/characters/178-jasmine-fearless-princess.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/191-angel-experiment-624.ts"
+    ],
+    "exert": [
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/003-cinderella-gentle-and-kind.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/041-elsa-snow-queen.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/056-the-queen-wicked-and-vain.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/080-iago-loud-mouthed-parrot.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/194-tinker-bell-tiny-tactician.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/032-dinglehopper.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/033-lantern.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/066-magic-mirror.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/067-ursulas-cauldron.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/068-white-rabbits-pocket-watch.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/101-dr-faciliers-cards.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/102-stolen-scimitar.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/135-shield-of-virtue.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/167-eye-of-the-fates.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/168-fishbone-quill.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/170-scepter-of-arendelle.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/201-beasts-mirror.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/204-plasma-blaster.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/020-rapunzel-sunshine.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/048-madam-mim-rival-of-merlin.ts"
+    ],
+    "exertCharacters": [
+      "packages/lorcana/lorcana-cards/src/cards/002/items/065-binding-contract.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/items/033-scrump.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/items/044-the-glass-slipper.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/items/152-the-sword-of-shan-yu.ts"
+    ],
+    "exertCharactersClassification": [
+      "packages/lorcana/lorcana-cards/src/cards/007/items/044-the-glass-slipper.ts"
+    ],
+    "exertItems": [
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/140-aurora-lore-guardian.ts"
+    ],
+    "ink": [
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/005-hades-king-of-olympus.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/023-stitch-rock-star.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/037-dr-facilier-agent-provocateur.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/042-elsa-spirit-of-winter.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/076-genie-powers-unleashed.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/088-mickey-mouse-artful-rogue.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/104-aladdin-heroic-outlaw.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/123-scar-shameless-firebrand.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/139-aurora-dreaming-guardian.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/149-jasmine-queen-of-agrabah.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/175-captain-hook-thinking-a-happy-thought.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/193-tinker-bell-giant-fairy.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/066-magic-mirror.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/068-white-rabbits-pocket-watch.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/134-poisoned-apple.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/135-shield-of-virtue.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/201-beasts-mirror.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/204-plasma-blaster.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/016-mulan-reflecting.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/019-rapunzel-gifted-artist.ts"
+    ]
+  }
+}

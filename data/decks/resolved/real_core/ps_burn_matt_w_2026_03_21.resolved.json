@@ -1,0 +1,899 @@
+{
+  "archetype": "P/S Aggro",
+  "cards": [
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "kjK"
+      ],
+      "canonical_id": "ci_kjK",
+      "card_id": "kjK",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Diablo - Obedient Raven",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Diablo",
+      "raw_name": "Diablo - Obedient Raven",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_trigger",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "banish": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Obedient Raven"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "uh8"
+      ],
+      "canonical_id": "ci_uh8",
+      "card_id": "uh8",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Mulan - Disguised Soldier",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Mulan",
+      "raw_name": "Mulan - Disguised Soldier",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Disguised Soldier"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "D7f"
+      ],
+      "canonical_id": "ci_D7f",
+      "card_id": "D7f",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Olaf - Helping Hand",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Olaf",
+      "raw_name": "Olaf - Helping Hand",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_trigger",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "leave-play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_event:leave-play"
+      ],
+      "version": "Helping Hand"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1
+      },
+      "candidate_ids": [
+        "APE"
+      ],
+      "canonical_id": "ci_APE",
+      "card_id": "APE",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "Palace Guard - Spectral Sentry",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "VANISH",
+          "raw": {
+            "_source_index": 0,
+            "helper": "vanish",
+            "id": "helper-ref-0",
+            "keyword": "Vanish",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Vanish\",\n  text: \"Vanish\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "vanish",
+            "rawReference": "vanish",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/vanish.ts",
+            "text": "Vanish",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Palace Guard",
+      "raw_name": "Palace Guard - Spectral Sentry",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Spectral Sentry"
+    },
+    {
+      "ability_type_counts": {},
+      "candidate_ids": [
+        "2S3"
+      ],
+      "canonical_id": "ci_2S3",
+      "card_id": "2S3",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "Black Heron - Real Bad Egg",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Black Heron",
+      "raw_name": "Black Heron - Real Bad Egg",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "raw_preserved",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Real Bad Egg"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "NLA"
+      ],
+      "canonical_id": "ci_NLA",
+      "card_id": "NLA",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-lore": 2
+      },
+      "full_name": "Calhoun - Marine Sergeant",
+      "ink": "steel",
+      "inkable": false,
+      "keyword_defs": [
+        {
+          "keyword": "RESIST",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              1
+            ],
+            "helper": "resist",
+            "keyword": "Resist",
+            "rawExpression": "resist(1)",
+            "rawHelper": "resist(1)",
+            "type": "keyword",
+            "value": 1
+          },
+          "target_name": null,
+          "value": 1
+        }
+      ],
+      "name": "Calhoun",
+      "raw_name": "Calhoun - Marine Sergeant",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "banish-in-challenge": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_event:banish-in-challenge"
+      ],
+      "version": "Marine Sergeant"
+    },
+    {
+      "ability_type_counts": {
+        "static": 1
+      },
+      "candidate_ids": [
+        "OZm"
+      ],
+      "canonical_id": "ci_OZm",
+      "card_id": "OZm",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {
+        "first-turn-non-otp": 1
+      },
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "cost-reduction": 2
+      },
+      "full_name": "Christopher Robin - Joining the Fun",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Christopher Robin",
+      "raw_name": "Christopher Robin - Joining the Fun",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_static_effect"
+      ],
+      "version": "Joining the Fun"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "qUy"
+      ],
+      "canonical_id": "ci_qUy",
+      "card_id": "qUy",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Doc - Bold Knight",
+      "ink": "steel",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Doc",
+      "raw_name": "Doc - Bold Knight",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Bold Knight"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "7Vg"
+      ],
+      "canonical_id": "ci_7Vg",
+      "card_id": "7Vg",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {
+        "target-query": 1
+      },
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-lore": 2
+      },
+      "full_name": "Honeymaren - Northuldra Guide",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Honeymaren",
+      "raw_name": "Honeymaren - Northuldra Guide",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Northuldra Guide"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "FdJ"
+      ],
+      "canonical_id": "ci_FdJ",
+      "card_id": "FdJ",
+      "card_type": "character",
+      "colors": [
+        "amethyst",
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Giant Cobra - Ghostly Serpent",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "VANISH",
+          "raw": {
+            "_source_index": 0,
+            "helper": "vanish",
+            "id": "helper-ref-0",
+            "keyword": "Vanish",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Vanish\",\n  text: \"Vanish\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "vanish",
+            "rawReference": "vanish",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/vanish.ts",
+            "text": "Vanish",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Giant Cobra",
+      "raw_name": "Giant Cobra - Ghostly Serpent",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Ghostly Serpent"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "ZnW"
+      ],
+      "canonical_id": "ci_ZnW",
+      "card_id": "ZnW",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-lore": 2
+      },
+      "full_name": "The White Rose - Jewel of the Garden",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "The White Rose",
+      "raw_name": "The White Rose - Jewel of the Garden",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Jewel of the Garden"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "bDq",
+        "R01"
+      ],
+      "canonical_id": "ci_yoK",
+      "card_id": "bDq",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Hades - Looking for a Deal",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Hades",
+      "raw_name": "Hades - Looking for a Deal",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:optional",
+        "unsupported_trigger"
+      ],
+      "version": "Looking for a Deal"
+    },
+    {
+      "ability_type_counts": {
+        "activated": 1
+      },
+      "candidate_ids": [
+        "12k"
+      ],
+      "canonical_id": "ci_12k",
+      "card_id": "12k",
+      "card_type": "item",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {
+        "exert": 1
+      },
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Amethyst Chromicon",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Amethyst Chromicon",
+      "raw_name": "Amethyst Chromicon",
+      "raw_type": "item",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_activated_ability"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "hDY"
+      ],
+      "canonical_id": "ci_hDY",
+      "card_id": "hDY",
+      "card_type": "action",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-lore": 2
+      },
+      "full_name": "Gathering Knowledge and Wisdom",
+      "ink": "amethyst",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Gathering Knowledge and Wisdom",
+      "raw_name": "Gathering Knowledge and Wisdom",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "hOa"
+      ],
+      "canonical_id": "ci_hOa",
+      "card_id": "hOa",
+      "card_type": "location",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Zootopia - Police Headquarters",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Zootopia",
+      "raw_name": "Zootopia - Police Headquarters",
+      "raw_type": "location",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_trigger",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "move": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_on:CHARACTERS_HERE"
+      ],
+      "version": "Police Headquarters"
+    }
+  ],
+  "deck_total_declared": 60,
+  "deck_total_resolved": 60,
+  "event": "Glimmer Games CCQ 10k",
+  "event_date": "2026-03-21",
+  "format": "core_constructed",
+  "id": "ps_burn_matt_w_2026_03_21",
+  "mapping_summary": {
+    "best_use": "coverage_discovery",
+    "deck_id": "ps_burn_matt_w_2026_03_21",
+    "executable_copies": 12,
+    "executable_unique_cards": 3,
+    "mapped_not_executable_copies": 28,
+    "mapped_not_executable_unique_cards": 7,
+    "name": "Burn",
+    "playability": "partially_executable",
+    "recommended_engine_work": [
+      {
+        "affected_copies": 40,
+        "affected_decks": 1,
+        "affected_unique_cards": 10,
+        "category": "real_bag_and_triggers"
+      },
+      {
+        "affected_copies": 24,
+        "affected_decks": 1,
+        "affected_unique_cards": 6,
+        "category": "other_source_execution"
+      },
+      {
+        "affected_copies": 4,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "activated_abilities"
+      },
+      {
+        "affected_copies": 4,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "static_effect_registry"
+      }
+    ],
+    "resolved_unique_cards": 15,
+    "schema_version": 1,
+    "top_blockers_by_copies": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 40
+      },
+      {
+        "blocker": "unsupported_activated_ability",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:optional",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_event:banish-in-challenge",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_event:leave-play",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_on:CHARACTERS_HERE",
+        "count": 4
+      }
+    ],
+    "top_blockers_by_unique_cards": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 10
+      },
+      {
+        "blocker": "unsupported_activated_ability",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:optional",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_trigger_event:banish-in-challenge",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_trigger_event:leave-play",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_trigger_on:CHARACTERS_HERE",
+        "count": 1
+      }
+    ],
+    "total_cards": 60,
+    "unique_cards": 15,
+    "unresolved_unique_cards": 0,
+    "unsupported_copies": 48,
+    "unsupported_unique_cards": 5,
+    "valid": true
+  },
+  "name": "Burn",
+  "placement": "1st",
+  "playability": "partially_executable",
+  "playable_decklist_ids": [
+    "kjK",
+    "kjK",
+    "kjK",
+    "kjK",
+    "uh8",
+    "uh8",
+    "uh8",
+    "uh8",
+    "D7f",
+    "D7f",
+    "D7f",
+    "D7f",
+    "APE",
+    "APE",
+    "APE",
+    "APE",
+    "2S3",
+    "2S3",
+    "2S3",
+    "2S3",
+    "NLA",
+    "NLA",
+    "NLA",
+    "NLA",
+    "OZm",
+    "OZm",
+    "OZm",
+    "OZm",
+    "qUy",
+    "qUy",
+    "qUy",
+    "qUy",
+    "7Vg",
+    "7Vg",
+    "7Vg",
+    "7Vg",
+    "FdJ",
+    "FdJ",
+    "FdJ",
+    "FdJ",
+    "ZnW",
+    "ZnW",
+    "ZnW",
+    "ZnW",
+    "bDq",
+    "bDq",
+    "bDq",
+    "bDq",
+    "12k",
+    "12k",
+    "12k",
+    "12k",
+    "hDY",
+    "hDY",
+    "hDY",
+    "hDY",
+    "hOa",
+    "hOa",
+    "hOa",
+    "hOa"
+  ],
+  "player": "Matt W.",
+  "purpose": [
+    "meta",
+    "aggro",
+    "burn",
+    "locations"
+  ],
+  "raw_ink_colors": [
+    "amethyst",
+    "steel"
+  ],
+  "resolved_ink_colors": [
+    "amethyst",
+    "steel"
+  ],
+  "schema_version": 1,
+  "source_deck_id": 507620,
+  "source_site": "inkdecks",
+  "validation": {
+    "ambiguous_cards": [],
+    "banned_cards": [],
+    "copy_limit_violations": [],
+    "deck_total_actual": 60,
+    "deck_total_declared": 60,
+    "errors": [],
+    "resolved_ink_colors": [
+      "amethyst",
+      "steel"
+    ],
+    "schema_version": 1,
+    "unknown_legality_cards": [
+      "Amethyst Chromicon",
+      "Black Heron - Real Bad Egg",
+      "Calhoun - Marine Sergeant",
+      "Christopher Robin - Joining the Fun",
+      "Diablo - Obedient Raven",
+      "Doc - Bold Knight",
+      "Gathering Knowledge and Wisdom",
+      "Giant Cobra - Ghostly Serpent",
+      "Hades - Looking for a Deal",
+      "Honeymaren - Northuldra Guide",
+      "Mulan - Disguised Soldier",
+      "Olaf - Helping Hand",
+      "Palace Guard - Spectral Sentry",
+      "The White Rose - Jewel of the Garden",
+      "Zootopia - Police Headquarters"
+    ],
+    "unresolved_cards": [],
+    "valid": true,
+    "warnings": []
+  }
+}

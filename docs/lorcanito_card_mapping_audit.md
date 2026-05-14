@@ -1,0 +1,241 @@
+# Lorcanito card mapping audit
+## File inventory
+- Card definition files scanned: 2821
+- By folder: {'actions': 368, 'characters': 2139, 'items': 219, 'locations': 95}
+- Card-level tests: {'characters': 1869, 'actions': 341, 'items': 207, 'locations': 91}
+
+## Top-level ability types
+- triggered: 1079
+- static: 458
+- action: 289
+- activated: 244
+- keyword: 47
+- replacement: 6
+
+## Most common nested effect/condition type strings
+- triggered: 1079
+- optional: 531
+- static: 458
+- sequence: 395
+- modify-stat: 357
+- action: 289
+- gain-keyword: 280
+- draw: 262
+- activated: 244
+- restriction: 177
+- gain-lore: 162
+- banish: 144
+- has-classification: 131
+- during-turn: 124
+- deal-damage: 123
+- discard: 118
+- conditional: 110
+- return-to-hand: 91
+- target-query: 90
+- scry: 88
+- up-to: 86
+- exert: 86
+- cost-reduction: 86
+- remove-damage: 83
+- ready: 79
+- put-into-inkwell: 71
+- card-type: 61
+- turn-metric: 57
+- has-named-character: 53
+- return-from-discard: 50
+- play-card: 49
+- if-you-do: 48
+- keyword: 47
+- strength-comparison: 40
+- same-location-as-source: 40
+- filtered-count: 39
+- cost-comparison: 38
+- lose-lore: 37
+- exerted: 37
+- or: 37
+- has-name: 36
+- has-keyword: 36
+- once-per-turn: 31
+- grant-ability: 30
+- move-damage: 30
+- and: 29
+- choice: 28
+- in-challenge: 27
+- damaged: 25
+- has-character-count: 25
+- cards-in-hand: 24
+- turn: 24
+- resource-count: 24
+- has-card-under: 24
+- put-on-bottom: 23
+- pay-cost: 22
+- at-location: 22
+- has-character-with-classification: 19
+- for-each: 17
+- is-exerted: 17
+
+## Trigger events
+- play: 511
+- quest: 201
+- banish: 95
+- start-turn: 38
+- challenge: 38
+- banish-in-challenge: 34
+- end-turn: 32
+- ink: 30
+- challenged: 19
+- move: 11
+- put-card-under: 11
+- challenged-and-banished: 10
+- sing: 9
+- leave-play: 8
+- remove-damage: 7
+- draw: 5
+- ready: 4
+- damage: 4
+- exert: 4
+- deal-damage: 3
+- return-to-hand: 2
+- discard: 2
+- support: 2
+- leave-discard: 2
+- be-chosen: 2
+- boost: 1
+
+## Supported action effect resolver registry
+- gain-keyword
+- gain-keywords
+- modify-stat
+- sequence
+- play-card
+- conditional
+- draw
+- optional
+- gain-lore
+- restriction
+- banish
+- deal-damage
+- return-to-hand
+- remove-damage
+- discard
+- mill
+- put-into-inkwell
+- put-under
+- enable-play-from-under
+- pay-cost
+- put-on-bottom
+- put-on-top
+- ready
+- select-target
+- scry
+- for-each
+- for-each-opponent
+- return-from-discard
+- return-random-from-inkwell
+- exert
+- choice
+- or
+- lose-lore
+- shuffle-into-deck
+- reveal
+- reveal-top-card
+- reveal-until-match
+- name-a-card
+- reveal-hand
+- reveal-inkwell
+- search-deck
+- put-damage
+- grant-ability
+- cost-reduction
+- additional-inkwell
+- put-in-hand
+- move-to-location
+- move-damage
+- count
+- move-cards-from-under
+- draw-until-hand-size
+- create-triggered-ability
+- create-replacement-effect
+- support
+- property-modification
+- lose-keyword
+- reveal-and-route
+
+## Supported condition registry
+- and
+- at-location
+- banished-in-challenge-this-turn
+- being-challenged
+- comparison
+- damage-comparison
+- discarded-card-has-classification
+- during-turn
+- exerted
+- first-turn-non-otp
+- has-another-character
+- has-any-damage
+- has-card-under
+- has-character-count
+- has-character-with-classification
+- has-character-with-keyword
+- has-character-with-strength
+- has-granted-ability
+- has-item-count
+- has-location-count
+- has-location-in-play
+- has-named-character
+- has-named-item
+- has-no-damage
+- if
+- if-you-do
+- in-challenge
+- inkwell-count
+- is-exerted
+- is-named
+- lore
+- no-damage
+- not
+- opponent-has-damaged-character
+- or
+- play-context
+- put-card-under-any-this-turn
+- put-card-under-self-this-turn
+- resource-count
+- returned-card-has-classification
+- returned-card-is-named
+- returned-card-is-princess
+- revealed-is-card-type
+- revealed-is-character-named
+- revealed-matches-chosen-name
+- revealed-matches-named
+- self-has-damage
+- stat-threshold
+- strength
+- target-aggregate-comparison
+- target-query
+- trigger-subject-had-card-under
+- turn
+- turn-metric
+- used-shift
+- willpower
+- your-turn
+
+## Supported target variants
+- self
+- chosen
+- all
+- each
+- any
+- random
+- chosen
+- you
+- opponent
+- each-player
+- source
+- trigger-subject
+- selected-first
+- selected-all
+- revealed-first
+- revealed-all
+- chosen-or-source
+- singers

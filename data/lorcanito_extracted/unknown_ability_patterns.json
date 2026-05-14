@@ -1,0 +1,215 @@
+{
+  "patterns": [
+    {
+      "confidence": "medium",
+      "count": 30,
+      "detected_helper_calls": [],
+      "detected_keys": [
+        "_parseWarning",
+        "raw",
+        "rawExpression",
+        "type"
+      ],
+      "example_cards": [
+        "0XX",
+        "0mo",
+        "1WY",
+        "2XS",
+        "3T9",
+        "4Ol",
+        "5tQ",
+        "7M2",
+        "8TS",
+        "AdI"
+      ],
+      "example_source_files": [
+        "packages/lorcana/lorcana-cards/src/cards/002/characters/009-grand-duke-advisor-to-the-king.ts",
+        "packages/lorcana/lorcana-cards/src/cards/002/characters/011-happy-good-natured.ts",
+        "packages/lorcana/lorcana-cards/src/cards/002/characters/041-fairy-godmother-mystic-armorer.ts",
+        "packages/lorcana/lorcana-cards/src/cards/002/characters/143-cogsworth-talking-clock.ts",
+        "packages/lorcana/lorcana-cards/src/cards/003/characters/184-mr-smee-bumbling-mate.ts",
+        "packages/lorcana/lorcana-cards/src/cards/004/characters/043-flotsam-ursulas-baby.ts",
+        "packages/lorcana/lorcana-cards/src/cards/005/characters/035-maleficent-formidable-queen.ts",
+        "packages/lorcana/lorcana-cards/src/cards/005/characters/051-maleficent-vexed-partygoer.ts",
+        "packages/lorcana/lorcana-cards/src/cards/005/characters/087-banzai-taunting-hyena.ts",
+        "packages/lorcana/lorcana-cards/src/cards/006/characters/103-mickey-mouse-pirate-captain.ts"
+      ],
+      "inferred_category": "parser_gap",
+      "notes": "raw object required fallback parsing",
+      "pattern_fingerprint": "object_keys:_parseWarning,raw,rawExpression,type:card_type:character",
+      "recommended_action": "scanner_fix"
+    },
+    {
+      "confidence": "high",
+      "count": 8,
+      "detected_helper_calls": [
+        "shift"
+      ],
+      "detected_keys": [
+        "helper",
+        "id",
+        "rawExpression",
+        "rawReference",
+        "type"
+      ],
+      "example_cards": [
+        "1WY",
+        "5tQ",
+        "IEz",
+        "RxC",
+        "Wzv",
+        "dhS",
+        "jFo",
+        "xEw"
+      ],
+      "example_source_files": [
+        "packages/lorcana/lorcana-cards/src/cards/002/characters/041-fairy-godmother-mystic-armorer.ts",
+        "packages/lorcana/lorcana-cards/src/cards/005/characters/035-maleficent-formidable-queen.ts",
+        "packages/lorcana/lorcana-cards/src/cards/006/characters/103-mickey-mouse-pirate-captain.ts",
+        "packages/lorcana/lorcana-cards/src/cards/007/characters/141-mulan-imperial-general.ts",
+        "packages/lorcana/lorcana-cards/src/cards/008/characters/027-perdita-determined-mother.ts",
+        "packages/lorcana/lorcana-cards/src/cards/008/characters/142-mushu-your-worst-nightmare.ts",
+        "packages/lorcana/lorcana-cards/src/cards/008/characters/207-perdita-determined-mother-enchanted.ts",
+        "packages/lorcana/lorcana-cards/src/cards/008/characters/218-mushu-your-worst-nightmare-enchanted.ts"
+      ],
+      "inferred_category": "keyword",
+      "notes": "known Lorcanito keyword helper",
+      "pattern_fingerprint": "helper:shift",
+      "recommended_action": "mapper_fix"
+    },
+    {
+      "confidence": "medium",
+      "count": 7,
+      "detected_helper_calls": [],
+      "detected_keys": [
+        "_parseWarning",
+        "raw",
+        "rawExpression",
+        "type"
+      ],
+      "example_cards": [
+        "5Mc",
+        "AvD",
+        "H72",
+        "huo",
+        "m8D",
+        "roA",
+        "zpF"
+      ],
+      "example_source_files": [
+        "packages/lorcana/lorcana-cards/src/cards/005/actions/096-youre-welcome.ts",
+        "packages/lorcana/lorcana-cards/src/cards/005/actions/213-youre-welcome-enchanted.ts",
+        "packages/lorcana/lorcana-cards/src/cards/008/actions/077-forest-duel.ts",
+        "packages/lorcana/lorcana-cards/src/cards/008/actions/118-walk-the-plank.ts",
+        "packages/lorcana/lorcana-cards/src/cards/008/actions/177-down-in-new-orleans.ts",
+        "packages/lorcana/lorcana-cards/src/cards/011/actions/062-come-out-and-fight.ts",
+        "packages/lorcana/lorcana-cards/src/cards/012/actions/132-hero-work.ts"
+      ],
+      "inferred_category": "parser_gap",
+      "notes": "raw object required fallback parsing",
+      "pattern_fingerprint": "object_keys:_parseWarning,raw,rawExpression,type:card_type:action",
+      "recommended_action": "scanner_fix"
+    },
+    {
+      "confidence": "high",
+      "count": 4,
+      "detected_helper_calls": [
+        "boost"
+      ],
+      "detected_keys": [
+        "helper",
+        "id",
+        "rawExpression",
+        "rawReference",
+        "type"
+      ],
+      "example_cards": [
+        "Rj7",
+        "Sa5",
+        "YZf",
+        "c04"
+      ],
+      "example_source_files": [
+        "packages/lorcana/lorcana-cards/src/cards/010/characters/086-megara-secret-keeper.ts",
+        "packages/lorcana/lorcana-cards/src/cards/010/characters/123-aladdin-barreling-through.ts",
+        "packages/lorcana/lorcana-cards/src/cards/010/characters/213-megara-secret-keeper-epic.ts",
+        "packages/lorcana/lorcana-cards/src/cards/010/characters/216-aladdin-barreling-through-epic.ts"
+      ],
+      "inferred_category": "keyword",
+      "notes": "known Lorcanito keyword helper",
+      "pattern_fingerprint": "helper:boost",
+      "recommended_action": "mapper_fix"
+    },
+    {
+      "confidence": "medium",
+      "count": 3,
+      "detected_helper_calls": [],
+      "detected_keys": [
+        "_parseWarning",
+        "raw",
+        "rawExpression",
+        "type"
+      ],
+      "example_cards": [
+        "09M",
+        "8Jv",
+        "LA9"
+      ],
+      "example_source_files": [
+        "packages/lorcana/lorcana-cards/src/cards/005/items/064-retrosphere.ts",
+        "packages/lorcana/lorcana-cards/src/cards/006/items/065-maleficents-staff.ts",
+        "packages/lorcana/lorcana-cards/src/cards/006/items/210-maleficents-staff-enchanted.ts"
+      ],
+      "inferred_category": "parser_gap",
+      "notes": "raw object required fallback parsing",
+      "pattern_fingerprint": "object_keys:_parseWarning,raw,rawExpression,type:card_type:item",
+      "recommended_action": "scanner_fix"
+    },
+    {
+      "confidence": "high",
+      "count": 1,
+      "detected_helper_calls": [
+        "challenger"
+      ],
+      "detected_keys": [
+        "helper",
+        "id",
+        "rawExpression",
+        "rawReference",
+        "type"
+      ],
+      "example_cards": [
+        "jZW"
+      ],
+      "example_source_files": [
+        "packages/lorcana/lorcana-cards/src/cards/004/characters/046-jetsam-ursulas-baby.ts"
+      ],
+      "inferred_category": "keyword",
+      "notes": "known Lorcanito keyword helper",
+      "pattern_fingerprint": "helper:challenger",
+      "recommended_action": "mapper_fix"
+    },
+    {
+      "confidence": "medium",
+      "count": 1,
+      "detected_helper_calls": [],
+      "detected_keys": [
+        "_parseWarning",
+        "raw",
+        "rawExpression",
+        "type"
+      ],
+      "example_cards": [
+        "CGw"
+      ],
+      "example_source_files": [
+        "packages/lorcana/lorcana-cards/src/cards/010/locations/068-the-great-illuminary-abandoned-laboratory.ts"
+      ],
+      "inferred_category": "parser_gap",
+      "notes": "raw object required fallback parsing",
+      "pattern_fingerprint": "object_keys:_parseWarning,raw,rawExpression,type:card_type:location",
+      "recommended_action": "scanner_fix"
+    }
+  ],
+  "schema_version": 1
+}

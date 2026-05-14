@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "name": "real_core_deck_suite_12",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "deck_count": 12,
+  "generated_at": "2026-05-14T05:12:36Z",
+  "notes": [
+    "Each deck is stored in its own JSON file.",
+    "Source URLs are intentionally omitted per request.",
+    "source_deck_id is retained for provenance and later re-fetching if needed.",
+    "Cards are represented by printed card name and count; internal IDs can be resolved by the project deck importer."
+  ],
+  "decks": [
+    {
+      "id": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "name": "Amber Emerald",
+      "source_deck_id": 511064,
+      "player": "Zan Syed",
+      "event_date": "2026-04-25",
+      "ink_colors": [
+        "amber",
+        "emerald"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "as_evasive_aotp_stockholm_2026_04_25",
+      "name": "AOTP",
+      "source_deck_id": 510826,
+      "player": "Mateusz Tokarczyk",
+      "event_date": "2026-04-25",
+      "ink_colors": [
+        "amethyst",
+        "sapphire"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "name": "Purple Steel",
+      "source_deck_id": 509817,
+      "player": "Julian M",
+      "event_date": "2026-04-18",
+      "ink_colors": [
+        "amethyst",
+        "steel"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "es_control_i_hate_dogs_imola_2026_04_11",
+      "name": "I HATE DOGS",
+      "source_deck_id": 509383,
+      "player": "Luca Ramazzotti",
+      "event_date": "2026-04-11",
+      "ink_colors": [
+        "emerald",
+        "sapphire"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "as_steelsong_brian_law_taipei_2026_03_14",
+      "name": "Steel Amber",
+      "source_deck_id": 507278,
+      "player": "Brian Law",
+      "event_date": "2026-03-14",
+      "ink_colors": [
+        "amber",
+        "steel"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "aa_evasives_raging_storm_2026_02_23",
+      "name": "Set 11 - Amber/Amethyst - Raging Storm",
+      "source_deck_id": 501666,
+      "player": "dihensoeur",
+      "event_date": "2026-02-23",
+      "ink_colors": [
+        "amber",
+        "amethyst"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "as_value_harlan_2026_04_04",
+      "name": "AmberSteel Value",
+      "source_deck_id": 508577,
+      "player": "HarlanSweete",
+      "event_date": "2026-04-04",
+      "ink_colors": [
+        "amber",
+        "steel"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "rs_songs_daniele_2026_04_04",
+      "name": "Ruby Sapphire",
+      "source_deck_id": 508693,
+      "player": "Daniele Stella",
+      "event_date": "2026-04-04",
+      "ink_colors": [
+        "ruby",
+        "sapphire"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "name": "Maui fiesta",
+      "source_deck_id": 470831,
+      "player": "Davide Restivo",
+      "event_date": "2025-05-04",
+      "ink_colors": [
+        "ruby",
+        "sapphire"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "sr_aggro_damien_2026_01_31",
+      "name": "Steel Ruby",
+      "source_deck_id": 499270,
+      "player": "Damien",
+      "event_date": "2026-01-31",
+      "ink_colors": [
+        "ruby",
+        "steel"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "aa_lantern_zan_syed_2025_12_06",
+      "name": "Amber Amethyst",
+      "source_deck_id": 493203,
+      "player": "Zan Syed",
+      "event_date": "2025-12-06",
+      "ink_colors": [
+        "amber",
+        "amethyst"
+      ],
+      "deck_total": 60
+    },
+    {
+      "id": "ps_burn_matt_w_2026_03_21",
+      "name": "Burn",
+      "source_deck_id": 507620,
+      "player": "Matt W.",
+      "event_date": "2026-03-21",
+      "ink_colors": [
+        "amethyst",
+        "steel"
+      ],
+      "deck_total": 60
+    }
+  ]
+}

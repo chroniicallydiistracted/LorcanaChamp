@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "id": "es_control_i_hate_dogs_imola_2026_04_11",
+  "name": "I HATE DOGS",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 509383,
+  "player": "Luca Ramazzotti",
+  "placement": "1st",
+  "event": "LoreLeague Invitational - Imola Qualifier",
+  "event_date": "2026-04-11",
+  "ink_colors": [
+    "emerald",
+    "sapphire"
+  ],
+  "archetype": "E/B Control",
+  "purpose": [
+    "meta",
+    "control",
+    "songs",
+    "ramp"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Clarabelle - Clumsy Guest",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Tipo - Growing Son",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Prince Phillip - Royal Explorer",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Cinderella - Dream Come True",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Donald Duck - Perfect Gentleman",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Moana - Curious Explorer",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "John Silver - Alien Pirate",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Clarabelle - Light on Her Hooves",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Prince Phillip - Vanquisher of Foes",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Develop Your Brain",
+      "count": 3,
+      "type": "action"
+    },
+    {
+      "name": "Improvise",
+      "count": 2,
+      "type": "action"
+    },
+    {
+      "name": "Sail the Azurite Sea",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Vision of the Future",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Ink Geyser",
+      "count": 2,
+      "type": "action"
+    },
+    {
+      "name": "Malicious, Mean, and Scary",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Mother Knows Best",
+      "count": 1,
+      "type": "song"
+    },
+    {
+      "name": "You're Welcome",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Under the Sea",
+      "count": 3,
+      "type": "song"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

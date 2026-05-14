@@ -1,0 +1,466 @@
+{
+  "deck_count": 12,
+  "decks": [
+    {
+      "deck_id": "aa_evasives_raging_storm_2026_02_23",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "amber",
+          "amethyst"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "Cheshire Cat - Inexplicable",
+          "Colors of the Wind",
+          "Demona - Scourge of the Wyvern Clan",
+          "Dumbo - Ninth Wonder of the Universe",
+          "Eilonwy - Princess of Llyr",
+          "Elsa - The Fifth Spirit",
+          "Genie - Wish Fulfilled",
+          "Grandmother Willow - Ancient Advisor",
+          "Hades - Looking for a Deal",
+          "Hypnotic Strength",
+          "Iago - Giant Spectral Parrot",
+          "Ohana Means Family",
+          "Rafiki - Mystical Fighter",
+          "Raging Storm",
+          "Sven - Leaping Reindeer",
+          "The Horseman Strikes!",
+          "Tigger - Bouncing All the Way",
+          "Timon - Snowball Swiper",
+          "Ursula - Vanessa",
+          "World's Greatest Criminal Mind"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "aa_lantern_zan_syed_2025_12_06",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "amber",
+          "amethyst"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "Alan-a-Dale - Rockin' Rooster",
+          "Cheshire Cat - Inexplicable",
+          "Circle of Life",
+          "Demona - Scourge of the Wyvern Clan",
+          "Donald Duck - Coin Collector",
+          "Elsa - The Fifth Spirit",
+          "Genie - Wish Fulfilled",
+          "Hades - Looking for a Deal",
+          "Huey - Reliable Leader",
+          "Iago - Stompin' Mad",
+          "Junior Woodchuck Guidebook",
+          "Lantern",
+          "Madam Mim - Elephant",
+          "Monstro - Infamous Whale",
+          "Rafiki - Mystical Fighter",
+          "Royal Guard - Octopus Soldier",
+          "The Great Illuminary - Abandoned Laboratory",
+          "The Horseman Strikes!",
+          "We Know the Way"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "amber",
+          "emerald"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "Bobby Zimuruski - Spray Cheese Kid",
+          "Della's Moon Lullaby",
+          "Emerald Chromicon",
+          "Finnick - Tiny Terror",
+          "Grandmother Willow - Ancient Advisor",
+          "Lady - Decisive Dog",
+          "Lady - Elegant Spaniel",
+          "Lady - Miss Park Avenue",
+          "Lilo - Escape Artist",
+          "Mowgli - Man Cub",
+          "Nani - Stage Manager",
+          "Rhino - One-Sixteenth Wolf",
+          "Tramp - Dapper Rascal",
+          "Tramp - Enterprising Dog",
+          "Tramp - Street-Smart Dog",
+          "Under the Sea",
+          "Ursula - Deceiver"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "amethyst",
+          "steel"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "Angel - Experiment 624",
+          "Black Heron - Real Bad Egg",
+          "Captain Hook - Forceful Duelist",
+          "Cheshire Cat - Inexplicable",
+          "Christopher Robin - Joining the Fun",
+          "Demona - Scourge of the Wyvern Clan",
+          "Doc - Bold Knight",
+          "Elsa - The Fifth Spirit",
+          "Fire the Cannons!",
+          "Genie - Magical Researcher",
+          "Genie - Wish Fulfilled",
+          "Giant Cobra - Ghostly Serpent",
+          "Hades - Looking for a Deal",
+          "Lexington - Small in Stature",
+          "Olaf - Helping Hand",
+          "Palace Guard - Spectral Sentry",
+          "Pocahontas - Following the Wind",
+          "Strength of a Raging Fire",
+          "Yzma - Conniving Chemist"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "as_evasive_aotp_stockholm_2026_04_25",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "amethyst",
+          "sapphire"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "Basil - Practiced Detective",
+          "Cheshire Cat - Inexplicable",
+          "Demona - Scourge of the Wyvern Clan",
+          "Dumbo - Ninth Wonder of the Universe",
+          "Elsa - The Fifth Spirit",
+          "Genie - Wish Fulfilled",
+          "Hades - Infernal Schemer",
+          "Hades - Looking for a Deal",
+          "Iago - Giant Spectral Parrot",
+          "Into the Unknown",
+          "Junior Woodchuck Guidebook",
+          "Let It Go",
+          "Magical Maneuvers",
+          "Royal Guard - Octopus Soldier",
+          "Sail the Azurite Sea",
+          "Scuttle - Birdbrained",
+          "Tigger - Bouncing All the Way",
+          "Tipo - Growing Son"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "as_steelsong_brian_law_taipei_2026_03_14",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "amber",
+          "steel"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "Akood et Emuti",
+          "Angel - Experiment 624",
+          "Angel - Siren Singer",
+          "Ariel - Ethereal Voice",
+          "Bambi - Ethereal Fawn",
+          "Beyond the Horizon",
+          "Chief Powhatan - Protective Leader",
+          "Doc - Bold Knight",
+          "Grandmother Willow - Ancient Advisor",
+          "He Hurled His Thunderbolt",
+          "Lilo - Escape Artist",
+          "Mowgli - Man Cub",
+          "Mulan - Disguised Soldier",
+          "Nani - Stage Manager",
+          "Stitch - Carefree Snowboarder",
+          "Strength of a Raging Fire",
+          "The Troubadour - Musical Narrator"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "as_value_harlan_2026_04_04",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "amber",
+          "steel"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "Akood et Emuti",
+          "Angel - Experiment 624",
+          "Angel - Siren Singer",
+          "Ariel - Ethereal Voice",
+          "Chief Powhatan - Protective Leader",
+          "Doc - Bold Knight",
+          "Grandmother Willow - Ancient Advisor",
+          "He Hurled His Thunderbolt",
+          "Lilo - Escape Artist",
+          "Mowgli - Man Cub",
+          "Nani - Stage Manager",
+          "Rhino - One-Sixteenth Wolf",
+          "Rhino - Power Hamster",
+          "Stitch - Carefree Snowboarder",
+          "Strength of a Raging Fire",
+          "The Troubadour - Musical Narrator"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "es_control_i_hate_dogs_imola_2026_04_11",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "emerald",
+          "sapphire"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "Cinderella - Dream Come True",
+          "Clarabelle - Clumsy Guest",
+          "Clarabelle - Light on Her Hooves",
+          "Develop Your Brain",
+          "Donald Duck - Perfect Gentleman",
+          "Improvise",
+          "Ink Geyser",
+          "John Silver - Alien Pirate",
+          "Malicious, Mean, and Scary",
+          "Moana - Curious Explorer",
+          "Mother Knows Best",
+          "Prince Phillip - Royal Explorer",
+          "Prince Phillip - Vanquisher of Foes",
+          "Sail the Azurite Sea",
+          "Tipo - Growing Son",
+          "Under the Sea",
+          "Vision of the Future",
+          "You're Welcome"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "ps_burn_matt_w_2026_03_21",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "amethyst",
+          "steel"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "Amethyst Chromicon",
+          "Black Heron - Real Bad Egg",
+          "Calhoun - Marine Sergeant",
+          "Christopher Robin - Joining the Fun",
+          "Diablo - Obedient Raven",
+          "Doc - Bold Knight",
+          "Gathering Knowledge and Wisdom",
+          "Giant Cobra - Ghostly Serpent",
+          "Hades - Looking for a Deal",
+          "Honeymaren - Northuldra Guide",
+          "Mulan - Disguised Soldier",
+          "Olaf - Helping Hand",
+          "Palace Guard - Spectral Sentry",
+          "The White Rose - Jewel of the Garden",
+          "Zootopia - Police Headquarters"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "ruby",
+          "sapphire"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "A Pirate\u2019s Life",
+          "Be Prepared",
+          "Brawl",
+          "Develop Your Brain",
+          "Gramma Tala - Keeper of Ancient Stories",
+          "How Far I'll Go",
+          "Maui - Half-Shark",
+          "Maui - Hero to All",
+          "Maui's Fish Hook",
+          "McDuck Manor - Scrooge's Mansion",
+          "Pawpsicle",
+          "Sail the Azurite Sea",
+          "Sisu - Empowered Sibling",
+          "Tamatoa - Happy as a Clam",
+          "Tipo - Growing Son",
+          "Vision of the Future"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "rs_songs_daniele_2026_04_04",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "ruby",
+          "sapphire"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "A Pirate\u2019s Life",
+          "Develop Your Brain",
+          "Dig a Little Deeper",
+          "Distract",
+          "Grab Your Bow",
+          "Helping Hand",
+          "Let It Go",
+          "Lilo - Causing an Uproar",
+          "Maui - Half-Shark",
+          "Next Stop, Olympus",
+          "Olaf - Snowman of Action",
+          "Robin Hood - Sharpshooter",
+          "Sail the Azurite Sea",
+          "Tipo - Growing Son",
+          "Vision of the Future"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    },
+    {
+      "deck_id": "sr_aggro_damien_2026_01_31",
+      "validation": {
+        "ambiguous_cards": [],
+        "banned_cards": [],
+        "copy_limit_violations": [],
+        "deck_total_actual": 60,
+        "deck_total_declared": 60,
+        "errors": [],
+        "resolved_ink_colors": [
+          "ruby",
+          "steel"
+        ],
+        "schema_version": 1,
+        "unknown_legality_cards": [
+          "But I'm Much Faster",
+          "Calhoun - Marine Sergeant",
+          "Diablo - Watchful Raven",
+          "Fa Zhou - War Hero",
+          "Hercules - Mighty Leader",
+          "Jasmine - Rebellious Princess",
+          "Mulan - Disguised Soldier",
+          "Mushu - Majestic Dragon",
+          "Pluto - Steel Champion",
+          "Queen of Hearts - Impulsive Ruler",
+          "Queen of Hearts - Sensing Weakness",
+          "Robin Hood - Ephemeral Archer",
+          "Shere Khan - Menacing Predator",
+          "Sisu - Emboldened Warrior",
+          "Strength of a Raging Fire",
+          "Tinker Bell - Fancy Footwork"
+        ],
+        "unresolved_cards": [],
+        "valid": true,
+        "warnings": []
+      }
+    }
+  ],
+  "invalid_decks": 0,
+  "schema_version": 1,
+  "valid_decks": 12
+}

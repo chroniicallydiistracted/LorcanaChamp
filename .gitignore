@@ -1,0 +1,50 @@
+# Python files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*$py.class
+.python-version
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+__pypackages__/
+
+# Testing
+.pytest_cache/
+coverage.xml
+htmlcov/
+.coverage
+.coverage.*
+
+# Type checkers
+.mypy_cache/
+.pyre/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# Logs and runtime files
+logs/
+*.log
+*.jsonl
+
+# Temporary state and local data
+LorcanaChampB2.1State.zip
+
+# Ignore the extracted/managed external source tree
+lorcanito-full-src-code/

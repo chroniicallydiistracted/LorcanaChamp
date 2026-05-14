@@ -1,0 +1,22 @@
+{
+  "ambiguous_cards": [],
+  "deck_count": 12,
+  "invalid_decks": 0,
+  "resolved_decks": 12,
+  "schema_version": 1,
+  "unresolved_cards": [],
+  "written_files": [
+    "data/decks/resolved/real_core/aa_evasives_raging_storm_2026_02_23.resolved.json",
+    "data/decks/resolved/real_core/aa_lantern_zan_syed_2025_12_06.resolved.json",
+    "data/decks/resolved/real_core/ae_aggro_zan_syed_sao_paulo_2026_04_25.resolved.json",
+    "data/decks/resolved/real_core/as_challengers_purple_steel_leipzig_2026_04_18.resolved.json",
+    "data/decks/resolved/real_core/as_evasive_aotp_stockholm_2026_04_25.resolved.json",
+    "data/decks/resolved/real_core/as_steelsong_brian_law_taipei_2026_03_14.resolved.json",
+    "data/decks/resolved/real_core/as_value_harlan_2026_04_04.resolved.json",
+    "data/decks/resolved/real_core/es_control_i_hate_dogs_imola_2026_04_11.resolved.json",
+    "data/decks/resolved/real_core/ps_burn_matt_w_2026_03_21.resolved.json",
+    "data/decks/resolved/real_core/rs_pawpsicles_maui_fiesta_2025_05_04.resolved.json",
+    "data/decks/resolved/real_core/rs_songs_daniele_2026_04_04.resolved.json",
+    "data/decks/resolved/real_core/sr_aggro_damien_2026_01_31.resolved.json"
+  ]
+}

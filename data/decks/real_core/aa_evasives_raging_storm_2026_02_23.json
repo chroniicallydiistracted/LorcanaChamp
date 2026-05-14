@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "aa_evasives_raging_storm_2026_02_23",
+  "name": "Set 11 - Amber/Amethyst - Raging Storm",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 501666,
+  "player": "dihensoeur",
+  "placement": "15th",
+  "event": "Mulligan Challenge #27",
+  "event_date": "2026-02-23",
+  "ink_colors": [
+    "amber",
+    "amethyst"
+  ],
+  "archetype": "A/P Evasives",
+  "purpose": [
+    "evasive",
+    "meta",
+    "mechanic",
+    "songs"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Eilonwy - Princess of Llyr",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Rafiki - Mystical Fighter",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Grandmother Willow - Ancient Advisor",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Ursula - Vanessa",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Cheshire Cat - Inexplicable",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Timon - Snowball Swiper",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Dumbo - Ninth Wonder of the Universe",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Genie - Wish Fulfilled",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Iago - Giant Spectral Parrot",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Sven - Leaping Reindeer",
+      "count": 1,
+      "type": "character"
+    },
+    {
+      "name": "Tigger - Bouncing All the Way",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Elsa - The Fifth Spirit",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Hades - Looking for a Deal",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Demona - Scourge of the Wyvern Clan",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Hypnotic Strength",
+      "count": 2,
+      "type": "action"
+    },
+    {
+      "name": "Ohana Means Family",
+      "count": 2,
+      "type": "action"
+    },
+    {
+      "name": "The Horseman Strikes!",
+      "count": 3,
+      "type": "action"
+    },
+    {
+      "name": "Raging Storm",
+      "count": 1,
+      "type": "action"
+    },
+    {
+      "name": "World's Greatest Criminal Mind",
+      "count": 3,
+      "type": "song"
+    },
+    {
+      "name": "Colors of the Wind",
+      "count": 2,
+      "type": "song"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

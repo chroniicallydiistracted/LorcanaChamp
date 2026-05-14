@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+  "name": "Amber Emerald",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 511064,
+  "player": "Zan Syed",
+  "placement": "1st",
+  "event": "DLC - Disney Lorcana Challenge: São Paulo",
+  "event_date": "2026-04-25",
+  "ink_colors": [
+    "amber",
+    "emerald"
+  ],
+  "archetype": "A/E Aggro",
+  "purpose": [
+    "meta",
+    "aggro",
+    "lore_race",
+    "smoke"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Bobby Zimuruski - Spray Cheese Kid",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Finnick - Tiny Terror",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Lady - Decisive Dog",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Lady - Elegant Spaniel",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Rhino - One-Sixteenth Wolf",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Grandmother Willow - Ancient Advisor",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Lilo - Escape Artist",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Mowgli - Man Cub",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Tramp - Enterprising Dog",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Ursula - Deceiver",
+      "count": 1,
+      "type": "character"
+    },
+    {
+      "name": "Nani - Stage Manager",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Lady - Miss Park Avenue",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Tramp - Dapper Rascal",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Tramp - Street-Smart Dog",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Emerald Chromicon",
+      "count": 2,
+      "type": "item"
+    },
+    {
+      "name": "Della's Moon Lullaby",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Under the Sea",
+      "count": 4,
+      "type": "song"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

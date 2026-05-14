@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "id": "aa_lantern_zan_syed_2025_12_06",
+  "name": "Amber Amethyst",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 493203,
+  "player": "Zan Syed",
+  "placement": "1st",
+  "event": "Invitational Qualifier 2 and Official CCQ @ CCS Lorcana $25,000 Weekend",
+  "event_date": "2025-12-06",
+  "ink_colors": [
+    "amber",
+    "amethyst"
+  ],
+  "archetype": "A/P Lantern",
+  "purpose": [
+    "items",
+    "locations",
+    "ramp",
+    "value"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Rafiki - Mystical Fighter",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Royal Guard - Octopus Soldier",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Huey - Reliable Leader",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Iago - Stompin' Mad",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Cheshire Cat - Inexplicable",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Alan-a-Dale - Rockin' Rooster",
+      "count": 1,
+      "type": "character"
+    },
+    {
+      "name": "Genie - Wish Fulfilled",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Madam Mim - Elephant",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Elsa - The Fifth Spirit",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Hades - Looking for a Deal",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Demona - Scourge of the Wyvern Clan",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Donald Duck - Coin Collector",
+      "count": 1,
+      "type": "character"
+    },
+    {
+      "name": "Monstro - Infamous Whale",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Junior Woodchuck Guidebook",
+      "count": 4,
+      "type": "item"
+    },
+    {
+      "name": "Lantern",
+      "count": 4,
+      "type": "item"
+    },
+    {
+      "name": "The Horseman Strikes!",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "We Know the Way",
+      "count": 3,
+      "type": "song"
+    },
+    {
+      "name": "Circle of Life",
+      "count": 1,
+      "type": "song"
+    },
+    {
+      "name": "The Great Illuminary - Abandoned Laboratory",
+      "count": 4,
+      "type": "location"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

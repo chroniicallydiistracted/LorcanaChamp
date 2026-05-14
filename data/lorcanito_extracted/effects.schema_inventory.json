@@ -1,0 +1,1466 @@
+{
+  "counts": {
+    "additional-inkwell": 1,
+    "banish": 40,
+    "choice": 23,
+    "conditional": 34,
+    "cost-increase": 1,
+    "cost-reduction": 86,
+    "create-replacement-effect": 4,
+    "create-triggered-ability": 3,
+    "damage-source-stat-override": 1,
+    "deal-damage": 50,
+    "discard": 24,
+    "draw": 41,
+    "draw-until-hand-size": 1,
+    "enable-play-from-under": 1,
+    "enters-with-damage": 6,
+    "exert": 24,
+    "for-each": 3,
+    "for-each-opponent": 7,
+    "gain-keyword": 217,
+    "gain-lore": 86,
+    "grant-abilities-while-here": 2,
+    "grant-ability": 15,
+    "grant-discard-inkability": 1,
+    "grant-hand-inkability": 1,
+    "lose-keyword": 1,
+    "lose-lore": 21,
+    "mill": 3,
+    "modify-stat": 283,
+    "move-cards-from-under": 2,
+    "move-cost-reduction": 8,
+    "move-damage": 5,
+    "move-to-location": 2,
+    "optional": 461,
+    "or": 12,
+    "play-card": 9,
+    "property-modification": 6,
+    "put-damage": 6,
+    "put-into-inkwell": 21,
+    "put-on-bottom": 4,
+    "put-on-top": 1,
+    "put-under": 7,
+    "ready": 8,
+    "remove-damage": 26,
+    "restriction": 113,
+    "return-from-discard": 13,
+    "return-to-hand": 26,
+    "reveal-and-route": 1,
+    "reveal-hand": 3,
+    "reveal-top-card": 1,
+    "reveal-until-match": 1,
+    "scry": 64,
+    "search-deck": 3,
+    "select-target": 1,
+    "self-play-condition": 3,
+    "sequence": 259,
+    "shuffle-into-deck": 2,
+    "stat-floor": 1,
+    "suppress-ability": 1,
+    "win-condition-modification": 1
+  },
+  "examples": {
+    "additional-inkwell": {
+      "amount": 1,
+      "type": "additional-inkwell"
+    },
+    "banish": {
+      "target": "ALL_CHARACTERS",
+      "type": "banish"
+    },
+    "choice": {
+      "chooser": "OPPONENT",
+      "optionLabels": [
+        "discard 2 cards",
+        "discard 1 action card"
+      ],
+      "options": [
+        {
+          "amount": 2,
+          "chosen": true,
+          "target": "OPPONENT",
+          "type": "discard"
+        },
+        {
+          "amount": 1,
+          "chosen": true,
+          "filter": {
+            "cardType": "action"
+          },
+          "target": "OPPONENT",
+          "type": "discard"
+        }
+      ],
+      "type": "choice"
+    },
+    "conditional": {
+      "condition": {
+        "comparison": "greater-or-equal",
+        "controller": "you",
+        "count": 10,
+        "type": "inkwell-count"
+      },
+      "then": {
+        "duration": "while-in-play",
+        "modifier": 4,
+        "stat": "lore",
+        "target": "SELF",
+        "type": "modify-stat"
+      },
+      "type": "conditional"
+    },
+    "cost-increase": {
+      "amount": 2,
+      "cardType": [
+        "action",
+        "item"
+      ],
+      "type": "cost-increase"
+    },
+    "cost-reduction": {
+      "amount": 1,
+      "cardType": "character",
+      "type": "cost-reduction"
+    },
+    "create-replacement-effect": {
+      "duration": "this-turn",
+      "replacement": {
+        "consumeOnApply": true,
+        "eventKinds": [
+          "challenge-damage"
+        ],
+        "targetRef": "source",
+        "type": "prevent-damage"
+      },
+      "type": "create-replacement-effect"
+    },
+    "create-triggered-ability": {
+      "ability": {
+        "effect": {
+          "amount": 1,
+          "target": "EACH_OPPONENT",
+          "type": "lose-lore"
+        },
+        "trigger": {
+          "event": "quest",
+          "on": "YOUR_CHARACTERS",
+          "timing": "whenever"
+        }
+      },
+      "lifecycle": {
+        "duration": "this-turn",
+        "kind": "floating"
+      },
+      "type": "create-triggered-ability"
+    },
+    "damage-source-stat-override": {
+      "stat": "willpower",
+      "target": "YOUR_CHARACTERS",
+      "type": "damage-source-stat-override"
+    },
+    "deal-damage": {
+      "amount": 2,
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": 1,
+        "filter": [
+          {
+            "status": "damaged",
+            "type": "status"
+          }
+        ],
+        "owner": "any",
+        "selector": "chosen",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "deal-damage"
+    },
+    "discard": {
+      "amount": 2,
+      "chosen": true,
+      "from": "hand",
+      "target": "EACH_OPPONENT",
+      "type": "discard"
+    },
+    "draw": {
+      "amount": 2,
+      "target": "CONTROLLER",
+      "type": "draw"
+    },
+    "draw-until-hand-size": {
+      "size": 3,
+      "target": "CONTROLLER",
+      "type": "draw-until-hand-size"
+    },
+    "enable-play-from-under": {
+      "cardType": "character",
+      "duration": "this-turn",
+      "type": "enable-play-from-under"
+    },
+    "enters-with-damage": {
+      "amount": 3,
+      "type": "enters-with-damage"
+    },
+    "exert": {
+      "target": "CHOSEN_OPPOSING_CHARACTER",
+      "type": "exert"
+    },
+    "for-each": {
+      "counter": {
+        "controller": "opponent",
+        "type": "damaged-characters"
+      },
+      "effect": {
+        "amount": 1,
+        "target": "CONTROLLER",
+        "type": "gain-lore"
+      },
+      "type": "for-each"
+    },
+    "for-each-opponent": {
+      "effect": {
+        "chosenBy": "opponent",
+        "target": {
+          "cardTypes": [
+            "character"
+          ],
+          "count": 1,
+          "owner": "opponent",
+          "selector": "chosen",
+          "zones": [
+            "play"
+          ]
+        },
+        "type": "banish"
+      },
+      "type": "for-each-opponent"
+    },
+    "gain-keyword": {
+      "duration": "their-next-turn",
+      "keyword": "Reckless",
+      "target": "CHOSEN_CHARACTER",
+      "type": "gain-keyword"
+    },
+    "gain-lore": {
+      "amount": 2,
+      "type": "gain-lore"
+    },
+    "grant-abilities-while-here": {
+      "abilities": [
+        {
+          "cost": {
+            "exert": true,
+            "ink": 1
+          },
+          "effect": {
+            "amount": 2,
+            "target": {
+              "cardTypes": [
+                "character"
+              ],
+              "count": 1,
+              "filter": [
+                {
+                  "type": "damaged"
+                }
+              ],
+              "owner": "any",
+              "selector": "chosen",
+              "zones": [
+                "play"
+              ]
+            },
+            "type": "deal-damage"
+          },
+          "id": "1kh-3a",
+          "name": "FAMILIAR TERRAIN",
+          "text": "{E}, 1 {I} \u2014 Deal 2 damage to chosen damaged character.",
+          "type": "activated"
+        }
+      ],
+      "target": "CHARACTERS_HERE",
+      "type": "grant-abilities-while-here"
+    },
+    "grant-ability": {
+      "ability": "can-challenge-ready",
+      "duration": "this-turn",
+      "target": "CHOSEN_CHARACTER",
+      "type": "grant-ability"
+    },
+    "grant-discard-inkability": {
+      "type": "grant-discard-inkability"
+    },
+    "grant-hand-inkability": {
+      "type": "grant-hand-inkability"
+    },
+    "lose-keyword": {
+      "keyword": "Evasive",
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": "all",
+        "filter": [
+          {
+            "name": "Peter Pan",
+            "type": "has-name"
+          }
+        ],
+        "owner": "any",
+        "selector": "all",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "lose-keyword"
+    },
+    "lose-lore": {
+      "amount": 1,
+      "target": "EACH_OPPONENT",
+      "type": "lose-lore"
+    },
+    "mill": {
+      "amount": 2,
+      "target": "EACH_OPPONENT",
+      "type": "mill"
+    },
+    "modify-stat": {
+      "duration": "this-turn",
+      "modifier": -2,
+      "stat": "strength",
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": 1,
+        "owner": "any",
+        "selector": "chosen",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "modify-stat"
+    },
+    "move-cards-from-under": {
+      "destination": "inkwell-facedown-exerted",
+      "source": "selected",
+      "target": {
+        "count": {
+          "upTo": 99
+        },
+        "filter": [
+          {
+            "cardTypes": [
+              "character",
+              "location"
+            ],
+            "owner": "you",
+            "type": "under-parent"
+          }
+        ],
+        "selector": "chosen",
+        "zones": [
+          "limbo"
+        ]
+      },
+      "type": "move-cards-from-under"
+    },
+    "move-cost-reduction": {
+      "reduction": 1,
+      "type": "move-cost-reduction"
+    },
+    "move-damage": {
+      "amount": 1,
+      "from": "CHOSEN_CHARACTER",
+      "to": "CHOSEN_OPPOSING_CHARACTER",
+      "type": "move-damage"
+    },
+    "move-to-location": {
+      "character": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": {
+          "upTo": 2
+        },
+        "owner": "you",
+        "selector": "chosen",
+        "zones": [
+          "play"
+        ]
+      },
+      "cost": "free",
+      "location": {
+        "cardTypes": [
+          "location"
+        ],
+        "count": 1,
+        "owner": "you",
+        "selector": "chosen",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "move-to-location"
+    },
+    "optional": {
+      "chooser": "CONTROLLER",
+      "effect": {
+        "cardType": "character",
+        "cost": "free",
+        "filter": {
+          "maxCost": 5
+        },
+        "from": "hand",
+        "type": "play-card"
+      },
+      "type": "optional"
+    },
+    "or": {
+      "optionLabels": [
+        "banish her",
+        "return another chosen character of yours to your hand"
+      ],
+      "options": [
+        {
+          "target": "SELF",
+          "type": "banish"
+        },
+        {
+          "target": {
+            "cardTypes": [
+              "character"
+            ],
+            "count": 1,
+            "excludeSelf": true,
+            "owner": "you",
+            "selector": "chosen",
+            "zones": [
+              "play"
+            ]
+          },
+          "type": "return-to-hand"
+        }
+      ],
+      "type": "or"
+    },
+    "play-card": {
+      "banishAtEndOfTurn": true,
+      "cardType": "character",
+      "cost": "free",
+      "filter": {
+        "maxCost": 4
+      },
+      "from": "hand",
+      "grantsRush": true,
+      "type": "play-card"
+    },
+    "property-modification": {
+      "operation": "add",
+      "property": "singer-threshold",
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": "all",
+        "filter": [
+          {
+            "name": "Stitch",
+            "type": "has-name"
+          }
+        ],
+        "owner": "you",
+        "selector": "all",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "property-modification",
+      "value": "1"
+    },
+    "put-damage": {
+      "amount": 1,
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": 1,
+        "owner": "any",
+        "selector": "chosen",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "put-damage"
+    },
+    "put-into-inkwell": {
+      "exerted": true,
+      "facedown": true,
+      "source": "chosen-character",
+      "target": "CHOSEN_CHARACTER",
+      "type": "put-into-inkwell"
+    },
+    "put-on-bottom": {
+      "orderBy": "controller",
+      "ordering": "player-choice",
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": "all",
+        "filter": [
+          {
+            "comparison": "less-or-equal",
+            "type": "strength-comparison",
+            "value": 2
+          }
+        ],
+        "owner": "opponent",
+        "selector": "all",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "put-on-bottom"
+    },
+    "put-on-top": {
+      "source": {
+        "cardTypes": [
+          "item"
+        ],
+        "count": 1,
+        "owner": "you",
+        "selector": "chosen",
+        "zones": [
+          "discard"
+        ]
+      },
+      "type": "put-on-top"
+    },
+    "put-under": {
+      "source": "top-of-deck",
+      "type": "put-under",
+      "under": {
+        "cardTypes": [
+          "character",
+          "location"
+        ],
+        "count": 1,
+        "filter": [
+          {
+            "keyword": "Boost",
+            "type": "has-keyword"
+          }
+        ],
+        "owner": "you",
+        "selector": "chosen",
+        "zones": [
+          "play"
+        ]
+      }
+    },
+    "ready": {
+      "restriction": "cant-quest",
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": "all",
+        "excludeSelf": true,
+        "filter": [
+          {
+            "type": "same-location-as-source"
+          }
+        ],
+        "owner": "you",
+        "selector": "all",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "ready"
+    },
+    "remove-damage": {
+      "amount": {
+        "type": "up-to",
+        "value": 3
+      },
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": "all",
+        "owner": "you",
+        "selector": "all",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "remove-damage"
+    },
+    "restriction": {
+      "restriction": "cant-sing",
+      "target": "SELF",
+      "type": "restriction"
+    },
+    "return-from-discard": {
+      "cardType": "character",
+      "destination": "hand",
+      "target": "CONTROLLER",
+      "type": "return-from-discard"
+    },
+    "return-to-hand": {
+      "target": {
+        "cardTypes": [
+          "character",
+          "item"
+        ],
+        "count": 1,
+        "filter": [
+          {
+            "comparison": "less-or-equal",
+            "type": "cost-comparison",
+            "value": 2
+          }
+        ],
+        "owner": "any",
+        "selector": "chosen",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "return-to-hand"
+    },
+    "reveal-and-route": {
+      "fallback": {
+        "zone": "deck-top"
+      },
+      "routes": [
+        {
+          "condition": {
+            "name": "Pete",
+            "type": "revealed-is-character-named"
+          },
+          "destination": {
+            "cost": "free",
+            "zone": "play"
+          },
+          "optional": true
+        }
+      ],
+      "target": "CONTROLLER",
+      "type": "reveal-and-route"
+    },
+    "reveal-hand": {
+      "target": "OPPONENT",
+      "type": "reveal-hand"
+    },
+    "reveal-top-card": {
+      "target": "EACH_PLAYER",
+      "type": "reveal-top-card"
+    },
+    "reveal-until-match": {
+      "cardType": "character",
+      "classification": "Floodborn",
+      "putInto": "hand",
+      "shuffle": true,
+      "target": "CONTROLLER",
+      "type": "reveal-until-match"
+    },
+    "scry": {
+      "amount": 4,
+      "destinations": [
+        {
+          "filter": {
+            "cardType": "character",
+            "type": "card-type"
+          },
+          "max": 1,
+          "reveal": true,
+          "zone": "hand"
+        },
+        {
+          "ordering": "player-choice",
+          "remainder": true,
+          "zone": "deck-bottom"
+        }
+      ],
+      "target": "CONTROLLER",
+      "type": "scry"
+    },
+    "search-deck": {
+      "cardType": "location",
+      "putInto": "hand",
+      "reveal": true,
+      "shuffle": true,
+      "type": "search-deck"
+    },
+    "select-target": {
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": 1,
+        "owner": "any",
+        "selector": "chosen",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "select-target"
+    },
+    "self-play-condition": {
+      "type": "self-play-condition"
+    },
+    "sequence": {
+      "steps": [
+        {
+          "duration": "this-turn",
+          "modifier": 2,
+          "stat": "strength",
+          "target": "CHOSEN_CHARACTER",
+          "type": "modify-stat"
+        },
+        {
+          "condition": {
+            "comparison": {
+              "operator": "gte",
+              "value": 1
+            },
+            "query": {
+              "filters": [
+                {
+                  "type": "card-type",
+                  "value": "character"
+                },
+                {
+                  "classification": "Villain",
+                  "type": "has-classification"
+                }
+              ],
+              "reference": "selected-first",
+              "selector": "all"
+            },
+            "type": "target-query"
+          },
+          "then": {
+            "duration": "this-turn",
+            "modifier": 1,
+            "stat": "strength",
+            "target": {
+              "ref": "previous-target"
+            },
+            "type": "modify-stat"
+          },
+          "type": "conditional"
+        }
+      ],
+      "type": "sequence"
+    },
+    "shuffle-into-deck": {
+      "intoDeck": "owner",
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": "all",
+        "owner": "you",
+        "selector": "all",
+        "zones": [
+          "discard"
+        ]
+      },
+      "type": "shuffle-into-deck"
+    },
+    "stat-floor": {
+      "minimum": "printed",
+      "stat": "strength",
+      "target": "YOUR_CHARACTERS",
+      "type": "stat-floor"
+    },
+    "suppress-ability": {
+      "abilityName": "STONE BY DAY",
+      "target": {
+        "cardTypes": [
+          "character"
+        ],
+        "count": "all",
+        "filter": [
+          {
+            "classification": "Gargoyle",
+            "type": "has-classification"
+          }
+        ],
+        "owner": "you",
+        "selector": "all",
+        "zones": [
+          "play"
+        ]
+      },
+      "type": "suppress-ability"
+    },
+    "win-condition-modification": {
+      "loreRequired": 25,
+      "target": "OPPONENT",
+      "type": "win-condition-modification"
+    }
+  },
+  "schema_version": 1,
+  "source_files": {
+    "additional-inkwell": [
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/142-belle-strange-but-special.ts"
+    ],
+    "banish": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/128-be-prepared.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/130-dragon-fire.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/196-break.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/071-cheshire-cat-not-all-there.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/136-sword-of-truth.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/029-last-stand.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/031-worlds-greatest-criminal-mind.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/101-ring-the-bell.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/075-cheshire-cat-from-the-shadows.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/118-namaari-nemesis.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/166-fang-crossbow.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/actions/094-has-set-my-heaaaaaaart.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/actions/198-rise-of-the-titans.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/075-helga-sinclair-vengeful-partner.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/092-wildcat-mechanic.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/112-madame-medusa-the-boss.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/locations/102-kuzcos-palace-home-of-the-emperor.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/129-be-king-undisputed.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/130-brawl.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/196-i-find-em-i-flatten-em.ts"
+    ],
+    "choice": [
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/085-lucifer-cunning-cat.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/132-mauis-fish-hook.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/094-make-the-potion.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/133-the-plank.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/actions/196-tug-of-war.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/actions/165-prepare-your-bot.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/actions/195-hot-potato.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/070-jasmine-royal-seafarer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/071-kuzco-panicked-llama.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/108-daisy-duck-multitalented-pirate.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/actions/040-shes-your-person.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/actions/080-pull-the-lever.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/actions/116-wrong-lever.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/actions/202-beyond-the-horizon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/110-maui-stubborn-trickster.ts",
+      "packages/lorcana/lorcana-cards/src/cards/009/characters/176-little-john-sir-reginald.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/actions/095-trust-in-me.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/characters/085-baloo-carefree-bear.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/actions/061-do-you-want-to-build-a-snowman.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/actions/097-education-or-elimination.ts"
+    ],
+    "conditional": [
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/142-belle-strange-but-special.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/134-poisoned-apple.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/002-christopher-robin-adventurer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/073-bucky-squirrel-squeak-tutor.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/087-panic-underworld-imp.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/173-beast-tragic-hero.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/034-sleepys-flute.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/145-huey-savvy-nephew.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/045-isabela-madrigal-golden-child.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/031-miracle-candle.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/105-maximus-team-champion.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/146-chicha-dedicated-mother.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/132-potion-of-might.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/087-alistair-krei-ambitious-entrepreneur.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/items/166-baymaxs-healthcare-chip.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/locations/169-rescue-rangers-submarine-mobile-headquarters.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/items/042-spaghetti-dinner.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/items/152-devils-eye-diamond.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/actions/201-desperate-plan.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/107-go-go-tomago-cutting-edge.ts"
+    ],
+    "cost-increase": [
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/199-gantu-experienced-enforcer.ts"
+    ],
+    "cost-reduction": [
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/008-lefou-bumbler.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/051-mickey-mouse-wayward-sorcerer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/141-belle-inventive-engineer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/152-maurice-world-famous-inventor.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/033-lantern.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/101-dr-faciliers-cards.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/032-zero-to-hero.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/005-doc-leader-of-the-seven-dwarfs.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/013-mickey-mouse-friendly-face.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/024-snow-white-unexpected-houseguest.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/003-chernabog-evildoer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/018-pluto-friendly-pooch.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/124-slightly-lost-boy.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/155-scrooge-mcduck-uncle-moneybags.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/030-heart-of-atlantis.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/099-starlight-vial.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/166-scrooges-top-hat.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/201-map-of-treasure-planet.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/locations/033-pride-lands-pride-rock.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/locations/168-belles-house-maurices-workshop.ts"
+    ],
+    "create-replacement-effect": [
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/123-raya-leader-of-heart.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/054-rafiki-mystical-fighter.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/120-peter-pan-pirates-bane.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/characters/003-rapunzel-ready-for-adventure.ts"
+    ],
+    "create-triggered-ability": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/097-steal-from-the-rich.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/actions/024-99-puppies.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/actions/031-wisdom-of-the-willow.ts"
+    ],
+    "damage-source-stat-override": [
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/022-dale-ready-for-his-shot.ts"
+    ],
+    "deal-damage": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/096-stampede.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/197-fire-the-cannons.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/198-grab-your-sword.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/200-smash.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/193-tinker-bell-giant-fairy.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/204-plasma-blaster.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/201-strength-of-a-raging-fire.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/090-queen-of-hearts-quick-tempered.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/175-chief-bogo-respected-officer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/193-robin-hood-capable-fighter.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/actions/195-and-then-along-came-zeus.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/actions/196-ba-boom.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/108-hydra-deadly-serpent.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/098-robins-bow.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/198-the-mob-song.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/199-tritons-decree.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/114-mulan-elite-archer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/187-mickey-mouse-playful-sorcerer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/202-rls-legacys-cannon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/202-steel-chromicon.ts"
+    ],
+    "discard": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/031-you-have-forgotten-me.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/098-sudden-chill.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/074-flynn-rider-charming-rogue.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/072-belle-hidden-archer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/076-daisy-duck-secret-agent.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/070-cursed-merfolk-ursulas-handiwork.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/073-friar-tuck-priest-of-nottingham.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/007-daisy-duck-musketeer-spy.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/078-jasmine-desert-warrior.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/098-prince-johns-mirror.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/actions/093-bend-to-my-will.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/locations/101-perilous-maze-watery-labyrinth.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/092-shere-khan-infamous-tiger.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/113-anastasia-bossy-stepsister.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/086-basil-undercover-detective.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/097-chip-quick-thinker.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/004-pumbaa-winter-warthog.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/083-goofy-ghost-of-jacob-marley.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/091-mickey-mouse-snowboard-ace.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/176-gantu-hamsterviels-accomplice.ts"
+    ],
+    "draw": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/064-friends-on-the-other-side.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/056-the-queen-wicked-and-vain.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/157-robin-hood-unrivaled-archer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/066-magic-mirror.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/201-beasts-mirror.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/097-airfoil.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/061-second-star-to-the-right.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/016-mickey-mouse-musketeer-captain.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/098-hidden-inkcaster.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/actions/060-finders-keepers.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/actions/097-remember-who-you-are.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/017-fix-it-felix-jr-delighted-sightseer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/041-earth-giant-living-mountain.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/065-half-hexwell-crown.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/actions/064-seeking-the-half-crown.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/053-genie-wish-fulfilled.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/061-genie-wonderful-trickster.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/071-captain-hook-underhanded.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/081-daisy-duck-pirate-captain.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/160-yokai-scientific-supervillain.ts"
+    ],
+    "draw-until-hand-size": [
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/056-yzma-conniving-chemist.ts"
+    ],
+    "enable-play-from-under": [
+      "packages/lorcana/lorcana-cards/src/cards/010/items/032-the-black-cauldron.ts"
+    ],
+    "enters-with-damage": [
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/116-mother-gothel-withered-and-wicked.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/103-beast-wounded.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/116-mulan-injured-soldier.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/110-fa-zhou-honorable-warrior.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/005-pedro-madrigal-family-patriarch.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/109-zeus-defiant-god.ts"
+    ],
+    "exert": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/063-freeze.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/041-elsa-snow-queen.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/042-elsa-spirit-of-winter.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/070-beast-wolfsbane.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/065-binding-contract.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/039-hydros-ice-titan.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/058-ursula-sea-witch-queen.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/046-anna-mystical-majesty.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/048-elsa-the-fifth-spirit.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/056-anna-eager-acolyte.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/065-half-hexwell-crown.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/058-peter-pan-shadow-catcher.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/056-madam-mim-cheating-spellcaster.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/154-scrooge-mcduck-resourceful-miser.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/060-elsa-fierce-protector.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/073-the-sultan-royal-apparition.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/items/084-ice-spikes.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/actions/063-swooping-strike.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/actions/132-ghostly-tale.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/characters/037-gwythaint-savage-hunter.ts"
+    ],
+    "for-each": [
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/100-pack-tactics.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/locations/067-the-queens-castle-mirror-chamber.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/actions/079-fantastical-and-magical.ts"
+    ],
+    "for-each-opponent": [
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/110-lady-tremaine-imperious-queen.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/111-lady-tremaine-overbearing-matriarch.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/083-prince-john-phony-king.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/092-mother-gothel-unwavering-schemer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/020-king-candy-royal-racer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/045-eeyore-in-the-way.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/locations/136-leviathans-lair-dangerous-ground.ts"
+    ],
+    "gain-keyword": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/099-the-beast-is-mine.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/129-cut-to-the-chase.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/165-work-together.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/043-flotsam-ursulas-spy.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/046-jetsam-ursulas-spy.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/053-pascal-rapunzels-companion.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/058-tinker-bell-peter-pans-ally.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/080-iago-loud-mouthed-parrot.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/082-john-silver-alien-pirate.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/093-tinker-bell-most-helpful.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/107-captain-hook-ruthless-pirate.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/139-aurora-dreaming-guardian.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/157-robin-hood-unrivaled-archer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/177-donald-duck-musketeer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/189-simba-returned-king.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/068-white-rabbits-pocket-watch.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/170-scepter-of-arendelle.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/064-legend-of-the-sword-in-the-stone.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/133-you-can-fly.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/163-four-dozen-eggs.ts"
+    ],
+    "gain-lore": [
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/104-aladdin-heroic-outlaw.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/190-simba-rightful-heir.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/192-te-k-heartless.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/051-merlin-goat.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/093-the-queen-disguised-peddler.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/126-shere-khan-menacing-predator.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/148-grand-pabbie-oldest-and-wisest.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/068-the-sorcerers-spellbook.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/001-baloo-von-bruinwald-xiii.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/042-jafar-striking-illusionist.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/055-stratos-tornado-titan.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/082-peter-pan-lost-boy-leader.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/143-gramma-tala-spirit-of-the-ocean.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/190-robin-hood-champion-of-sherwood.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/165-lucky-dime.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/106-flynn-rider-frenemy.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/107-goofy-super-goof.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/121-raya-fierce-protector.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/146-hans-noble-scoundrel.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/159-triton-discerning-king.ts"
+    ],
+    "grant-abilities-while-here": [
+      "packages/lorcana/lorcana-cards/src/cards/005/locations/101-sherwood-forest-outlaw-hideaway.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/locations/203-bad-anon-villain-support-center.ts"
+    ],
+    "grant-ability": [
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/200-pick-a-fight.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/177-cinderella-stouthearted.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/189-namaari-morning-mist.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/038-bruno-madrigal-out-of-the-shadows.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/119-noi-acrobatic-baby.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/191-piglet-sturdy-swordsman.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/actions/199-food-fight.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/105-gizmoduck-suited-up.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/133-li-shang-newly-promoted.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/141-mulan-imperial-general.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/141-mulan-charging-ahead.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/characters/086-megara-secret-keeper.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/characters/126-mulan-standing-her-ground.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/118-beast-snowfield-troublemaker.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/192-darkwing-duck-cool-under-pressure.ts"
+    ],
+    "grant-discard-inkability": [
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/155-moana-curious-explorer.ts"
+    ],
+    "grant-hand-inkability": [
+      "packages/lorcana/lorcana-cards/src/cards/004/items/098-hidden-inkcaster.ts"
+    ],
+    "lose-keyword": [
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/105-captain-hook-master-swordsman.ts"
+    ],
+    "lose-lore": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/133-tangle.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/104-aladdin-heroic-outlaw.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/105-aladdin-street-rat.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/121-rapunzel-letting-down-her-hair.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/109-honest-john-not-that-honest.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/102-ratigans-marvelous-trap.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/078-lyle-tiberius-rourke-cunning-mercenary.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/107-heihei-accidental-explorer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/111-kakamora-menacing-sailor.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/107-donald-duck-pie-slinger.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/114-taffyta-muttonfudge-crowd-favorite.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/122-donald-duck-daisys-date.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/106-jasmine-rebellious-princess.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/123-the-matchmaker-unforgiving-expert.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/128-stabbington-brother-with-a-patch.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/characters/127-brom-bones-burly-bully.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/122-olaf-snowman-of-action.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/074-the-witch-wily-woodcarver.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/087-lyle-tiberius-rourke-adventurer-for-hire.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/items/100-gyro-evac.ts"
+    ],
+    "mill": [
+      "packages/lorcana/lorcana-cards/src/cards/006/actions/060-a-very-merry-unbirthday.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/items/066-mad-hatters-teapot.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/locations/135-remote-inklands-desert-ruins.ts"
+    ],
+    "modify-stat": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/026-control-your-temper.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/132-hes-got-a-sword.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/005-hades-king-of-olympus.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/011-maximus-relentless-pursuer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/044-jafar-keeper-of-secrets.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/087-megara-pulling-the-strings.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/118-mulan-imperial-soldier.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/138-aurora-briar-rose.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/158-scar-mastermind.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/159-tamatoa-so-shiny.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/186-mickey-mouse-musketeer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/191-starkey-hooks-henchman.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/102-stolen-scimitar.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/167-eye-of-the-fates.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/132-what-did-you-call-me.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/006-dopey-always-playful.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/010-grumpy-bad-tempered.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/053-merlin-shapeshifter.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/071-belle-bookworm.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/078-donald-duck-sleepwalker.ts"
+    ],
+    "move-cards-from-under": [
+      "packages/lorcana/lorcana-cards/src/cards/011/actions/162-visiting-christmas-past.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/036-alice-well-read-whisper.ts"
+    ],
+    "move-cost-reduction": [
+      "packages/lorcana/lorcana-cards/src/cards/003/items/201-map-of-treasure-planet.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/locations/068-the-sorcerers-tower-wondrous-workspace.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/locations/135-jolly-roger-hooks-ship.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/locations/136-rls-legacy-solar-galleon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/locations/101-sherwood-forest-outlaw-hideaway.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/characters/107-raksha-fearless-mother.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/locations/068-ring-of-stones-place-of-legends.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/locations/102-pizza-planet-spaceport.ts"
+    ],
+    "move-damage": [
+      "packages/lorcana/lorcana-cards/src/cards/003/actions/060-bestow-a-gift.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/065-rose-lantern.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/041-juju-mama-odies-companion.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/065-nero-fearsome-crocodile.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/045-alma-madrigal-heart-of-the-family.ts"
+    ],
+    "move-to-location": [
+      "packages/lorcana/lorcana-cards/src/cards/003/actions/131-voyage.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/047-magic-carpet-flying-rug.ts"
+    ],
+    "optional": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/029-just-in-time.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/004-goofy-musketeer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/014-moana-of-motunui.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/016-prince-phillip-dragonslayer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/021-stitch-carefree-surfer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/023-stitch-rock-star.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/024-timon-grub-rustler.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/037-dr-facilier-agent-provocateur.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/039-dr-facilier-remarkable-gentleman.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/047-magic-broom-bucket-brigade.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/049-maleficent-sorceress.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/050-marshmallow-persistent-guardian.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/051-mickey-mouse-wayward-sorcerer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/072-cruella-de-vil-miserable-as-usual.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/075-genie-on-the-job.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/076-genie-powers-unleashed.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/084-kuzco-temperamental-emperor.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/085-lady-tremaine-wicked-stepmother.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/086-mad-hatter-gracious-host.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/113-maleficent-monstrous-dragon.ts"
+    ],
+    "or": [
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/046-madam-mim-fox.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/047-madam-mim-purple-dragon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/049-madam-mim-snake.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/079-megara-captivating-cynic.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/044-madam-mim-elephant.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/016-tiana-restaurant-owner.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/items/098-megabot.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/069-madam-mim-rhino.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/102-flynn-rider-breaking-and-entering.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/046-meeko-skittish-scrounger.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/items/170-hidden-trap.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/items/203-containment-unit.ts"
+    ],
+    "play-card": [
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/062-gruesome-and-grim.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/048-madam-mim-rival-of-merlin.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/182-mickey-mouse-trumpeter.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/074-hades-double-dealer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/actions/027-revive.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/147-prince-john-gold-lover.ts",
+      "packages/lorcana/lorcana-cards/src/cards/009/actions/026-circle-of-life.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/items/066-mystical-inkcaster.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/actions/031-metamorphosis.ts"
+    ],
+    "property-modification": [
+      "packages/lorcana/lorcana-cards/src/cards/004/items/032-record-player.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/locations/033-atlantica-concert-hall.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/106-turbo-royal-hack.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/characters/185-chief-bogo-calling-the-shots.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/items/202-the-thunderquack.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/177-incrediboy-buddy-pine.ts"
+    ],
+    "put-damage": [
+      "packages/lorcana/lorcana-cards/src/cards/006/actions/096-mosquito-bite.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/095-queen-of-hearts-unpredictable-bully.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/104-alice-clumsy-as-can-be.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/actions/097-malicious-mean-and-scary.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/characters/082-bellwether-master-manipulator.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/items/098-potion-of-malice.ts"
+    ],
+    "put-into-inkwell": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/163-let-it-go.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/164-one-jump-ahead.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/168-fishbone-quill.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/164-heart-of-te-fiti.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/items/167-great-stone-dragon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/actions/163-hide-away.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/actions/164-all-funned-out.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/144-pleakley-scientific-expert.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/155-tadashi-hamada-gifted-roboticist.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/actions/178-all-is-found.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/163-heihei-expanded-consciousness.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/actions/081-into-the-unknown.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/157-anna-trusting-sister.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/166-stitch-experiment-626.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/items/179-belles-favorite-book.ts",
+      "packages/lorcana/lorcana-cards/src/cards/009/characters/143-cruella-de-vil-style-icon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/actions/165-spooky-sight.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/actions/165-wipe-out.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/160-kida-crystal-scion.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/161-ursula-deal-maker.ts"
+    ],
+    "put-on-bottom": [
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/095-under-the-sea.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/061-genie-wonderful-trickster.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/044-taran-magically-armed.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/120-bouncing-ducky-sids-toy.ts"
+    ],
+    "put-on-top": [
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/144-gyro-gearloose-gadget-whiz.ts"
+    ],
+    "put-under": [
+      "packages/lorcana/lorcana-cards/src/cards/010/items/030-recovered-page.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/items/032-the-black-cauldron.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/137-roo-little-helper.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/157-morty-fieldmouse-tiny-tim.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/159-mickey-mouse-bob-cratchit.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/items/132-lonely-grave.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/locations/135-graveyard-of-christmas-future-lonely-resting-place.ts"
+    ],
+    "ready": [
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/116-moana-born-leader.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/137-audrey-ramirez-the-engineer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/174-hades-hotheaded-ruler.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/083-prince-phillip-swordsman-of-the-realm.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/150-mufasa-ruler-of-pride-rock.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/actions/097-you-came-back.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/106-hiro-hamada-intuitive-thinker.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/149-edna-mode-super-suit-designer.ts"
+    ],
+    "remove-damage": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/027-hakuna-matata.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/028-healing-glow.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/003-cinderella-gentle-and-kind.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/032-dinglehopper.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/169-magic-golden-flower.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/028-hold-still.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/020-rapunzel-sunshine.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/151-jasmine-heir-of-agrabah.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/167-gumbo-pot.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/169-pawpsicle.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/actions/027-quick-patch.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/actions/162-repair.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/017-pluto-determined-defender.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/029-cleansing-rainwater.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/items/031-wildcats-wrench.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/027-first-aid.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/157-transformed-chef-castle-stove.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/actions/162-ever-as-before.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/030-healing-decanter.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/032-amber-chromicon.ts"
+    ],
+    "restriction": [
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/001-ariel-on-human-legs.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/035-anna-heir-to-arendelle.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/042-elsa-spirit-of-winter.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/081-jasper-common-crook.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/088-mickey-mouse-artful-rogue.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/090-mother-gothel-selfish-manipulator.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/175-captain-hook-thinking-a-happy-thought.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/178-gantu-galactic-federation-captain.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/202-frying-pan.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/063-im-stuck.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/001-bashful-hopeless-romantic.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/021-sleepy-nodding-off.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/079-dr-facilier-fortune-teller.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/196-tiana-celebrating-princess.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/059-ursula-sea-witch.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/114-maui-whale.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/173-gustav-the-giant-terror-of-the-kingdom.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/193-simba-rightful-king.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/locations/034-tianas-palace-jazz-restaurant.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/045-isabela-madrigal-golden-child.ts"
+    ],
+    "return-from-discard": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/030-part-of-your-world.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/094-do-it-again.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/162-if-its-not-baroque.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/006-hades-lord-of-the-underworld.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/033-dragon-gem.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/165-treasures-untold.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/items/167-merlins-carpetbag.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/actions/028-i-wont-give-in.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/items/032-pooh-pirate-ship.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/items/083-scarab.ts",
+      "packages/lorcana/lorcana-cards/src/cards/010/actions/027-or-rewrite-history.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/083-alien-true-believer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/items/169-shepherds-journal.ts"
+    ],
+    "return-to-hand": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/062-befuddle.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/095-mother-knows-best.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/043-heihei-persistent-presence.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/items/067-perplexing-signposts.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/050-magica-de-spell-thieving-sorceress.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/080-milo-thatch-king-of-atlantis.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/060-poor-unfortunate-souls.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/043-flotsam-ursulas-baby.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/072-gunther-interior-designer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/085-pete-born-to-cheat.ts",
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/042-gale-wind-spirit.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/045-iago-reappearing-parrot.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/084-jasmine-royal-commodore.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/items/099-galactic-communicator.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/actions/116-wake-up-alice.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/162-tamatoa-happy-as-a-clam.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/actions/115-stopped-chaos-in-its-tracks.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/063-bambi-little-prince.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/075-camilo-madrigal-center-stage.ts",
+      "packages/lorcana/lorcana-cards/src/cards/009/items/064-the-magic-feather.ts"
+    ],
+    "reveal-and-route": [
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/187-pete-wrestling-champ.ts"
+    ],
+    "reveal-hand": [
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/078-dolores-madrigal-within-earshot.ts",
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/085-copper-hound-pup.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/characters/009-dolores-madrigal-hears-everything.ts"
+    ],
+    "reveal-top-card": [
+      "packages/lorcana/lorcana-cards/src/cards/005/locations/170-merlins-cottage-the-wizards-home.ts"
+    ],
+    "reveal-until-match": [
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/098-fred-giant-sized.ts"
+    ],
+    "scry": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/025-be-our-guest.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/065-reflection.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/161-develop-your-brain.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/002-ariel-spectacular-singer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/060-yzma-alchemist.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/067-ursulas-cauldron.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/016-mulan-reflecting.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/054-merlin-squirrel.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/147-gaston-intellectual-powerhouse.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/characters/159-sisu-divine-water-dragon.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/actions/161-how-far-ill-go.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/008-lucky-the-15th-puppy.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/019-pongo-determined-father.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/022-tinker-bell-generous-fairy.ts",
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/142-gramma-tala-keeper-of-ancient-stories.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/028-look-at-this-family.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/actions/162-dig-a-little-deeper.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/089-the-fates-only-one-eye.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/140-aurora-lore-guardian.ts",
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/151-pascal-inquisitive-pet.ts"
+    ],
+    "search-deck": [
+      "packages/lorcana/lorcana-cards/src/cards/006/actions/130-the-islands-i-pulled-from-the-sea.ts",
+      "packages/lorcana/lorcana-cards/src/cards/006/characters/145-hiro-hamada-robotics-prodigy.ts",
+      "packages/lorcana/lorcana-cards/src/cards/007/items/044-the-glass-slipper.ts"
+    ],
+    "select-target": [
+      "packages/lorcana/lorcana-cards/src/cards/004/characters/092-zeus-mr-lightning-bolts.ts"
+    ],
+    "self-play-condition": [
+      "packages/lorcana/lorcana-cards/src/cards/005/characters/014-mirabel-madrigal-family-gatherer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/008/characters/196-nathaniel-flint-notorious-pirate.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/actions/164-escape-plan.ts"
+    ],
+    "sequence": [
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/100-vicious-betrayal.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/131-fan-the-flames.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/195-a-whole-new-world.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/actions/199-ransack.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/018-rapunzel-gifted-with-healing.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/042-elsa-spirit-of-winter.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/059-ursula-power-hungry.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/104-aladdin-heroic-outlaw.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/109-elsa-ice-surfer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/112-lefou-instigator.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/123-scar-shameless-firebrand.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/characters/194-tinker-bell-tiny-tactician.ts",
+      "packages/lorcana/lorcana-cards/src/cards/001/items/135-shield-of-virtue.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/030-painting-the-roses-red.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/096-bibbidi-bobbidi-boo.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/097-bounce.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/098-hypnotize.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/099-improvise.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/129-go-the-distance.ts",
+      "packages/lorcana/lorcana-cards/src/cards/002/actions/130-teeth-and-ambitions.ts"
+    ],
+    "shuffle-into-deck": [
+      "packages/lorcana/lorcana-cards/src/cards/003/characters/003-chernabog-evildoer.ts",
+      "packages/lorcana/lorcana-cards/src/cards/012/items/067-dunbroch-family-tapestry.ts"
+    ],
+    "stat-floor": [
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/112-elisa-maza-transformed-gargoyle.ts"
+    ],
+    "suppress-ability": [
+      "packages/lorcana/lorcana-cards/src/cards/011/characters/187-angela-night-warrior.ts"
+    ],
+    "win-condition-modification": [
+      "packages/lorcana/lorcana-cards/src/cards/007/characters/073-donald-duck-flustered-sorcerer.ts"
+    ]
+  }
+}

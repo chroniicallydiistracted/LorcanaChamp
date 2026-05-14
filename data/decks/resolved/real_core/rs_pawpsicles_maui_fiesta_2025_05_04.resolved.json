@@ -1,0 +1,1026 @@
+{
+  "archetype": "R/B Pawpsicles",
+  "cards": [
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "gPY"
+      ],
+      "canonical_id": "ci_gPY",
+      "card_id": "gPY",
+      "card_type": "character",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Tipo - Growing Son",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Tipo",
+      "raw_name": "Tipo - Growing Son",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Growing Son"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "1sm"
+      ],
+      "canonical_id": "ci_1sm",
+      "card_id": "1sm",
+      "card_type": "character",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Gramma Tala - Keeper of Ancient Stories",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Gramma Tala",
+      "raw_name": "Gramma Tala - Keeper of Ancient Stories",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry",
+        "unsupported_trigger"
+      ],
+      "version": "Keeper of Ancient Stories"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 2
+      },
+      "candidate_ids": [
+        "bes",
+        "9q7"
+      ],
+      "canonical_id": "ci_g8i",
+      "card_id": "bes",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "Maui - Hero to All",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "RECKLESS",
+          "raw": {
+            "_source_index": 1,
+            "helper": "reckless",
+            "id": "helper-ref-1",
+            "keyword": "Reckless",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Reckless\",\n  text: \"Reckless\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "reckless",
+            "rawReference": "reckless",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/reckless.ts",
+            "text": "Reckless",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        },
+        {
+          "keyword": "RUSH",
+          "raw": {
+            "_source_index": 0,
+            "helper": "rush",
+            "id": "helper-ref-0",
+            "keyword": "Rush",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Rush\",\n  text: \"Rush\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "rush",
+            "rawReference": "rush",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/rush.ts",
+            "text": "Rush",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Maui",
+      "raw_name": "Maui - Hero to All",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Hero to All"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 2
+      },
+      "candidate_ids": [
+        "HTB"
+      ],
+      "canonical_id": "ci_HTB",
+      "card_id": "HTB",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 6,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-lore": 2,
+        "optional": 2
+      },
+      "full_name": "Maui - Half-Shark",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "EVASIVE",
+          "raw": {
+            "_source_index": 0,
+            "helper": "evasive",
+            "id": "helper-ref-0",
+            "keyword": "Evasive",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Evasive\",\n  text: \"Evasive\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "evasive",
+            "rawReference": "evasive",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/evasive.ts",
+            "text": "Evasive",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Maui",
+      "raw_name": "Maui - Half-Shark",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "challenge": 1,
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected",
+        "unsupported_trigger_on:complex_filter"
+      ],
+      "version": "Half-Shark"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 2
+      },
+      "candidate_ids": [
+        "c1L",
+        "QQZ"
+      ],
+      "canonical_id": "ci_rx2",
+      "card_id": "c1L",
+      "card_type": "character",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 6,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2,
+        "return-to-hand": 2
+      },
+      "full_name": "Tamatoa - Happy as a Clam",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Tamatoa",
+      "raw_name": "Tamatoa - Happy as a Clam",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1,
+        "quest": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_effect:return-to-hand",
+        "unsupported_target:chosen",
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Happy as a Clam"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "A15",
+        "VLy"
+      ],
+      "canonical_id": "ci_bdj",
+      "card_id": "A15",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 8,
+      "cost_type_counts": {
+        "ink": 1
+      },
+      "count": 3,
+      "effect_type_counts": {
+        "banish": 2
+      },
+      "full_name": "Sisu - Empowered Sibling",
+      "ink": "ruby",
+      "inkable": false,
+      "keyword_defs": [
+        {
+          "keyword": "SHIFT",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              6
+            ],
+            "cost": {
+              "ink": 6
+            },
+            "helper": "shift",
+            "keyword": "Shift",
+            "rawExpression": "shift(6)",
+            "rawHelper": "shift(6)",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": 6
+        }
+      ],
+      "name": "Sisu",
+      "raw_name": "Sisu - Empowered Sibling",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "keyword:SHIFT",
+        "unsupported_cost:ink",
+        "unsupported_effect:banish",
+        "unsupported_target:all",
+        "unsupported_trigger"
+      ],
+      "version": "Empowered Sibling"
+    },
+    {
+      "ability_type_counts": {
+        "activated": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "VrY"
+      ],
+      "canonical_id": "ci_VrY",
+      "card_id": "VrY",
+      "card_type": "item",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {
+        "banishSelf": 1
+      },
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2,
+        "remove-damage": 2
+      },
+      "full_name": "Pawpsicle",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Pawpsicle",
+      "raw_name": "Pawpsicle",
+      "raw_type": "item",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_activated_ability",
+        "unsupported_cost:banishSelf",
+        "unsupported_trigger"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "activated": 2
+      },
+      "candidate_ids": [
+        "chG"
+      ],
+      "canonical_id": "ci_chG",
+      "card_id": "chG",
+      "card_type": "item",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {
+        "has-named-character": 1
+      },
+      "cost": 3,
+      "cost_type_counts": {
+        "exert": 2,
+        "ink": 1
+      },
+      "count": 2,
+      "effect_type_counts": {
+        "choice": 4
+      },
+      "full_name": "Maui's Fish Hook",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Maui's Fish Hook",
+      "raw_name": "Maui's Fish Hook",
+      "raw_type": "item",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_activated_ability",
+        "unsupported_cost:ink"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "GGr",
+        "Ylr"
+      ],
+      "canonical_id": "ci_w1L",
+      "card_id": "GGr",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Develop Your Brain",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Develop Your Brain",
+      "raw_name": "Develop Your Brain",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_choice",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "EfC"
+      ],
+      "canonical_id": "ci_EfC",
+      "card_id": "EfC",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Sail the Azurite Sea",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Sail the Azurite Sea",
+      "raw_name": "Sail the Azurite Sea",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "Dub"
+      ],
+      "canonical_id": "ci_Dub",
+      "card_id": "Dub",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Vision of the Future",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Vision of the Future",
+      "raw_name": "Vision of the Future",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_choice",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "eF8"
+      ],
+      "canonical_id": "ci_eF8",
+      "card_id": "eF8",
+      "card_type": "action",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "banish": 2
+      },
+      "full_name": "Brawl",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Brawl",
+      "raw_name": "Brawl",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_targeting",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_effect:banish",
+        "unsupported_target:chosen"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "r73"
+      ],
+      "canonical_id": "ci_r73",
+      "card_id": "r73",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "How Far I'll Go",
+      "ink": "sapphire",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "How Far I'll Go",
+      "raw_name": "How Far I'll Go",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_choice",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "k7r",
+        "rJQ"
+      ],
+      "canonical_id": "ci_rfx",
+      "card_id": "k7r",
+      "card_type": "action",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 6,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "A Pirate\u2019s Life",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "A Pirate\u2019s Life",
+      "raw_name": "A Pirate's Life",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "4Sx"
+      ],
+      "canonical_id": "ci_4Sx",
+      "card_id": "4Sx",
+      "card_type": "action",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 7,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "banish": 2
+      },
+      "full_name": "Be Prepared",
+      "ink": "ruby",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Be Prepared",
+      "raw_name": "Be Prepared",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_targeting",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_effect:banish",
+        "unsupported_target:ALL_CHARACTERS"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {},
+      "candidate_ids": [
+        "lTr"
+      ],
+      "canonical_id": "ci_lTr",
+      "card_id": "lTr",
+      "card_type": "location",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "McDuck Manor - Scrooge's Mansion",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "McDuck Manor",
+      "raw_name": "McDuck Manor - Scrooge's Mansion",
+      "raw_type": "location",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "raw_preserved",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Scrooge's Mansion"
+    }
+  ],
+  "deck_total_declared": 60,
+  "deck_total_resolved": 60,
+  "event": "Set Championship - Jamaica Card Store",
+  "event_date": "2025-05-04",
+  "format": "core_constructed",
+  "id": "rs_pawpsicles_maui_fiesta_2025_05_04",
+  "mapping_summary": {
+    "best_use": "coverage_discovery",
+    "deck_id": "rs_pawpsicles_maui_fiesta_2025_05_04",
+    "executable_copies": 16,
+    "executable_unique_cards": 4,
+    "mapped_not_executable_copies": 23,
+    "mapped_not_executable_unique_cards": 6,
+    "name": "Maui fiesta",
+    "playability": "partially_executable",
+    "recommended_engine_work": [
+      {
+        "affected_copies": 42,
+        "affected_decks": 1,
+        "affected_unique_cards": 11,
+        "category": "other_source_execution"
+      },
+      {
+        "affected_copies": 23,
+        "affected_decks": 1,
+        "affected_unique_cards": 6,
+        "category": "real_bag_and_triggers"
+      },
+      {
+        "affected_copies": 15,
+        "affected_decks": 1,
+        "affected_unique_cards": 5,
+        "category": "activated_abilities"
+      },
+      {
+        "affected_copies": 15,
+        "affected_decks": 1,
+        "affected_unique_cards": 4,
+        "category": "target_choice_prompts"
+      },
+      {
+        "affected_copies": 15,
+        "affected_decks": 1,
+        "affected_unique_cards": 4,
+        "category": "scry_search_reveal"
+      },
+      {
+        "affected_copies": 3,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "shift"
+      }
+    ],
+    "resolved_unique_cards": 16,
+    "schema_version": 1,
+    "top_blockers_by_copies": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 23
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 15
+      },
+      {
+        "blocker": "unsupported_effect:scry",
+        "count": 15
+      },
+      {
+        "blocker": "unsupported_effect:banish",
+        "count": 11
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 8
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 8
+      },
+      {
+        "blocker": "unsupported_activated_ability",
+        "count": 6
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 5
+      },
+      {
+        "blocker": "unsupported_cost:banishSelf",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:return-to-hand",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_target:ALL_CHARACTERS",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_on:complex_filter",
+        "count": 4
+      },
+      {
+        "blocker": "keyword:SHIFT",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_target:all",
+        "count": 3
+      }
+    ],
+    "top_blockers_by_unique_cards": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 6
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:scry",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:banish",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_activated_ability",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 2
+      },
+      {
+        "blocker": "keyword:SHIFT",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_cost:banishSelf",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:return-to-hand",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_target:ALL_CHARACTERS",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_target:all",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_trigger_on:complex_filter",
+        "count": 1
+      }
+    ],
+    "total_cards": 60,
+    "unique_cards": 16,
+    "unresolved_unique_cards": 0,
+    "unsupported_copies": 44,
+    "unsupported_unique_cards": 6,
+    "valid": true
+  },
+  "name": "Maui fiesta",
+  "placement": "1st",
+  "playability": "partially_executable",
+  "playable_decklist_ids": [
+    "gPY",
+    "gPY",
+    "gPY",
+    "gPY",
+    "1sm",
+    "1sm",
+    "1sm",
+    "1sm",
+    "bes",
+    "bes",
+    "bes",
+    "bes",
+    "HTB",
+    "HTB",
+    "HTB",
+    "HTB",
+    "c1L",
+    "c1L",
+    "c1L",
+    "c1L",
+    "A15",
+    "A15",
+    "A15",
+    "VrY",
+    "VrY",
+    "VrY",
+    "VrY",
+    "chG",
+    "chG",
+    "GGr",
+    "GGr",
+    "GGr",
+    "EfC",
+    "EfC",
+    "EfC",
+    "EfC",
+    "Dub",
+    "Dub",
+    "Dub",
+    "Dub",
+    "eF8",
+    "eF8",
+    "eF8",
+    "eF8",
+    "r73",
+    "r73",
+    "r73",
+    "r73",
+    "k7r",
+    "k7r",
+    "k7r",
+    "k7r",
+    "4Sx",
+    "4Sx",
+    "4Sx",
+    "4Sx",
+    "lTr",
+    "lTr",
+    "lTr",
+    "lTr"
+  ],
+  "player": "Davide Restivo",
+  "purpose": [
+    "items",
+    "ramp",
+    "control",
+    "locations"
+  ],
+  "raw_ink_colors": [
+    "ruby",
+    "sapphire"
+  ],
+  "resolved_ink_colors": [
+    "ruby",
+    "sapphire"
+  ],
+  "schema_version": 1,
+  "source_deck_id": 470831,
+  "source_site": "inkdecks",
+  "validation": {
+    "ambiguous_cards": [],
+    "banned_cards": [],
+    "copy_limit_violations": [],
+    "deck_total_actual": 60,
+    "deck_total_declared": 60,
+    "errors": [],
+    "resolved_ink_colors": [
+      "ruby",
+      "sapphire"
+    ],
+    "schema_version": 1,
+    "unknown_legality_cards": [
+      "A Pirate\u2019s Life",
+      "Be Prepared",
+      "Brawl",
+      "Develop Your Brain",
+      "Gramma Tala - Keeper of Ancient Stories",
+      "How Far I'll Go",
+      "Maui - Half-Shark",
+      "Maui - Hero to All",
+      "Maui's Fish Hook",
+      "McDuck Manor - Scrooge's Mansion",
+      "Pawpsicle",
+      "Sail the Azurite Sea",
+      "Sisu - Empowered Sibling",
+      "Tamatoa - Happy as a Clam",
+      "Tipo - Growing Son",
+      "Vision of the Future"
+    ],
+    "unresolved_cards": [],
+    "valid": true,
+    "warnings": []
+  }
+}

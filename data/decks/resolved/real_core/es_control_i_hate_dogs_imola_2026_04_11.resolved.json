@@ -1,0 +1,1136 @@
+{
+  "archetype": "E/B Control",
+  "cards": [
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "EZO"
+      ],
+      "canonical_id": "ci_EZO",
+      "card_id": "EZO",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Clarabelle - Clumsy Guest",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Clarabelle",
+      "raw_name": "Clarabelle - Clumsy Guest",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Clumsy Guest"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "gPY"
+      ],
+      "canonical_id": "ci_gPY",
+      "card_id": "gPY",
+      "card_type": "character",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Tipo - Growing Son",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Tipo",
+      "raw_name": "Tipo - Growing Son",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Growing Son"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1
+      },
+      "candidate_ids": [
+        "ccM"
+      ],
+      "canonical_id": "ci_ccM",
+      "card_id": "ccM",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "Prince Phillip - Royal Explorer",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "WARD",
+          "raw": {
+            "_source_index": 0,
+            "helper": "ward",
+            "id": "helper-ref-0",
+            "keyword": "Ward",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Ward\",\n  text: \"Ward\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "ward",
+            "rawReference": "ward",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/ward.ts",
+            "text": "Ward",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Prince Phillip",
+      "raw_name": "Prince Phillip - Royal Explorer",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Royal Explorer"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "J1F",
+        "XnU"
+      ],
+      "canonical_id": "ci_fz8",
+      "card_id": "J1F",
+      "card_type": "character",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {
+        "turn-metric": 1
+      },
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Cinderella - Dream Come True",
+      "ink": "sapphire",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Cinderella",
+      "raw_name": "Cinderella - Dream Come True",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "end-turn": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Dream Come True"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 2
+      },
+      "candidate_ids": [
+        "fS0",
+        "op2"
+      ],
+      "canonical_id": "ci_rpq",
+      "card_id": "fS0",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {
+        "ink": 1
+      },
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 4
+      },
+      "full_name": "Donald Duck - Perfect Gentleman",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "SHIFT",
+          "raw": {
+            "_source_index": 0,
+            "cost": {
+              "ink": 3
+            },
+            "id": "wjj-1",
+            "keyword": "Shift",
+            "rawExpression": null,
+            "text": "Shift 3 {I}",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": 3
+        }
+      ],
+      "name": "Donald Duck",
+      "raw_name": "Donald Duck - Perfect Gentleman",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_cost",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "start-turn": 2
+      },
+      "unsupported_blockers": [
+        "keyword:SHIFT",
+        "unsupported_cost:ink",
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Perfect Gentleman"
+    },
+    {
+      "ability_type_counts": {
+        "static": 1
+      },
+      "candidate_ids": [
+        "wRv",
+        "uQE"
+      ],
+      "canonical_id": "ci_sp0",
+      "card_id": "wRv",
+      "card_type": "character",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 2,
+      "effect_type_counts": {
+        "grant-discard-inkability": 2
+      },
+      "full_name": "Moana - Curious Explorer",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Moana",
+      "raw_name": "Moana - Curious Explorer",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_engine_mechanic",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_effect:grant-discard-inkability",
+        "unsupported_static_effect"
+      ],
+      "version": "Curious Explorer"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 2
+      },
+      "candidate_ids": [
+        "n4l",
+        "a2V"
+      ],
+      "canonical_id": "ci_Jdb",
+      "card_id": "n4l",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 6,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "gain-keyword": 4
+      },
+      "full_name": "John Silver - Alien Pirate",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "John Silver",
+      "raw_name": "John Silver - Alien Pirate",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1,
+        "quest": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Alien Pirate"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "RGJ",
+        "QGJ"
+      ],
+      "canonical_id": "ci_fF6",
+      "card_id": "RGJ",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {
+        "comparison": 1
+      },
+      "cost": 7,
+      "cost_type_counts": {
+        "ink": 1
+      },
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Clarabelle - Light on Her Hooves",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "SHIFT",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              5
+            ],
+            "cost": {
+              "ink": 5
+            },
+            "helper": "shift",
+            "keyword": "Shift",
+            "rawExpression": "shift(5)",
+            "rawHelper": "shift(5)",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": 5
+        }
+      ],
+      "name": "Clarabelle",
+      "raw_name": "Clarabelle - Light on Her Hooves",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "end-turn": 1
+      },
+      "unsupported_blockers": [
+        "keyword:SHIFT",
+        "unsupported_cost:ink",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Light on Her Hooves"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 2,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "Z2r",
+        "5fm"
+      ],
+      "canonical_id": "ci_UBa",
+      "card_id": "Z2r",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 9,
+      "cost_type_counts": {
+        "ink": 1
+      },
+      "count": 4,
+      "effect_type_counts": {
+        "banish": 2
+      },
+      "full_name": "Prince Phillip - Vanquisher of Foes",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "EVASIVE",
+          "raw": {
+            "_source_index": 1,
+            "helper": "evasive",
+            "id": "helper-ref-1",
+            "keyword": "Evasive",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Evasive\",\n  text: \"Evasive\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "evasive",
+            "rawReference": "evasive",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/evasive.ts",
+            "text": "Evasive",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        },
+        {
+          "keyword": "SHIFT",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              6
+            ],
+            "cost": {
+              "ink": 6
+            },
+            "helper": "shift",
+            "keyword": "Shift",
+            "rawExpression": "shift(6)",
+            "rawHelper": "shift(6)",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": 6
+        }
+      ],
+      "name": "Prince Phillip",
+      "raw_name": "Prince Phillip - Vanquisher of Foes",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "keyword:SHIFT",
+        "unsupported_cost:ink",
+        "unsupported_effect:banish",
+        "unsupported_target:all",
+        "unsupported_trigger"
+      ],
+      "version": "Vanquisher of Foes"
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "GGr",
+        "Ylr"
+      ],
+      "canonical_id": "ci_w1L",
+      "card_id": "GGr",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Develop Your Brain",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Develop Your Brain",
+      "raw_name": "Develop Your Brain",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_choice",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "EPR",
+        "9XU"
+      ],
+      "canonical_id": "ci_nRj",
+      "card_id": "EPR",
+      "card_type": "action",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 2,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Improvise",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Improvise",
+      "raw_name": "Improvise",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "EfC"
+      ],
+      "canonical_id": "ci_EfC",
+      "card_id": "EfC",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Sail the Azurite Sea",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Sail the Azurite Sea",
+      "raw_name": "Sail the Azurite Sea",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "Dub"
+      ],
+      "canonical_id": "ci_Dub",
+      "card_id": "Dub",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Vision of the Future",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Vision of the Future",
+      "raw_name": "Vision of the Future",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_choice",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "NRZ"
+      ],
+      "canonical_id": "ci_NRZ",
+      "card_id": "NRZ",
+      "card_type": "action",
+      "colors": [
+        "emerald",
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 2,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Ink Geyser",
+      "ink": "emerald",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Ink Geyser",
+      "raw_name": "Ink Geyser",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "Rc1",
+        "nis"
+      ],
+      "canonical_id": "ci_Ggc",
+      "card_id": "Rc1",
+      "card_type": "action",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "put-damage": 2
+      },
+      "full_name": "Malicious, Mean, and Scary",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Malicious, Mean, and Scary",
+      "raw_name": "Malicious, Mean, and Scary",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "VGx",
+        "2E9"
+      ],
+      "canonical_id": "ci_12N",
+      "card_id": "VGx",
+      "card_type": "action",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 1,
+      "effect_type_counts": {
+        "return-to-hand": 2
+      },
+      "full_name": "Mother Knows Best",
+      "ink": "emerald",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Mother Knows Best",
+      "raw_name": "Mother Knows Best",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "unknown": 1
+      },
+      "candidate_ids": [
+        "roA",
+        "huo"
+      ],
+      "canonical_id": "ci_IPh",
+      "card_id": "roA",
+      "card_type": "action",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "You're Welcome",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "You're Welcome",
+      "raw_name": "You're Welcome",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_engine_mechanic",
+      "source_mapping_status": "unsupported",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1,
+        "keyword": 1
+      },
+      "candidate_ids": [
+        "EhX",
+        "uCP"
+      ],
+      "canonical_id": "ci_BAQ",
+      "card_id": "EhX",
+      "card_type": "action",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 8,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "put-on-bottom": 2
+      },
+      "full_name": "Under the Sea",
+      "ink": "emerald",
+      "inkable": false,
+      "keyword_defs": [
+        {
+          "keyword": "SING_TOGETHER",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              8
+            ],
+            "helper": "singTogether",
+            "keyword": "Sing Together",
+            "rawExpression": "singTogether(8)",
+            "rawHelper": "singTogether(8)",
+            "type": "keyword",
+            "value": 8
+          },
+          "target_name": null,
+          "value": 8
+        }
+      ],
+      "name": "Under the Sea",
+      "raw_name": "Under the Sea",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "keyword:SING_TOGETHER",
+        "unsupported_choice",
+        "unsupported_effect:put-on-bottom",
+        "unsupported_target:all"
+      ],
+      "version": ""
+    }
+  ],
+  "deck_total_declared": 60,
+  "deck_total_resolved": 60,
+  "event": "LoreLeague Invitational - Imola Qualifier",
+  "event_date": "2026-04-11",
+  "format": "core_constructed",
+  "id": "es_control_i_hate_dogs_imola_2026_04_11",
+  "mapping_summary": {
+    "best_use": "coverage_discovery",
+    "deck_id": "es_control_i_hate_dogs_imola_2026_04_11",
+    "executable_copies": 17,
+    "executable_unique_cards": 6,
+    "mapped_not_executable_copies": 18,
+    "mapped_not_executable_unique_cards": 5,
+    "name": "I HATE DOGS",
+    "playability": "partially_executable",
+    "recommended_engine_work": [
+      {
+        "affected_copies": 34,
+        "affected_decks": 1,
+        "affected_unique_cards": 10,
+        "category": "other_source_execution"
+      },
+      {
+        "affected_copies": 19,
+        "affected_decks": 1,
+        "affected_unique_cards": 5,
+        "category": "real_bag_and_triggers"
+      },
+      {
+        "affected_copies": 12,
+        "affected_decks": 1,
+        "affected_unique_cards": 3,
+        "category": "activated_abilities"
+      },
+      {
+        "affected_copies": 12,
+        "affected_decks": 1,
+        "affected_unique_cards": 3,
+        "category": "shift"
+      },
+      {
+        "affected_copies": 7,
+        "affected_decks": 1,
+        "affected_unique_cards": 2,
+        "category": "target_choice_prompts"
+      },
+      {
+        "affected_copies": 7,
+        "affected_decks": 1,
+        "affected_unique_cards": 2,
+        "category": "scry_search_reveal"
+      },
+      {
+        "affected_copies": 3,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "singer_songs"
+      },
+      {
+        "affected_copies": 2,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "static_effect_registry"
+      }
+    ],
+    "resolved_unique_cards": 18,
+    "schema_version": 1,
+    "top_blockers_by_copies": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 19
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 15
+      },
+      {
+        "blocker": "keyword:SHIFT",
+        "count": 12
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 12
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 10
+      },
+      {
+        "blocker": "unsupported_effect:scry",
+        "count": 7
+      },
+      {
+        "blocker": "unsupported_target:all",
+        "count": 7
+      },
+      {
+        "blocker": "unsupported_effect:banish",
+        "count": 4
+      },
+      {
+        "blocker": "keyword:SING_TOGETHER",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_effect:put-on-bottom",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_effect:grant-discard-inkability",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 2
+      }
+    ],
+    "top_blockers_by_unique_cards": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 5
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 4
+      },
+      {
+        "blocker": "keyword:SHIFT",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_effect:scry",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_target:all",
+        "count": 2
+      },
+      {
+        "blocker": "keyword:SING_TOGETHER",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:banish",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:grant-discard-inkability",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:put-on-bottom",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 1
+      }
+    ],
+    "total_cards": 60,
+    "unique_cards": 18,
+    "unresolved_unique_cards": 0,
+    "unsupported_copies": 43,
+    "unsupported_unique_cards": 7,
+    "valid": true
+  },
+  "name": "I HATE DOGS",
+  "placement": "1st",
+  "playability": "partially_executable",
+  "playable_decklist_ids": [
+    "EZO",
+    "EZO",
+    "EZO",
+    "EZO",
+    "gPY",
+    "gPY",
+    "gPY",
+    "gPY",
+    "ccM",
+    "ccM",
+    "ccM",
+    "ccM",
+    "J1F",
+    "J1F",
+    "J1F",
+    "J1F",
+    "fS0",
+    "fS0",
+    "fS0",
+    "fS0",
+    "wRv",
+    "wRv",
+    "n4l",
+    "n4l",
+    "n4l",
+    "RGJ",
+    "RGJ",
+    "RGJ",
+    "RGJ",
+    "Z2r",
+    "Z2r",
+    "Z2r",
+    "Z2r",
+    "GGr",
+    "GGr",
+    "GGr",
+    "EPR",
+    "EPR",
+    "EfC",
+    "EfC",
+    "EfC",
+    "EfC",
+    "Dub",
+    "Dub",
+    "Dub",
+    "Dub",
+    "NRZ",
+    "NRZ",
+    "Rc1",
+    "Rc1",
+    "Rc1",
+    "Rc1",
+    "VGx",
+    "roA",
+    "roA",
+    "roA",
+    "roA",
+    "EhX",
+    "EhX",
+    "EhX"
+  ],
+  "player": "Luca Ramazzotti",
+  "purpose": [
+    "meta",
+    "control",
+    "songs",
+    "ramp"
+  ],
+  "raw_ink_colors": [
+    "emerald",
+    "sapphire"
+  ],
+  "resolved_ink_colors": [
+    "emerald",
+    "sapphire"
+  ],
+  "schema_version": 1,
+  "source_deck_id": 509383,
+  "source_site": "inkdecks",
+  "validation": {
+    "ambiguous_cards": [],
+    "banned_cards": [],
+    "copy_limit_violations": [],
+    "deck_total_actual": 60,
+    "deck_total_declared": 60,
+    "errors": [],
+    "resolved_ink_colors": [
+      "emerald",
+      "sapphire"
+    ],
+    "schema_version": 1,
+    "unknown_legality_cards": [
+      "Cinderella - Dream Come True",
+      "Clarabelle - Clumsy Guest",
+      "Clarabelle - Light on Her Hooves",
+      "Develop Your Brain",
+      "Donald Duck - Perfect Gentleman",
+      "Improvise",
+      "Ink Geyser",
+      "John Silver - Alien Pirate",
+      "Malicious, Mean, and Scary",
+      "Moana - Curious Explorer",
+      "Mother Knows Best",
+      "Prince Phillip - Royal Explorer",
+      "Prince Phillip - Vanquisher of Foes",
+      "Sail the Azurite Sea",
+      "Tipo - Growing Son",
+      "Under the Sea",
+      "Vision of the Future",
+      "You're Welcome"
+    ],
+    "unresolved_cards": [],
+    "valid": true,
+    "warnings": []
+  }
+}

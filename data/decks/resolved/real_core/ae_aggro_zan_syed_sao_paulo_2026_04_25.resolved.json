@@ -1,0 +1,1081 @@
+{
+  "archetype": "A/E Aggro",
+  "cards": [
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "3V0"
+      ],
+      "canonical_id": "ci_3V0",
+      "card_id": "3V0",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Bobby Zimuruski - Spray Cheese Kid",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Bobby Zimuruski",
+      "raw_name": "Bobby Zimuruski - Spray Cheese Kid",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Spray Cheese Kid"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "oXH"
+      ],
+      "canonical_id": "ci_oXH",
+      "card_id": "oXH",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 2,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Finnick - Tiny Terror",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Finnick",
+      "raw_name": "Finnick - Tiny Terror",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Tiny Terror"
+    },
+    {
+      "ability_type_counts": {
+        "static": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "oNE",
+        "PkF"
+      ],
+      "canonical_id": "ci_Jim",
+      "card_id": "oNE",
+      "card_type": "character",
+      "colors": [
+        "amber",
+        "emerald"
+      ],
+      "condition_type_counts": {
+        "stat-threshold": 1
+      },
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "modify-stat": 4
+      },
+      "full_name": "Lady - Decisive Dog",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Lady",
+      "raw_name": "Lady - Decisive Dog",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_static_effect",
+        "unsupported_trigger_on:complex_filter"
+      ],
+      "version": "Decisive Dog"
+    },
+    {
+      "ability_type_counts": {
+        "static": 1
+      },
+      "candidate_ids": [
+        "8jF"
+      ],
+      "canonical_id": "ci_8jF",
+      "card_id": "8jF",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {
+        "has-named-character": 1
+      },
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "modify-stat": 2
+      },
+      "full_name": "Lady - Elegant Spaniel",
+      "ink": "emerald",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Lady",
+      "raw_name": "Lady - Elegant Spaniel",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_static_effect"
+      ],
+      "version": "Elegant Spaniel"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "dQB"
+      ],
+      "canonical_id": "ci_dQB",
+      "card_id": "dQB",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "modify-stat": 2
+      },
+      "full_name": "Rhino - One-Sixteenth Wolf",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Rhino",
+      "raw_name": "Rhino - One-Sixteenth Wolf",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "One-Sixteenth Wolf"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 2
+      },
+      "candidate_ids": [
+        "bN7",
+        "05w"
+      ],
+      "canonical_id": "ci_Qej",
+      "card_id": "bN7",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "cost-reduction": 4
+      },
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "ink": "amber",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Grandmother Willow",
+      "raw_name": "Grandmother Willow - Ancient Advisor",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1,
+        "start-turn": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Ancient Advisor"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "ZCd"
+      ],
+      "canonical_id": "ci_ZCd",
+      "card_id": "ZCd",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Lilo - Escape Artist",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Lilo",
+      "raw_name": "Lilo - Escape Artist",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_trigger",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "start-turn": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Escape Artist"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "65q"
+      ],
+      "canonical_id": "ci_65q",
+      "card_id": "65q",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Mowgli - Man Cub",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Mowgli",
+      "raw_name": "Mowgli - Man Cub",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Man Cub"
+    },
+    {
+      "ability_type_counts": {
+        "static": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "XWF",
+        "4o7"
+      ],
+      "canonical_id": "ci_DSV",
+      "card_id": "XWF",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {
+        "has-named-character": 1
+      },
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "cost-reduction": 2,
+        "modify-stat": 2
+      },
+      "full_name": "Tramp - Enterprising Dog",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Tramp",
+      "raw_name": "Tramp - Enterprising Dog",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_effect:modify-stat",
+        "unsupported_static_effect",
+        "unsupported_target:chosen",
+        "unsupported_trigger"
+      ],
+      "version": "Enterprising Dog"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "JSz",
+        "AY1"
+      ],
+      "canonical_id": "ci_MxG",
+      "card_id": "JSz",
+      "card_type": "character",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 1,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Ursula - Deceiver",
+      "ink": "emerald",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Ursula",
+      "raw_name": "Ursula - Deceiver",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Deceiver"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "dBq"
+      ],
+      "canonical_id": "ci_dBq",
+      "card_id": "dBq",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Nani - Stage Manager",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Nani",
+      "raw_name": "Nani - Stage Manager",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry",
+        "unsupported_trigger"
+      ],
+      "version": "Stage Manager"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "Yv7"
+      ],
+      "canonical_id": "ci_Yv7",
+      "card_id": "Yv7",
+      "card_type": "character",
+      "colors": [
+        "amber",
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {
+        "ink": 1
+      },
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Lady - Miss Park Avenue",
+      "ink": "amber",
+      "inkable": false,
+      "keyword_defs": [
+        {
+          "keyword": "SHIFT",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              3
+            ],
+            "cost": {
+              "ink": 3
+            },
+            "helper": "shift",
+            "keyword": "Shift",
+            "rawExpression": "shift(3)",
+            "rawHelper": "shift(3)",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": 3
+        }
+      ],
+      "name": "Lady",
+      "raw_name": "Lady - Miss Park Avenue",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "keyword:SHIFT",
+        "unsupported_cost:ink",
+        "unsupported_trigger"
+      ],
+      "version": "Miss Park Avenue"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "M9y"
+      ],
+      "canonical_id": "ci_M9y",
+      "card_id": "M9y",
+      "card_type": "character",
+      "colors": [
+        "amber",
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 6,
+      "cost_type_counts": {
+        "ink": 1
+      },
+      "count": 3,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Tramp - Dapper Rascal",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "SHIFT",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              4
+            ],
+            "cost": {
+              "ink": 4
+            },
+            "helper": "shift",
+            "keyword": "Shift",
+            "rawExpression": "shift(4)",
+            "rawHelper": "shift(4)",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": 4
+        }
+      ],
+      "name": "Tramp",
+      "raw_name": "Tramp - Dapper Rascal",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_cost",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "banish": 1
+      },
+      "unsupported_blockers": [
+        "keyword:SHIFT",
+        "unsupported_cost:ink",
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Dapper Rascal"
+    },
+    {
+      "ability_type_counts": {
+        "static": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "52C"
+      ],
+      "canonical_id": "ci_52C",
+      "card_id": "52C",
+      "card_type": "character",
+      "colors": [
+        "amber",
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 7,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "cost-reduction": 2,
+        "optional": 2
+      },
+      "full_name": "Tramp - Street-Smart Dog",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Tramp",
+      "raw_name": "Tramp - Street-Smart Dog",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_static_effect",
+        "unsupported_trigger"
+      ],
+      "version": "Street-Smart Dog"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "TUy"
+      ],
+      "canonical_id": "ci_TUy",
+      "card_id": "TUy",
+      "card_type": "item",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 2,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Emerald Chromicon",
+      "ink": "emerald",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Emerald Chromicon",
+      "raw_name": "Emerald Chromicon",
+      "raw_type": "item",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_trigger",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "banish": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "VOg"
+      ],
+      "canonical_id": "ci_VOg",
+      "card_id": "VOg",
+      "card_type": "action",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Della's Moon Lullaby",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Della's Moon Lullaby",
+      "raw_name": "Della's Moon Lullaby",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1,
+        "keyword": 1
+      },
+      "candidate_ids": [
+        "EhX",
+        "uCP"
+      ],
+      "canonical_id": "ci_BAQ",
+      "card_id": "EhX",
+      "card_type": "action",
+      "colors": [
+        "emerald"
+      ],
+      "condition_type_counts": {},
+      "cost": 8,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "put-on-bottom": 2
+      },
+      "full_name": "Under the Sea",
+      "ink": "emerald",
+      "inkable": false,
+      "keyword_defs": [
+        {
+          "keyword": "SING_TOGETHER",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              8
+            ],
+            "helper": "singTogether",
+            "keyword": "Sing Together",
+            "rawExpression": "singTogether(8)",
+            "rawHelper": "singTogether(8)",
+            "type": "keyword",
+            "value": 8
+          },
+          "target_name": null,
+          "value": 8
+        }
+      ],
+      "name": "Under the Sea",
+      "raw_name": "Under the Sea",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "keyword:SING_TOGETHER",
+        "unsupported_choice",
+        "unsupported_effect:put-on-bottom",
+        "unsupported_target:all"
+      ],
+      "version": ""
+    }
+  ],
+  "deck_total_declared": 60,
+  "deck_total_resolved": 60,
+  "event": "DLC - Disney Lorcana Challenge: S\u00e3o Paulo",
+  "event_date": "2026-04-25",
+  "format": "core_constructed",
+  "id": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+  "mapping_summary": {
+    "best_use": "coverage_discovery",
+    "deck_id": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+    "executable_copies": 4,
+    "executable_unique_cards": 1,
+    "mapped_not_executable_copies": 43,
+    "mapped_not_executable_unique_cards": 12,
+    "name": "Amber Emerald",
+    "playability": "partially_executable",
+    "recommended_engine_work": [
+      {
+        "affected_copies": 44,
+        "affected_decks": 1,
+        "affected_unique_cards": 13,
+        "category": "real_bag_and_triggers"
+      },
+      {
+        "affected_copies": 33,
+        "affected_decks": 1,
+        "affected_unique_cards": 9,
+        "category": "other_source_execution"
+      },
+      {
+        "affected_copies": 16,
+        "affected_decks": 1,
+        "affected_unique_cards": 4,
+        "category": "static_effect_registry"
+      },
+      {
+        "affected_copies": 8,
+        "affected_decks": 1,
+        "affected_unique_cards": 2,
+        "category": "target_choice_prompts"
+      },
+      {
+        "affected_copies": 7,
+        "affected_decks": 1,
+        "affected_unique_cards": 2,
+        "category": "activated_abilities"
+      },
+      {
+        "affected_copies": 7,
+        "affected_decks": 1,
+        "affected_unique_cards": 2,
+        "category": "shift"
+      },
+      {
+        "affected_copies": 4,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "singer_songs"
+      },
+      {
+        "affected_copies": 4,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "scry_search_reveal"
+      }
+    ],
+    "resolved_unique_cards": 17,
+    "schema_version": 1,
+    "top_blockers_by_copies": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 44
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 16
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 13
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 8
+      },
+      {
+        "blocker": "keyword:SHIFT",
+        "count": 7
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 7
+      },
+      {
+        "blocker": "keyword:SING_TOGETHER",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:modify-stat",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:put-on-bottom",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:scry",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_target:all",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_on:complex_filter",
+        "count": 4
+      }
+    ],
+    "top_blockers_by_unique_cards": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 13
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 4
+      },
+      {
+        "blocker": "keyword:SHIFT",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 2
+      },
+      {
+        "blocker": "keyword:SING_TOGETHER",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:modify-stat",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:put-on-bottom",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:scry",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_target:all",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_trigger_on:complex_filter",
+        "count": 1
+      }
+    ],
+    "total_cards": 60,
+    "unique_cards": 17,
+    "unresolved_unique_cards": 0,
+    "unsupported_copies": 56,
+    "unsupported_unique_cards": 4,
+    "valid": true
+  },
+  "name": "Amber Emerald",
+  "placement": "1st",
+  "playability": "partially_executable",
+  "playable_decklist_ids": [
+    "3V0",
+    "3V0",
+    "3V0",
+    "3V0",
+    "oXH",
+    "oXH",
+    "oNE",
+    "oNE",
+    "oNE",
+    "oNE",
+    "8jF",
+    "8jF",
+    "8jF",
+    "8jF",
+    "dQB",
+    "dQB",
+    "dQB",
+    "dQB",
+    "bN7",
+    "bN7",
+    "bN7",
+    "bN7",
+    "ZCd",
+    "ZCd",
+    "ZCd",
+    "ZCd",
+    "65q",
+    "65q",
+    "65q",
+    "65q",
+    "XWF",
+    "XWF",
+    "XWF",
+    "XWF",
+    "JSz",
+    "dBq",
+    "dBq",
+    "dBq",
+    "dBq",
+    "Yv7",
+    "Yv7",
+    "Yv7",
+    "Yv7",
+    "M9y",
+    "M9y",
+    "M9y",
+    "52C",
+    "52C",
+    "52C",
+    "52C",
+    "TUy",
+    "TUy",
+    "VOg",
+    "VOg",
+    "VOg",
+    "VOg",
+    "EhX",
+    "EhX",
+    "EhX",
+    "EhX"
+  ],
+  "player": "Zan Syed",
+  "purpose": [
+    "meta",
+    "aggro",
+    "lore_race",
+    "smoke"
+  ],
+  "raw_ink_colors": [
+    "amber",
+    "emerald"
+  ],
+  "resolved_ink_colors": [
+    "amber",
+    "emerald"
+  ],
+  "schema_version": 1,
+  "source_deck_id": 511064,
+  "source_site": "inkdecks",
+  "validation": {
+    "ambiguous_cards": [],
+    "banned_cards": [],
+    "copy_limit_violations": [],
+    "deck_total_actual": 60,
+    "deck_total_declared": 60,
+    "errors": [],
+    "resolved_ink_colors": [
+      "amber",
+      "emerald"
+    ],
+    "schema_version": 1,
+    "unknown_legality_cards": [
+      "Bobby Zimuruski - Spray Cheese Kid",
+      "Della's Moon Lullaby",
+      "Emerald Chromicon",
+      "Finnick - Tiny Terror",
+      "Grandmother Willow - Ancient Advisor",
+      "Lady - Decisive Dog",
+      "Lady - Elegant Spaniel",
+      "Lady - Miss Park Avenue",
+      "Lilo - Escape Artist",
+      "Mowgli - Man Cub",
+      "Nani - Stage Manager",
+      "Rhino - One-Sixteenth Wolf",
+      "Tramp - Dapper Rascal",
+      "Tramp - Enterprising Dog",
+      "Tramp - Street-Smart Dog",
+      "Under the Sea",
+      "Ursula - Deceiver"
+    ],
+    "unresolved_cards": [],
+    "valid": true,
+    "warnings": []
+  }
+}

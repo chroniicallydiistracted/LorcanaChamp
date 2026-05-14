@@ -1,0 +1,191 @@
+[
+  {
+    "card_type": "character",
+    "cost": 1,
+    "effects": [],
+    "full_name": "Amber Recruit",
+    "id": "amber_recruit",
+    "ink": "amber",
+    "inkable": true,
+    "keywords": [],
+    "lore": 1,
+    "move_cost": null,
+    "strength": 1,
+    "version": "demo-0.1",
+    "willpower": 2
+  },
+  {
+    "card_type": "character",
+    "cost": 2,
+    "effects": [],
+    "full_name": "Amber Guard",
+    "id": "amber_guard",
+    "ink": "amber",
+    "inkable": true,
+    "keywords": [
+      "BODYGUARD"
+    ],
+    "lore": 1,
+    "move_cost": null,
+    "strength": 1,
+    "version": "demo-0.1",
+    "willpower": 4
+  },
+  {
+    "card_type": "character",
+    "cost": 3,
+    "effects": [],
+    "full_name": "Amber Storyteller",
+    "id": "amber_storyteller",
+    "ink": "amber",
+    "inkable": true,
+    "keywords": [],
+    "lore": 3,
+    "move_cost": null,
+    "strength": 1,
+    "version": "demo-0.1",
+    "willpower": 3
+  },
+  {
+    "card_type": "character",
+    "cost": 2,
+    "effects": [],
+    "full_name": "Amethyst Scholar",
+    "id": "amethyst_scholar",
+    "ink": "amethyst",
+    "inkable": true,
+    "keywords": [],
+    "lore": 2,
+    "move_cost": null,
+    "strength": 1,
+    "version": "demo-0.1",
+    "willpower": 3
+  },
+  {
+    "card_type": "character",
+    "cost": 2,
+    "effects": [],
+    "full_name": "Emerald Scout",
+    "id": "emerald_scout",
+    "ink": "emerald",
+    "inkable": true,
+    "keywords": [
+      "EVASIVE"
+    ],
+    "lore": 1,
+    "move_cost": null,
+    "strength": 2,
+    "version": "demo-0.1",
+    "willpower": 2
+  },
+  {
+    "card_type": "character",
+    "cost": 3,
+    "effects": [],
+    "full_name": "Ruby Charger",
+    "id": "ruby_charger",
+    "ink": "ruby",
+    "inkable": true,
+    "keywords": [
+      "RUSH"
+    ],
+    "lore": 1,
+    "move_cost": null,
+    "strength": 3,
+    "version": "demo-0.1",
+    "willpower": 2
+  },
+  {
+    "card_type": "character",
+    "cost": 1,
+    "effects": [],
+    "full_name": "Sapphire Helper",
+    "id": "sapphire_helper",
+    "ink": "sapphire",
+    "inkable": true,
+    "keywords": [],
+    "lore": 1,
+    "move_cost": null,
+    "strength": 1,
+    "version": "demo-0.1",
+    "willpower": 1
+  },
+  {
+    "card_type": "character",
+    "cost": 2,
+    "effects": [],
+    "full_name": "Steel Bruiser",
+    "id": "steel_bruiser",
+    "ink": "steel",
+    "inkable": true,
+    "keywords": [],
+    "lore": 1,
+    "move_cost": null,
+    "strength": 3,
+    "version": "demo-0.1",
+    "willpower": 3
+  },
+  {
+    "card_type": "action",
+    "cost": 2,
+    "effects": [
+      {
+        "amount": 2,
+        "kind": "deal_damage",
+        "target": "opposing_character"
+      }
+    ],
+    "full_name": "Steel Cannon",
+    "id": "steel_cannon",
+    "ink": "steel",
+    "inkable": true,
+    "keywords": [],
+    "lore": null,
+    "move_cost": null,
+    "strength": null,
+    "version": "demo-0.1",
+    "willpower": null
+  },
+  {
+    "card_type": "action",
+    "cost": 2,
+    "effects": [
+      {
+        "amount": 2,
+        "kind": "draw",
+        "target": null
+      }
+    ],
+    "full_name": "Amethyst Insight",
+    "id": "amethyst_insight",
+    "ink": "amethyst",
+    "inkable": true,
+    "keywords": [],
+    "lore": null,
+    "move_cost": null,
+    "strength": null,
+    "version": "demo-0.1",
+    "willpower": null
+  },
+  {
+    "card_type": "action",
+    "cost": 4,
+    "effects": [
+      {
+        "amount": 2,
+        "kind": "gain_lore",
+        "target": null
+      }
+    ],
+    "full_name": "Ruby Lore Burst",
+    "id": "ruby_lore_burst",
+    "ink": "ruby",
+    "inkable": false,
+    "keywords": [],
+    "lore": null,
+    "move_cost": null,
+    "strength": null,
+    "version": "demo-0.1",
+    "willpower": null
+  }
+]

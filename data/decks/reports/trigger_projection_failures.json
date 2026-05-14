@@ -1,0 +1,2423 @@
+{
+  "failures": [
+    {
+      "ability_index": 1,
+      "card_id": "YW7",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_evasives_raging_storm_2026_02_23"
+      ],
+      "effect_kinds": [
+        "create-replacement-effect"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_effect:create-replacement-effect"
+      ],
+      "full_name": "Rafiki - Mystical Fighter",
+      "raw_snippet": "{'defender': {'filters': [{'classification': 'Hyena', 'type': 'has-classification'}]}, 'event': 'challenge', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "replacement_prevention"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "challenge",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "bN7",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_evasives_raging_storm_2026_02_23"
+      ],
+      "effect_kinds": [
+        "cost-reduction"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "bN7",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_evasives_raging_storm_2026_02_23"
+      ],
+      "effect_kinds": [
+        "cost-reduction"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "raw_snippet": "{'event': 'start-turn', 'on': 'YOU', 'timing': 'at'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "start-turn",
+      "trigger_on": "YOU"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "akT",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_evasives_raging_storm_2026_02_23"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:put-card-under"
+      ],
+      "full_name": "Cheshire Cat - Inexplicable",
+      "raw_snippet": "{'event': 'put-card-under', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "put-card-under",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "B2Y",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_evasives_raging_storm_2026_02_23"
+      ],
+      "effect_kinds": [
+        "draw"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Genie - Wish Fulfilled",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 2,
+      "card_id": "PX4",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_evasives_raging_storm_2026_02_23"
+      ],
+      "effect_kinds": [
+        "exert"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_CHARACTER"
+      ],
+      "full_name": "Elsa - The Fifth Spirit",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "chosen"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "YW7",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_lantern_zan_syed_2025_12_06"
+      ],
+      "effect_kinds": [
+        "create-replacement-effect"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_effect:create-replacement-effect"
+      ],
+      "full_name": "Rafiki - Mystical Fighter",
+      "raw_snippet": "{'defender': {'filters': [{'classification': 'Hyena', 'type': 'has-classification'}]}, 'event': 'challenge', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "replacement_prevention"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "challenge",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "z2N",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_lantern_zan_syed_2025_12_06"
+      ],
+      "effect_kinds": [
+        "gain-keyword"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:draw"
+      ],
+      "full_name": "Royal Guard - Octopus Soldier",
+      "raw_snippet": "{'event': 'draw', 'on': 'YOU', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "SELF"
+      ],
+      "trigger_event": "draw",
+      "trigger_on": "YOU"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "h09",
+      "condition_kinds": [],
+      "copy_weight": 2,
+      "deck_ids": [
+        "aa_lantern_zan_syed_2025_12_06"
+      ],
+      "effect_kinds": [
+        "cost-reduction"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Huey - Reliable Leader",
+      "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "quest",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "akT",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_lantern_zan_syed_2025_12_06"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:put-card-under"
+      ],
+      "full_name": "Cheshire Cat - Inexplicable",
+      "raw_snippet": "{'event': 'put-card-under', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "put-card-under",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "Jj0",
+      "condition_kinds": [],
+      "copy_weight": 1,
+      "deck_ids": [
+        "aa_lantern_zan_syed_2025_12_06"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Alan-a-Dale - Rockin' Rooster",
+      "raw_snippet": "{'event': 'play', 'on': {'cardType': 'song', 'controller': 'you'}, 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": {
+        "cardType": "song",
+        "controller": "you"
+      }
+    },
+    {
+      "ability_index": 1,
+      "card_id": "B2Y",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_lantern_zan_syed_2025_12_06"
+      ],
+      "effect_kinds": [
+        "draw"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Genie - Wish Fulfilled",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "jUU",
+      "condition_kinds": [],
+      "copy_weight": 2,
+      "deck_ids": [
+        "aa_lantern_zan_syed_2025_12_06"
+      ],
+      "effect_kinds": [
+        "or"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_effect:or"
+      ],
+      "full_name": "Madam Mim - Elephant",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "scry_search_reveal"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 2,
+      "card_id": "PX4",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "aa_lantern_zan_syed_2025_12_06"
+      ],
+      "effect_kinds": [
+        "exert"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_CHARACTER"
+      ],
+      "full_name": "Elsa - The Fifth Spirit",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "chosen"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "dQB",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "ae_aggro_zan_syed_sao_paulo_2026_04_25"
+      ],
+      "effect_kinds": [
+        "modify-stat"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_OPPOSING_CHARACTER"
+      ],
+      "full_name": "Rhino - One-Sixteenth Wolf",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "CHOSEN_OPPOSING_CHARACTER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "bN7",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "ae_aggro_zan_syed_sao_paulo_2026_04_25"
+      ],
+      "effect_kinds": [
+        "cost-reduction"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "bN7",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "ae_aggro_zan_syed_sao_paulo_2026_04_25"
+      ],
+      "effect_kinds": [
+        "cost-reduction"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "raw_snippet": "{'event': 'start-turn', 'on': 'YOU', 'timing': 'at'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "start-turn",
+      "trigger_on": "YOU"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "XWF",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "ae_aggro_zan_syed_sao_paulo_2026_04_25"
+      ],
+      "effect_kinds": [
+        "modify-stat"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_CHARACTER"
+      ],
+      "full_name": "Tramp - Enterprising Dog",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "chosen"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "dBq",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "ae_aggro_zan_syed_sao_paulo_2026_04_25"
+      ],
+      "effect_kinds": [
+        "scry"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_effect:scry",
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Nani - Stage Manager",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "scry_search_reveal",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "scry_ordering",
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "D7f",
+      "condition_kinds": [],
+      "copy_weight": 3,
+      "deck_ids": [
+        "as_challengers_purple_steel_leipzig_2026_04_18"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:leave-play"
+      ],
+      "full_name": "Olaf - Helping Hand",
+      "raw_snippet": "{'event': 'leave-play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "leave-play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "o0i",
+      "condition_kinds": [],
+      "copy_weight": 2,
+      "deck_ids": [
+        "as_challengers_purple_steel_leipzig_2026_04_18"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Pocahontas - Following the Wind",
+      "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "quest",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "akT",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_challengers_purple_steel_leipzig_2026_04_18"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:put-card-under"
+      ],
+      "full_name": "Cheshire Cat - Inexplicable",
+      "raw_snippet": "{'event': 'put-card-under', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "put-card-under",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "B2Y",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_challengers_purple_steel_leipzig_2026_04_18"
+      ],
+      "effect_kinds": [
+        "draw"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Genie - Wish Fulfilled",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 2,
+      "card_id": "PX4",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_challengers_purple_steel_leipzig_2026_04_18"
+      ],
+      "effect_kinds": [
+        "exert"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_CHARACTER"
+      ],
+      "full_name": "Elsa - The Fifth Spirit",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "chosen"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "z2N",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_evasive_aotp_stockholm_2026_04_25"
+      ],
+      "effect_kinds": [
+        "gain-keyword"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:draw"
+      ],
+      "full_name": "Royal Guard - Octopus Soldier",
+      "raw_snippet": "{'event': 'draw', 'on': 'YOU', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "SELF"
+      ],
+      "trigger_event": "draw",
+      "trigger_on": "YOU"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "akT",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_evasive_aotp_stockholm_2026_04_25"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:put-card-under"
+      ],
+      "full_name": "Cheshire Cat - Inexplicable",
+      "raw_snippet": "{'event': 'put-card-under', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "put-card-under",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "B2Y",
+      "condition_kinds": [],
+      "copy_weight": 2,
+      "deck_ids": [
+        "as_evasive_aotp_stockholm_2026_04_25"
+      ],
+      "effect_kinds": [
+        "draw"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Genie - Wish Fulfilled",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 2,
+      "card_id": "PX4",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_evasive_aotp_stockholm_2026_04_25"
+      ],
+      "effect_kinds": [
+        "exert"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_CHARACTER"
+      ],
+      "full_name": "Elsa - The Fifth Spirit",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "chosen"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "bN7",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_steelsong_brian_law_taipei_2026_03_14"
+      ],
+      "effect_kinds": [
+        "cost-reduction"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "bN7",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_steelsong_brian_law_taipei_2026_03_14"
+      ],
+      "effect_kinds": [
+        "cost-reduction"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "raw_snippet": "{'event': 'start-turn', 'on': 'YOU', 'timing': 'at'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "start-turn",
+      "trigger_on": "YOU"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "dBq",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_steelsong_brian_law_taipei_2026_03_14"
+      ],
+      "effect_kinds": [
+        "scry"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_effect:scry",
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Nani - Stage Manager",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "scry_search_reveal",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "scry_ordering",
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "Mni",
+      "condition_kinds": [
+        "has-card-under"
+      ],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_steelsong_brian_law_taipei_2026_03_14"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_condition:has-card-under"
+      ],
+      "full_name": "Ariel - Ethereal Voice",
+      "raw_snippet": "{'event': 'play', 'on': {'cardType': 'song', 'controller': 'you'}, 'restrictions': [{'type': 'during-turn', 'whose': 'your'}, {'type': 'once-per-turn'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": {
+        "cardType": "song",
+        "controller": "you"
+      }
+    },
+    {
+      "ability_index": 1,
+      "card_id": "Ab7",
+      "condition_kinds": [
+        "has-card-under"
+      ],
+      "copy_weight": 2,
+      "deck_ids": [
+        "as_steelsong_brian_law_taipei_2026_03_14"
+      ],
+      "effect_kinds": [
+        "scry"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_effect:scry",
+        "unsupported_trigger_condition:has-card-under",
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Bambi - Ethereal Fawn",
+      "raw_snippet": "{'event': 'exert', 'on': 'SELF', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion",
+        "scry_search_reveal",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "scry_ordering",
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "exert",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "7zq",
+      "condition_kinds": [
+        "target-query"
+      ],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_steelsong_brian_law_taipei_2026_03_14"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_condition:target-query"
+      ],
+      "full_name": "Stitch - Carefree Snowboarder",
+      "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "quest",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "dQB",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_value_harlan_2026_04_04"
+      ],
+      "effect_kinds": [
+        "modify-stat"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_OPPOSING_CHARACTER"
+      ],
+      "full_name": "Rhino - One-Sixteenth Wolf",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "CHOSEN_OPPOSING_CHARACTER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "bN7",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_value_harlan_2026_04_04"
+      ],
+      "effect_kinds": [
+        "cost-reduction"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "bN7",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_value_harlan_2026_04_04"
+      ],
+      "effect_kinds": [
+        "cost-reduction"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "raw_snippet": "{'event': 'start-turn', 'on': 'YOU', 'timing': 'at'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "start-turn",
+      "trigger_on": "YOU"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "dBq",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_value_harlan_2026_04_04"
+      ],
+      "effect_kinds": [
+        "scry"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_effect:scry",
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Nani - Stage Manager",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "scry_search_reveal",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "scry_ordering",
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "Mni",
+      "condition_kinds": [
+        "has-card-under"
+      ],
+      "copy_weight": 3,
+      "deck_ids": [
+        "as_value_harlan_2026_04_04"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_condition:has-card-under"
+      ],
+      "full_name": "Ariel - Ethereal Voice",
+      "raw_snippet": "{'event': 'play', 'on': {'cardType': 'song', 'controller': 'you'}, 'restrictions': [{'type': 'during-turn', 'whose': 'your'}, {'type': 'once-per-turn'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": {
+        "cardType": "song",
+        "controller": "you"
+      }
+    },
+    {
+      "ability_index": 0,
+      "card_id": "7zq",
+      "condition_kinds": [
+        "target-query"
+      ],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_value_harlan_2026_04_04"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_condition:target-query"
+      ],
+      "full_name": "Stitch - Carefree Snowboarder",
+      "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "quest",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "J1F",
+      "condition_kinds": [
+        "turn-metric"
+      ],
+      "copy_weight": 4,
+      "deck_ids": [
+        "es_control_i_hate_dogs_imola_2026_04_11"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_condition:turn-metric"
+      ],
+      "full_name": "Cinderella - Dream Come True",
+      "raw_snippet": "{'event': 'end-turn', 'on': 'YOU', 'timing': 'at'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "end-turn",
+      "trigger_on": "YOU"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "n4l",
+      "condition_kinds": [],
+      "copy_weight": 3,
+      "deck_ids": [
+        "es_control_i_hate_dogs_imola_2026_04_11"
+      ],
+      "effect_kinds": [
+        "gain-keyword"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_OPPOSING_CHARACTER"
+      ],
+      "full_name": "John Silver - Alien Pirate",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "CHOSEN_OPPOSING_CHARACTER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "n4l",
+      "condition_kinds": [],
+      "copy_weight": 3,
+      "deck_ids": [
+        "es_control_i_hate_dogs_imola_2026_04_11"
+      ],
+      "effect_kinds": [
+        "gain-keyword"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_OPPOSING_CHARACTER"
+      ],
+      "full_name": "John Silver - Alien Pirate",
+      "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "CHOSEN_OPPOSING_CHARACTER"
+      ],
+      "trigger_event": "quest",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "D7f",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "ps_burn_matt_w_2026_03_21"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:leave-play"
+      ],
+      "full_name": "Olaf - Helping Hand",
+      "raw_snippet": "{'event': 'leave-play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "leave-play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "NLA",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "ps_burn_matt_w_2026_03_21"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:banish-in-challenge",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Calhoun - Marine Sergeant",
+      "raw_snippet": "{'event': 'banish-in-challenge', 'on': 'SELF', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "banish-in-challenge",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "7Vg",
+      "condition_kinds": [
+        "target-query"
+      ],
+      "copy_weight": 4,
+      "deck_ids": [
+        "ps_burn_matt_w_2026_03_21"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_condition:target-query",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Honeymaren - Northuldra Guide",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "ZnW",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "ps_burn_matt_w_2026_03_21"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "The White Rose - Jewel of the Garden",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "hOa",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "ps_burn_matt_w_2026_03_21"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_on:CHARACTERS_HERE"
+      ],
+      "full_name": "Zootopia - Police Headquarters",
+      "raw_snippet": "{'event': 'move', 'on': 'CHARACTERS_HERE', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}, {'type': 'first-time-each-turn'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "move",
+      "trigger_on": "CHARACTERS_HERE"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "1sm",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "rs_pawpsicles_maui_fiesta_2025_05_04"
+      ],
+      "effect_kinds": [
+        "scry"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_effect:scry",
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Gramma Tala - Keeper of Ancient Stories",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "scry_search_reveal",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "scry_ordering",
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 2,
+      "card_id": "HTB",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "rs_pawpsicles_maui_fiesta_2025_05_04"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Maui - Half-Shark",
+      "raw_snippet": "{'event': 'play', 'on': {'cardType': 'action', 'controller': 'you'}, 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": {
+        "cardType": "action",
+        "controller": "you"
+      }
+    },
+    {
+      "ability_index": 0,
+      "card_id": "c1L",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "rs_pawpsicles_maui_fiesta_2025_05_04"
+      ],
+      "effect_kinds": [
+        "return-to-hand"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_CHARACTER"
+      ],
+      "full_name": "Tamatoa - Happy as a Clam",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [
+        "chosen"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "wLe",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "rs_songs_daniele_2026_04_04"
+      ],
+      "effect_kinds": [
+        "scry"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_effect:scry",
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Robin Hood - Sharpshooter",
+      "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "scry_search_reveal",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "scry_ordering",
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "quest",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 2,
+      "card_id": "HTB",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "rs_songs_daniele_2026_04_04"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Maui - Half-Shark",
+      "raw_snippet": "{'event': 'play', 'on': {'cardType': 'action', 'controller': 'you'}, 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": {
+        "cardType": "action",
+        "controller": "you"
+      }
+    },
+    {
+      "ability_index": 1,
+      "card_id": "G4S",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "rs_songs_daniele_2026_04_04"
+      ],
+      "effect_kinds": [
+        "lose-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Olaf - Snowman of Action",
+      "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "EACH_OPPONENT"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "NLA",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "sr_aggro_damien_2026_01_31"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:banish-in-challenge",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Calhoun - Marine Sergeant",
+      "raw_snippet": "{'event': 'banish-in-challenge', 'on': 'SELF', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "banish-in-challenge",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "HVE",
+      "condition_kinds": [
+        "turn-metric"
+      ],
+      "copy_weight": 4,
+      "deck_ids": [
+        "sr_aggro_damien_2026_01_31"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_condition:turn-metric",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Fa Zhou - War Hero",
+      "raw_snippet": "{'event': 'challenge', 'on': 'YOUR_CHARACTERS', 'restrictions': [{'type': 'defender-is-character'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "challenge",
+      "trigger_on": "YOUR_CHARACTERS"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "5EC",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "sr_aggro_damien_2026_01_31"
+      ],
+      "effect_kinds": [
+        "lose-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Jasmine - Rebellious Princess",
+      "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "EACH_OPPONENT"
+      ],
+      "trigger_event": "quest",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "e9n",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "sr_aggro_damien_2026_01_31"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Shere Khan - Menacing Predator",
+      "raw_snippet": "{'defender': {}, 'event': 'challenge', 'on': 'YOUR_CHARACTERS', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "challenge",
+      "trigger_on": "YOUR_CHARACTERS"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "6Ji",
+      "condition_kinds": [
+        "has-card-under"
+      ],
+      "copy_weight": 3,
+      "deck_ids": [
+        "sr_aggro_damien_2026_01_31"
+      ],
+      "effect_kinds": [
+        "deal-damage"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_target:CHOSEN_CHARACTER",
+        "unsupported_trigger_condition:has-card-under",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Robin Hood - Ephemeral Archer",
+      "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "chosen"
+      ],
+      "trigger_event": "quest",
+      "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "8nj",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "sr_aggro_damien_2026_01_31"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:banish-in-challenge",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Mushu - Majestic Dragon",
+      "raw_snippet": "{'event': 'banish-in-challenge', 'on': 'YOUR_CHARACTERS', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [
+        "CONTROLLER"
+      ],
+      "trigger_event": "banish-in-challenge",
+      "trigger_on": "YOUR_CHARACTERS"
+    },
+    {
+      "ability_index": 0,
+      "card_id": "hQC",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "sr_aggro_damien_2026_01_31"
+      ],
+      "effect_kinds": [
+        "gain-lore"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_event:banish-in-challenge",
+        "unsupported_trigger_on:complex_filter:filters",
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "full_name": "Pluto - Steel Champion",
+      "raw_snippet": "{'event': 'banish-in-challenge', 'on': {'cardType': 'character', 'controller': 'you', 'excludeSelf': True, 'filters': [{'inkType': 'steel', 'type': 'ink-type'}]}, 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection",
+        "target_choice_prompts"
+      ],
+      "resolution_requirements": [
+        "amount"
+      ],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "banish-in-challenge",
+      "trigger_on": {
+        "cardType": "character",
+        "controller": "you",
+        "excludeSelf": true,
+        "filters": [
+          {
+            "inkType": "steel",
+            "type": "ink-type"
+          }
+        ]
+      }
+    },
+    {
+      "ability_index": 1,
+      "card_id": "hQC",
+      "condition_kinds": [],
+      "copy_weight": 4,
+      "deck_ids": [
+        "sr_aggro_damien_2026_01_31"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_on:complex_filter:filters"
+      ],
+      "full_name": "Pluto - Steel Champion",
+      "raw_snippet": "{'event': 'play', 'on': {'cardType': 'character', 'controller': 'you', 'excludeSelf': True, 'filters': [{'inkType': 'steel', 'type': 'ink-type'}]}, 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "broader_trigger_projection"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": {
+        "cardType": "character",
+        "controller": "you",
+        "excludeSelf": true,
+        "filters": [
+          {
+            "inkType": "steel",
+            "type": "ink-type"
+          }
+        ]
+      }
+    }
+  ],
+  "schema_version": 1,
+  "summary": {
+    "failure_reason_counts_by_copies": {
+      "unsupported_trigger_condition:has-card-under": 12,
+      "unsupported_trigger_condition:target-query": 12,
+      "unsupported_trigger_condition:turn-metric": 8,
+      "unsupported_trigger_effect:create-replacement-effect": 8,
+      "unsupported_trigger_effect:or": 2,
+      "unsupported_trigger_effect:scry": 22,
+      "unsupported_trigger_event:banish-in-challenge": 16,
+      "unsupported_trigger_event:draw": 8,
+      "unsupported_trigger_event:leave-play": 7,
+      "unsupported_trigger_event:put-card-under": 16,
+      "unsupported_trigger_on:CHARACTERS_HERE": 4,
+      "unsupported_trigger_on:complex_filter:filters": 8,
+      "unsupported_trigger_resolution_requirement:amount": 124,
+      "unsupported_trigger_resolution_requirement:scry_ordering": 22,
+      "unsupported_trigger_target:CHOSEN_CHARACTER": 27,
+      "unsupported_trigger_target:CHOSEN_OPPOSING_CHARACTER": 14
+    },
+    "failure_reason_counts_by_unique_cards": {
+      "1sm": 3,
+      "5EC": 1,
+      "6Ji": 3,
+      "7Vg": 2,
+      "7zq": 2,
+      "8nj": 2,
+      "Ab7": 4,
+      "B2Y": 4,
+      "D7f": 2,
+      "G4S": 1,
+      "HTB": 2,
+      "HVE": 2,
+      "J1F": 1,
+      "Jj0": 1,
+      "Mni": 2,
+      "NLA": 4,
+      "PX4": 4,
+      "XWF": 1,
+      "YW7": 2,
+      "ZnW": 1,
+      "akT": 4,
+      "bN7": 8,
+      "c1L": 1,
+      "dBq": 9,
+      "dQB": 2,
+      "e9n": 1,
+      "h09": 1,
+      "hOa": 1,
+      "hQC": 4,
+      "jUU": 1,
+      "n4l": 2,
+      "o0i": 1,
+      "wLe": 3,
+      "z2N": 2
+    },
+    "high_impact_failures": [
+      {
+        "ability_index": 0,
+        "card_id": "dBq",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "ae_aggro_zan_syed_sao_paulo_2026_04_25"
+        ],
+        "effect_kinds": [
+          "scry"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_effect:scry",
+          "unsupported_trigger_resolution_requirement:scry_ordering",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Nani - Stage Manager",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "scry_search_reveal",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "scry_ordering",
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "dBq",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "as_steelsong_brian_law_taipei_2026_03_14"
+        ],
+        "effect_kinds": [
+          "scry"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_effect:scry",
+          "unsupported_trigger_resolution_requirement:scry_ordering",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Nani - Stage Manager",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "scry_search_reveal",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "scry_ordering",
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "dBq",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "as_value_harlan_2026_04_04"
+        ],
+        "effect_kinds": [
+          "scry"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_effect:scry",
+          "unsupported_trigger_resolution_requirement:scry_ordering",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Nani - Stage Manager",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "scry_search_reveal",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "scry_ordering",
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "1sm",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "rs_pawpsicles_maui_fiesta_2025_05_04"
+        ],
+        "effect_kinds": [
+          "scry"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_effect:scry",
+          "unsupported_trigger_resolution_requirement:scry_ordering",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Gramma Tala - Keeper of Ancient Stories",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "scry_search_reveal",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "scry_ordering",
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "wLe",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "rs_songs_daniele_2026_04_04"
+        ],
+        "effect_kinds": [
+          "scry"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_effect:scry",
+          "unsupported_trigger_resolution_requirement:scry_ordering",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Robin Hood - Sharpshooter",
+        "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "scry_search_reveal",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "scry_ordering",
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "quest",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "hQC",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "sr_aggro_damien_2026_01_31"
+        ],
+        "effect_kinds": [
+          "gain-lore"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_event:banish-in-challenge",
+          "unsupported_trigger_on:complex_filter:filters",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Pluto - Steel Champion",
+        "raw_snippet": "{'event': 'banish-in-challenge', 'on': {'cardType': 'character', 'controller': 'you', 'excludeSelf': True, 'filters': [{'inkType': 'steel', 'type': 'ink-type'}]}, 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "broader_trigger_projection",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "banish-in-challenge",
+        "trigger_on": {
+          "cardType": "character",
+          "controller": "you",
+          "excludeSelf": true,
+          "filters": [
+            {
+              "inkType": "steel",
+              "type": "ink-type"
+            }
+          ]
+        }
+      },
+      {
+        "ability_index": 1,
+        "card_id": "NLA",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "ps_burn_matt_w_2026_03_21"
+        ],
+        "effect_kinds": [
+          "gain-lore"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_event:banish-in-challenge",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Calhoun - Marine Sergeant",
+        "raw_snippet": "{'event': 'banish-in-challenge', 'on': 'SELF', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "broader_trigger_projection",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "banish-in-challenge",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "7Vg",
+        "condition_kinds": [
+          "target-query"
+        ],
+        "copy_weight": 4,
+        "deck_ids": [
+          "ps_burn_matt_w_2026_03_21"
+        ],
+        "effect_kinds": [
+          "gain-lore"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_condition:target-query",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Honeymaren - Northuldra Guide",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "condition_evaluator_expansion",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 1,
+        "card_id": "NLA",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "sr_aggro_damien_2026_01_31"
+        ],
+        "effect_kinds": [
+          "gain-lore"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_event:banish-in-challenge",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Calhoun - Marine Sergeant",
+        "raw_snippet": "{'event': 'banish-in-challenge', 'on': 'SELF', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "broader_trigger_projection",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "banish-in-challenge",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "HVE",
+        "condition_kinds": [
+          "turn-metric"
+        ],
+        "copy_weight": 4,
+        "deck_ids": [
+          "sr_aggro_damien_2026_01_31"
+        ],
+        "effect_kinds": [
+          "gain-lore"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_condition:turn-metric",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Fa Zhou - War Hero",
+        "raw_snippet": "{'event': 'challenge', 'on': 'YOUR_CHARACTERS', 'restrictions': [{'type': 'defender-is-character'}], 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "condition_evaluator_expansion",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "challenge",
+        "trigger_on": "YOUR_CHARACTERS"
+      },
+      {
+        "ability_index": 1,
+        "card_id": "8nj",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "sr_aggro_damien_2026_01_31"
+        ],
+        "effect_kinds": [
+          "gain-lore"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_event:banish-in-challenge",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Mushu - Majestic Dragon",
+        "raw_snippet": "{'event': 'banish-in-challenge', 'on': 'YOUR_CHARACTERS', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "broader_trigger_projection",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [
+          "CONTROLLER"
+        ],
+        "trigger_event": "banish-in-challenge",
+        "trigger_on": "YOUR_CHARACTERS"
+      },
+      {
+        "ability_index": 1,
+        "card_id": "YW7",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "aa_evasives_raging_storm_2026_02_23"
+        ],
+        "effect_kinds": [
+          "create-replacement-effect"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_effect:create-replacement-effect"
+        ],
+        "full_name": "Rafiki - Mystical Fighter",
+        "raw_snippet": "{'defender': {'filters': [{'classification': 'Hyena', 'type': 'has-classification'}]}, 'event': 'challenge', 'on': 'SELF', 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "replacement_prevention"
+        ],
+        "resolution_requirements": [],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "challenge",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "bN7",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "aa_evasives_raging_storm_2026_02_23"
+        ],
+        "effect_kinds": [
+          "cost-reduction"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Grandmother Willow - Ancient Advisor",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [
+          "CONTROLLER"
+        ],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 1,
+        "card_id": "bN7",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "aa_evasives_raging_storm_2026_02_23"
+        ],
+        "effect_kinds": [
+          "cost-reduction"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Grandmother Willow - Ancient Advisor",
+        "raw_snippet": "{'event': 'start-turn', 'on': 'YOU', 'timing': 'at'}",
+        "recommended_engine_work": [
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [
+          "CONTROLLER"
+        ],
+        "trigger_event": "start-turn",
+        "trigger_on": "YOU"
+      },
+      {
+        "ability_index": 1,
+        "card_id": "akT",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "aa_evasives_raging_storm_2026_02_23"
+        ],
+        "effect_kinds": [
+          "optional"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_event:put-card-under"
+        ],
+        "full_name": "Cheshire Cat - Inexplicable",
+        "raw_snippet": "{'event': 'put-card-under', 'on': 'SELF', 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "broader_trigger_projection"
+        ],
+        "resolution_requirements": [],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "put-card-under",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 1,
+        "card_id": "B2Y",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "aa_evasives_raging_storm_2026_02_23"
+        ],
+        "effect_kinds": [
+          "draw"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Genie - Wish Fulfilled",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [
+          "CONTROLLER"
+        ],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 2,
+        "card_id": "PX4",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "aa_evasives_raging_storm_2026_02_23"
+        ],
+        "effect_kinds": [
+          "exert"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_target:CHOSEN_CHARACTER"
+        ],
+        "full_name": "Elsa - The Fifth Spirit",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [],
+        "source_file": "",
+        "target_kinds": [
+          "chosen"
+        ],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 1,
+        "card_id": "YW7",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "aa_lantern_zan_syed_2025_12_06"
+        ],
+        "effect_kinds": [
+          "create-replacement-effect"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_effect:create-replacement-effect"
+        ],
+        "full_name": "Rafiki - Mystical Fighter",
+        "raw_snippet": "{'defender': {'filters': [{'classification': 'Hyena', 'type': 'has-classification'}]}, 'event': 'challenge', 'on': 'SELF', 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "replacement_prevention"
+        ],
+        "resolution_requirements": [],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "challenge",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "z2N",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "aa_lantern_zan_syed_2025_12_06"
+        ],
+        "effect_kinds": [
+          "gain-keyword"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_event:draw"
+        ],
+        "full_name": "Royal Guard - Octopus Soldier",
+        "raw_snippet": "{'event': 'draw', 'on': 'YOU', 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "broader_trigger_projection"
+        ],
+        "resolution_requirements": [],
+        "source_file": "",
+        "target_kinds": [
+          "SELF"
+        ],
+        "trigger_event": "draw",
+        "trigger_on": "YOU"
+      },
+      {
+        "ability_index": 1,
+        "card_id": "akT",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "aa_lantern_zan_syed_2025_12_06"
+        ],
+        "effect_kinds": [
+          "optional"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_event:put-card-under"
+        ],
+        "full_name": "Cheshire Cat - Inexplicable",
+        "raw_snippet": "{'event': 'put-card-under', 'on': 'SELF', 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "broader_trigger_projection"
+        ],
+        "resolution_requirements": [],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "put-card-under",
+        "trigger_on": "SELF"
+      }
+    ]
+  }
+}

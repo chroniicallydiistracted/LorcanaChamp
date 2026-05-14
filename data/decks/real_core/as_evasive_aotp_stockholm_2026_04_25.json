@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "id": "as_evasive_aotp_stockholm_2026_04_25",
+  "name": "AOTP",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 510826,
+  "player": "Mateusz Tokarczyk",
+  "placement": "1st",
+  "event": "Disney Lorcana Stockholm Open #3 CCQ",
+  "event_date": "2026-04-25",
+  "ink_colors": [
+    "amethyst",
+    "sapphire"
+  ],
+  "archetype": "P/B Evasive",
+  "purpose": [
+    "meta",
+    "evasive",
+    "value",
+    "smoke"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Basil - Practiced Detective",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Royal Guard - Octopus Soldier",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Tipo - Growing Son",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Cheshire Cat - Inexplicable",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Dumbo - Ninth Wonder of the Universe",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Genie - Wish Fulfilled",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Iago - Giant Spectral Parrot",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Tigger - Bouncing All the Way",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Elsa - The Fifth Spirit",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Hades - Looking for a Deal",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Scuttle - Birdbrained",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Demona - Scourge of the Wyvern Clan",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Hades - Infernal Schemer",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Junior Woodchuck Guidebook",
+      "count": 4,
+      "type": "item"
+    },
+    {
+      "name": "Magical Maneuvers",
+      "count": 2,
+      "type": "action"
+    },
+    {
+      "name": "Sail the Azurite Sea",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Into the Unknown",
+      "count": 2,
+      "type": "song"
+    },
+    {
+      "name": "Let It Go",
+      "count": 4,
+      "type": "song"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

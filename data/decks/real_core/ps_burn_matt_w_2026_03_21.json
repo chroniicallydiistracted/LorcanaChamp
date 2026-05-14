@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": "ps_burn_matt_w_2026_03_21",
+  "name": "Burn",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 507620,
+  "player": "Matt W.",
+  "placement": "1st",
+  "event": "Glimmer Games CCQ 10k",
+  "event_date": "2026-03-21",
+  "ink_colors": [
+    "amethyst",
+    "steel"
+  ],
+  "archetype": "P/S Aggro",
+  "purpose": [
+    "meta",
+    "aggro",
+    "burn",
+    "locations"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Diablo - Obedient Raven",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Mulan - Disguised Soldier",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Olaf - Helping Hand",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Palace Guard - Spectral Sentry",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Black Heron - Real Bad Egg",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Calhoun - Marine Sergeant",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Christopher Robin - Joining the Fun",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Doc - Bold Knight",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Honeymaren - Northuldra Guide",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Giant Cobra - Ghostly Serpent",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "The White Rose - Jewel of the Garden",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Hades - Looking for a Deal",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Amethyst Chromicon",
+      "count": 4,
+      "type": "item"
+    },
+    {
+      "name": "Gathering Knowledge and Wisdom",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Zootopia - Police Headquarters",
+      "count": 4,
+      "type": "location"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

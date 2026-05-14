@@ -1,0 +1,73 @@
+from __future__ import annotations
+
+from lorcana_bot.actions import Action
+from lorcana_bot.constants import (
+    ACTION_CHALLENGE,
+    ACTION_CONCEDE,
+    ACTION_END_TURN,
+    ACTION_INK_CARD,
+    ACTION_KEEP_HAND,
+    ACTION_MOVE_TO_LOCATION,
+    ACTION_MULLIGAN,
+    ACTION_PLAY_CARD,
+    ACTION_QUEST,
+    ACTION_RESOLVE_BAG,
+    ACTION_USE_ABILITY,
+)
+
+from .candidates import AutomatedActionCandidate, AutomatedActionFamily
+
+
+class CandidateAdapterError(ValueError):
+    pass
+
+
+def candidate_to_action(candidate: AutomatedActionCandidate) -> Action:
+    family = candidate.family
+    actor = candidate.actor
+    if family == AutomatedActionFamily.ALTER_HAND:
+        if candidate.choice_index == 0:
+            return Action(ACTION_KEEP_HAND, actor=actor)
+        return Action(ACTION_MULLIGAN, actor=actor, choice=tuple(candidate.targets))
+    if family == AutomatedActionFamily.PUT_CARD_INTO_INKWELL:
+        return Action(ACTION_INK_CARD, actor=actor, card=_require(candidate.card_instance_id, "card_instance_id"))
+    if family == AutomatedActionFamily.PLAY_CARD:
+        return Action(ACTION_PLAY_CARD, actor=actor, card=_require(candidate.card_instance_id, "card_instance_id"), target=candidate.target_instance_id)
+    if family == AutomatedActionFamily.QUEST:
+        return Action(ACTION_QUEST, actor=actor, source=_require(candidate.source_instance_id, "source_instance_id"))
+    if family == AutomatedActionFamily.CHALLENGE:
+        return Action(
+            ACTION_CHALLENGE,
+            actor=actor,
+            source=_require(candidate.source_instance_id, "source_instance_id"),
+            target=_require(candidate.target_instance_id, "target_instance_id"),
+        )
+    if family == AutomatedActionFamily.MOVE_CHARACTER_TO_LOCATION:
+        return Action(
+            ACTION_MOVE_TO_LOCATION,
+            actor=actor,
+            source=_require(candidate.source_instance_id, "source_instance_id"),
+            target=_require(candidate.target_instance_id, "target_instance_id"),
+        )
+    if family == AutomatedActionFamily.PASS_TURN:
+        return Action(ACTION_END_TURN, actor=actor)
+    if family == AutomatedActionFamily.CONCEDE:
+        return Action(ACTION_CONCEDE, actor=actor)
+    if family == AutomatedActionFamily.ACTIVATE_ABILITY:
+        return Action(ACTION_USE_ABILITY, actor=actor, source=candidate.source_instance_id, target=candidate.target_instance_id, choice=candidate.ability_id)
+    if family == AutomatedActionFamily.RESOLVE_BAG:
+        bag_id = candidate.metadata.get("bag_id") if candidate.metadata else None
+        accept = candidate.resolve_optional if candidate.resolve_optional is not None else True
+        return Action(
+            ACTION_RESOLVE_BAG,
+            actor=actor,
+            source=candidate.source_instance_id,
+            choice={"bag_id": bag_id, "accept": accept}
+        )
+    raise CandidateAdapterError(f"Unsupported candidate family {family}")
+
+
+def _require(value: int | None, field: str) -> int:
+    if value is None:
+        raise CandidateAdapterError(f"Missing required {field}")
+    return int(value)

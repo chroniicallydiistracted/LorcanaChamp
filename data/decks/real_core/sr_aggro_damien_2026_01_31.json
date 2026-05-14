@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "sr_aggro_damien_2026_01_31",
+  "name": "Steel Ruby",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 499270,
+  "player": "Damien",
+  "placement": "7th",
+  "event": "Le Joker Championnat de SET 10 LORCANA",
+  "event_date": "2026-01-31",
+  "ink_colors": [
+    "ruby",
+    "steel"
+  ],
+  "archetype": "Ruby Steel",
+  "purpose": [
+    "aggro",
+    "combat",
+    "songs"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Mulan - Disguised Soldier",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Tinker Bell - Fancy Footwork",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Calhoun - Marine Sergeant",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Diablo - Watchful Raven",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Queen of Hearts - Impulsive Ruler",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Fa Zhou - War Hero",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Jasmine - Rebellious Princess",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Shere Khan - Menacing Predator",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Sisu - Emboldened Warrior",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Hercules - Mighty Leader",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Robin Hood - Ephemeral Archer",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Mushu - Majestic Dragon",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Pluto - Steel Champion",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Queen of Hearts - Sensing Weakness",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "But I'm Much Faster",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Strength of a Raging Fire",
+      "count": 4,
+      "type": "song"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

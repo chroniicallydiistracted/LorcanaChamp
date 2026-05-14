@@ -1,0 +1,876 @@
+{
+  "archetype": "R/B Songs",
+  "cards": [
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "gPY"
+      ],
+      "canonical_id": "ci_gPY",
+      "card_id": "gPY",
+      "card_type": "character",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Tipo - Growing Son",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Tipo",
+      "raw_name": "Tipo - Growing Son",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Growing Son"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "wLe",
+        "Uem"
+      ],
+      "canonical_id": "ci_qwp",
+      "card_id": "wLe",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Robin Hood - Sharpshooter",
+      "ink": "ruby",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Robin Hood",
+      "raw_name": "Robin Hood - Sharpshooter",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_trigger",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "quest": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry",
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Sharpshooter"
+    },
+    {
+      "ability_type_counts": {
+        "static": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "44Y",
+        "Isl"
+      ],
+      "canonical_id": "ci_U6V",
+      "card_id": "44Y",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {
+        "turn-metric": 1
+      },
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "cost-reduction": 2,
+        "sequence": 2
+      },
+      "full_name": "Lilo - Causing an Uproar",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Lilo",
+      "raw_name": "Lilo - Causing an Uproar",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_static_effect",
+        "unsupported_trigger"
+      ],
+      "version": "Causing an Uproar"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 2
+      },
+      "candidate_ids": [
+        "HTB"
+      ],
+      "canonical_id": "ci_HTB",
+      "card_id": "HTB",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 6,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-lore": 2,
+        "optional": 2
+      },
+      "full_name": "Maui - Half-Shark",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "EVASIVE",
+          "raw": {
+            "_source_index": 0,
+            "helper": "evasive",
+            "id": "helper-ref-0",
+            "keyword": "Evasive",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Evasive\",\n  text: \"Evasive\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "evasive",
+            "rawReference": "evasive",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/evasive.ts",
+            "text": "Evasive",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Maui",
+      "raw_name": "Maui - Half-Shark",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "challenge": 1,
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected",
+        "unsupported_trigger_on:complex_filter"
+      ],
+      "version": "Half-Shark"
+    },
+    {
+      "ability_type_counts": {
+        "static": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "G4S"
+      ],
+      "canonical_id": "ci_G4S",
+      "card_id": "G4S",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 9,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "cost-reduction": 2,
+        "lose-lore": 2
+      },
+      "full_name": "Olaf - Snowman of Action",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Olaf",
+      "raw_name": "Olaf - Snowman of Action",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_static_effect",
+        "unsupported_trigger"
+      ],
+      "version": "Snowman of Action"
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "GGr",
+        "Ylr"
+      ],
+      "canonical_id": "ci_w1L",
+      "card_id": "GGr",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Develop Your Brain",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Develop Your Brain",
+      "raw_name": "Develop Your Brain",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_choice",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "178"
+      ],
+      "canonical_id": "ci_178",
+      "card_id": "178",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Helping Hand",
+      "ink": "sapphire",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Helping Hand",
+      "raw_name": "Helping Hand",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "qnK",
+        "d5v"
+      ],
+      "canonical_id": "ci_ktc",
+      "card_id": "qnK",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Distract",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Distract",
+      "raw_name": "Distract",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1,
+        "static": 1
+      },
+      "candidate_ids": [
+        "DMG",
+        "K04"
+      ],
+      "canonical_id": "ci_49R",
+      "card_id": "DMG",
+      "card_type": "action",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {
+        "target-query": 1
+      },
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "cost-reduction": 2,
+        "sequence": 2
+      },
+      "full_name": "Next Stop, Olympus",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Next Stop, Olympus",
+      "raw_name": "Next Stop, Olympus",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_static_effect"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "EfC"
+      ],
+      "canonical_id": "ci_EfC",
+      "card_id": "EfC",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Sail the Azurite Sea",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Sail the Azurite Sea",
+      "raw_name": "Sail the Azurite Sea",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "Dub"
+      ],
+      "canonical_id": "ci_Dub",
+      "card_id": "Dub",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Vision of the Future",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Vision of the Future",
+      "raw_name": "Vision of the Future",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_choice",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "EtL"
+      ],
+      "canonical_id": "ci_EtL",
+      "card_id": "EtL",
+      "card_type": "action",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "banish": 2
+      },
+      "full_name": "Grab Your Bow",
+      "ink": "ruby",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Grab Your Bow",
+      "raw_name": "Grab Your Bow",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_targeting",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_effect:banish",
+        "unsupported_target:chosen"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "t9V",
+        "20T"
+      ],
+      "canonical_id": "ci_r2S",
+      "card_id": "t9V",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "put-into-inkwell": 2
+      },
+      "full_name": "Let It Go",
+      "ink": "sapphire",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Let It Go",
+      "raw_name": "Let It Go",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_engine_mechanic",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_effect:put-into-inkwell"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "k7r",
+        "rJQ"
+      ],
+      "canonical_id": "ci_rfx",
+      "card_id": "k7r",
+      "card_type": "action",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 6,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "A Pirate\u2019s Life",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "A Pirate\u2019s Life",
+      "raw_name": "A Pirate's Life",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "Cxc",
+        "sFO"
+      ],
+      "canonical_id": "ci_VM4",
+      "card_id": "Cxc",
+      "card_type": "action",
+      "colors": [
+        "sapphire"
+      ],
+      "condition_type_counts": {},
+      "cost": 8,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "scry": 2
+      },
+      "full_name": "Dig a Little Deeper",
+      "ink": "sapphire",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Dig a Little Deeper",
+      "raw_name": "Dig a Little Deeper",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_choice",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
+      ],
+      "version": ""
+    }
+  ],
+  "deck_total_declared": 60,
+  "deck_total_resolved": 60,
+  "event": "LORCANA Winterspell - Set Championship",
+  "event_date": "2026-04-04",
+  "format": "core_constructed",
+  "id": "rs_songs_daniele_2026_04_04",
+  "mapping_summary": {
+    "best_use": "coverage_discovery",
+    "deck_id": "rs_songs_daniele_2026_04_04",
+    "executable_copies": 16,
+    "executable_unique_cards": 4,
+    "mapped_not_executable_copies": 20,
+    "mapped_not_executable_unique_cards": 5,
+    "name": "Ruby Sapphire",
+    "playability": "partially_executable",
+    "recommended_engine_work": [
+      {
+        "affected_copies": 36,
+        "affected_decks": 1,
+        "affected_unique_cards": 9,
+        "category": "other_source_execution"
+      },
+      {
+        "affected_copies": 20,
+        "affected_decks": 1,
+        "affected_unique_cards": 5,
+        "category": "real_bag_and_triggers"
+      },
+      {
+        "affected_copies": 16,
+        "affected_decks": 1,
+        "affected_unique_cards": 4,
+        "category": "scry_search_reveal"
+      },
+      {
+        "affected_copies": 12,
+        "affected_decks": 1,
+        "affected_unique_cards": 3,
+        "category": "static_effect_registry"
+      },
+      {
+        "affected_copies": 4,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "target_choice_prompts"
+      }
+    ],
+    "resolved_unique_cards": 15,
+    "schema_version": 1,
+    "top_blockers_by_copies": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 20
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 16
+      },
+      {
+        "blocker": "unsupported_effect:scry",
+        "count": 16
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 12
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 8
+      },
+      {
+        "blocker": "unsupported_effect:banish",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:put-into-inkwell",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_on:complex_filter",
+        "count": 4
+      }
+    ],
+    "top_blockers_by_unique_cards": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 5
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:scry",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_effect:banish",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:put-into-inkwell",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_trigger_on:complex_filter",
+        "count": 1
+      }
+    ],
+    "total_cards": 60,
+    "unique_cards": 15,
+    "unresolved_unique_cards": 0,
+    "unsupported_copies": 44,
+    "unsupported_unique_cards": 6,
+    "valid": true
+  },
+  "name": "Ruby Sapphire",
+  "placement": "4th",
+  "playability": "partially_executable",
+  "playable_decklist_ids": [
+    "gPY",
+    "gPY",
+    "gPY",
+    "gPY",
+    "wLe",
+    "wLe",
+    "wLe",
+    "wLe",
+    "44Y",
+    "44Y",
+    "44Y",
+    "44Y",
+    "HTB",
+    "HTB",
+    "HTB",
+    "HTB",
+    "G4S",
+    "G4S",
+    "G4S",
+    "G4S",
+    "GGr",
+    "GGr",
+    "GGr",
+    "GGr",
+    "178",
+    "178",
+    "178",
+    "178",
+    "qnK",
+    "qnK",
+    "qnK",
+    "qnK",
+    "DMG",
+    "DMG",
+    "DMG",
+    "DMG",
+    "EfC",
+    "EfC",
+    "EfC",
+    "EfC",
+    "Dub",
+    "Dub",
+    "Dub",
+    "Dub",
+    "EtL",
+    "EtL",
+    "EtL",
+    "EtL",
+    "t9V",
+    "t9V",
+    "t9V",
+    "t9V",
+    "k7r",
+    "k7r",
+    "k7r",
+    "k7r",
+    "Cxc",
+    "Cxc",
+    "Cxc",
+    "Cxc"
+  ],
+  "player": "Daniele Stella",
+  "purpose": [
+    "mechanic",
+    "songs",
+    "control"
+  ],
+  "raw_ink_colors": [
+    "ruby",
+    "sapphire"
+  ],
+  "resolved_ink_colors": [
+    "ruby",
+    "sapphire"
+  ],
+  "schema_version": 1,
+  "source_deck_id": 508693,
+  "source_site": "inkdecks",
+  "validation": {
+    "ambiguous_cards": [],
+    "banned_cards": [],
+    "copy_limit_violations": [],
+    "deck_total_actual": 60,
+    "deck_total_declared": 60,
+    "errors": [],
+    "resolved_ink_colors": [
+      "ruby",
+      "sapphire"
+    ],
+    "schema_version": 1,
+    "unknown_legality_cards": [
+      "A Pirate\u2019s Life",
+      "Develop Your Brain",
+      "Dig a Little Deeper",
+      "Distract",
+      "Grab Your Bow",
+      "Helping Hand",
+      "Let It Go",
+      "Lilo - Causing an Uproar",
+      "Maui - Half-Shark",
+      "Next Stop, Olympus",
+      "Olaf - Snowman of Action",
+      "Robin Hood - Sharpshooter",
+      "Sail the Azurite Sea",
+      "Tipo - Growing Son",
+      "Vision of the Future"
+    ],
+    "unresolved_cards": [],
+    "valid": true,
+    "warnings": []
+  }
+}

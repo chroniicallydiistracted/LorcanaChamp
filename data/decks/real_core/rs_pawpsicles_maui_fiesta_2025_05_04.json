@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "id": "rs_pawpsicles_maui_fiesta_2025_05_04",
+  "name": "Maui fiesta",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 470831,
+  "player": "Davide Restivo",
+  "placement": "1st",
+  "event": "Set Championship - Jamaica Card Store",
+  "event_date": "2025-05-04",
+  "ink_colors": [
+    "ruby",
+    "sapphire"
+  ],
+  "archetype": "R/B Pawpsicles",
+  "purpose": [
+    "items",
+    "ramp",
+    "control",
+    "locations"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Tipo - Growing Son",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Gramma Tala - Keeper of Ancient Stories",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Maui - Hero to All",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Maui - Half-Shark",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Tamatoa - Happy as a Clam",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Sisu - Empowered Sibling",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Pawpsicle",
+      "count": 4,
+      "type": "item"
+    },
+    {
+      "name": "Maui's Fish Hook",
+      "count": 2,
+      "type": "item"
+    },
+    {
+      "name": "Develop Your Brain",
+      "count": 3,
+      "type": "action"
+    },
+    {
+      "name": "Sail the Azurite Sea",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Vision of the Future",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Brawl",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "How Far I'll Go",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "A Pirate's Life",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Be Prepared",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "McDuck Manor - Scrooge's Mansion",
+      "count": 4,
+      "type": "location"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

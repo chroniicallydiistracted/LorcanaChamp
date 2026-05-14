@@ -1,0 +1,184 @@
+{
+  "confidence": "high",
+  "do_not_prioritize_yet": [
+    {
+      "milestone": "replacement_prevention",
+      "reason": "low copy impact in current 12 decks"
+    },
+    {
+      "milestone": "singer_songs",
+      "reason": "no sing triggers in current decks"
+    }
+  ],
+  "ranked_candidates": [
+    {
+      "copies_affected": 162,
+      "deck_presence": 3,
+      "dependencies": [],
+      "milestone": "target_choice_prompts",
+      "notes": "",
+      "representative_blockers": [
+        "unsupported_trigger_resolution_requirement:amount",
+        "unsupported_trigger_target:CHOSEN_CHARACTER",
+        "unsupported_trigger_target:CHOSEN_OPPOSING_CHARACTER",
+        "unsupported_trigger_effect:scry",
+        "unsupported_trigger_event:banish-in-challenge"
+      ],
+      "representative_cards": [],
+      "score": 661,
+      "unique_cards_affected": 15
+    },
+    {
+      "copies_affected": 55,
+      "deck_presence": 4,
+      "dependencies": [],
+      "milestone": "broader_trigger_projection",
+      "notes": "",
+      "representative_blockers": [
+        "unsupported_trigger_event:put-card-under",
+        "unsupported_trigger_event:draw",
+        "unsupported_trigger_event:leave-play",
+        "unsupported_trigger_event:banish-in-challenge",
+        "unsupported_trigger_on:CHARACTERS_HERE"
+      ],
+      "representative_cards": [],
+      "score": 240,
+      "unique_cards_affected": 7
+    },
+    {
+      "copies_affected": 32,
+      "deck_presence": 1,
+      "dependencies": [],
+      "milestone": "condition_evaluator_expansion",
+      "notes": "",
+      "representative_blockers": [
+        "unsupported_trigger_condition:has-card-under",
+        "unsupported_trigger_effect:scry",
+        "unsupported_trigger_condition:target-query",
+        "unsupported_trigger_condition:turn-metric",
+        "unsupported_trigger_target:CHOSEN_CHARACTER"
+      ],
+      "representative_cards": [],
+      "score": 141,
+      "unique_cards_affected": 7
+    },
+    {
+      "copies_affected": 24,
+      "deck_presence": 2,
+      "dependencies": [],
+      "milestone": "scry_search_reveal",
+      "notes": "",
+      "representative_blockers": [
+        "unsupported_trigger_effect:or",
+        "unsupported_trigger_effect:scry"
+      ],
+      "representative_cards": [],
+      "score": 117,
+      "unique_cards_affected": 4
+    },
+    {
+      "copies_affected": 8,
+      "deck_presence": 2,
+      "dependencies": [],
+      "milestone": "replacement_prevention",
+      "notes": "",
+      "representative_blockers": [
+        "unsupported_trigger_effect:create-replacement-effect"
+      ],
+      "representative_cards": [],
+      "score": 24,
+      "unique_cards_affected": 1
+    },
+    {
+      "copies_affected": 0,
+      "deck_presence": 0,
+      "dependencies": [],
+      "milestone": "activated_abilities",
+      "notes": "",
+      "representative_blockers": [],
+      "representative_cards": [],
+      "score": 15,
+      "unique_cards_affected": 0
+    },
+    {
+      "copies_affected": 0,
+      "deck_presence": 0,
+      "dependencies": [],
+      "milestone": "shift",
+      "notes": "",
+      "representative_blockers": [],
+      "representative_cards": [],
+      "score": 15,
+      "unique_cards_affected": 0
+    },
+    {
+      "copies_affected": 0,
+      "deck_presence": 0,
+      "dependencies": [],
+      "milestone": "singer_songs",
+      "notes": "",
+      "representative_blockers": [],
+      "representative_cards": [],
+      "score": 15,
+      "unique_cards_affected": 0
+    },
+    {
+      "copies_affected": 0,
+      "deck_presence": 0,
+      "dependencies": [],
+      "milestone": "deck_ordering",
+      "notes": "",
+      "representative_blockers": [],
+      "representative_cards": [],
+      "score": 0,
+      "unique_cards_affected": 0
+    },
+    {
+      "copies_affected": 0,
+      "deck_presence": 0,
+      "dependencies": [],
+      "milestone": "move_damage",
+      "notes": "",
+      "representative_blockers": [],
+      "representative_cards": [],
+      "score": 0,
+      "unique_cards_affected": 0
+    },
+    {
+      "copies_affected": 0,
+      "deck_presence": 0,
+      "dependencies": [],
+      "milestone": "pending_effect_prompts",
+      "notes": "",
+      "representative_blockers": [],
+      "representative_cards": [],
+      "score": 0,
+      "unique_cards_affected": 0
+    },
+    {
+      "copies_affected": 0,
+      "deck_presence": 0,
+      "dependencies": [],
+      "milestone": "unknown_parser_hardening",
+      "notes": "",
+      "representative_blockers": [],
+      "representative_cards": [],
+      "score": 0,
+      "unique_cards_affected": 0
+    },
+    {
+      "copies_affected": 0,
+      "deck_presence": 0,
+      "dependencies": [],
+      "milestone": "static_effect_registry",
+      "notes": "",
+      "representative_blockers": [],
+      "representative_cards": [],
+      "score": -10,
+      "unique_cards_affected": 0
+    }
+  ],
+  "reason": "Recommended based on copy/unique/deck impact scoring. Top blocker: unsupported_trigger_resolution_requirement:amount",
+  "recommended_next_milestone": "target_choice_prompts",
+  "schema_version": 1
+}

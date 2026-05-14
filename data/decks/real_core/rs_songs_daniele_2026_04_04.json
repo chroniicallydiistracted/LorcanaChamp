@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "rs_songs_daniele_2026_04_04",
+  "name": "Ruby Sapphire",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 508693,
+  "player": "Daniele Stella",
+  "placement": "4th",
+  "event": "LORCANA Winterspell - Set Championship",
+  "event_date": "2026-04-04",
+  "ink_colors": [
+    "ruby",
+    "sapphire"
+  ],
+  "archetype": "R/B Songs",
+  "purpose": [
+    "mechanic",
+    "songs",
+    "control"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Tipo - Growing Son",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Robin Hood - Sharpshooter",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Lilo - Causing an Uproar",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Maui - Half-Shark",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Olaf - Snowman of Action",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Develop Your Brain",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Helping Hand",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Distract",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Next Stop, Olympus",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Sail the Azurite Sea",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Vision of the Future",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Grab Your Bow",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Let It Go",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "A Pirate's Life",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Dig a Little Deeper",
+      "count": 4,
+      "type": "song"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "card_file_count": 2822,
+  "cards_source_path": "/home/andre/LorcanaChamp/lorcanito-full-src-code/packages/lorcana/lorcana-cards/src/cards",
+  "engine_reference_file_count": 492,
+  "errors": [],
+  "generated_at": "2026-05-13T10:16:12+00:00",
+  "generator": "scripts/extract_lorcanito_source_cards.py",
+  "helper_file_count": 17,
+  "schema_version": 1,
+  "source_file_count": 5888,
+  "source_root": "/home/andre/LorcanaChamp/lorcanito-full-src-code/",
+  "test_file_count": 2509,
+  "warnings": []
+}

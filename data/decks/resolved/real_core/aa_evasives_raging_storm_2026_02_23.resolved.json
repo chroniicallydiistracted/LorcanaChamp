@@ -1,0 +1,1349 @@
+{
+  "archetype": "A/P Evasives",
+  "cards": [
+    {
+      "ability_type_counts": {
+        "keyword": 1
+      },
+      "candidate_ids": [
+        "B00"
+      ],
+      "canonical_id": "ci_B00",
+      "card_id": "B00",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "Eilonwy - Princess of Llyr",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "SUPPORT",
+          "raw": {
+            "_source_index": 0,
+            "helper": "support",
+            "id": "helper-ref-0",
+            "keyword": "Support",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Support\",\n  text: \"Support\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "support",
+            "rawReference": "support",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/support.ts",
+            "text": "Support",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Eilonwy",
+      "raw_name": "Eilonwy - Princess of Llyr",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Princess of Llyr"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "YW7",
+        "MwD"
+      ],
+      "canonical_id": "ci_s33",
+      "card_id": "YW7",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "create-replacement-effect": 2
+      },
+      "full_name": "Rafiki - Mystical Fighter",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "CHALLENGER",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              3
+            ],
+            "helper": "challenger",
+            "keyword": "Challenger",
+            "rawExpression": "challenger(3)",
+            "rawHelper": "challenger(3)",
+            "type": "keyword",
+            "value": 3
+          },
+          "target_name": null,
+          "value": 3
+        }
+      ],
+      "name": "Rafiki",
+      "raw_name": "Rafiki - Mystical Fighter",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "challenge": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_effect:create-replacement-effect",
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Mystical Fighter"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 2
+      },
+      "candidate_ids": [
+        "bN7",
+        "05w"
+      ],
+      "canonical_id": "ci_Qej",
+      "card_id": "bN7",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "cost-reduction": 4
+      },
+      "full_name": "Grandmother Willow - Ancient Advisor",
+      "ink": "amber",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Grandmother Willow",
+      "raw_name": "Grandmother Willow - Ancient Advisor",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1,
+        "start-turn": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Ancient Advisor"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1
+      },
+      "candidate_ids": [
+        "PLH",
+        "0pB"
+      ],
+      "canonical_id": "ci_hSt",
+      "card_id": "PLH",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {},
+      "full_name": "Ursula - Vanessa",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "SINGER",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              4
+            ],
+            "helper": "singer",
+            "keyword": "Singer",
+            "rawExpression": "singer(4)",
+            "rawHelper": "singer(4)",
+            "type": "keyword",
+            "value": 4
+          },
+          "target_name": null,
+          "value": 4
+        }
+      ],
+      "name": "Ursula",
+      "raw_name": "Ursula - Vanessa",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "keyword:SINGER"
+      ],
+      "version": "Vanessa"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "akT"
+      ],
+      "canonical_id": "ci_akT",
+      "card_id": "akT",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Cheshire Cat - Inexplicable",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "BOOST",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              2
+            ],
+            "helper": "boost",
+            "keyword": "Boost",
+            "rawExpression": "boost(2)",
+            "rawHelper": "boost(2)",
+            "type": "keyword",
+            "value": 2
+          },
+          "target_name": null,
+          "value": 2
+        }
+      ],
+      "name": "Cheshire Cat",
+      "raw_name": "Cheshire Cat - Inexplicable",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "put-card-under": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_event:put-card-under"
+      ],
+      "version": "Inexplicable"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "owY"
+      ],
+      "canonical_id": "ci_owY",
+      "card_id": "owY",
+      "card_type": "character",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 2,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Timon - Snowball Swiper",
+      "ink": "amber",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Timon",
+      "raw_name": "Timon - Snowball Swiper",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Snowball Swiper"
+    },
+    {
+      "ability_type_counts": {
+        "activated": 1,
+        "keyword": 1,
+        "unknown": 1
+      },
+      "candidate_ids": [
+        "JlP",
+        "cqc"
+      ],
+      "canonical_id": "ci_hTe",
+      "card_id": "JlP",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {
+        "exert": 1,
+        "ink": 1
+      },
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Dumbo - Ninth Wonder of the Universe",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "EVASIVE",
+          "raw": {
+            "_source_index": 0,
+            "helper": "evasive",
+            "id": "helper-ref-0",
+            "keyword": "Evasive",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Evasive\",\n  text: \"Evasive\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "evasive",
+            "rawReference": "evasive",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/evasive.ts",
+            "text": "Evasive",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Dumbo",
+      "raw_name": "Dumbo - Ninth Wonder of the Universe",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "partially_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_activated_ability",
+        "unsupported_cost:ink"
+      ],
+      "version": "Ninth Wonder of the Universe"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "B2Y"
+      ],
+      "canonical_id": "ci_M3n",
+      "card_id": "B2Y",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "draw": 2
+      },
+      "full_name": "Genie - Wish Fulfilled",
+      "ink": "amethyst",
+      "inkable": false,
+      "keyword_defs": [
+        {
+          "keyword": "EVASIVE",
+          "raw": {
+            "_source_index": 0,
+            "helper": "evasive",
+            "id": "helper-ref-0",
+            "keyword": "Evasive",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Evasive\",\n  text: \"Evasive\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "evasive",
+            "rawReference": "evasive",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/evasive.ts",
+            "text": "Evasive",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Genie",
+      "raw_name": "Genie - Wish Fulfilled",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Wish Fulfilled"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 2
+      },
+      "candidate_ids": [
+        "vao"
+      ],
+      "canonical_id": "ci_vao",
+      "card_id": "vao",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {},
+      "full_name": "Iago - Giant Spectral Parrot",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "EVASIVE",
+          "raw": {
+            "_source_index": 0,
+            "helper": "evasive",
+            "id": "helper-ref-0",
+            "keyword": "Evasive",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Evasive\",\n  text: \"Evasive\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "evasive",
+            "rawReference": "evasive",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/evasive.ts",
+            "text": "Evasive",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        },
+        {
+          "keyword": "VANISH",
+          "raw": {
+            "_source_index": 1,
+            "helper": "vanish",
+            "id": "helper-ref-1",
+            "keyword": "Vanish",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Vanish\",\n  text: \"Vanish\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "vanish",
+            "rawReference": "vanish",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/vanish.ts",
+            "text": "Vanish",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Iago",
+      "raw_name": "Iago - Giant Spectral Parrot",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Giant Spectral Parrot"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 3
+      },
+      "candidate_ids": [
+        "JOj"
+      ],
+      "canonical_id": "ci_JOj",
+      "card_id": "JOj",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 1,
+      "effect_type_counts": {},
+      "full_name": "Sven - Leaping Reindeer",
+      "ink": "amethyst",
+      "inkable": false,
+      "keyword_defs": [
+        {
+          "keyword": "CHALLENGER",
+          "raw": {
+            "_source_index": 1,
+            "args": [
+              3
+            ],
+            "helper": "challenger",
+            "keyword": "Challenger",
+            "rawExpression": "challenger(3)",
+            "rawHelper": "challenger(3)",
+            "type": "keyword",
+            "value": 3
+          },
+          "target_name": null,
+          "value": 3
+        },
+        {
+          "keyword": "EVASIVE",
+          "raw": {
+            "_source_index": 2,
+            "helper": "evasive",
+            "id": "helper-ref-2",
+            "keyword": "Evasive",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Evasive\",\n  text: \"Evasive\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "evasive",
+            "rawReference": "evasive",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/evasive.ts",
+            "text": "Evasive",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        },
+        {
+          "keyword": "RUSH",
+          "raw": {
+            "_source_index": 0,
+            "helper": "rush",
+            "id": "helper-ref-0",
+            "keyword": "Rush",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Rush\",\n  text: \"Rush\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "rush",
+            "rawReference": "rush",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/rush.ts",
+            "text": "Rush",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Sven",
+      "raw_name": "Sven - Leaping Reindeer",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Leaping Reindeer"
+    },
+    {
+      "ability_type_counts": {
+        "unknown": 1
+      },
+      "candidate_ids": [
+        "IyC",
+        "2XS"
+      ],
+      "canonical_id": "ci_F3L",
+      "card_id": "IyC",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {},
+      "full_name": "Tigger - Bouncing All the Way",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Tigger",
+      "raw_name": "Tigger - Bouncing All the Way",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_engine_mechanic",
+      "source_mapping_status": "unsupported",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Bouncing All the Way"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 2,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "PX4"
+      ],
+      "canonical_id": "ci_PX4",
+      "card_id": "PX4",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "exert": 2
+      },
+      "full_name": "Elsa - The Fifth Spirit",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "EVASIVE",
+          "raw": {
+            "_source_index": 1,
+            "helper": "evasive",
+            "id": "helper-ref-1",
+            "keyword": "Evasive",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Evasive\",\n  text: \"Evasive\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "evasive",
+            "rawReference": "evasive",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/evasive.ts",
+            "text": "Evasive",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        },
+        {
+          "keyword": "RUSH",
+          "raw": {
+            "_source_index": 0,
+            "helper": "rush",
+            "id": "helper-ref-0",
+            "keyword": "Rush",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Rush\",\n  text: \"Rush\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "rush",
+            "rawReference": "rush",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/rush.ts",
+            "text": "Rush",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Elsa",
+      "raw_name": "Elsa - The Fifth Spirit",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_effect:exert",
+        "unsupported_target:chosen",
+        "unsupported_trigger"
+      ],
+      "version": "The Fifth Spirit"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "bDq",
+        "R01"
+      ],
+      "canonical_id": "ci_yoK",
+      "card_id": "bDq",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Hades - Looking for a Deal",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Hades",
+      "raw_name": "Hades - Looking for a Deal",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:optional",
+        "unsupported_trigger"
+      ],
+      "version": "Looking for a Deal"
+    },
+    {
+      "ability_type_counts": {
+        "static": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "e6l",
+        "uwu"
+      ],
+      "canonical_id": "ci_Sox",
+      "card_id": "e6l",
+      "card_type": "character",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {
+        "resource-count": 1
+      },
+      "cost": 6,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "restriction": 2,
+        "sequence": 2
+      },
+      "full_name": "Demona - Scourge of the Wyvern Clan",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Demona",
+      "raw_name": "Demona - Scourge of the Wyvern Clan",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_effect:restriction",
+        "unsupported_static_effect",
+        "unsupported_trigger"
+      ],
+      "version": "Scourge of the Wyvern Clan"
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "ZhD"
+      ],
+      "canonical_id": "ci_ZhD",
+      "card_id": "ZhD",
+      "card_type": "action",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 2,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Hypnotic Strength",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Hypnotic Strength",
+      "raw_name": "Hypnotic Strength",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "w65",
+        "4eH"
+      ],
+      "canonical_id": "ci_iVN",
+      "card_id": "w65",
+      "card_type": "action",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 2,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Ohana Means Family",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Ohana Means Family",
+      "raw_name": "Ohana Means Family",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "bIQ",
+        "Zv7"
+      ],
+      "canonical_id": "ci_0mj",
+      "card_id": "bIQ",
+      "card_type": "action",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "The Horseman Strikes!",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "The Horseman Strikes!",
+      "raw_name": "The Horseman Strikes!",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "R9J",
+        "BIk"
+      ],
+      "canonical_id": "ci_QH5",
+      "card_id": "R9J",
+      "card_type": "action",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 8,
+      "cost_type_counts": {},
+      "count": 1,
+      "effect_type_counts": {
+        "banish": 2
+      },
+      "full_name": "Raging Storm",
+      "ink": "amber",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Raging Storm",
+      "raw_name": "Raging Storm",
+      "raw_type": "action",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_targeting",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_effect:banish",
+        "unsupported_target:ALL_CHARACTERS"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "KVh",
+        "8vL"
+      ],
+      "canonical_id": "ci_NsP",
+      "card_id": "KVh",
+      "card_type": "action",
+      "colors": [
+        "amber"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "banish": 2
+      },
+      "full_name": "World's Greatest Criminal Mind",
+      "ink": "amber",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "World's Greatest Criminal Mind",
+      "raw_name": "World's Greatest Criminal Mind",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_targeting",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_effect:banish",
+        "unsupported_target:chosen"
+      ],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "kDg",
+        "zw0"
+      ],
+      "canonical_id": "ci_Wdy",
+      "card_id": "kDg",
+      "card_type": "action",
+      "colors": [
+        "amethyst"
+      ],
+      "condition_type_counts": {},
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 2,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "Colors of the Wind",
+      "ink": "amethyst",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Colors of the Wind",
+      "raw_name": "Colors of the Wind",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    }
+  ],
+  "deck_total_declared": 60,
+  "deck_total_resolved": 60,
+  "event": "Mulligan Challenge #27",
+  "event_date": "2026-02-23",
+  "format": "core_constructed",
+  "id": "aa_evasives_raging_storm_2026_02_23",
+  "mapping_summary": {
+    "best_use": "coverage_discovery",
+    "deck_id": "aa_evasives_raging_storm_2026_02_23",
+    "executable_copies": 17,
+    "executable_unique_cards": 7,
+    "mapped_not_executable_copies": 33,
+    "mapped_not_executable_unique_cards": 9,
+    "name": "Set 11 - Amber/Amethyst - Raging Storm",
+    "playability": "partially_executable",
+    "recommended_engine_work": [
+      {
+        "affected_copies": 35,
+        "affected_decks": 1,
+        "affected_unique_cards": 10,
+        "category": "other_source_execution"
+      },
+      {
+        "affected_copies": 29,
+        "affected_decks": 1,
+        "affected_unique_cards": 8,
+        "category": "real_bag_and_triggers"
+      },
+      {
+        "affected_copies": 8,
+        "affected_decks": 1,
+        "affected_unique_cards": 2,
+        "category": "activated_abilities"
+      },
+      {
+        "affected_copies": 8,
+        "affected_decks": 1,
+        "affected_unique_cards": 3,
+        "category": "target_choice_prompts"
+      },
+      {
+        "affected_copies": 3,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "singer_songs"
+      },
+      {
+        "affected_copies": 3,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "static_effect_registry"
+      }
+    ],
+    "resolved_unique_cards": 20,
+    "schema_version": 1,
+    "top_blockers_by_copies": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 29
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 8
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 7
+      },
+      {
+        "blocker": "unsupported_activated_ability",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:banish",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:create-replacement-effect",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:exert",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:optional",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_event:put-card-under",
+        "count": 4
+      },
+      {
+        "blocker": "keyword:SINGER",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_effect:restriction",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_target:ALL_CHARACTERS",
+        "count": 1
+      }
+    ],
+    "top_blockers_by_unique_cards": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 8
+      },
+      {
+        "blocker": "unsupported_effect:banish",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 2
+      },
+      {
+        "blocker": "keyword:SINGER",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_activated_ability",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_choice",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:create-replacement-effect",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:exert",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:optional",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:restriction",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_target:ALL_CHARACTERS",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_trigger_event:put-card-under",
+        "count": 1
+      }
+    ],
+    "total_cards": 60,
+    "unique_cards": 20,
+    "unresolved_unique_cards": 0,
+    "unsupported_copies": 43,
+    "unsupported_unique_cards": 3,
+    "valid": true
+  },
+  "name": "Set 11 - Amber/Amethyst - Raging Storm",
+  "placement": "15th",
+  "playability": "partially_executable",
+  "playable_decklist_ids": [
+    "B00",
+    "B00",
+    "B00",
+    "B00",
+    "YW7",
+    "YW7",
+    "YW7",
+    "YW7",
+    "bN7",
+    "bN7",
+    "bN7",
+    "bN7",
+    "PLH",
+    "PLH",
+    "PLH",
+    "akT",
+    "akT",
+    "akT",
+    "akT",
+    "owY",
+    "owY",
+    "JlP",
+    "JlP",
+    "JlP",
+    "JlP",
+    "B2Y",
+    "B2Y",
+    "B2Y",
+    "B2Y",
+    "vao",
+    "vao",
+    "vao",
+    "JOj",
+    "IyC",
+    "IyC",
+    "IyC",
+    "PX4",
+    "PX4",
+    "PX4",
+    "PX4",
+    "bDq",
+    "bDq",
+    "bDq",
+    "bDq",
+    "e6l",
+    "e6l",
+    "e6l",
+    "ZhD",
+    "ZhD",
+    "w65",
+    "w65",
+    "bIQ",
+    "bIQ",
+    "bIQ",
+    "R9J",
+    "KVh",
+    "KVh",
+    "KVh",
+    "kDg",
+    "kDg"
+  ],
+  "player": "dihensoeur",
+  "purpose": [
+    "evasive",
+    "meta",
+    "mechanic",
+    "songs"
+  ],
+  "raw_ink_colors": [
+    "amber",
+    "amethyst"
+  ],
+  "resolved_ink_colors": [
+    "amber",
+    "amethyst"
+  ],
+  "schema_version": 1,
+  "source_deck_id": 501666,
+  "source_site": "inkdecks",
+  "validation": {
+    "ambiguous_cards": [],
+    "banned_cards": [],
+    "copy_limit_violations": [],
+    "deck_total_actual": 60,
+    "deck_total_declared": 60,
+    "errors": [],
+    "resolved_ink_colors": [
+      "amber",
+      "amethyst"
+    ],
+    "schema_version": 1,
+    "unknown_legality_cards": [
+      "Cheshire Cat - Inexplicable",
+      "Colors of the Wind",
+      "Demona - Scourge of the Wyvern Clan",
+      "Dumbo - Ninth Wonder of the Universe",
+      "Eilonwy - Princess of Llyr",
+      "Elsa - The Fifth Spirit",
+      "Genie - Wish Fulfilled",
+      "Grandmother Willow - Ancient Advisor",
+      "Hades - Looking for a Deal",
+      "Hypnotic Strength",
+      "Iago - Giant Spectral Parrot",
+      "Ohana Means Family",
+      "Rafiki - Mystical Fighter",
+      "Raging Storm",
+      "Sven - Leaping Reindeer",
+      "The Horseman Strikes!",
+      "Tigger - Bouncing All the Way",
+      "Timon - Snowball Swiper",
+      "Ursula - Vanessa",
+      "World's Greatest Criminal Mind"
+    ],
+    "unresolved_cards": [],
+    "valid": true,
+    "warnings": []
+  }
+}

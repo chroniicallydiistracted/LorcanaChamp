@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "id": "as_challengers_purple_steel_leipzig_2026_04_18",
+  "name": "Purple Steel",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 509817,
+  "player": "Julian M",
+  "placement": "1st",
+  "event": "CCQ @CAGGTUS Leipzig",
+  "event_date": "2026-04-18",
+  "ink_colors": [
+    "amethyst",
+    "steel"
+  ],
+  "archetype": "P/S Challengers",
+  "purpose": [
+    "meta",
+    "challenge",
+    "combat",
+    "smoke"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Captain Hook - Forceful Duelist",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Olaf - Helping Hand",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Palace Guard - Spectral Sentry",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Black Heron - Real Bad Egg",
+      "count": 1,
+      "type": "character"
+    },
+    {
+      "name": "Christopher Robin - Joining the Fun",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Doc - Bold Knight",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Pocahontas - Following the Wind",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Cheshire Cat - Inexplicable",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Genie - Magical Researcher",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Giant Cobra - Ghostly Serpent",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Lexington - Small in Stature",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Angel - Experiment 624",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Genie - Wish Fulfilled",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Yzma - Conniving Chemist",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Elsa - The Fifth Spirit",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Hades - Looking for a Deal",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Demona - Scourge of the Wyvern Clan",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Fire the Cannons!",
+      "count": 2,
+      "type": "action"
+    },
+    {
+      "name": "Strength of a Raging Fire",
+      "count": 4,
+      "type": "song"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

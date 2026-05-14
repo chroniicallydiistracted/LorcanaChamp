@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "as_steelsong_brian_law_taipei_2026_03_14",
+  "name": "Steel Amber",
+  "format": "core_constructed",
+  "source_site": "inkdecks",
+  "source_deck_id": 507278,
+  "player": "Brian Law",
+  "placement": "5th",
+  "event": "Disney Lorcana Challenge - DLC Taipei 2026",
+  "event_date": "2026-03-14",
+  "ink_colors": [
+    "amber",
+    "steel"
+  ],
+  "archetype": "A/S Steelsong",
+  "purpose": [
+    "mechanic",
+    "songs",
+    "singer",
+    "steel_removal"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Mulan - Disguised Soldier",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Angel - Siren Singer",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Doc - Bold Knight",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Grandmother Willow - Ancient Advisor",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Lilo - Escape Artist",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Mowgli - Man Cub",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "The Troubadour - Musical Narrator",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Nani - Stage Manager",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Angel - Experiment 624",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Ariel - Ethereal Voice",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Bambi - Ethereal Fawn",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Chief Powhatan - Protective Leader",
+      "count": 3,
+      "type": "character"
+    },
+    {
+      "name": "Stitch - Carefree Snowboarder",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Akood et Emuti",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Strength of a Raging Fire",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "He Hurled His Thunderbolt",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Beyond the Horizon",
+      "count": 2,
+      "type": "song"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "tournament",
+      "hide_banned": true
+    }
+  }
+}

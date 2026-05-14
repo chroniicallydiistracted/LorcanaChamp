@@ -1,0 +1,424 @@
+{
+  "gaps": [
+    {
+      "card_id": "4Ol",
+      "card_name": "Grand Duke",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"4Ol\",\n  canonicalId: \"ci_4Ol\",\n  reprints: [\"set2-009\"],\n  cardType: \"character\",\n  name: \"Grand Duke\",\n  version: \"Advisor to the King\",\n  inkType: [\"amber\"],\n  franchise: \"Cinderella\",\n  set: \"002\",\n  cardNumber: 9,\n  rarity: \"rare\",\n  cost: 2,\n  strength: 2,\n  willpower: 2,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_0b2c5d800fc14fdfacf098d74ec7ab74\",\n    tcgPlayer: 522735,\n  },\n  text: [\n    {\n      title: \"YES, YOUR MAJESTY\",\n      description: \"Your Prince, Princess, King, and Queen characters get +1 {S}.\",\n    },\n  ],\n  classifications: [\"Storyborn\", \"Ally\"],\n  abilities: [\n    {\n      effect: {\n        modifier: 1,\n        stat: \"strength\",\n        target: {\n          selector: \"all\",\n          count: \"all\",\n          owner: \"you\",\n          zones: [\"play\"],\n          cardTypes: [\"character\"],\n          filter: [\n            {\n              type: \"or\",\n              filters: [\n                {\n                  type: \"has-classification\",\n          ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/002/characters/009-grand-duke-advisor-to-the-king.ts"
+    },
+    {
+      "card_id": "Rek",
+      "card_name": "Happy",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"Rek\",\n  canonicalId: \"ci_Rek\",\n  reprints: [\"set2-011\"],\n  cardType: \"character\",\n  name: \"Happy\",\n  version: \"Good-Natured\",\n  inkType: [\"amber\"],\n  franchise: \"Snow White\",\n  set: \"002\",\n  cardNumber: 11,\n  rarity: \"common\",\n  cost: 5,\n  strength: 3,\n  willpower: 5,\n  lore: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_7bea75aa713d410a9be82d9e82ace333\",\n    tcgPlayer: 526383,\n  },\n  text: \"Support\",\n  classifications: [\"Storyborn\", \"Ally\", \"Seven Dwarfs\"],\n  abilities: [\n    {\n      id: \"det-1\",\n      keyword: \"Support\",\n      type: \"keyword\",\n      text: \"Support\",\n    },\n    {\n      type: \"static\",\n      effect: {\n        type: \"modify-stat\",\n        stat: \"lore\",\n        modifier: 1,\n        target: \"SELF\",\n      },\n      condition: {\n        type: \"has-character-count\",\n        classification: \"Seven Dwarfs\",\n        controller: \"you\",\n        count: 2,\n        comparison: \"greater-or-equal\",\n      },\n      id: \"dig-1\",\n      name: \"DIG, DIG, DIG\",\n      text: \"",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/002/characters/011-happy-good-natured.ts"
+    },
+    {
+      "card_id": "1WY",
+      "card_name": "Fairy Godmother",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"1WY\",\n  canonicalId: \"ci_1WY\",\n  reprints: [\"set2-041\"],\n  cardType: \"character\",\n  name: \"Fairy Godmother\",\n  version: \"Mystic Armorer\",\n  inkType: [\"amethyst\"],\n  franchise: \"Cinderella\",\n  set: \"002\",\n  cardNumber: 41,\n  rarity: \"legendary\",\n  cost: 5,\n  strength: 3,\n  willpower: 4,\n  lore: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_ea4fdeec62324b1eac04465ca25a1fbc\",\n    tcgPlayer: 527734,\n  },\n  text: [\n    {\n      title: \"Shift 2\",\n    },\n    {\n      title: \"FORGET THE COACH, HERE'S A SWORD\",\n      description:\n        'Whenever this character quests, your characters gain Challenger +3 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +3 {S} while challenging.)',\n    },\n  ],\n  classifications: [\"Floodborn\", \"Mentor\", \"Fairy\"],\n  abilities: [\n    shift(2),\n    {\n      effect: {\n        steps: [\n          {\n            keyword: \"Challenger\",\n            target: {\n              selector: \"all\",\n              ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/002/characters/041-fairy-godmother-mystic-armorer.ts"
+    },
+    {
+      "card_id": "xGr",
+      "card_name": "Cogsworth",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"xGr\",\n  canonicalId: \"ci_xGr\",\n  reprints: [\"set2-143\"],\n  cardType: \"character\",\n  name: \"Cogsworth\",\n  version: \"Talking Clock\",\n  inkType: [\"sapphire\"],\n  franchise: \"Beauty and the Beast\",\n  set: \"002\",\n  cardNumber: 143,\n  rarity: \"uncommon\",\n  cost: 2,\n  strength: 2,\n  willpower: 3,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_6ae3b063360244f19a8aa03334b16078\",\n    tcgPlayer: 517592,\n  },\n  text: [\n    {\n      title: \"WAIT A MINUTE\",\n      description: 'Your characters with Reckless gain \"{E} \u2014 Gain 1 lore.\"',\n    },\n  ],\n  classifications: [\"Storyborn\", \"Ally\"],\n  abilities: [\n    {\n      effect: {\n        ability: {\n          cost: {\n            exert: true,\n          },\n          effect: {\n            amount: 1,\n            target: \"CONTROLLER\",\n            type: \"gain-lore\",\n          },\n          name: \"WAIT A MINUTE\",\n          text: \"{E} - Gain 1 lore.\",\n          type: \"activated\",\n        },\n        target: {\n          count: \"all\",\n          c",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/002/characters/143-cogsworth-talking-clock.ts"
+    },
+    {
+      "card_id": "7M2",
+      "card_name": "Mr. Smee",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"7M2\",\n  canonicalId: \"ci_7M2\",\n  reprints: [\"set3-184\"],\n  cardType: \"character\",\n  name: \"Mr. Smee\",\n  version: \"Bumbling Mate\",\n  inkType: [\"steel\"],\n  franchise: \"Peter Pan\",\n  set: \"003\",\n  cardNumber: 184,\n  rarity: \"uncommon\",\n  cost: 2,\n  strength: 3,\n  willpower: 3,\n  lore: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_c608166f5ffb4bb195af64fb501902cb\",\n    tcgPlayer: 539111,\n  },\n  text: [\n    {\n      title: \"OH DEAR, DEAR, DEAR\",\n      description:\n        \"At the end of your turn, if this character is exerted and you don't have a Captain character in play, deal 1 damage to this character.\",\n    },\n  ],\n  classifications: [\"Storyborn\", \"Ally\", \"Pirate\"],\n  abilities: [\n    {\n      condition: {\n        type: \"and\",\n        conditions: [\n          {\n            type: \"target-query\",\n            query: {\n              selector: \"all\",\n              reference: \"source\",\n              filters: [\n                {\n                  type: \"exerted\",\n               ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/003/characters/184-mr-smee-bumbling-mate.ts"
+    },
+    {
+      "card_id": "ysE",
+      "card_name": "Poor Unfortunate Souls",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"ysE\",\n  canonicalId: \"ci_smr\",\n  reprints: [\"set4-060\", \"set9-061\"],\n  cardType: \"action\",\n  name: \"Poor Unfortunate Souls\",\n  inkType: [\"amethyst\"],\n  franchise: \"Little Mermaid\",\n  set: \"004\",\n  cardNumber: 60,\n  rarity: \"common\",\n  cost: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_06c998317b6d45d0abc056cea429ad13\",\n    tcgPlayer: 650005,\n  },\n  text: \"Return chosen character, item, or location with cost 2 or less to their player's hand.\",\n  actionSubtype: \"song\",\n  abilities: [\n    {\n      type: \"action\",\n      effect: {\n        type: \"return-to-hand\",\n        target: {\n          selector: \"chosen\",\n          count: 1,\n          owner: \"any\",\n          zones: [\"play\"],\n          cardTypes: [\"character\", \"item\", \"location\"],\n          filter: [\n            {\n              type: \"cost-comparison\",\n              comparison: \"less-or-equal\",\n              value: 2,\n            },\n          ],\n        },\n      },\n    },\n  ],\n  i18n: poorUnfortunateSoulsI18n,\n}",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/004/actions/060-poor-unfortunate-souls.ts"
+    },
+    {
+      "card_id": "Ran",
+      "card_name": "Bruno Madrigal",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"Ran\",\n  canonicalId: \"ci_Ran\",\n  reprints: [\"set4-038\"],\n  cardType: \"character\",\n  name: \"Bruno Madrigal\",\n  version: \"Out of the Shadows\",\n  inkType: [\"amethyst\"],\n  franchise: \"Encanto\",\n  set: \"004\",\n  cardNumber: 38,\n  rarity: \"rare\",\n  cost: 5,\n  strength: 4,\n  willpower: 5,\n  lore: 1,\n  inkable: false,\n  externalIds: {\n    lorcast: \"crd_140b4894a53d4884a4ec1e15dab9319a\",\n    tcgPlayer: 543899,\n  },\n  text: [\n    {\n      title: \"IT WAS YOUR VISION\",\n      description:\n        'When you play this character, chosen character gains \"When this character is banished in a challenge, you may return this card to your hand\" this turn.',\n    },\n  ],\n  classifications: [\"Storyborn\", \"Ally\", \"Madrigal\"],\n  abilities: [\n    {\n      effect: {\n        ability: \"return-to-hand-when-banished\",\n        duration: \"this-turn\",\n        target: {\n          selector: \"chosen\",\n          count: 1,\n          owner: \"any\",\n          zones: [\"play\"],\n          cardTypes: [\"character\"],\n        },\n",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/004/characters/038-bruno-madrigal-out-of-the-shadows.ts"
+    },
+    {
+      "card_id": "8TS",
+      "card_name": "Flotsam",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"8TS\",\n  canonicalId: \"ci_8TS\",\n  reprints: [\"set4-043\"],\n  cardType: \"character\",\n  name: \"Flotsam\",\n  version: 'Ursula\\'s \"Baby\"',\n  inkType: [\"amethyst\"],\n  franchise: \"Little Mermaid\",\n  set: \"004\",\n  cardNumber: 43,\n  rarity: \"uncommon\",\n  cost: 3,\n  strength: 4,\n  willpower: 2,\n  lore: 1,\n  inkable: false,\n  externalIds: {\n    lorcast: \"crd_5fb77165fcbc43e99fc15c3d64426b65\",\n    tcgPlayer: 549467,\n  },\n  text: [\n    {\n      title: \"QUICK ESCAPE\",\n      description: \"When this character is banished in a challenge, return this card to your hand.\",\n    },\n    {\n      title: \"OMINOUS PAIR\",\n      description:\n        'Your characters named Jetsam gain \"When this character is banished in a challenge, return this card to your hand.\"',\n    },\n  ],\n  classifications: [\"Dreamborn\", \"Ally\"],\n  abilities: [\n    {\n      id: \"1e2-1\",\n      name: \"QUICK ESCAPE\",\n      text: \"QUICK ESCAPE When this character is banished in a challenge, return this card to your hand.\",\n      type: \"trigg",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/004/characters/043-flotsam-ursulas-baby.ts"
+    },
+    {
+      "card_id": "jZW",
+      "card_name": "Jetsam",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"jZW\",\n  canonicalId: \"ci_jZW\",\n  reprints: [\"set4-046\"],\n  cardType: \"character\",\n  name: \"Jetsam\",\n  version: 'Ursula\\'s \"Baby\"',\n  inkType: [\"amethyst\"],\n  franchise: \"Little Mermaid\",\n  set: \"004\",\n  cardNumber: 46,\n  rarity: \"common\",\n  cost: 3,\n  strength: 2,\n  willpower: 4,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_b61f1e595b3844cdad00a05ee402457b\",\n    tcgPlayer: 549468,\n  },\n  text: [\n    {\n      title: \"Challenger +2\",\n    },\n    {\n      title: \"OMINOUS PAIR\",\n      description: \"Your characters named Flotsam gain Challenger +2.\",\n    },\n  ],\n  classifications: [\"Dreamborn\", \"Ally\"],\n  abilities: [\n    challenger(2),\n    {\n      effect: {\n        keyword: \"Challenger\",\n        target: {\n          selector: \"all\",\n          count: \"all\",\n          owner: \"you\",\n          zones: [\"play\"],\n          cardTypes: [\"character\"],\n          filter: [{ type: \"has-name\", name: \"Flotsam\" }],\n        },\n        type: \"gain-keyword\",\n        value: 2,\n      },\n",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/004/characters/046-jetsam-ursulas-baby.ts"
+    },
+    {
+      "card_id": "ntG",
+      "card_name": "Magical Aid",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"ntG\",\n  canonicalId: \"ci_ntG\",\n  reprints: [\"set5-063\"],\n  cardType: \"action\",\n  name: \"Magical Aid\",\n  inkType: [\"amethyst\"],\n  franchise: \"Aladdin\",\n  set: \"005\",\n  cardNumber: 63,\n  rarity: \"uncommon\",\n  cost: 3,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_6efcf80c6ccc458e9892bacc332c32d7\",\n    tcgPlayer: 561627,\n  },\n  text: 'Chosen character gains Challenger +3 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +3 {S} while challenging.)',\n  abilities: [\n    {\n      effect: {\n        steps: [\n          {\n            keyword: \"Challenger\",\n            target: {\n              selector: \"chosen\",\n              count: 1,\n              owner: \"any\",\n              zones: [\"play\"],\n              cardTypes: [\"character\"],\n            },\n            type: \"gain-keyword\",\n            value: 3,\n            duration: \"this-turn\",\n          },\n          {\n            ability: \"return-to-hand-when-banished\",\n            dura",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/005/actions/063-magical-aid.ts"
+    },
+    {
+      "card_id": "roA",
+      "card_name": "You're Welcome",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"roA\",\n  canonicalId: \"ci_IPh\",\n  reprints: [\"set5-096\"],\n  cardType: \"action\",\n  name: \"You're Welcome\",\n  inkType: [\"emerald\"],\n  franchise: \"Moana\",\n  set: \"005\",\n  cardNumber: 96,\n  rarity: \"uncommon\",\n  cost: 4,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_f799b47b4b894912a8d83942d0fa4d22\",\n    tcgPlayer: 561983,\n  },\n  text: \"Shuffle chosen character, item, or location into their player's deck. That player draws 2 cards.\",\n  actionSubtype: \"song\",\n  abilities: [\n    {\n      id: \"1my-1\",\n      effect: {\n        type: \"sequence\",\n        steps: [\n          {\n            type: \"shuffle-into-deck\",\n            target: {\n              selector: \"chosen\",\n              count: 1,\n              owner: \"any\",\n              zones: [\"play\"],\n              cardTypes: [\"character\", \"item\", \"location\"],\n            },\n          },\n          {\n            type: \"draw\",\n            amount: 2,\n            target: \"CARD_OWNER\",\n          },\n        ],\n      },\n      type: \"action\",\n",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/005/actions/096-youre-welcome.ts"
+    },
+    {
+      "card_id": "jt8",
+      "card_name": "Food Fight!",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"jt8\",\n  canonicalId: \"ci_jt8\",\n  reprints: [\"set5-199\"],\n  cardType: \"action\",\n  name: \"Food Fight!\",\n  inkType: [\"steel\"],\n  set: \"005\",\n  cardNumber: 199,\n  rarity: \"uncommon\",\n  cost: 1,\n  inkable: false,\n  externalIds: {\n    lorcast: \"crd_301228de8de94aa382a1cface63a3422\",\n    tcgPlayer: 561494,\n  },\n  text: 'Your characters gain \"{E}, 1 {I} \u2014 Deal 1 damage to chosen character\" this turn.',\n  abilities: [\n    {\n      id: \"1ww-1\",\n      type: \"action\",\n      text: \"Your characters gain \u201c{E}, 1 {I} \u2014 Deal 1 damage to chosen character\u201d this turn.\",\n      effect: {\n        type: \"grant-ability\",\n        duration: \"this-turn\",\n        target: \"YOUR_CHARACTERS\",\n        ability: {\n          id: \"food-fight-damage\",\n          type: \"activated\",\n          text: \"{E}, 1 {I} \u2014 Deal 1 damage to chosen character.\",\n          cost: {\n            exert: true,\n            ink: 1,\n          },\n          effect: {\n            type: \"deal-damage\",\n            amount: 1,\n            target: ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/005/actions/199-food-fight.ts"
+    },
+    {
+      "card_id": "IEz",
+      "card_name": "Maleficent",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"IEz\",\n  canonicalId: \"ci_IEz\",\n  reprints: [\"set5-035\"],\n  cardType: \"character\",\n  name: \"Maleficent\",\n  version: \"Formidable Queen\",\n  inkType: [\"amethyst\"],\n  franchise: \"Sleeping Beauty\",\n  set: \"005\",\n  cardNumber: 35,\n  rarity: \"common\",\n  cost: 8,\n  strength: 7,\n  willpower: 7,\n  lore: 2,\n  inkable: false,\n  externalIds: {\n    lorcast: \"crd_d3bfcff390e54c9bbd1027b57320d621\",\n    tcgPlayer: 561950,\n  },\n  text: [\n    {\n      title: \"Shift 6\",\n    },\n    {\n      title: \"LISTEN WELL, ALL OF YOU\",\n      description:\n        \"When you play this character, for each of your characters named Maleficent in play, return a chosen opposing character, item, or location with cost 3 or less to their player's hand.\",\n    },\n  ],\n  classifications: [\"Floodborn\", \"Villain\", \"Queen\", \"Sorcerer\"],\n  abilities: [\n    shift(6),\n    {\n      effect: {\n        type: \"for-each\",\n        counter: {\n          type: \"target-query\",\n          query: {\n            selector: \"all\",\n            owner: ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/005/characters/035-maleficent-formidable-queen.ts"
+    },
+    {
+      "card_id": "3T9",
+      "card_name": "Maleficent",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"3T9\",\n  canonicalId: \"ci_3T9\",\n  reprints: [\"set5-051\"],\n  cardType: \"character\",\n  name: \"Maleficent\",\n  version: \"Vexed Partygoer\",\n  inkType: [\"amethyst\"],\n  franchise: \"Sleeping Beauty\",\n  set: \"005\",\n  cardNumber: 51,\n  rarity: \"uncommon\",\n  cost: 3,\n  strength: 0,\n  willpower: 4,\n  lore: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_ec332a15608840ad942e800aa7b17294\",\n    tcgPlayer: 561614,\n  },\n  text: [\n    {\n      title: \"WHAT AN AWKWARD SITUATION\",\n      description:\n        \"Whenever this character quests, you may choose and discard a card to return chosen character, item, or location with cost 3 or less to their player's hand.\",\n    },\n  ],\n  classifications: [\"Storyborn\", \"Villain\", \"Sorcerer\"],\n  abilities: [\n    {\n      effect: {\n        steps: [\n          {\n            chooser: \"CONTROLLER\",\n            effect: {\n              type: \"discard\",\n              amount: 1,\n              chosen: true,\n              from: \"hand\",\n              target: \"CONTROL",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/005/characters/051-maleficent-vexed-partygoer.ts"
+    },
+    {
+      "card_id": "xWf",
+      "card_name": "Banzai",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"xWf\",\n  canonicalId: \"ci_xWf\",\n  reprints: [\"set5-087\"],\n  cardType: \"character\",\n  name: \"Banzai\",\n  version: \"Taunting Hyena\",\n  inkType: [\"emerald\"],\n  franchise: \"Lion King\",\n  set: \"005\",\n  cardNumber: 87,\n  rarity: \"common\",\n  cost: 2,\n  strength: 2,\n  willpower: 2,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_2f8df927b41b4664aa7f6b810df6da4a\",\n    tcgPlayer: 561162,\n  },\n  text: [\n    {\n      title: \"HERE KITTY, KITTY, KITTY\",\n      description: \"When you play this character, you may exert chosen damaged character.\",\n    },\n  ],\n  classifications: [\"Storyborn\", \"Ally\", \"Hyena\"],\n  abilities: [\n    {\n      effect: {\n        chooser: \"CONTROLLER\",\n        effect: {\n          target: {\n            selector: \"chosen\",\n            count: 1,\n            owner: \"any\",\n            zones: [\"play\"],\n            cardTypes: [\"character\"],\n            filter: [\n              {\n                type: \"status\",\n                status: \"damaged\",\n              },\n     ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/005/characters/087-banzai-taunting-hyena.ts"
+    },
+    {
+      "card_id": "LA9",
+      "card_name": "Retrosphere",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"LA9\",\n  canonicalId: \"ci_LA9\",\n  reprints: [\"set5-064\"],\n  cardType: \"item\",\n  name: \"Retrosphere\",\n  inkType: [\"amethyst\"],\n  franchise: \"Lorcana\",\n  set: \"005\",\n  cardNumber: 64,\n  rarity: \"common\",\n  cost: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_0aa70773df3a4f87ab5b96825787497d\",\n    tcgPlayer: 561475,\n  },\n  text: [\n    {\n      title: \"EXTRACT OF AMETHYST 2\",\n      description:\n        \"{I}, Banish this item \u2014 Return chosen character, item, or location with cost 3 or less to their player's hand.\",\n    },\n  ],\n  abilities: [\n    {\n      cost: {\n        ink: 2,\n        banishSelf: true,\n      },\n      effect: {\n        target: {\n          cardTypes: [\"character\", \"item\", \"location\"],\n          count: 1,\n          owner: \"any\",\n          selector: \"chosen\",\n          zones: [\"play\"],\n          filter: [\n            {\n              type: \"cost-comparison\",\n              comparison: \"less-or-equal\",\n              value: 3,\n            },\n          ],\n        },\n ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/005/items/064-retrosphere.ts"
+    },
+    {
+      "card_id": "DoZ",
+      "card_name": "Sherwood Forest",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"DoZ\",\n  canonicalId: \"ci_DoZ\",\n  reprints: [\"set5-101\"],\n  cardType: \"location\",\n  name: \"Sherwood Forest\",\n  version: \"Outlaw Hideaway\",\n  inkType: [\"emerald\"],\n  franchise: \"Robin Hood\",\n  set: \"005\",\n  cardNumber: 101,\n  rarity: \"rare\",\n  cost: 2,\n  willpower: 7,\n  moveCost: 2,\n  lore: 0,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_846446f8cb0941d293de679be94fac73\",\n    tcgPlayer: 559088,\n  },\n  text: [\n    {\n      title: \"FOREST HOME\",\n      description: \"Your characters named Robin Hood may move here for free.\",\n    },\n    {\n      title: \"FAMILIAR TERRAIN\",\n      description:\n        'Characters gain Ward and \"{E}, 1 {I} \u2014 Deal 2 damage to chosen damaged character\" while here.',\n    },\n  ],\n  abilities: [\n    {\n      effect: {\n        filter: {\n          name: \"Robin Hood\",\n        },\n        location: \"here\",\n        reduction: \"free\",\n        type: \"move-cost-reduction\",\n      },\n      id: \"1kh-1\",\n      name: \"FOREST HOME\",\n      text: \"FOREST HOME Your charact",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/005/locations/101-sherwood-forest-outlaw-hideaway.ts"
+    },
+    {
+      "card_id": "rvD",
+      "card_name": "Bad-Anon",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"rvD\",\n  canonicalId: \"ci_Uqb\",\n  reprints: [\"set5-203\"],\n  cardType: \"location\",\n  name: \"Bad-Anon\",\n  version: \"Villain Support Center\",\n  inkType: [\"steel\"],\n  franchise: \"Wreck It Ralph\",\n  set: \"005\",\n  cardNumber: 203,\n  rarity: \"rare\",\n  cost: 3,\n  willpower: 7,\n  moveCost: 2,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_c88d044f605440a29cbf41b7cdc7d340\",\n    tcgPlayer: 561978,\n  },\n  text: [\n    {\n      title: \"THERE'S NO ONE I'D RATHER BE THAN ME\",\n      description:\n        'Villain characters gain \"{E}, 3 {I} \u2014 Play a character with the same name as this character for free\" while here.',\n    },\n  ],\n  abilities: [\n    {\n      effect: {\n        type: \"grant-abilities-while-here\",\n        target: {\n          selector: \"all\",\n          count: \"all\",\n          owner: \"any\",\n          zones: [\"play\"],\n          cardTypes: [\"character\"],\n          filter: [\n            {\n              type: \"same-location-as-source\",\n            },\n            {\n         ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/005/locations/203-bad-anon-villain-support-center.ts"
+    },
+    {
+      "card_id": "xEw",
+      "card_name": "Mickey Mouse",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"xEw\",\n  canonicalId: \"ci_xEw\",\n  reprints: [\"set6-103\"],\n  cardType: \"character\",\n  name: \"Mickey Mouse\",\n  version: \"Pirate Captain\",\n  inkType: [\"ruby\"],\n  set: \"006\",\n  cardNumber: 103,\n  rarity: \"common\",\n  cost: 5,\n  strength: 4,\n  willpower: 4,\n  lore: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_2baa971c1cbf4f349f4d343cd97010d5\",\n    tcgPlayer: 593027,\n  },\n  text: [\n    {\n      title: \"Shift 3\",\n    },\n    {\n      title: \"MARINER'S MIGHT\",\n      description:\n        'Whenever this character quests, chosen Pirate character gets +2 {S} and gains \"This character takes no damage from challenges\" this turn.',\n    },\n  ],\n  classifications: [\"Floodborn\", \"Hero\", \"Pirate\", \"Captain\"],\n  abilities: [\n    shift(3),\n    {\n      effect: {\n        type: \"sequence\",\n        steps: [\n          {\n            type: \"modify-stat\",\n            stat: \"strength\",\n            modifier: 2,\n            duration: \"this-turn\",\n            target: {\n              cardTypes: [\"characte",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/006/characters/103-mickey-mouse-pirate-captain.ts"
+    },
+    {
+      "card_id": "8Jv",
+      "card_name": "Maleficent's Staff",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"8Jv\",\n  canonicalId: \"ci_O2Q\",\n  reprints: [\"set6-065\"],\n  cardType: \"item\",\n  name: \"Maleficent's Staff\",\n  inkType: [\"amethyst\"],\n  franchise: \"Sleeping Beauty\",\n  set: \"006\",\n  cardNumber: 65,\n  rarity: \"rare\",\n  cost: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_66c2f5fd704b45bdbe79f585ac31d6fc\",\n    tcgPlayer: 592034,\n  },\n  text: [\n    {\n      title: \"BACK, FOOLS!\",\n      description:\n        \"Whenever one of your opponents' characters, items, or locations is returned to their hand from play, gain 1 lore.\",\n    },\n  ],\n  abilities: [\n    {\n      effect: {\n        amount: 1,\n        type: \"gain-lore\",\n      },\n      id: \"8Jv-1\",\n      name: \"BACK, FOOLS!\",\n      text: \"BACK, FOOLS! Whenever one of your opponents' characters, items, or locations is returned to their hand from play, gain 1 lore.\",\n      trigger: {\n        event: \"return-to-hand\",\n        on: {\n          controller: \"opponent\",\n        },\n        timing: \"whenever\",\n      },\n      type: \"triggered\"",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/006/items/065-maleficents-staff.ts"
+    },
+    {
+      "card_id": "0mo",
+      "card_name": "Kuzco",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"0mo\",\n  canonicalId: \"ci_0mo\",\n  reprints: [\"set7-045\"],\n  cardType: \"character\",\n  name: \"Kuzco\",\n  version: \"Temporary Whale\",\n  inkType: [\"amethyst\"],\n  franchise: \"Emperors New Groove\",\n  set: \"007\",\n  cardNumber: 45,\n  rarity: \"rare\",\n  cost: 5,\n  strength: 1,\n  willpower: 4,\n  lore: 2,\n  inkable: false,\n  externalIds: {\n    lorcast: \"crd_78e4e2811167449d9b2d7a3fa7c0908b\",\n    tcgPlayer: 618694,\n  },\n  text: [\n    {\n      title: \"DON'T YOU SAY A WORD\",\n      description:\n        \"Once during your turn, whenever a card is put into your inkwell, you may return chosen character, item, or location with cost 2 or less to their player's hand, then that player draws a card.\",\n    },\n  ],\n  classifications: [\"Storyborn\", \"King\"],\n  abilities: [\n    {\n      effect: {\n        chooser: \"CONTROLLER\",\n        effect: {\n          type: \"sequence\",\n          steps: [\n            {\n              type: \"return-to-hand\",\n              target: {\n                selector: \"chosen\",\n         ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/007/characters/045-kuzco-temporary-whale.ts"
+    },
+    {
+      "card_id": "jFo",
+      "card_name": "Mulan",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"jFo\",\n  canonicalId: \"ci_jFo\",\n  reprints: [\"set7-141\"],\n  cardType: \"character\",\n  name: \"Mulan\",\n  version: \"Imperial General\",\n  inkType: [\"ruby\", \"steel\"],\n  franchise: \"Mulan\",\n  set: \"007\",\n  cardNumber: 141,\n  rarity: \"common\",\n  cost: 7,\n  strength: 5,\n  willpower: 6,\n  lore: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_5d754111355845818b81e2a9a506bab4\",\n    tcgPlayer: 619486,\n  },\n  text: [\n    {\n      title: \"Shift 5\",\n    },\n    {\n      title: \"Evasive\",\n    },\n    {\n      title: \"EXCEPTIONAL LEADER\",\n      description:\n        'Whenever this character challenges another character, your other characters gain \"This character can challenge ready characters\" this turn.',\n    },\n  ],\n  classifications: [\"Floodborn\", \"Hero\", \"Princess\"],\n  abilities: [\n    shift(5),\n    evasive,\n    {\n      effect: {\n        ability: \"can-challenge-ready\",\n        duration: \"this-turn\",\n        target: \"YOUR_OTHER_CHARACTERS\",\n        type: \"grant-ability\",\n      },\n      id: \"",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/007/characters/141-mulan-imperial-general.ts"
+    },
+    {
+      "card_id": "zpF",
+      "card_name": "Forest Duel",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"zpF\",\n  canonicalId: \"ci_zpF\",\n  reprints: [\"set8-077\"],\n  cardType: \"action\",\n  name: \"Forest Duel\",\n  inkType: [\"amethyst\"],\n  franchise: \"Bambi\",\n  set: \"008\",\n  cardNumber: 77,\n  rarity: \"uncommon\",\n  cost: 5,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_79eeecfdd20849aaade7d29646fed146\",\n    tcgPlayer: 631343,\n  },\n  text: 'Your characters gain Challenger +2 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +2 {S} while challenging.)',\n  abilities: [\n    {\n      effect: {\n        steps: [\n          {\n            duration: \"this-turn\",\n            keyword: \"Challenger\",\n            target: \"YOUR_CHARACTERS\",\n            type: \"gain-keyword\",\n            value: 2,\n          },\n          {\n            type: \"grant-ability\",\n            ability: \"return-to-hand-when-banished\",\n            duration: \"this-turn\",\n            target: \"YOUR_CHARACTERS\",\n          },\n        ],\n        type: \"sequence\",\n      },\n      i",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/008/actions/077-forest-duel.ts"
+    },
+    {
+      "card_id": "m8D",
+      "card_name": "Walk the Plank!",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"m8D\",\n  canonicalId: \"ci_m8D\",\n  reprints: [\"set8-118\"],\n  cardType: \"action\",\n  name: \"Walk the Plank!\",\n  inkType: [\"emerald\", \"steel\"],\n  franchise: \"Peter Pan\",\n  set: \"008\",\n  cardNumber: 118,\n  rarity: \"uncommon\",\n  cost: 3,\n  inkable: false,\n  externalIds: {\n    lorcast: \"crd_d5390ce678f1438eb716de9952cfd9d2\",\n    tcgPlayer: 631427,\n  },\n  text: 'Your Pirate characters gain \"{E} \u2014 Banish chosen damaged character\" this turn.',\n  abilities: [\n    {\n      type: \"action\",\n      text: 'Your Pirate characters gain \"{E} \u2014 Banish chosen damaged character\" this turn.',\n      effect: {\n        type: \"grant-ability\",\n        ability: \"banish-damaged-when-exerted\",\n        duration: \"this-turn\",\n        target: {\n          selector: \"all\",\n          count: \"all\",\n          owner: \"you\",\n          zones: [\"play\"],\n          cardTypes: [\"character\"],\n          filter: [\n            {\n              type: \"has-classification\",\n              classification: \"Pirate\",\n            },\n    ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/008/actions/118-walk-the-plank.ts"
+    },
+    {
+      "card_id": "AvD",
+      "card_name": "Down in New Orleans",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"AvD\",\n  canonicalId: \"ci_AvD\",\n  reprints: [\"set8-177\"],\n  cardType: \"action\",\n  name: \"Down in New Orleans\",\n  inkType: [\"sapphire\"],\n  franchise: \"Princess and the Frog\",\n  set: \"008\",\n  cardNumber: 177,\n  rarity: \"common\",\n  cost: 6,\n  inkable: false,\n  externalIds: {\n    lorcast: \"crd_eaa05e5b86e743a08331ddbbc5f19f4b\",\n    tcgPlayer: 631845,\n  },\n  text: \"Look at the top 3 cards of your deck. You may reveal a character, item, or location card with cost 6 or less and play it for free. Put the rest on the bottom of your deck in any order.\",\n  actionSubtype: \"song\",\n  abilities: [\n    {\n      effect: {\n        type: \"scry\",\n        amount: 3,\n        target: \"CONTROLLER\",\n        destinations: [\n          {\n            zone: \"play\",\n            max: 1,\n            reveal: true,\n            cost: \"free\",\n            filters: [\n              {\n                type: \"and\",\n                filters: [\n                  {\n                    type: \"or\",\n                    filters:",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/008/actions/177-down-in-new-orleans.ts"
+    },
+    {
+      "card_id": "5tQ",
+      "card_name": "Perdita",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"5tQ\",\n  canonicalId: \"ci_Q1m\",\n  reprints: [\"set8-027\"],\n  cardType: \"character\",\n  name: \"Perdita\",\n  version: \"Determined Mother\",\n  inkType: [\"amber\", \"sapphire\"],\n  franchise: \"101 Dalmatians\",\n  set: \"008\",\n  cardNumber: 27,\n  rarity: \"common\",\n  cost: 6,\n  strength: 4,\n  willpower: 6,\n  lore: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_db4137ebc57046a3ba7736adbdb01d44\",\n    tcgPlayer: 632686,\n  },\n  text: [\n    {\n      title: \"Shift 4\",\n    },\n    {\n      title: \"QUICK, EVERYONE HIDE\",\n      description:\n        \"When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted.\",\n    },\n  ],\n  classifications: [\"Floodborn\", \"Hero\"],\n  abilities: [\n    shift(4),\n    {\n      effect: {\n        chooser: \"CONTROLLER\",\n        effect: {\n          exerted: true,\n          facedown: true,\n          source: {\n            selector: \"all\",\n            count: \"all\",\n            owner: \"you\",\n            zones: [\"",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/008/characters/027-perdita-determined-mother.ts"
+    },
+    {
+      "card_id": "i7B",
+      "card_name": "Donald Duck",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"i7B\",\n  canonicalId: \"ci_i7B\",\n  reprints: [\"set8-037\"],\n  cardType: \"character\",\n  name: \"Donald Duck\",\n  version: \"Coin Collector\",\n  inkType: [\"amber\"],\n  set: \"008\",\n  cardNumber: 37,\n  rarity: \"common\",\n  cost: 8,\n  strength: 4,\n  willpower: 8,\n  lore: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_fef2291c6e394415a529772dcda9e9b0\",\n    tcgPlayer: 631334,\n  },\n  text: [\n    {\n      title: \"HERE, PIGGY, PIGGY\",\n      description:\n        \"For each item named The Nephews' Piggy Bank you have in play, you pay 2 {I} less to play this character.\",\n    },\n    {\n      title: \"MONEY EVERYWHERE\",\n      description:\n        'When you play this character, your other characters gain \"{E} \u2014 Draw a card\" this turn.',\n    },\n  ],\n  classifications: [\"Storyborn\", \"Hero\"],\n  abilities: [\n    {\n      id: \"i7B-1\",\n      name: \"HERE, PIGGY, PIGGY\",\n      text: \"HERE, PIGGY, PIGGY For each item named The Nephews' Piggy Bank you have in play, you pay 2 {I} less to play this character.\"",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/008/characters/037-donald-duck-coin-collector.ts"
+    },
+    {
+      "card_id": "AdI",
+      "card_name": "Kuzco",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"AdI\",\n  canonicalId: \"ci_AdI\",\n  reprints: [\"set8-053\"],\n  cardType: \"character\",\n  name: \"Kuzco\",\n  version: \"Bored Royal\",\n  inkType: [\"amethyst\"],\n  franchise: \"Emperors New Groove\",\n  set: \"008\",\n  cardNumber: 53,\n  rarity: \"common\",\n  cost: 4,\n  strength: 1,\n  willpower: 3,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_5508d787ca204fdcbba52a26d7258301\",\n    tcgPlayer: 631387,\n  },\n  text: [\n    {\n      title: \"LLAMA BREATH\",\n      description:\n        \"When you play this character, you may return chosen character, item, or location with cost 2 or less to their player's hand.\",\n    },\n  ],\n  classifications: [\"Storyborn\", \"King\"],\n  abilities: [\n    {\n      effect: {\n        chooser: \"CONTROLLER\",\n        effect: {\n          target: {\n            selector: \"chosen\",\n            count: 1,\n            owner: \"any\",\n            zones: [\"play\"],\n            cardTypes: [\"character\", \"item\", \"location\"],\n            filter: [\n              {\n                type",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/008/characters/053-kuzco-bored-royal.ts"
+    },
+    {
+      "card_id": "pK5",
+      "card_name": "Mother Gothel",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"pK5\",\n  canonicalId: \"ci_AXE\",\n  reprints: [\"set8-070\"],\n  cardType: \"character\",\n  name: \"Mother Gothel\",\n  version: \"Knows What's Best\",\n  inkType: [\"amethyst\", \"ruby\"],\n  franchise: \"Tangled\",\n  set: \"008\",\n  cardNumber: 70,\n  rarity: \"rare\",\n  cost: 2,\n  strength: 1,\n  willpower: 3,\n  lore: 1,\n  inkable: false,\n  externalIds: {\n    lorcast: \"crd_a44f1da598c94ec18b4060bb1e932c66\",\n    tcgPlayer: 632208,\n  },\n  text: [\n    {\n      title: \"LOOK WHAT YOU'VE DONE\",\n      description:\n        'When you play this character, you may deal 2 damage to another chosen character of yours to give that character Challenger +1 and \"When this character is banished in a challenge, return this card to your hand\" this turn. (They get +1 {S} while challenging.)',\n    },\n  ],\n  classifications: [\"Storyborn\", \"Villain\", \"Sorcerer\"],\n  abilities: [\n    {\n      effect: {\n        chooser: \"CONTROLLER\",\n        effect: {\n          type: \"sequence\",\n          steps: [\n            {\n              amou",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/008/characters/070-mother-gothel-knows-whats-best.ts"
+    },
+    {
+      "card_id": "dhS",
+      "card_name": "Mushu",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"dhS\",\n  canonicalId: \"ci_wxW\",\n  reprints: [\"set8-142\"],\n  cardType: \"character\",\n  name: \"Mushu\",\n  version: \"Your Worst Nightmare\",\n  inkType: [\"ruby\", \"steel\"],\n  franchise: \"Mulan\",\n  set: \"008\",\n  cardNumber: 142,\n  rarity: \"rare\",\n  cost: 6,\n  strength: 4,\n  willpower: 6,\n  lore: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_4ea909f6818d4776ae936aa51aed88b8\",\n    tcgPlayer: 632228,\n  },\n  text: [\n    {\n      title: \"Shift 4\",\n    },\n    {\n      title: \"ALL FIRED UP\",\n      description:\n        \"Whenever you play another character, they gain Rush, Reckless, and Evasive this turn. (They can challenge the turn they're played. They can't quest and must challenge if able. They can challenge characters with Evasive.)\",\n    },\n  ],\n  classifications: [\"Floodborn\", \"Ally\", \"Dragon\"],\n  abilities: [\n    shift(4),\n    {\n      effect: {\n        type: \"sequence\",\n        steps: [\n          {\n            type: \"gain-keyword\",\n            keyword: \"Rush\",\n            duration",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/008/characters/142-mushu-your-worst-nightmare.ts"
+    },
+    {
+      "card_id": "JlP",
+      "card_name": "Dumbo",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"JlP\",\n  canonicalId: \"ci_hTe\",\n  reprints: [\"set9-045\"],\n  cardType: \"character\",\n  name: \"Dumbo\",\n  version: \"Ninth Wonder of the Universe\",\n  inkType: [\"amethyst\"],\n  franchise: \"Dumbo\",\n  set: \"009\",\n  cardNumber: 45,\n  rarity: \"legendary\",\n  cost: 4,\n  strength: 3,\n  willpower: 3,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_aa13ad9fe176464bac51e72c45dd6914\",\n    tcgPlayer: 651119,\n  },\n  text: [\n    {\n      title: \"Evasive\",\n    },\n    {\n      title: \"BREAKING RECORDS\",\n      description: \"{E}, 1 {I} \u2014 Draw a card and gain 1 lore.\",\n    },\n    {\n      title: \"MAKING HISTORY\",\n      description:\n        'Your other characters with Evasive gain \"{E}, 1 {I} \u2014 Draw a card and gain 1 lore.\"',\n    },\n  ],\n  classifications: [\"Storyborn\", \"Hero\"],\n  abilities: [\n    evasive,\n    {\n      id: \"181-2\",\n      name: \"BREAKING RECORDS\",\n      text: \"BREAKING RECORDS {E}, 1 {I} \u2013 Draw a card and gain 1 lore.\",\n      type: \"activated\",\n      cost: {\n        exert: true",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/009/characters/045-dumbo-ninth-wonder-of-the-universe.ts"
+    },
+    {
+      "card_id": "T3q",
+      "card_name": "Lilo",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"T3q\",\n  canonicalId: \"ci_sRi\",\n  reprints: [\"set9-174\"],\n  cardType: \"character\",\n  name: \"Lilo\",\n  version: \"Best Explorer Ever\",\n  inkType: [\"steel\"],\n  franchise: \"Lilo and Stitch\",\n  set: \"009\",\n  cardNumber: 174,\n  rarity: \"common\",\n  cost: 3,\n  strength: 2,\n  willpower: 2,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_fbccd8fc95fa45009665824b0731c3d3\",\n    tcgPlayer: 649236,\n  },\n  text: [\n    {\n      title: \"COME ON, PEOPLE, LET'S MOVE\",\n      description:\n        \"When you play this character, your other characters gain Challenger +2 this turn (They get +2 {S} while challenging.)\",\n    },\n    {\n      title: \"GO GET 'EM\",\n      description:\n        'Whenever this character quests, chosen Alien character gains Challenger +2 and \"This character can challenge ready characters\" this turn.',\n    },\n  ],\n  classifications: [\"Storyborn\", \"Hero\"],\n  abilities: [\n    {\n      effect: {\n        duration: \"this-turn\",\n        keyword: \"Challenger\",\n        target: ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/009/characters/174-lilo-best-explorer-ever.ts"
+    },
+    {
+      "card_id": "zPN",
+      "card_name": "Begone!",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"zPN\",\n  canonicalId: \"ci_zPN\",\n  reprints: [\"set10-061\"],\n  cardType: \"action\",\n  name: \"Begone!\",\n  inkType: [\"amethyst\"],\n  franchise: \"Sword in the Stone\",\n  set: \"010\",\n  cardNumber: 61,\n  rarity: \"common\",\n  cost: 3,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_34f44dc8dcef41ba9b4c4f23f9720ff6\",\n    tcgPlayer: 659420,\n  },\n  text: \"Return chosen character, item, or location with cost 3 or less to their player's hand.\",\n  abilities: [\n    {\n      effect: {\n        target: {\n          cardTypes: [\"character\", \"item\", \"location\"],\n          count: 1,\n          filter: [\n            {\n              type: \"cost-comparison\",\n              comparison: \"less-or-equal\",\n              value: 3,\n            },\n          ],\n          owner: \"any\",\n          selector: \"chosen\",\n          zones: [\"play\"],\n        },\n        type: \"return-to-hand\",\n      },\n      type: \"action\",\n    },\n  ],\n  i18n: begoneI18n,\n}",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/010/actions/061-begone.ts"
+    },
+    {
+      "card_id": "Rc1",
+      "card_name": "Malicious, Mean, and Scary",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"Rc1\",\n  canonicalId: \"ci_Ggc\",\n  reprints: [\"set10-097\"],\n  cardType: \"action\",\n  name: \"Malicious, Mean, and Scary\",\n  inkType: [\"emerald\"],\n  franchise: \"Tangled\",\n  set: \"010\",\n  cardNumber: 97,\n  rarity: \"uncommon\",\n  cost: 3,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_5547bd08bb6344d4bcd03d37e415c75f\",\n    tcgPlayer: 660027,\n  },\n  text: \"Put 1 damage counter on each opposing character.\",\n  actionSubtype: \"song\",\n  abilities: [\n    {\n      effect: {\n        amount: 1,\n        target: \"ALL_OPPOSING_CHARACTERS\",\n        type: \"put-damage\",\n      },\n      type: \"action\",\n    },\n  ],\n  i18n: maliciousMeanAndScaryI18n,\n}",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/010/actions/097-malicious-mean-and-scary.ts"
+    },
+    {
+      "card_id": "YZf",
+      "card_name": "Megara",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"YZf\",\n  canonicalId: \"ci_uSJ\",\n  reprints: [\"set10-086\"],\n  cardType: \"character\",\n  name: \"Megara\",\n  version: \"Secret Keeper\",\n  inkType: [\"emerald\"],\n  franchise: \"Hercules\",\n  set: \"010\",\n  cardNumber: 86,\n  rarity: \"rare\",\n  cost: 3,\n  strength: 3,\n  willpower: 4,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_78c11305e1674d348fe8839940f029a5\",\n    tcgPlayer: 658217,\n  },\n  text: [\n    {\n      title: \"Boost 1 {I}\",\n    },\n    {\n      title: \"I'LL BE FINE\",\n      description:\n        'While there\\'s a card under this character, she gets +1 {L} and gains \"Whenever this character is challenged, each opponent chooses and discards a card.\"',\n    },\n  ],\n  classifications: [\"Storyborn\", \"Ally\", \"Whisper\"],\n  abilities: [\n    boost(1),\n    {\n      condition: {\n        type: \"has-card-under\",\n      },\n      effect: {\n        modifier: 1,\n        stat: \"lore\",\n        target: \"SELF\",\n        type: \"modify-stat\",\n      },\n      id: \"1af-2\",\n      name: \"I'LL BE FINE",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/010/characters/086-megara-secret-keeper.ts"
+    },
+    {
+      "card_id": "c04",
+      "card_name": "Aladdin",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"c04\",\n  canonicalId: \"ci_pqa\",\n  reprints: [\"set10-123\"],\n  cardType: \"character\",\n  name: \"Aladdin\",\n  version: \"Barreling Through\",\n  inkType: [\"ruby\"],\n  franchise: \"Aladdin\",\n  set: \"010\",\n  cardNumber: 123,\n  rarity: \"rare\",\n  cost: 3,\n  strength: 4,\n  willpower: 4,\n  lore: 0,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_eca465c4f9f6483db912ae876f8011ce\",\n    tcgPlayer: 660269,\n  },\n  text: [\n    {\n      title: \"Boost 1 {I}\",\n    },\n    {\n      title: \"Reckless\",\n    },\n    {\n      title: \"ONLY THE BOLD\",\n      description:\n        'While there\\'s a card under this character, your characters with Reckless gain \"{E} \u2014 Gain 1 lore.\"',\n    },\n  ],\n  classifications: [\"Storyborn\", \"Hero\", \"Whisper\"],\n  abilities: [\n    boost(1),\n    reckless,\n    {\n      id: \"1tr-3\",\n      name: \"ONLY THE BOLD\",\n      text: 'ONLY THE BOLD While there\\'s a card under this character, your characters with Reckless gain \"{E} \u2014 Gain 1 lore.\"',\n      type: \"static\",\n      condition: {\n      ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/010/characters/123-aladdin-barreling-through.ts"
+    },
+    {
+      "card_id": "CGw",
+      "card_name": "The Great Illuminary",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"CGw\",\n  canonicalId: \"ci_CGw\",\n  reprints: [\"set10-068\"],\n  cardType: \"location\",\n  name: \"The Great Illuminary\",\n  version: \"Abandoned Laboratory\",\n  inkType: [\"amethyst\"],\n  franchise: \"Lorcana\",\n  set: \"010\",\n  cardNumber: 68,\n  rarity: \"uncommon\",\n  cost: 2,\n  willpower: 3,\n  moveCost: 1,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_f0a21489090449a4af62aa6f09ad9552\",\n    tcgPlayer: 658467,\n  },\n  text: [\n    {\n      title: \"STARTLING DISCOVERY\",\n      description: 'Characters gain \" {E} \u2014 Draw a card\" while here.',\n    },\n  ],\n  abilities: [\n    {\n      id: \"9qd-1\",\n      name: \"STARTLING DISCOVERY\",\n      text: 'STARTLING DISCOVERY Characters gain \"{E} \u2014 Draw a card\" while here.',\n      type: \"static\",\n      effect: {\n        type: \"grant-abilities-while-here\",\n        target: \"CHARACTERS_HERE\",\n        abilities: [\n          {\n            id: \"9qd-1a\",\n            name: \"STARTLING DISCOVERY\",\n            text: \"{E} \u2014 Draw a card.\",\n            type: \"ac",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/010/locations/068-the-great-illuminary-abandoned-laboratory.ts"
+    },
+    {
+      "card_id": "H72",
+      "card_name": "Come Out and Fight!",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"H72\",\n  canonicalId: \"ci_H72\",\n  reprints: [\"set11-062\"],\n  cardType: \"action\",\n  name: \"Come Out and Fight!\",\n  inkType: [\"amethyst\"],\n  set: \"011\",\n  cardNumber: 62,\n  rarity: \"common\",\n  cost: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_9d9eb44aa6324c2ebce958cbf92a2d31\",\n    tcgPlayer: 675298,\n  },\n  text: \"Put all cards from under chosen character, item, or location on the bottom of their player's deck in a random order. Draw a card.\",\n  abilities: [\n    {\n      id: \"qk5-1\",\n      type: \"action\",\n      text: \"Put all cards from under chosen character, item, or location on the bottom of their player's deck in a random order. Draw a card.\",\n      effect: {\n        type: \"sequence\",\n        steps: [\n          {\n            type: \"move-cards-from-under\",\n            destination: \"deck-bottom-random\",\n            target: \"CHOSEN_CHARACTER_ITEM_OR_LOCATION\",\n          },\n          {\n            type: \"draw\",\n            amount: 1,\n            target: \"CONTROLLER\",\n   ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/011/actions/062-come-out-and-fight.ts"
+    },
+    {
+      "card_id": "IyC",
+      "card_name": "Tigger",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"IyC\",\n  canonicalId: \"ci_F3L\",\n  reprints: [\"set11-037\"],\n  cardType: \"character\",\n  name: \"Tigger\",\n  version: \"Bouncing All the Way\",\n  inkType: [\"amethyst\"],\n  franchise: \"Winnie the Pooh\",\n  set: \"011\",\n  cardNumber: 37,\n  rarity: \"common\",\n  cost: 4,\n  strength: 4,\n  willpower: 3,\n  lore: 1,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_899fe35731aa4f609bb72a19d7e831c8\",\n    tcgPlayer: 677144,\n  },\n  text: [\n    {\n      title: \"SPLENDERIFFIC BOUNCE\",\n      description:\n        \"When you play this character, you may return chosen character, item, or location with cost 2 or less to their player's hand.\",\n    },\n  ],\n  classifications: [\"Storyborn\", \"Tigger\"],\n  abilities: [\n    {\n      id: \"3b3-1\",\n      effect: {\n        chooser: \"CONTROLLER\",\n        effect: {\n          target: {\n            cardTypes: [\"character\", \"item\", \"location\"],\n            count: 1,\n            owner: \"any\",\n            selector: \"chosen\",\n            zones: [\"play\"],\n            filter: [\n",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/011/characters/037-tigger-bouncing-all-the-way.ts"
+    },
+    {
+      "card_id": "JTw",
+      "card_name": "Witches of Morva",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"JTw\",\n  canonicalId: \"ci_JTw\",\n  reprints: [\"set11-057\"],\n  cardType: \"character\",\n  name: \"Witches of Morva\",\n  version: \"Orddu, Orwen, and Orgoch\",\n  inkType: [\"amethyst\"],\n  franchise: \"Black Cauldron\",\n  set: \"011\",\n  cardNumber: 57,\n  rarity: \"rare\",\n  cost: 5,\n  strength: 4,\n  willpower: 4,\n  lore: 2,\n  inkable: false,\n  externalIds: {\n    lorcast: \"crd_5c24d2a781524b8fa28b72a0dddd91c5\",\n    tcgPlayer: 675295,\n  },\n  text: [\n    {\n      title: \"QUITE A BARGAIN\",\n      description:\n        \"When you play this character, you may return another chosen character of yours to your hand. If you do, gain 1 lore.\",\n    },\n  ],\n  classifications: [\"Storyborn\", \"Villain\", \"Sorcerer\"],\n  abilities: [\n    {\n      id: \"11p-1\",\n      effect: {\n        steps: [\n          {\n            chooser: \"CONTROLLER\",\n            effect: {\n              steps: [\n                {\n                  target: {\n                    cardTypes: [\"character\"],\n                    count: 1,\n               ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/011/characters/057-witches-of-morva-orddu-orwen-and-orgoch.ts"
+    },
+    {
+      "card_id": "5Mc",
+      "card_name": "Hero Work",
+      "confidence": "medium",
+      "gap_type": "object_literal_parse_failed",
+      "impact": "unknown",
+      "recommended_fix": "Improve JS literal sanitizer for this card object shape.",
+      "snippet": "{\n  id: \"5Mc\",\n  canonicalId: \"ci_5Mc\",\n  reprints: [\"set12-132\"],\n  cardType: \"action\",\n  name: \"Hero Work\",\n  inkType: [\"ruby\"],\n  franchise: \"Incredibles\",\n  set: \"012\",\n  cardNumber: 132,\n  rarity: \"rare\",\n  cost: 2,\n  inkable: true,\n  externalIds: {\n    lorcast: \"crd_0e38efe0ee78447b8966de3f57656c86\",\n  },\n  text: 'Your characters get +1 {S} this turn. Your Hero characters gain \"Whenever this character challenges another character, each opponent loses 1 lore and you gain 1 lore\" this turn.',\n  abilities: [\n    {\n      type: \"action\",\n      text: 'Your characters get +1 {S} this turn. Your Hero characters gain \"Whenever this character challenges another character, each opponent loses 1 lore and you gain 1 lore\" this turn.',\n      effect: {\n        type: \"sequence\",\n        steps: [\n          {\n            type: \"modify-stat\",\n            stat: \"strength\",\n            modifier: 1,\n            duration: \"this-turn\",\n            target: \"YOUR_CHARACTERS\",\n          },\n          {\n    ",
+      "source_file": "packages/lorcana/lorcana-cards/src/cards/012/actions/132-hero-work.ts"
+    }
+  ],
+  "schema_version": 1,
+  "summary": {
+    "by_gap_type": {
+      "object_literal_parse_failed": 41
+    },
+    "by_impact": {
+      "unknown": 41
+    },
+    "source_files_with_gaps": 41
+  }
+}

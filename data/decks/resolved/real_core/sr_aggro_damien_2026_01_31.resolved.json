@@ -1,0 +1,1020 @@
+{
+  "archetype": "Ruby Steel",
+  "cards": [
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "uh8"
+      ],
+      "canonical_id": "ci_uh8",
+      "card_id": "uh8",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Mulan - Disguised Soldier",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Mulan",
+      "raw_name": "Mulan - Disguised Soldier",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger"
+      ],
+      "version": "Disguised Soldier"
+    },
+    {
+      "ability_type_counts": {},
+      "candidate_ids": [
+        "QUY",
+        "vif"
+      ],
+      "canonical_id": "ci_WYX",
+      "card_id": "QUY",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "Tinker Bell - Fancy Footwork",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Tinker Bell",
+      "raw_name": "Tinker Bell - Fancy Footwork",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "raw_preserved",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Fancy Footwork"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "NLA"
+      ],
+      "canonical_id": "ci_NLA",
+      "card_id": "NLA",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-lore": 2
+      },
+      "full_name": "Calhoun - Marine Sergeant",
+      "ink": "steel",
+      "inkable": false,
+      "keyword_defs": [
+        {
+          "keyword": "RESIST",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              1
+            ],
+            "helper": "resist",
+            "keyword": "Resist",
+            "rawExpression": "resist(1)",
+            "rawHelper": "resist(1)",
+            "type": "keyword",
+            "value": 1
+          },
+          "target_name": null,
+          "value": 1
+        }
+      ],
+      "name": "Calhoun",
+      "raw_name": "Calhoun - Marine Sergeant",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "banish-in-challenge": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_event:banish-in-challenge"
+      ],
+      "version": "Marine Sergeant"
+    },
+    {
+      "ability_type_counts": {},
+      "candidate_ids": [
+        "tM1"
+      ],
+      "canonical_id": "ci_tM1",
+      "card_id": "tM1",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "Diablo - Watchful Raven",
+      "ink": "ruby",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Diablo",
+      "raw_name": "Diablo - Watchful Raven",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "raw_preserved",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Watchful Raven"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1
+      },
+      "candidate_ids": [
+        "D0w",
+        "7jf"
+      ],
+      "canonical_id": "ci_cCq",
+      "card_id": "D0w",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 2,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {},
+      "full_name": "Queen of Hearts - Impulsive Ruler",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "RUSH",
+          "raw": {
+            "_source_index": 0,
+            "helper": "rush",
+            "id": "helper-ref-0",
+            "keyword": "Rush",
+            "raw": {
+              "tsObject": "{\n  keyword: \"Rush\",\n  text: \"Rush\",\n  type: \"keyword\",\n}"
+            },
+            "rawExpression": "rush",
+            "rawReference": "rush",
+            "sourceHelper": "packages/lorcana/lorcana-cards/src/helpers/abilities/rush.ts",
+            "text": "Rush",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": null
+        }
+      ],
+      "name": "Queen of Hearts",
+      "raw_name": "Queen of Hearts - Impulsive Ruler",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": "Impulsive Ruler"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "HVE"
+      ],
+      "canonical_id": "ci_HVE",
+      "card_id": "HVE",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {
+        "turn-metric": 1
+      },
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-lore": 2
+      },
+      "full_name": "Fa Zhou - War Hero",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Fa Zhou",
+      "raw_name": "Fa Zhou - War Hero",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "challenge": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "War Hero"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "5EC"
+      ],
+      "canonical_id": "ci_5EC",
+      "card_id": "5EC",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "lose-lore": 2
+      },
+      "full_name": "Jasmine - Rebellious Princess",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Jasmine",
+      "raw_name": "Jasmine - Rebellious Princess",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_trigger",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "quest": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Rebellious Princess"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "e9n",
+        "XRe",
+        "wAd"
+      ],
+      "canonical_id": "ci_68m",
+      "card_id": "e9n",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-lore": 2
+      },
+      "full_name": "Shere Khan - Menacing Predator",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Shere Khan",
+      "raw_name": "Shere Khan - Menacing Predator",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_trigger",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "challenge": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Menacing Predator"
+    },
+    {
+      "ability_type_counts": {
+        "static": 1
+      },
+      "candidate_ids": [
+        "TMv",
+        "mUL"
+      ],
+      "canonical_id": "ci_rQr",
+      "card_id": "TMv",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "modify-stat": 2
+      },
+      "full_name": "Sisu - Emboldened Warrior",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Sisu",
+      "raw_name": "Sisu - Emboldened Warrior",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_static_effect"
+      ],
+      "version": "Emboldened Warrior"
+    },
+    {
+      "ability_type_counts": {
+        "static": 2
+      },
+      "candidate_ids": [
+        "xm6"
+      ],
+      "canonical_id": "ci_xm6",
+      "card_id": "xm6",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {
+        "exerted": 1,
+        "not": 2
+      },
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 2,
+      "effect_type_counts": {
+        "restriction": 4
+      },
+      "full_name": "Hercules - Mighty Leader",
+      "ink": "ruby",
+      "inkable": false,
+      "keyword_defs": [],
+      "name": "Hercules",
+      "raw_name": "Hercules - Mighty Leader",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_condition",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [
+        "unsupported_condition:not",
+        "unsupported_effect:restriction",
+        "unsupported_static_effect",
+        "unsupported_target:all"
+      ],
+      "version": "Mighty Leader"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "6Ji",
+        "UdH"
+      ],
+      "canonical_id": "ci_ZXj",
+      "card_id": "6Ji",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {
+        "has-card-under": 1
+      },
+      "cost": 4,
+      "cost_type_counts": {},
+      "count": 3,
+      "effect_type_counts": {
+        "deal-damage": 2
+      },
+      "full_name": "Robin Hood - Ephemeral Archer",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "BOOST",
+          "raw": {
+            "_source_index": 0,
+            "args": [
+              1
+            ],
+            "helper": "boost",
+            "keyword": "Boost",
+            "rawExpression": "boost(1)",
+            "rawHelper": "boost(1)",
+            "type": "keyword",
+            "value": 1
+          },
+          "target_name": null,
+          "value": 1
+        }
+      ],
+      "name": "Robin Hood",
+      "raw_name": "Robin Hood - Ephemeral Archer",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "quest": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_effect:deal-damage",
+        "unsupported_target:chosen",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Ephemeral Archer"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 2
+      },
+      "candidate_ids": [
+        "8nj"
+      ],
+      "canonical_id": "ci_8nj",
+      "card_id": "8nj",
+      "card_type": "character",
+      "colors": [
+        "ruby",
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-keyword": 2,
+        "gain-lore": 2
+      },
+      "full_name": "Mushu - Majestic Dragon",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Mushu",
+      "raw_name": "Mushu - Majestic Dragon",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "unsupported_trigger",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "banish-in-challenge": 1,
+        "challenge": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_effect:gain-keyword",
+        "unsupported_target:object",
+        "unsupported_trigger",
+        "unsupported_trigger_event:banish-in-challenge",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Majestic Dragon"
+    },
+    {
+      "ability_type_counts": {
+        "triggered": 2
+      },
+      "candidate_ids": [
+        "hQC"
+      ],
+      "canonical_id": "ci_hQC",
+      "card_id": "hQC",
+      "card_type": "character",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "gain-lore": 2,
+        "optional": 2
+      },
+      "full_name": "Pluto - Steel Champion",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Pluto",
+      "raw_name": "Pluto - Steel Champion",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "mapped_not_executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "banish-in-challenge": 1,
+        "play": 1
+      },
+      "unsupported_blockers": [
+        "unsupported_trigger",
+        "unsupported_trigger_event:banish-in-challenge",
+        "unsupported_trigger_on:complex_filter"
+      ],
+      "version": "Steel Champion"
+    },
+    {
+      "ability_type_counts": {
+        "keyword": 1,
+        "triggered": 1
+      },
+      "candidate_ids": [
+        "DCW",
+        "PV9"
+      ],
+      "canonical_id": "ci_Il0",
+      "card_id": "DCW",
+      "card_type": "character",
+      "colors": [
+        "ruby"
+      ],
+      "condition_type_counts": {},
+      "cost": 5,
+      "cost_type_counts": {
+        "ink": 1
+      },
+      "count": 4,
+      "effect_type_counts": {
+        "optional": 2
+      },
+      "full_name": "Queen of Hearts - Sensing Weakness",
+      "ink": "ruby",
+      "inkable": true,
+      "keyword_defs": [
+        {
+          "keyword": "SHIFT",
+          "raw": {
+            "_source_index": 0,
+            "cost": {
+              "ink": 2
+            },
+            "id": "1je-1",
+            "keyword": "Shift",
+            "rawExpression": null,
+            "text": "Shift 2 {I}",
+            "type": "keyword"
+          },
+          "target_name": null,
+          "value": 2
+        }
+      ],
+      "name": "Queen of Hearts",
+      "raw_name": "Queen of Hearts - Sensing Weakness",
+      "raw_type": "character",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "unsupported_cost",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {
+        "challenge": 1
+      },
+      "unsupported_blockers": [
+        "keyword:SHIFT",
+        "unsupported_cost:ink",
+        "unsupported_trigger",
+        "unsupported_trigger_not_projected"
+      ],
+      "version": "Sensing Weakness"
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "BQt"
+      ],
+      "canonical_id": "ci_BQt",
+      "card_id": "BQt",
+      "card_type": "action",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 1,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "sequence": 2
+      },
+      "full_name": "But I'm Much Faster",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "But I'm Much Faster",
+      "raw_name": "But I'm Much Faster",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_exact_full_name",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    },
+    {
+      "ability_type_counts": {
+        "action": 1
+      },
+      "candidate_ids": [
+        "rHN",
+        "sQ9"
+      ],
+      "canonical_id": "ci_s73",
+      "card_id": "rHN",
+      "card_type": "action",
+      "colors": [
+        "steel"
+      ],
+      "condition_type_counts": {},
+      "cost": 3,
+      "cost_type_counts": {},
+      "count": 4,
+      "effect_type_counts": {
+        "deal-damage": 2
+      },
+      "full_name": "Strength of a Raging Fire",
+      "ink": "steel",
+      "inkable": true,
+      "keyword_defs": [],
+      "name": "Strength of a Raging Fire",
+      "raw_name": "Strength of a Raging Fire",
+      "raw_type": "song",
+      "resolution_error": null,
+      "resolution_status": "resolved_reprint_group",
+      "resolved": true,
+      "source_execution_status": "executable",
+      "source_mapping_status": "structurally_mapped",
+      "trigger_event_counts": {},
+      "unsupported_blockers": [],
+      "version": ""
+    }
+  ],
+  "deck_total_declared": 60,
+  "deck_total_resolved": 60,
+  "event": "Le Joker Championnat de SET 10 LORCANA",
+  "event_date": "2026-01-31",
+  "format": "core_constructed",
+  "id": "sr_aggro_damien_2026_01_31",
+  "mapping_summary": {
+    "best_use": "coverage_discovery",
+    "deck_id": "sr_aggro_damien_2026_01_31",
+    "executable_copies": 20,
+    "executable_unique_cards": 5,
+    "mapped_not_executable_copies": 18,
+    "mapped_not_executable_unique_cards": 5,
+    "name": "Steel Ruby",
+    "playability": "partially_executable",
+    "recommended_engine_work": [
+      {
+        "affected_copies": 50,
+        "affected_decks": 1,
+        "affected_unique_cards": 14,
+        "category": "other_source_execution"
+      },
+      {
+        "affected_copies": 28,
+        "affected_decks": 1,
+        "affected_unique_cards": 7,
+        "category": "real_bag_and_triggers"
+      },
+      {
+        "affected_copies": 9,
+        "affected_decks": 1,
+        "affected_unique_cards": 3,
+        "category": "target_choice_prompts"
+      },
+      {
+        "affected_copies": 5,
+        "affected_decks": 1,
+        "affected_unique_cards": 2,
+        "category": "static_effect_registry"
+      },
+      {
+        "affected_copies": 4,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "activated_abilities"
+      },
+      {
+        "affected_copies": 4,
+        "affected_decks": 1,
+        "affected_unique_cards": 1,
+        "category": "shift"
+      }
+    ],
+    "resolved_unique_cards": 16,
+    "schema_version": 1,
+    "top_blockers_by_copies": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 28
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 23
+      },
+      {
+        "blocker": "unsupported_trigger_event:banish-in-challenge",
+        "count": 12
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 5
+      },
+      {
+        "blocker": "keyword:SHIFT",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:gain-keyword",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_target:object",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_trigger_on:complex_filter",
+        "count": 4
+      },
+      {
+        "blocker": "unsupported_effect:deal-damage",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_condition:not",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_effect:restriction",
+        "count": 2
+      },
+      {
+        "blocker": "unsupported_target:all",
+        "count": 2
+      }
+    ],
+    "top_blockers_by_unique_cards": [
+      {
+        "blocker": "unsupported_trigger",
+        "count": 7
+      },
+      {
+        "blocker": "unsupported_trigger_not_projected",
+        "count": 6
+      },
+      {
+        "blocker": "unsupported_trigger_event:banish-in-challenge",
+        "count": 3
+      },
+      {
+        "blocker": "unsupported_static_effect",
+        "count": 2
+      },
+      {
+        "blocker": "keyword:SHIFT",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_condition:not",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_cost:ink",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:deal-damage",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:gain-keyword",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_effect:restriction",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_target:all",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_target:chosen",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_target:object",
+        "count": 1
+      },
+      {
+        "blocker": "unsupported_trigger_on:complex_filter",
+        "count": 1
+      }
+    ],
+    "total_cards": 60,
+    "unique_cards": 16,
+    "unresolved_unique_cards": 0,
+    "unsupported_copies": 40,
+    "unsupported_unique_cards": 6,
+    "valid": true
+  },
+  "name": "Steel Ruby",
+  "placement": "7th",
+  "playability": "partially_executable",
+  "playable_decklist_ids": [
+    "uh8",
+    "uh8",
+    "uh8",
+    "uh8",
+    "QUY",
+    "QUY",
+    "QUY",
+    "QUY",
+    "NLA",
+    "NLA",
+    "NLA",
+    "NLA",
+    "tM1",
+    "tM1",
+    "tM1",
+    "tM1",
+    "D0w",
+    "D0w",
+    "D0w",
+    "D0w",
+    "HVE",
+    "HVE",
+    "HVE",
+    "HVE",
+    "5EC",
+    "5EC",
+    "5EC",
+    "5EC",
+    "e9n",
+    "e9n",
+    "e9n",
+    "e9n",
+    "TMv",
+    "TMv",
+    "TMv",
+    "xm6",
+    "xm6",
+    "6Ji",
+    "6Ji",
+    "6Ji",
+    "8nj",
+    "8nj",
+    "8nj",
+    "8nj",
+    "hQC",
+    "hQC",
+    "hQC",
+    "hQC",
+    "DCW",
+    "DCW",
+    "DCW",
+    "DCW",
+    "BQt",
+    "BQt",
+    "BQt",
+    "BQt",
+    "rHN",
+    "rHN",
+    "rHN",
+    "rHN"
+  ],
+  "player": "Damien",
+  "purpose": [
+    "aggro",
+    "combat",
+    "songs"
+  ],
+  "raw_ink_colors": [
+    "ruby",
+    "steel"
+  ],
+  "resolved_ink_colors": [
+    "ruby",
+    "steel"
+  ],
+  "schema_version": 1,
+  "source_deck_id": 499270,
+  "source_site": "inkdecks",
+  "validation": {
+    "ambiguous_cards": [],
+    "banned_cards": [],
+    "copy_limit_violations": [],
+    "deck_total_actual": 60,
+    "deck_total_declared": 60,
+    "errors": [],
+    "resolved_ink_colors": [
+      "ruby",
+      "steel"
+    ],
+    "schema_version": 1,
+    "unknown_legality_cards": [
+      "But I'm Much Faster",
+      "Calhoun - Marine Sergeant",
+      "Diablo - Watchful Raven",
+      "Fa Zhou - War Hero",
+      "Hercules - Mighty Leader",
+      "Jasmine - Rebellious Princess",
+      "Mulan - Disguised Soldier",
+      "Mushu - Majestic Dragon",
+      "Pluto - Steel Champion",
+      "Queen of Hearts - Impulsive Ruler",
+      "Queen of Hearts - Sensing Weakness",
+      "Robin Hood - Ephemeral Archer",
+      "Shere Khan - Menacing Predator",
+      "Sisu - Emboldened Warrior",
+      "Strength of a Raging Fire",
+      "Tinker Bell - Fancy Footwork"
+    ],
+    "unresolved_cards": [],
+    "valid": true,
+    "warnings": []
+  }
+}

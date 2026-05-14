@@ -1,0 +1,2257 @@
+{
+  "prereleaseDate": "2025-05-30",
+  "releaseDate": "2025-06-06",
+  "hasAllCards": true,
+  "type": "quest",
+  "number": 2,
+  "allowedInFormats": {
+    "Core": {
+      "allowed": false
+    },
+    "Infinity": {
+      "allowed": false
+    }
+  },
+  "allowedInTournamentsFromDate": null,
+  "name": "Illumineer's Quest: Palace Heist",
+  "code": "Q2",
+  "metadata": {
+    "formatVersion": "2.3.2",
+    "generatedOn": "2026-04-27T18:44:46",
+    "language": "en"
+  },
+  "cards": [
+    {
+      "abilities": [
+        {
+          "fullText": "Evasive (Only characters with Evasive can\nchallenge this character.)",
+          "keyword": "Evasive",
+          "reminderText": "Only characters with Evasive can challenge this character.",
+          "type": "keyword"
+        },
+        {
+          "effect": "When Jafar plays this character, each Illumineer chooses and banishes one of their characters, one of their items, and one of their locations.",
+          "fullText": "SIMULTANEOUS STRIKE When Jafar plays this\ncharacter, each Illumineer chooses and banishes\none of their characters, one of their items, and one\nof their locations.",
+          "name": "SIMULTANEOUS STRIKE",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Carlos Ruiz"
+      ],
+      "artistsText": "Carlos Ruiz",
+      "code": "uA",
+      "color": "",
+      "cost": 7,
+      "externalLinks": {
+        "cardTraderId": 334375,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334375",
+        "cardmarketId": 828111,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Metal-Scorpion-Deadly-Statue?language=1",
+        "tcgPlayerId": 634273,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634273"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "1/35 \u2022 EN \u2022 Q2",
+      "fullName": "Metal Scorpion - Deadly Statue",
+      "fullText": "Evasive (Only characters with Evasive can\nchallenge this character.)\nSIMULTANEOUS STRIKE When Jafar plays this\ncharacter, each Illumineer chooses and banishes\none of their characters, one of their items, and one\nof their locations.",
+      "fullTextSections": [
+        "Evasive (Only characters with Evasive can\nchallenge this character.)",
+        "SIMULTANEOUS STRIKE When Jafar plays this\ncharacter, each Illumineer chooses and banishes\none of their characters, one of their items, and one\nof their locations."
+      ],
+      "id": 1896,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/1_973b9d3242abfb4c83bc71dc5aafd6365ff2421e.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/1_1de6c626c3cccfc77d707d203db60c5c25634fe2.jpg"
+      },
+      "inkwell": true,
+      "keywordAbilities": [
+        "Evasive"
+      ],
+      "lore": 2,
+      "name": "Metal Scorpion",
+      "number": 1,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "metal scorpion deadly statue",
+      "story": "Lorcana",
+      "strength": 8,
+      "subtypes": [
+        "Colossus"
+      ],
+      "subtypesText": "Colossus",
+      "type": "Character",
+      "version": "Deadly Statue",
+      "willpower": 5
+    },
+    {
+      "abilities": [
+        {
+          "effect": "When Jafar plays this character, he steals The Reforged Crown.",
+          "fullText": "BRING IT TO ME When Jafar plays this character,\nhe steals The Reforged Crown.",
+          "name": "BRING IT TO ME",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Anderson Mahanski"
+      ],
+      "artistsText": "Anderson Mahanski",
+      "code": "uB",
+      "color": "",
+      "cost": 3,
+      "externalLinks": {
+        "cardTraderId": 334388,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334388",
+        "cardmarketId": 828112,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Palace-Guard-Crown-Hunter?language=1",
+        "tcgPlayerId": 634279,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634279"
+      },
+      "flavorText": "\u201cAh, yes. I'll be taking that.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "2/35 \u2022 EN \u2022 Q2",
+      "fullName": "Palace Guard - Crown Hunter",
+      "fullText": "BRING IT TO ME When Jafar plays this character,\nhe steals The Reforged Crown.",
+      "fullTextSections": [
+        "BRING IT TO ME When Jafar plays this character,\nhe steals The Reforged Crown."
+      ],
+      "id": 1897,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/2_46680613f95f004b371819a0c6c3bec14ef2414e.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/2_2d637fd0016b1da716c4346fd40a5ef72c018390.jpg"
+      },
+      "inkwell": true,
+      "lore": 1,
+      "name": "Palace Guard",
+      "number": 2,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "palace guard crown hunter",
+      "story": "Aladdin",
+      "strength": 2,
+      "subtypes": [
+        "Storyborn",
+        "Ally"
+      ],
+      "subtypesText": "Storyborn \u2022 Ally",
+      "type": "Character",
+      "version": "Crown Hunter",
+      "willpower": 6
+    },
+    {
+      "abilities": [
+        {
+          "fullText": "Bodyguard (An opposing character who challenges one\nof Jafar's characters must choose one with Bodyguard\nif able.)",
+          "keyword": "Bodyguard",
+          "reminderText": "An opposing character who challenges one of Jafar's characters must choose one with Bodyguard if able.",
+          "type": "keyword"
+        },
+        {
+          "effect": "This character enters play exerted.",
+          "fullText": "JAFAR'S SENTRY This character enters play exerted.",
+          "name": "JAFAR'S SENTRY",
+          "type": "static"
+        },
+        {
+          "effect": "While this character is exerted, Jafar's locations can't be challenged.",
+          "fullText": "SOUND THE ALARM While this character is exerted,\nJafar's locations can't be challenged.",
+          "name": "SOUND THE ALARM",
+          "type": "static"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Diogo Saito"
+      ],
+      "artistsText": "Diogo Saito",
+      "code": "uC",
+      "color": "",
+      "cost": 4,
+      "externalLinks": {
+        "cardTraderId": 334385,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334385",
+        "cardmarketId": 828113,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Iago-Raucous-Lookout?language=1",
+        "tcgPlayerId": 634284,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634284"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "3/35 \u2022 EN \u2022 Q2",
+      "fullName": "Iago - Raucous Lookout",
+      "fullText": "Bodyguard (An opposing character who challenges one\nof Jafar's characters must choose one with Bodyguard\nif able.)\nJAFAR'S SENTRY This character enters play exerted.\nSOUND THE ALARM While this character is exerted,\nJafar's locations can't be challenged.",
+      "fullTextSections": [
+        "Bodyguard (An opposing character who challenges one\nof Jafar's characters must choose one with Bodyguard\nif able.)",
+        "JAFAR'S SENTRY This character enters play exerted.",
+        "SOUND THE ALARM While this character is exerted,\nJafar's locations can't be challenged."
+      ],
+      "id": 1898,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/3_2cd5ac0c6d89323bca3ac753323603290a7d3413.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/3_ee26590339fe118db35a49d4ca4c25bbda7e643f.jpg"
+      },
+      "inkwell": true,
+      "keywordAbilities": [
+        "Bodyguard"
+      ],
+      "lore": 1,
+      "name": "Iago",
+      "number": 3,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "iago raucous lookout",
+      "story": "Aladdin",
+      "strength": 4,
+      "subtypes": [
+        "Dreamborn",
+        "Ally"
+      ],
+      "subtypesText": "Dreamborn \u2022 Ally",
+      "type": "Character",
+      "version": "Raucous Lookout",
+      "willpower": 5
+    },
+    {
+      "abilities": [
+        {
+          "fullText": "Bodyguard (An opposing character who challenges\none of Jafar's characters must choose one with\nBodyguard if able.)",
+          "keyword": "Bodyguard",
+          "reminderText": "An opposing character who challenges one of Jafar's characters must choose one with Bodyguard if able.",
+          "type": "keyword"
+        },
+        {
+          "effect": "This character enters play exerted.",
+          "fullText": "JAFAR'S SENTRY This character enters play exerted.",
+          "name": "JAFAR'S SENTRY",
+          "type": "static"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Omar Lozano"
+      ],
+      "artistsText": "Omar Lozano",
+      "code": "uD",
+      "color": "",
+      "cost": 2,
+      "externalLinks": {
+        "cardTraderId": 334394,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334394",
+        "cardmarketId": 828114,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Razoul-Unyielding-Guard?language=1",
+        "tcgPlayerId": 634286,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634286"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "4/35 \u2022 EN \u2022 Q2",
+      "fullName": "Razoul - Unyielding Guard",
+      "fullText": "Bodyguard (An opposing character who challenges\none of Jafar's characters must choose one with\nBodyguard if able.)\nJAFAR'S SENTRY This character enters play exerted.",
+      "fullTextSections": [
+        "Bodyguard (An opposing character who challenges\none of Jafar's characters must choose one with\nBodyguard if able.)",
+        "JAFAR'S SENTRY This character enters play exerted."
+      ],
+      "id": 1899,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/4_15c0f8b46f563727df41ba075da1666fd24af70b.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/4_0ba5120df330dfbfa35a129685eab7042b3b07ca.jpg"
+      },
+      "inkwell": true,
+      "keywordAbilities": [
+        "Bodyguard"
+      ],
+      "lore": 1,
+      "name": "Razoul",
+      "number": 4,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "razoul unyielding guard",
+      "story": "Aladdin",
+      "strength": 4,
+      "subtypes": [
+        "Dreamborn",
+        "Ally",
+        "Captain"
+      ],
+      "subtypesText": "Dreamborn \u2022 Ally \u2022 Captain",
+      "type": "Character",
+      "version": "Unyielding Guard",
+      "willpower": 4
+    },
+    {
+      "abilities": [
+        {
+          "effect": "Illumineers can't use battleground abilities.",
+          "fullText": "SHIFTING SANDS Illumineers can't use\nbattleground abilities.",
+          "name": "SHIFTING SANDS",
+          "type": "static"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Stefano Zanchi"
+      ],
+      "artistsText": "Stefano Zanchi",
+      "code": "uE",
+      "color": "",
+      "cost": 2,
+      "externalLinks": {
+        "cardTraderId": 334392,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334392",
+        "cardmarketId": 828115,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Treasure-Guardian-Illusionary-Protector?language=1",
+        "tcgPlayerId": 634288,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634288"
+      },
+      "flavorText": "\u201cOh dear, have the rules changed? How dreadfully\nsad...for you.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "5/35 \u2022 EN \u2022 Q2",
+      "fullName": "Treasure Guardian - Illusionary Protector",
+      "fullText": "SHIFTING SANDS Illumineers can't use\nbattleground abilities.",
+      "fullTextSections": [
+        "SHIFTING SANDS Illumineers can't use\nbattleground abilities."
+      ],
+      "id": 1900,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/5_53c5c1bb06327c8c5d8208fb7c460dd4bcb0733c.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/5_55f291a28d24b8c2097d4397f55c80bb8b4a6108.jpg"
+      },
+      "inkwell": true,
+      "lore": 1,
+      "name": "Treasure Guardian",
+      "number": 5,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "treasure guardian illusionary protector",
+      "story": "Aladdin",
+      "strength": 3,
+      "subtypes": [
+        "Illusion"
+      ],
+      "subtypesText": "Illusion",
+      "type": "Character",
+      "version": "Illusionary Protector",
+      "willpower": 5
+    },
+    {
+      "abilities": [
+        {
+          "effect": "When Jafar plays this character, he plays all items named Mechanical Snake from his discard for free.",
+          "fullText": "RETURN TO ME! When Jafar plays this character,\nhe plays all items named Mechanical Snake from\nhis discard for free.",
+          "name": "RETURN TO ME!",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Luigi Aim\u00e8"
+      ],
+      "artistsText": "Luigi Aim\u00e8",
+      "code": "uF",
+      "color": "",
+      "cost": 4,
+      "externalLinks": {
+        "cardTraderId": 334391,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334391",
+        "cardmarketId": 828116,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Jafar-Spectral-Sorcerer?language=1",
+        "tcgPlayerId": 634293,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634293"
+      },
+      "flavorText": "\u201cYou didn't think this was over, did you? Bow\nbefore true power!\u201d",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "6/35 \u2022 EN \u2022 Q2",
+      "fullName": "Jafar - Spectral Sorcerer",
+      "fullText": "RETURN TO ME! When Jafar plays this character,\nhe plays all items named Mechanical Snake from\nhis discard for free.",
+      "fullTextSections": [
+        "RETURN TO ME! When Jafar plays this character,\nhe plays all items named Mechanical Snake from\nhis discard for free."
+      ],
+      "id": 1901,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/6_2f41737a4be6dce6aec64a294e149f36e66d8e0c.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/6_4171647582036d88c7dc878d9af5e08e9283df37.jpg"
+      },
+      "inkwell": true,
+      "lore": 1,
+      "name": "Jafar",
+      "number": 6,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "jafar spectral sorcerer",
+      "story": "Aladdin",
+      "strength": 5,
+      "subtypes": [
+        "Villain",
+        "Illusion",
+        "Sorcerer"
+      ],
+      "subtypesText": "Villain \u2022 Illusion \u2022 Sorcerer",
+      "type": "Character",
+      "version": "Spectral Sorcerer",
+      "willpower": 4
+    },
+    {
+      "abilities": [
+        {
+          "effect": "When Jafar plays this character, if each Illumineer has an exerted character in play, he gains 3 lore.",
+          "fullText": "PERFECT TIMING When Jafar plays this character,\nif each Illumineer has an exerted character in play,\nhe gains 3 lore.",
+          "name": "PERFECT TIMING",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Gonzalo Kenny"
+      ],
+      "artistsText": "Gonzalo Kenny",
+      "code": "uG",
+      "color": "",
+      "cost": 5,
+      "externalLinks": {
+        "cardTraderId": 334390,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334390",
+        "cardmarketId": 828117,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Genie-Towering-Phantom?language=1",
+        "tcgPlayerId": 634294,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634294"
+      },
+      "flavorText": "\u201cBehold the power of my sorcery. This genie is mine!\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "7/35 \u2022 EN \u2022 Q2",
+      "fullName": "Genie - Towering Phantasm",
+      "fullText": "PERFECT TIMING When Jafar plays this character,\nif each Illumineer has an exerted character in play,\nhe gains 3 lore.",
+      "fullTextSections": [
+        "PERFECT TIMING When Jafar plays this character,\nif each Illumineer has an exerted character in play,\nhe gains 3 lore."
+      ],
+      "id": 1902,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/7_70d96b7b215ca030af34b243d25ce5f7f8359c2a.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/7_57adcce4ddf38897c196cc150068c1612790ba02.jpg"
+      },
+      "inkwell": true,
+      "lore": 2,
+      "name": "Genie",
+      "number": 7,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "genie towering phantasm",
+      "story": "Aladdin",
+      "strength": 3,
+      "subtypes": [
+        "Ally",
+        "Illusion"
+      ],
+      "subtypesText": "Ally \u2022 Illusion",
+      "type": "Character",
+      "version": "Towering Phantasm",
+      "willpower": 5
+    },
+    {
+      "abilities": [
+        {
+          "effect": "When Jafar plays this character, each Illumineer chooses and discards a card.",
+          "fullText": "PAY FEALTY When Jafar plays this character, each\nIllumineer chooses and discards a card.",
+          "name": "PAY FEALTY",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Grace Woo"
+      ],
+      "artistsText": "Grace Woo",
+      "code": "uH",
+      "color": "",
+      "cost": 4,
+      "externalLinks": {
+        "cardTraderId": 334371,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334371",
+        "cardmarketId": 828118,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/The-Sultan-Spectral-Ruler?language=1",
+        "tcgPlayerId": 634295,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634295"
+      },
+      "flavorText": "\u201cNow he's bowing before me.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "8/35 \u2022 EN \u2022 Q2",
+      "fullName": "The Sultan - Spectral Ruler",
+      "fullText": "PAY FEALTY When Jafar plays this character, each\nIllumineer chooses and discards a card.",
+      "fullTextSections": [
+        "PAY FEALTY When Jafar plays this character, each\nIllumineer chooses and discards a card."
+      ],
+      "id": 1903,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/8_8478e5e7e8038781d6ead3872bc40629678a2cee.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/8_4d58870726c29e92597fa9f682dfc78a80a2fd87.jpg"
+      },
+      "inkwell": true,
+      "lore": 2,
+      "name": "The Sultan",
+      "number": 8,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "the sultan spectral ruler",
+      "story": "Aladdin",
+      "strength": 3,
+      "subtypes": [
+        "Ally",
+        "King",
+        "Illusion"
+      ],
+      "subtypesText": "Ally \u2022 King \u2022 Illusion",
+      "type": "Character",
+      "version": "Spectral Ruler",
+      "willpower": 5
+    },
+    {
+      "abilities": [
+        {
+          "effect": "Whenever this character quests, Jafar draws a card.",
+          "fullText": "OVER HERE! Whenever this character quests, Jafar\ndraws a card.",
+          "name": "OVER HERE!",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Ian MacDonald"
+      ],
+      "artistsText": "Ian MacDonald",
+      "code": "uI",
+      "color": "",
+      "cost": 4,
+      "externalLinks": {
+        "cardTraderId": 334396,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334396",
+        "cardmarketId": 828119,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Jasmine-Ephemeral-Princess?language=1",
+        "tcgPlayerId": 634297,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634297"
+      },
+      "flavorText": "\u201cThis version may be less substantial than the real\nprincess, but she'll do.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "9/35 \u2022 EN \u2022 Q2",
+      "fullName": "Jasmine - Ephemeral Princess",
+      "fullText": "OVER HERE! Whenever this character quests, Jafar\ndraws a card.",
+      "fullTextSections": [
+        "OVER HERE! Whenever this character quests, Jafar\ndraws a card."
+      ],
+      "id": 1904,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/9_d4dd33bb39d32a57975f40eb116a5dd13b8f5f95.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/9_1ce1dc2f2db3e8623433b94999c316d77079ad2b.jpg"
+      },
+      "inkwell": true,
+      "lore": 1,
+      "name": "Jasmine",
+      "number": 9,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "jasmine ephemeral princess",
+      "story": "Aladdin",
+      "strength": 2,
+      "subtypes": [
+        "Hero",
+        "Princess",
+        "Illusion"
+      ],
+      "subtypesText": "Hero \u2022 Princess \u2022 Illusion",
+      "type": "Character",
+      "version": "Ephemeral Princess",
+      "willpower": 7
+    },
+    {
+      "abilities": [
+        {
+          "effect": "When Jafar plays this character, he deals 2 damage to each opposing damaged character.",
+          "fullText": "FIGHTING DIRTY When Jafar plays this character, he\ndeals 2 damage to each opposing damaged character.",
+          "name": "FIGHTING DIRTY",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "James Rey Sanchez"
+      ],
+      "artistsText": "James Rey Sanchez",
+      "code": "uJ",
+      "color": "",
+      "cost": 5,
+      "externalLinks": {
+        "cardTraderId": 334398,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334398",
+        "cardmarketId": 828120,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Gazeem-Ruthless-Ruffian?language=1",
+        "tcgPlayerId": 634299,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634299"
+      },
+      "flavorText": "\u201cWhat he lacks in manners he makes up in sheer cruelty.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "10/35 \u2022 EN \u2022 Q2",
+      "fullName": "Gazeem - Ruthless Ruffian",
+      "fullText": "FIGHTING DIRTY When Jafar plays this character, he\ndeals 2 damage to each opposing damaged character.",
+      "fullTextSections": [
+        "FIGHTING DIRTY When Jafar plays this character, he\ndeals 2 damage to each opposing damaged character."
+      ],
+      "id": 1905,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/10_37e1cf035f1ac77e2f59965a8ad4c2dca75624dc.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/10_b66e1687686b463d866f3d40d41354ee2189a4c0.jpg"
+      },
+      "inkwell": true,
+      "lore": 2,
+      "name": "Gazeem",
+      "number": 10,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "gazeem ruthless ruffian",
+      "story": "Aladdin",
+      "strength": 4,
+      "subtypes": [
+        "Dreamborn"
+      ],
+      "subtypesText": "Dreamborn",
+      "type": "Character",
+      "version": "Ruthless Ruffian",
+      "willpower": 5
+    },
+    {
+      "abilities": [
+        {
+          "fullText": "Evasive (Only characters with Evasive can\nchallenge this character.)",
+          "keyword": "Evasive",
+          "reminderText": "Only characters with Evasive can challenge this character.",
+          "type": "keyword"
+        },
+        {
+          "effect": "Whenever this character quests, Jafar steals The Reforged Crown.",
+          "fullText": "GOTCHA! Whenever this character quests, Jafar\nsteals The Reforged Crown.",
+          "name": "GOTCHA!",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Eva Widermann"
+      ],
+      "artistsText": "Eva Widermann",
+      "code": "uK",
+      "color": "",
+      "cost": 6,
+      "externalLinks": {
+        "cardTraderId": 333079,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/333079",
+        "cardmarketId": 828121,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Iago-Crown-Seeker?language=1",
+        "tcgPlayerId": 631973,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/631973"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "11/35 \u2022 EN \u2022 Q2",
+      "fullName": "Iago - Crown Seeker",
+      "fullText": "Evasive (Only characters with Evasive can\nchallenge this character.)\nGOTCHA! Whenever this character quests, Jafar\nsteals The Reforged Crown.",
+      "fullTextSections": [
+        "Evasive (Only characters with Evasive can\nchallenge this character.)",
+        "GOTCHA! Whenever this character quests, Jafar\nsteals The Reforged Crown."
+      ],
+      "id": 1906,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/11_a71bd8a2834d3c9455da21411200b894f282b3f8.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/11_7a5ea0904442c6256ffb265d397b36a69594c6f5.jpg"
+      },
+      "inkwell": true,
+      "keywordAbilities": [
+        "Evasive"
+      ],
+      "lore": 2,
+      "name": "Iago",
+      "number": 11,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "iago crown seeker",
+      "story": "Aladdin",
+      "strength": 3,
+      "subtypes": [
+        "Dreamborn",
+        "Ally"
+      ],
+      "subtypesText": "Dreamborn \u2022 Ally",
+      "type": "Character",
+      "version": "Crown Seeker",
+      "willpower": 5
+    },
+    {
+      "abilities": [
+        {
+          "effect": "During the Illumineers' turn, they may pay 3 \u2b21 each to banish this character.",
+          "fullText": "SECRET VULNERABILITY During the Illumineers'\nturn, they may pay 3 \u2b21 each to banish this\ncharacter.",
+          "name": "SECRET VULNERABILITY",
+          "type": "static"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Carlos Ruiz"
+      ],
+      "artistsText": "Carlos Ruiz",
+      "code": "uL",
+      "color": "",
+      "cost": 5,
+      "externalLinks": {
+        "cardTraderId": 334367,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334367",
+        "cardmarketId": 828122,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Monumental-Scarab-Skittering-Statue?language=1",
+        "tcgPlayerId": 634304,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634304"
+      },
+      "flavorText": "\u201cJust the thing to deal with pests like you!\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "12/35 \u2022 EN \u2022 Q2",
+      "fullName": "Monumental Scarab - Skittering Statue",
+      "fullText": "SECRET VULNERABILITY During the Illumineers'\nturn, they may pay 3 \u2b21 each to banish this\ncharacter.",
+      "fullTextSections": [
+        "SECRET VULNERABILITY During the Illumineers'\nturn, they may pay 3 \u2b21 each to banish this\ncharacter."
+      ],
+      "id": 1907,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/12_ae6ef8e10f6c08e7e14a5540eaac3589fbaa118e.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/12_81161b22e442385aacf7745990c4c41e8f912353.jpg"
+      },
+      "inkwell": true,
+      "lore": 2,
+      "name": "Monumental Scarab",
+      "number": 12,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "monumental scarab skittering statue",
+      "story": "Lorcana",
+      "strength": 8,
+      "subtypes": [
+        "Colossus"
+      ],
+      "subtypesText": "Colossus",
+      "type": "Character",
+      "version": "Skittering Statue",
+      "willpower": 8
+    },
+    {
+      "abilities": [
+        {
+          "effect": "When Jafar plays this character, he deals 3 damage to each opposing exerted character.",
+          "fullText": "SERPENT'S SHADOW When Jafar plays this\ncharacter, he deals 3 damage to each opposing\nexerted character.",
+          "name": "SERPENT'S SHADOW",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Diego Machuca"
+      ],
+      "artistsText": "Diego Machuca",
+      "code": "uM",
+      "color": "",
+      "cost": 7,
+      "externalLinks": {
+        "cardTraderId": 334400,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334400",
+        "cardmarketId": 828123,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Gargantuan-Cobra-Slithering-Statue?language=1",
+        "tcgPlayerId": 634306,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634306"
+      },
+      "flavorText": "\u201cBehold the wonders of true power! Even the stone is\nmine to command!\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "13/35 \u2022 EN \u2022 Q2",
+      "fullName": "Gargantuan Cobra - Slithering Statue",
+      "fullText": "SERPENT'S SHADOW When Jafar plays this\ncharacter, he deals 3 damage to each opposing\nexerted character.",
+      "fullTextSections": [
+        "SERPENT'S SHADOW When Jafar plays this\ncharacter, he deals 3 damage to each opposing\nexerted character."
+      ],
+      "id": 1908,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/13_5b097e785c1634e153d7db1c82fe7f36ff68caee.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/13_1168435d2bf316a60201f2272d6ba5e97a1e939f.jpg"
+      },
+      "inkwell": true,
+      "lore": 3,
+      "name": "Gargantuan Cobra",
+      "number": 13,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "gargantuan cobra slithering statue",
+      "story": "Lorcana",
+      "strength": 7,
+      "subtypes": [
+        "Colossus"
+      ],
+      "subtypesText": "Colossus",
+      "type": "Character",
+      "version": "Slithering Statue",
+      "willpower": 5
+    },
+    {
+      "abilities": [
+        {
+          "effect": "This character can't be challenged by damaged characters.",
+          "fullText": "DREADFUL STARE This character can't be\nchallenged by damaged characters.",
+          "name": "DREADFUL STARE",
+          "type": "static"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Diego Machuca"
+      ],
+      "artistsText": "Diego Machuca",
+      "code": "uN",
+      "color": "",
+      "cost": 7,
+      "externalLinks": {
+        "cardTraderId": 334350,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334350",
+        "cardmarketId": 828124,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Tiger-Behemoth-Hulking-Statue?language=1",
+        "tcgPlayerId": 634308,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634308"
+      },
+      "flavorText": "\u201cThe palace guardians don't take kindly to\ninterlopers. Consider yourself warned.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "14/35 \u2022 EN \u2022 Q2",
+      "fullName": "Tiger Behemoth - Hulking Statue",
+      "fullText": "DREADFUL STARE This character can't be\nchallenged by damaged characters.",
+      "fullTextSections": [
+        "DREADFUL STARE This character can't be\nchallenged by damaged characters."
+      ],
+      "id": 1909,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/14_0d515c89bcbaceec75c8a36a263c8defe607d0b6.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/14_6784ec2d9666635bea23099726b6bda4a60c880f.jpg"
+      },
+      "inkwell": true,
+      "lore": 3,
+      "name": "Tiger Behemoth",
+      "number": 14,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "tiger behemoth hulking statue",
+      "story": "Lorcana",
+      "strength": 7,
+      "subtypes": [
+        "Colossus"
+      ],
+      "subtypesText": "Colossus",
+      "type": "Character",
+      "version": "Hulking Statue",
+      "willpower": 8
+    },
+    {
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Shutianyi Li"
+      ],
+      "artistsText": "Shutianyi Li",
+      "code": "uO",
+      "color": "",
+      "cost": 5,
+      "externalLinks": {
+        "cardTraderId": 334348,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334348",
+        "cardmarketId": 828125,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Abu-Cheeky-Phantasm?language=1",
+        "tcgPlayerId": 634407,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634407"
+      },
+      "flavorText": "\u201cWhy, yes, he is annoying. So kind of you to notice.\nI wanted this illusion to be as accurate as possible.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "15/35 \u2022 EN \u2022 Q2",
+      "fullName": "Abu - Cheeky Phantasm",
+      "fullText": "",
+      "fullTextSections": [],
+      "id": 1910,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/15_e206ce0384df2f754420fc0b9f40324ee0497694.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/15_911880bec6c11fab277aedb5237f0d61a7d3ee56.jpg"
+      },
+      "inkwell": true,
+      "lore": 2,
+      "name": "Abu",
+      "number": 15,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "abu cheeky phantasm",
+      "story": "Aladdin",
+      "strength": 6,
+      "subtypes": [
+        "Ally",
+        "Illusion"
+      ],
+      "subtypesText": "Ally \u2022 Illusion",
+      "type": "Character",
+      "version": "Cheeky Phantasm",
+      "willpower": 6
+    },
+    {
+      "abilities": [
+        {
+          "fullText": "Evasive (Only characters with Evasive can challenge this\ncharacter.)",
+          "keyword": "Evasive",
+          "reminderText": "Only characters with Evasive can challenge this character.",
+          "type": "keyword"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Malia Ewart"
+      ],
+      "artistsText": "Malia Ewart",
+      "code": "uP",
+      "color": "",
+      "cost": 3,
+      "externalLinks": {
+        "cardTraderId": 334346,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334346",
+        "cardmarketId": 828126,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Aladdin-Misleading-Phantom?language=1",
+        "tcgPlayerId": 634411,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634411"
+      },
+      "flavorText": "\u201cThe best part about this illusion? He knows his place.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "16/35 \u2022 EN \u2022 Q2",
+      "fullName": "Aladdin - Misleading Phantom",
+      "fullText": "Evasive (Only characters with Evasive can challenge this\ncharacter.)",
+      "fullTextSections": [
+        "Evasive (Only characters with Evasive can challenge this\ncharacter.)"
+      ],
+      "id": 1911,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/16_8a4290482d391b5093ab22b7e897949f684ecdc8.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/16_ab5c423516a30e3f113cec0bcaba1135c1a8eb2f.jpg"
+      },
+      "inkwell": true,
+      "keywordAbilities": [
+        "Evasive"
+      ],
+      "lore": 1,
+      "name": "Aladdin",
+      "number": 16,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "aladdin misleading phantom",
+      "story": "Aladdin",
+      "strength": 4,
+      "subtypes": [
+        "Hero",
+        "Illusion"
+      ],
+      "subtypesText": "Hero \u2022 Illusion",
+      "type": "Character",
+      "version": "Misleading Phantom",
+      "willpower": 2
+    },
+    {
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Marc Perez"
+      ],
+      "artistsText": "Marc Perez",
+      "code": "uQ",
+      "color": "",
+      "cost": 1,
+      "externalLinks": {
+        "cardTraderId": 334344,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334344",
+        "cardmarketId": 828127,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Basil-Shadow-Sleuth?language=1",
+        "tcgPlayerId": 634414,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634414"
+      },
+      "flavorText": "\u201cI'll admit, he has a great mind\u2014for a mouse.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "17/35 \u2022 EN \u2022 Q2",
+      "fullName": "Basil - Shadow Sleuth",
+      "fullText": "",
+      "fullTextSections": [],
+      "id": 1912,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/17_90fd37a84b2bc5ec4ebc1d14a41dd0098bf70ec7.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/17_720424347977fe9ed85155afceb42a3042e8ff47.jpg"
+      },
+      "inkwell": true,
+      "lore": 1,
+      "name": "Basil",
+      "number": 17,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "basil shadow sleuth",
+      "story": "The Great Mouse Detective",
+      "strength": 3,
+      "subtypes": [
+        "Hero",
+        "Illusion",
+        "Detective"
+      ],
+      "subtypesText": "Hero \u2022 Illusion \u2022 Detective",
+      "type": "Character",
+      "version": "Shadow Sleuth",
+      "willpower": 2
+    },
+    {
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Jonathan Livslyst"
+      ],
+      "artistsText": "Jonathan Livslyst",
+      "code": "uR",
+      "color": "",
+      "cost": 2,
+      "effects": [
+        "Jafar deals 1 damage to each opposing character.\nThen, put this card into his inkwell facedown."
+      ],
+      "externalLinks": {
+        "cardTraderId": 334342,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334342",
+        "cardmarketId": 828128,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Sandblast?language=1",
+        "tcgPlayerId": 634432,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634432"
+      },
+      "flavorText": "\u201cThings are getting a bit rough, aren't they?\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "18/35 \u2022 EN \u2022 Q2",
+      "fullName": "Sandblast",
+      "fullText": "Jafar deals 1 damage to each opposing character.\nThen, put this card into his inkwell facedown.",
+      "fullTextSections": [
+        "Jafar deals 1 damage to each opposing character.\nThen, put this card into his inkwell facedown."
+      ],
+      "id": 1913,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/18_9cde9a07684ac70d3a369bb848155a45f66d9368.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/18_c387bfbf35d83258b97ca23611861090c265338a.jpg"
+      },
+      "inkwell": true,
+      "name": "Sandblast",
+      "number": 18,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "sandblast",
+      "story": "Lorcana",
+      "type": "Action"
+    },
+    {
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Diogo Saito"
+      ],
+      "artistsText": "Diogo Saito",
+      "code": "uS",
+      "color": "",
+      "cost": 3,
+      "effects": [
+        "Jafar's locations lose Ward until the start of his next turn.",
+        "The Illumineers may choose and banish up to one of\nJafar's locations."
+      ],
+      "externalLinks": {
+        "cardTraderId": 334359,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334359",
+        "cardmarketId": 828129,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Destructive-Misstep?language=1",
+        "tcgPlayerId": 634433,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634433"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "19/35 \u2022 EN \u2022 Q2",
+      "fullName": "Destructive Misstep",
+      "fullText": "Jafar's locations lose Ward until the start of his next turn.\nThe Illumineers may choose and banish up to one of\nJafar's locations.",
+      "fullTextSections": [
+        "Jafar's locations lose Ward until the start of his next turn.",
+        "The Illumineers may choose and banish up to one of\nJafar's locations."
+      ],
+      "id": 1914,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/19_189d33f5317e9e2f833f3edaef5ffdcad195cb32.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/19_9124e77e8a6e21e4d666f31fc0f96c2dc066d7e5.jpg"
+      },
+      "inkwell": true,
+      "name": "Destructive Misstep",
+      "number": 19,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "destructive misstep",
+      "story": "Lorcana",
+      "type": "Action"
+    },
+    {
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Pietro B. Zemelo",
+        "Theonidas"
+      ],
+      "artistsNormalized": [
+        "Pietro B. Zemelo",
+        "Andrew Theophilopoulos"
+      ],
+      "artistsText": "Pietro B. Zemelo / Theonidas",
+      "code": "uT",
+      "color": "",
+      "cost": 4,
+      "effects": [
+        "Each Illumineer chooses and banishes one of their\nitems or locations."
+      ],
+      "externalLinks": {
+        "cardTraderId": 334357,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334357",
+        "cardmarketId": 828130,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Disastrous-Sandstorm?language=1",
+        "tcgPlayerId": 634437,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634437"
+      },
+      "flavorText": "\u201cYou'll have to dig deep if you want that back!\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "20/35 \u2022 EN \u2022 Q2",
+      "fullName": "Disastrous Sandstorm",
+      "fullText": "Each Illumineer chooses and banishes one of their\nitems or locations.",
+      "fullTextSections": [
+        "Each Illumineer chooses and banishes one of their\nitems or locations."
+      ],
+      "id": 1915,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/20_9c62dd663b7200735d53e053fa0734f48cd6de3c.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/20_5253ad576b80de42091ed040734e598fb4d48a32.jpg"
+      },
+      "inkwell": true,
+      "name": "Disastrous Sandstorm",
+      "number": 20,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "disastrous sandstorm",
+      "story": "Lorcana",
+      "type": "Action"
+    },
+    {
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Gonzalo Kenny"
+      ],
+      "artistsText": "Gonzalo Kenny",
+      "code": "uU",
+      "color": "",
+      "cost": 3,
+      "effects": [
+        "Jafar gains 2 lore. Then, put this card into his inkwell\nfacedown."
+      ],
+      "externalLinks": {
+        "cardTraderId": 334355,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334355",
+        "cardmarketId": 828131,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Sudden-Power?language=1",
+        "tcgPlayerId": 634435,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634435"
+      },
+      "flavorText": "\u201cYes! I can feel it! All of Lorcana shall tremble before me!\u201d",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "21/35 \u2022 EN \u2022 Q2",
+      "fullName": "Sudden Power",
+      "fullText": "Jafar gains 2 lore. Then, put this card into his inkwell\nfacedown.",
+      "fullTextSections": [
+        "Jafar gains 2 lore. Then, put this card into his inkwell\nfacedown."
+      ],
+      "id": 1916,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/21_64a62350d88a28088a40d6d8b074324cb0a27fa9.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/21_568aefa2140c1f05af3c3412800691da783b782c.jpg"
+      },
+      "inkwell": true,
+      "name": "Sudden Power",
+      "number": 21,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "sudden power",
+      "story": "Lorcana",
+      "type": "Action"
+    },
+    {
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "French Carlomagno"
+      ],
+      "artistsText": "French Carlomagno",
+      "code": "uV",
+      "color": "",
+      "cost": 4,
+      "effects": [
+        "Jafar exerts all opposing characters. They can't ready at\nthe start of their next turn."
+      ],
+      "externalLinks": {
+        "cardTraderId": 334353,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334353",
+        "cardmarketId": 828132,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Arcane-Quake?language=1",
+        "tcgPlayerId": 634444,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634444"
+      },
+      "flavorText": "\u201cYour plan's beginning to crumble. Try not to lose your grip!\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "22/35 \u2022 EN \u2022 Q2",
+      "fullName": "Arcane Quake",
+      "fullText": "Jafar exerts all opposing characters. They can't ready at\nthe start of their next turn.",
+      "fullTextSections": [
+        "Jafar exerts all opposing characters. They can't ready at\nthe start of their next turn."
+      ],
+      "id": 1917,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/22_b197f2abf1abcd3936986c83d187a46b17efff0d.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/22_203ad880b73ac7e3e4228ae9d092af97d3be42ee.jpg"
+      },
+      "inkwell": true,
+      "name": "Arcane Quake",
+      "number": 22,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "arcane quake",
+      "story": "Lorcana",
+      "type": "Action"
+    },
+    {
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Douglas De La Hoz"
+      ],
+      "artistsText": "Douglas De La Hoz",
+      "code": "uW",
+      "color": "",
+      "cost": 6,
+      "effects": [
+        "Each Illumineer chooses one of their characters, items,\nor locations. Then, Jafar banishes all other opposing\ncharacters, items, and locations."
+      ],
+      "externalLinks": {
+        "cardTraderId": 334351,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334351",
+        "cardmarketId": 828133,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Cataclysmic-Cyclone?language=1",
+        "tcgPlayerId": 634439,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634439"
+      },
+      "flavorText": "\u201cNow this will really blow you away!\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "23/35 \u2022 EN \u2022 Q2",
+      "fullName": "Cataclysmic Cyclone",
+      "fullText": "Each Illumineer chooses one of their characters, items,\nor locations. Then, Jafar banishes all other opposing\ncharacters, items, and locations.",
+      "fullTextSections": [
+        "Each Illumineer chooses one of their characters, items,\nor locations. Then, Jafar banishes all other opposing\ncharacters, items, and locations."
+      ],
+      "id": 1918,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/23_23017c96ee2dc17d9ffd8a1beefa760b56b2b79f.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/23_716c1d04212b0164e4543603311c4c9394e2b844.jpg"
+      },
+      "inkwell": true,
+      "name": "Cataclysmic Cyclone",
+      "number": 23,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "cataclysmic cyclone",
+      "story": "Lorcana",
+      "type": "Action"
+    },
+    {
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Simone Tentoni"
+      ],
+      "artistsText": "Simone Tentoni",
+      "code": "uX",
+      "color": "",
+      "cost": 5,
+      "effects": [
+        "Jafar returns all opposing exerted characters to their\nIllumineers' hands."
+      ],
+      "externalLinks": {
+        "cardTraderId": 334361,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334361",
+        "cardmarketId": 828134,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Sand-Wave?language=1",
+        "tcgPlayerId": 634434,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634434"
+      },
+      "flavorText": "\u201cTry not to get swept away!\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "24/35 \u2022 EN \u2022 Q2",
+      "fullName": "Sand Wave",
+      "fullText": "Jafar returns all opposing exerted characters to their\nIllumineers' hands.",
+      "fullTextSections": [
+        "Jafar returns all opposing exerted characters to their\nIllumineers' hands."
+      ],
+      "id": 1919,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/24_052187695aab3be86eb538b400b84a5f215fd44c.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/24_a2ff6a25459007141eb92778ec2107e111789096.jpg"
+      },
+      "inkwell": true,
+      "name": "Sand Wave",
+      "number": 24,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "sand wave",
+      "story": "Lorcana",
+      "type": "Action"
+    },
+    {
+      "abilities": [
+        {
+          "effect": "When Jafar plays this item, he steals The Reforged Crown.",
+          "fullText": "SEIZE THE CROWN! When Jafar plays this item, he steals\nThe Reforged Crown.",
+          "name": "SEIZE THE CROWN!",
+          "type": "triggered"
+        },
+        {
+          "costs": [
+            "\u27f3",
+            "Banish this item"
+          ],
+          "costsText": "\u27f3, Banish this item",
+          "effect": "Jafar gains 2 lore.",
+          "fullText": "DISASSEMBLED SERPENT \u27f3, Banish this item \u2014 Jafar gains\n2 lore.",
+          "name": "DISASSEMBLED SERPENT",
+          "type": "activated"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Carlos Ruiz"
+      ],
+      "artistsText": "Carlos Ruiz",
+      "code": "uY",
+      "color": "",
+      "cost": 0,
+      "externalLinks": {
+        "cardTraderId": 334363,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334363",
+        "cardmarketId": 828135,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Mechanical-Snake?language=1",
+        "tcgPlayerId": 634426,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634426"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "25/35 \u2022 EN \u2022 Q2",
+      "fullName": "Mechanical Snake",
+      "fullText": "SEIZE THE CROWN! When Jafar plays this item, he steals\nThe Reforged Crown.\nDISASSEMBLED SERPENT \u27f3, Banish this item \u2014 Jafar gains\n2 lore.",
+      "fullTextSections": [
+        "SEIZE THE CROWN! When Jafar plays this item, he steals\nThe Reforged Crown.",
+        "DISASSEMBLED SERPENT \u27f3, Banish this item \u2014 Jafar gains\n2 lore."
+      ],
+      "id": 1920,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/25_479856691c7249baa119eaefb307f8d9d2e14884.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/25_3788e5132cfa4234e84bb488546e7adc1b5f8a80.jpg"
+      },
+      "inkwell": true,
+      "name": "Mechanical Snake",
+      "number": 25,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "mechanical snake",
+      "story": "Lorcana",
+      "type": "Item"
+    },
+    {
+      "abilities": [
+        {
+          "effect": "At the start of Jafar's turn, he banishes this item to have each Illumineer choose one of their characters and deal 4 damage to them.",
+          "fullText": "FACE THE FLAMES At the start of Jafar's turn, he banishes\nthis item to have each Illumineer choose one of their\ncharacters and deal 4 damage to them.",
+          "name": "FACE THE FLAMES",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Ilaria Sposetti",
+        "Rodney Bills"
+      ],
+      "artistsText": "Ilaria Sposetti / Rodney Bills",
+      "code": "uZ",
+      "color": "",
+      "cost": 2,
+      "externalLinks": {
+        "cardTraderId": 334364,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334364",
+        "cardmarketId": 828136,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Fiery-Basin?language=1",
+        "tcgPlayerId": 634400,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634400"
+      },
+      "flavorText": "\u201cYou're playing with fire now.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "26/35 \u2022 EN \u2022 Q2",
+      "fullName": "Fiery Basin",
+      "fullText": "FACE THE FLAMES At the start of Jafar's turn, he banishes\nthis item to have each Illumineer choose one of their\ncharacters and deal 4 damage to them.",
+      "fullTextSections": [
+        "FACE THE FLAMES At the start of Jafar's turn, he banishes\nthis item to have each Illumineer choose one of their\ncharacters and deal 4 damage to them."
+      ],
+      "id": 1921,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/26_0e5d6b2a4d6897deb7ff95108ed70f724828a599.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/26_4bc07d542651e083d0bfd7e36d9757f40282cd1d.jpg"
+      },
+      "inkwell": true,
+      "name": "Fiery Basin",
+      "number": 26,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "fiery basin",
+      "story": "Lorcana",
+      "type": "Item"
+    },
+    {
+      "abilities": [
+        {
+          "costs": [
+            "\u27f3"
+          ],
+          "costsText": "\u27f3",
+          "effect": "Jafar deals 1 damage to each opposing character.",
+          "fullText": "RISING SAND \u27f3 \u2014 Jafar deals 1 damage to each\nopposing character.",
+          "name": "RISING SAND",
+          "type": "activated"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Veronica Di Lorenzo",
+        "Livio Cacciatore"
+      ],
+      "artistsText": "Veronica Di Lorenzo / Livio Cacciatore",
+      "code": "v0",
+      "color": "",
+      "cost": 6,
+      "externalLinks": {
+        "cardTraderId": 334365,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/334365",
+        "cardmarketId": 828137,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Giant-Hourglass?language=1",
+        "tcgPlayerId": 634429,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634429"
+      },
+      "flavorText": "\u201cIt's important to make time for friends.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "27/35 \u2022 EN \u2022 Q2",
+      "fullName": "Giant Hourglass",
+      "fullText": "RISING SAND \u27f3 \u2014 Jafar deals 1 damage to each\nopposing character.",
+      "fullTextSections": [
+        "RISING SAND \u27f3 \u2014 Jafar deals 1 damage to each\nopposing character."
+      ],
+      "id": 1922,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/27_454382293350131cedb7bb30407122135961ac0c.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/27_dd232dbaa22b21a7d709b03f8b6f27915471dc14.jpg"
+      },
+      "inkwell": true,
+      "name": "Giant Hourglass",
+      "number": 27,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "giant hourglass",
+      "story": "Lorcana",
+      "type": "Item"
+    },
+    {
+      "abilities": [
+        {
+          "effect": "When Jafar plays this location, he deals 1 damage to each opposing character.",
+          "fullText": "SNAKEBITE When Jafar plays this location, he deals 1 damage to each\nopposing character.",
+          "name": "SNAKEBITE",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "French Carlomagno"
+      ],
+      "artistsText": "French Carlomagno",
+      "code": "v1",
+      "color": "",
+      "cost": 2,
+      "externalLinks": {
+        "cardTraderId": 335005,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/335005",
+        "cardmarketId": 828138,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Cobra-Pit-Seething-Serpents?language=1",
+        "tcgPlayerId": 634405,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634405"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "28/35 \u2022 EN \u2022 Q2",
+      "fullName": "Cobra Pit - Seething Serpents",
+      "fullText": "SNAKEBITE When Jafar plays this location, he deals 1 damage to each\nopposing character.",
+      "fullTextSections": [
+        "SNAKEBITE When Jafar plays this location, he deals 1 damage to each\nopposing character."
+      ],
+      "id": 1923,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/28_75b4a0d37614eaab82f845836f6b014f9ba7ebcf.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/28_739b9b8ab1ae6dfbe233fbba4953494d6c36c4db.jpg"
+      },
+      "inkwell": true,
+      "lore": 1,
+      "moveCost": 0,
+      "name": "Cobra Pit",
+      "number": 28,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "cobra pit seething serpents",
+      "story": "Lorcana",
+      "subtypes": [
+        "Obstacle"
+      ],
+      "subtypesText": "Obstacle",
+      "type": "Location",
+      "version": "Seething Serpents",
+      "willpower": 8
+    },
+    {
+      "abilities": [
+        {
+          "effect": "When Jafar plays this location, he deals 3 damage to the character with the highest cost each Illumineer has in play. (If there's a tie, the Illumineers choose from the tied characters.)",
+          "fullText": "VERTIGO When Jafar plays this location, he deals 3 damage to the\ncharacter with the highest cost each Illumineer has in play. (If there's a\ntie, the Illumineers choose from the tied characters.)",
+          "name": "VERTIGO",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Douglas De La Hoz"
+      ],
+      "artistsText": "Douglas De La Hoz",
+      "code": "v2",
+      "color": "",
+      "cost": 4,
+      "externalLinks": {
+        "cardTraderId": 335004,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/335004",
+        "cardmarketId": 828139,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Endless-Staircase-Perilous-Ascent?language=1",
+        "tcgPlayerId": 634427,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634427"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "29/35 \u2022 EN \u2022 Q2",
+      "fullName": "Endless Staircase - Perilous Ascent",
+      "fullText": "VERTIGO When Jafar plays this location, he deals 3 damage to the\ncharacter with the highest cost each Illumineer has in play. (If there's a\ntie, the Illumineers choose from the tied characters.)",
+      "fullTextSections": [
+        "VERTIGO When Jafar plays this location, he deals 3 damage to the\ncharacter with the highest cost each Illumineer has in play. (If there's a\ntie, the Illumineers choose from the tied characters.)"
+      ],
+      "id": 1924,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/29_0cf634d738e6a348ca4d957d8f78c7efe5e296c1.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/29_688fba5f4b61665c2ad19090115c8f595cd39d97.jpg"
+      },
+      "inkwell": true,
+      "lore": 1,
+      "moveCost": 0,
+      "name": "Endless Staircase",
+      "number": 29,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "endless staircase perilous ascent",
+      "story": "Lorcana",
+      "subtypes": [
+        "Obstacle"
+      ],
+      "subtypesText": "Obstacle",
+      "type": "Location",
+      "version": "Perilous Ascent",
+      "willpower": 9
+    },
+    {
+      "abilities": [
+        {
+          "fullText": "Resist +1 (Damage dealt to this location is reduced by 1.)",
+          "keyword": "Resist",
+          "keywordValue": "+1",
+          "keywordValueNumber": 1,
+          "reminderText": "Damage dealt to this location is reduced by 1.",
+          "type": "keyword"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Veronica Di Lorenzo"
+      ],
+      "artistsText": "Veronica Di Lorenzo",
+      "code": "v3",
+      "color": "",
+      "cost": 2,
+      "externalLinks": {
+        "cardTraderId": 335000,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/335000",
+        "cardmarketId": 828140,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Royal-Armory-Heavily-Guarded?language=1",
+        "tcgPlayerId": 634421,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634421"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "30/35 \u2022 EN \u2022 Q2",
+      "fullName": "Royal Armory - Heavily Guarded",
+      "fullText": "Resist +1 (Damage dealt to this location is reduced by 1.)",
+      "fullTextSections": [
+        "Resist +1 (Damage dealt to this location is reduced by 1.)"
+      ],
+      "id": 1925,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/30_ef08f1c2449180fa6422b880ba91d393e06b040c.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/30_9b2c30a0d98bba2d4bfb335e5f1c9ec602009785.jpg"
+      },
+      "inkwell": true,
+      "keywordAbilities": [
+        "Resist"
+      ],
+      "lore": 1,
+      "moveCost": 0,
+      "name": "Royal Armory",
+      "number": 30,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "royal armory heavily guarded",
+      "story": "Lorcana",
+      "subtypes": [
+        "Obstacle"
+      ],
+      "subtypesText": "Obstacle",
+      "type": "Location",
+      "version": "Heavily Guarded",
+      "willpower": 6
+    },
+    {
+      "abilities": [
+        {
+          "fullText": "Ward (Illumineers can't choose this location except to challenge.)",
+          "keyword": "Ward",
+          "reminderText": "Illumineers can't choose this location except to challenge.",
+          "type": "keyword"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Elodie Mondoloni"
+      ],
+      "artistsText": "Elodie Mondoloni",
+      "code": "v4",
+      "color": "",
+      "cost": 6,
+      "externalLinks": {
+        "cardTraderId": 335001,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/335001",
+        "cardmarketId": 828141,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Crystal-Gate-Unbreakable-Boundary?language=1",
+        "tcgPlayerId": 634446,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634446"
+      },
+      "flavorText": "\u201cMagical crystal to secure my most powerful treasures.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "31/35 \u2022 EN \u2022 Q2",
+      "fullName": "Crystal Gate - Unbreakable Boundary",
+      "fullText": "Ward (Illumineers can't choose this location except to challenge.)",
+      "fullTextSections": [
+        "Ward (Illumineers can't choose this location except to challenge.)"
+      ],
+      "id": 1926,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/31_fa0f665cd93703d89fbd972ba5a7ba96000d904c.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/31_c6d32507b65d185ebbf3e5c495bd1396cdc6a454.jpg"
+      },
+      "inkwell": true,
+      "keywordAbilities": [
+        "Ward"
+      ],
+      "lore": 2,
+      "moveCost": 0,
+      "name": "Crystal Gate",
+      "number": 31,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "crystal gate unbreakable boundary",
+      "story": "Lorcana",
+      "subtypes": [
+        "Obstacle"
+      ],
+      "subtypesText": "Obstacle",
+      "type": "Location",
+      "version": "Unbreakable Boundary",
+      "willpower": 10
+    },
+    {
+      "abilities": [
+        {
+          "effect": "Whenever a character challenges this location, each Illumineer chooses and discards a card.",
+          "fullText": "MAP THE MAZE Whenever a character challenges this location, each\nIllumineer chooses and discards a card.",
+          "name": "MAP THE MAZE",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Giuseppe di Maio"
+      ],
+      "artistsText": "Giuseppe di Maio",
+      "code": "v5",
+      "color": "",
+      "cost": 3,
+      "externalLinks": {
+        "cardTraderId": 335002,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/335002",
+        "cardmarketId": 828142,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Deepwell-Labyrinth?language=1",
+        "tcgPlayerId": 634417,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634417"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "32/35 \u2022 EN \u2022 Q2",
+      "fullName": "Deepwell Labyrinth - Mystifying Halls",
+      "fullText": "MAP THE MAZE Whenever a character challenges this location, each\nIllumineer chooses and discards a card.",
+      "fullTextSections": [
+        "MAP THE MAZE Whenever a character challenges this location, each\nIllumineer chooses and discards a card."
+      ],
+      "id": 1927,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/32_27d4e8c3ceec92d327e79f57ff619ec9b978791c.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/32_7d7abbcebe154a729b4bd11b4820c8da2e63b77c.jpg"
+      },
+      "inkwell": true,
+      "lore": 1,
+      "moveCost": 0,
+      "name": "Deepwell Labyrinth",
+      "number": 32,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "deepwell labyrinth mystifying halls",
+      "story": "Lorcana",
+      "subtypes": [
+        "Obstacle"
+      ],
+      "subtypesText": "Obstacle",
+      "type": "Location",
+      "version": "Mystifying Halls",
+      "willpower": 6
+    },
+    {
+      "abilities": [
+        {
+          "effect": "Opposing characters can't quest.",
+          "fullText": "WONDERSTRUCK Opposing characters can't quest.",
+          "name": "WONDERSTRUCK",
+          "type": "static"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Sylvain Sarrailh"
+      ],
+      "artistsText": "Sylvain Sarrailh",
+      "code": "v6",
+      "color": "",
+      "cost": 4,
+      "externalLinks": {
+        "cardTraderId": 333080,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/333080",
+        "cardmarketId": 828143,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Hall-of-Illusions-Mysterious-Chamber?language=1",
+        "tcgPlayerId": 631974,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/631974"
+      },
+      "flavorText": "\u201cI'm sure you'll figure it out in a thousand years or so.\u201d\n\u2014Jafar",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "33/35 \u2022 EN \u2022 Q2",
+      "fullName": "Hall of Illusions - Mysterious Chamber",
+      "fullText": "WONDERSTRUCK Opposing characters can't quest.",
+      "fullTextSections": [
+        "WONDERSTRUCK Opposing characters can't quest."
+      ],
+      "id": 1928,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/33_7e506d03127bf5c79fc6ac2694d939b9e673073e.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/33_bd9f9b6d32fcc12a693b9d78a5a08a7bc5cdb695.jpg"
+      },
+      "inkwell": true,
+      "lore": 2,
+      "moveCost": 0,
+      "name": "Hall of Illusions",
+      "number": 33,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "hall of illusions mysterious chamber",
+      "story": "Lorcana",
+      "subtypes": [
+        "Obstacle"
+      ],
+      "subtypesText": "Obstacle",
+      "type": "Location",
+      "version": "Mysterious Chamber",
+      "willpower": 8
+    },
+    {
+      "abilities": [
+        {
+          "fullText": "Ward (Illumineers can't choose this location except to challenge.)",
+          "keyword": "Ward",
+          "reminderText": "Illumineers can't choose this location except to challenge.",
+          "type": "keyword"
+        },
+        {
+          "effect": "When Jafar plays this location, he deals 2 damage to each opposing character.",
+          "fullText": "NO ESCAPE When Jafar plays this location, he deals 2 damage to each\nopposing character.",
+          "name": "NO ESCAPE",
+          "type": "triggered"
+        }
+      ],
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Michela Cacciatore",
+        "Giulia Priori"
+      ],
+      "artistsText": "Michela Cacciatore / Giulia Priori",
+      "code": "v7",
+      "color": "",
+      "cost": 6,
+      "externalLinks": {
+        "cardTraderId": 335003,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/335003",
+        "cardmarketId": 828144,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Clockwork-Sawblades-Treacherous-Trap?language=1",
+        "tcgPlayerId": 634283,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634283"
+      },
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "34/35 \u2022 EN \u2022 Q2",
+      "fullName": "Clockwork Sawblades - Treacherous Trap",
+      "fullText": "Ward (Illumineers can't choose this location except to challenge.)\nNO ESCAPE When Jafar plays this location, he deals 2 damage to each\nopposing character.",
+      "fullTextSections": [
+        "Ward (Illumineers can't choose this location except to challenge.)",
+        "NO ESCAPE When Jafar plays this location, he deals 2 damage to each\nopposing character."
+      ],
+      "id": 1929,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/34_0afd85835dc5983dd8f0244ef8a0ca540c50a49f.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/34_da60b79c57369a6bb93ad7c4e99751a5e2116fcb.jpg"
+      },
+      "inkwell": true,
+      "keywordAbilities": [
+        "Ward"
+      ],
+      "lore": 0,
+      "moveCost": 0,
+      "name": "Clockwork Sawblades",
+      "number": 34,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "clockwork sawblades treacherous trap",
+      "story": "Lorcana",
+      "subtypes": [
+        "Obstacle"
+      ],
+      "subtypesText": "Obstacle",
+      "type": "Location",
+      "version": "Treacherous Trap",
+      "willpower": 9
+    },
+    {
+      "allowedInFormats": {
+        "Core": {
+          "allowed": false
+        },
+        "Infinity": {
+          "allowed": false
+        }
+      },
+      "allowedInTournamentsFromDate": null,
+      "artists": [
+        "Kaluba"
+      ],
+      "artistsNormalized": [
+        "Kristen Kaluba"
+      ],
+      "artistsText": "Kaluba",
+      "code": "v8",
+      "color": "",
+      "cost": 0,
+      "externalLinks": {
+        "cardTraderId": 335006,
+        "cardTraderUrl": "https://www.cardtrader.com/cards/335006",
+        "cardmarketId": 828145,
+        "cardmarketUrl": "https://www.cardmarket.com/en/Lorcana/Products/Singles/Illumineers-Quest-Palace-Heist/Ink-Moat-First-Line-of-Defense?language=1",
+        "tcgPlayerId": 634271,
+        "tcgPlayerUrl": "https://www.tcgplayer.com/product/634271"
+      },
+      "flavorText": "Don't get overconfident. They won't all be this easy.",
+      "foilTypes": [
+        "None"
+      ],
+      "fullIdentifier": "35/35 \u2022 EN \u2022 Q2",
+      "fullName": "Ink Moat - First Line of Defense",
+      "fullText": "",
+      "fullTextSections": [],
+      "id": 1930,
+      "images": {
+        "full": "https://api.lorcana.ravensburger.com/images/en/quest2/35_9c54629215788aad166d3d17e256d3b168030b94.jpg",
+        "thumbnail": "https://api.lorcana.ravensburger.com/images/en/quest2/35_83c4172095f13b3c5d4042b8858d1d001f1f4536.jpg"
+      },
+      "inkwell": true,
+      "lore": 0,
+      "moveCost": 0,
+      "name": "Ink Moat",
+      "number": 35,
+      "promoSourceCategory": "Illumineer's Quest",
+      "rarity": "Special",
+      "simpleName": "ink moat first line of defense",
+      "story": "Lorcana",
+      "subtypes": [
+        "Obstacle"
+      ],
+      "subtypesText": "Obstacle",
+      "type": "Location",
+      "version": "First Line of Defense",
+      "willpower": 5
+    }
+  ]
+}
