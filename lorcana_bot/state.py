@@ -116,13 +116,17 @@ class PendingTriggeredEvent:
         return self.payload.get("card_played")
     
     @property
-    def damage_dealt(self) -> dict[str, Any] | None:
-        """Get damage information from the payload."""
+    def damage_dealt(self) -> int | dict[str, Any] | None:
+        """Get damage information, preferring normalized event_snapshot over raw payload."""
+        if self.event_snapshot and "damage_dealt" in self.event_snapshot:
+            return self.event_snapshot["damage_dealt"]
         return self.payload.get("damage_dealt")
     
     @property
     def lore_gained(self) -> int | None:
-        """Get lore gained from quest/lore events."""
+        """Get lore gained from quest/lore events, preferring normalized event_snapshot over raw payload."""
+        if self.event_snapshot and "lore_gained" in self.event_snapshot:
+            return self.event_snapshot["lore_gained"]
         return self.payload.get("lore")
 
 
