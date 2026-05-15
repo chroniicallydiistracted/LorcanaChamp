@@ -59,6 +59,20 @@ SUPPORTED_TRIGGER_ENGINE_EFFECT_KINDS = frozenset({
     "sequence",
     "conditional",
     "for_each",
+    # B4: Scry, search, reveal, and deck routing effects
+    "scry",
+    "look_at_top",
+    "reveal_top_card",
+    "reveal_hand",
+    "reveal_cards",
+    "search_deck",
+    "put_card_in_hand",
+    "put_card_on_top",
+    "put_card_on_bottom",
+    "put_card_in_discard",
+    "shuffle_deck",
+    "name_a_card",
+    "reveal_and_route",
 })
 
 
@@ -166,6 +180,8 @@ class TriggerProjectionAnalysis:
             return "resolution_requirement"
         if blocker == "unsupported_trigger_static_dependency":
             return "static_dependency"
+        if blocker.startswith("unsupported_static_effect:"):
+            return "static_effect_unsupported"
         if blocker == "unsupported_trigger_replacement_dependency":
             return "replacement_dependency"
         if blocker == "unsupported_trigger_activated_dependency":
@@ -215,8 +231,25 @@ def analyze_source_trigger_projection(
     failure_reasons: list[str] = []
     
     # Check if this is a triggered ability
+    if ability.kind == "activated":
+        # B9: Activated abilities now have a separate execution path in the engine.
+        # However, they still can't be projected as triggers since they require
+        # player activation during main phase rather than automatic trigger.
+        # Return a non-blocking marker for reporting purposes only.
+        return TriggerProjectionAnalysis(
+            source_ability=ability,
+            can_project=False,  # Still can't project as trigger, but tracked separately
+            blockers=("activated_ability_reported_separately",),
+            effect_kinds=effect_kinds,
+            target_kinds=target_kinds,
+            condition_kinds=condition_kinds,
+            cost_kinds=cost_kinds,
+            resolution_requirements=resolution_requirements,
+            failure_reasons=("activated abilities are executed via USE_ABILITY action",),
+            recommended_engine_work=("activated_abilities",),
+        )
     if ability.kind != "triggered":
-        blockers.append("unsupported_trigger_activated_dependency" if ability.kind == "activated" else "unsupported_trigger_unknown")
+        blockers.append("unsupported_trigger_unknown")
         return TriggerProjectionAnalysis(
             source_ability=ability,
             can_project=False,

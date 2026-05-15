@@ -21,11 +21,12 @@ class AutomatedActionFamily(StrEnum):
     CONCEDE = "concede"
 
 
+# Resolution families (resolveBag, resolveEffect) rank before normal play
 FAMILY_ORDER: dict[str, float] = {
     AutomatedActionFamily.CHOOSE_WHO_GOES_FIRST: 0,
     AutomatedActionFamily.ALTER_HAND: 1,
-    AutomatedActionFamily.RESOLVE_EFFECT: 2,
-    AutomatedActionFamily.RESOLVE_BAG: 3,
+    AutomatedActionFamily.RESOLVE_EFFECT: 2,  # Pending effect resolution (target/choice input)
+    AutomatedActionFamily.RESOLVE_BAG: 3,     # Bag trigger resolution
     AutomatedActionFamily.PLAY_CARD: 4,
     AutomatedActionFamily.QUEST: 4.5,
     AutomatedActionFamily.PUT_CARD_INTO_INKWELL: 5,
@@ -35,6 +36,53 @@ FAMILY_ORDER: dict[str, float] = {
     AutomatedActionFamily.PASS_TURN: 50,
     AutomatedActionFamily.CONCEDE: 1000,
 }
+
+
+class EffectPolarity(StrEnum):
+    """Classifies whether an effect is beneficial, harmful, or mixed for the actor."""
+    BENEFICIAL = "beneficial"
+    HARMFUL = "harmful"
+    MIXED = "mixed"
+    NEUTRAL = "neutral"
+
+
+@dataclass(frozen=True)
+class ResolutionMetadata:
+    """Rich metadata for resolution candidates (resolveBag, resolveEffect).
+    
+    Mirrors Lorcanito's resolution metadata with effect inspection, polarity
+    classification, projected benefit/harm, and hidden-info policy.
+    """
+    # Source information
+    source_instance_id: int | None = None
+    source_card_id: str | None = None
+    ability_id: str | None = None
+    ability_index: int | None = None
+    ability_name: str | None = None
+    
+    # Effect information
+    effect_kind: str | None = None  # "draw", "gain_lore", "deal_damage", etc.
+    effect_polarity: EffectPolarity = EffectPolarity.NEUTRAL
+    optional: bool = False
+    
+    # Projected impact (estimated benefit score for actor)
+    projected_benefit: float = 0.0
+    projected_harm: float = 0.0
+    
+    # Target information
+    targets_chosen: tuple[int, ...] = ()
+    target_requirement_kind: str | None = None  # "chosen_character", "chosen_opposing_character", etc.
+    
+    # Choice information
+    choice_index: int | None = None
+    choice_options_count: int = 0
+    
+    # Hidden-info policy (how much the bot can see)
+    information_policy: str = "fair"  # "fair" or "oracle"
+    
+    # Origin tracking
+    origin: str = "bag"  # "bag", "action", "activated"
+    origin_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -62,6 +110,14 @@ class AutomatedActionCandidate:
     destinations: dict[str, tuple[int, ...]] = field(default_factory=dict)
     label: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
+    
+    # B7: Resolution-specific fields for comprehensive metadata
+    effect_kind: str | None = None           # "draw", "gain_lore", "deal_damage", etc.
+    effect_polarity: str | None = None        # "beneficial", "harmful", "mixed", "neutral"
+    projected_benefit: float = 0.0             # Estimated benefit score
+    projected_harm: float = 0.0               # Estimated harm score
+    target_requirement_kind: str | None = None  # "chosen_character", etc.
+    origin: str = "bag"                      # "bag", "action", "activated"
 
 
 @dataclass(frozen=True)

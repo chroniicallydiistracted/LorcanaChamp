@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from lorcana_bot.actions import Action
 from lorcana_bot.constants import (
     ACTION_CHALLENGE,
@@ -12,6 +14,7 @@ from lorcana_bot.constants import (
     ACTION_PLAY_CARD,
     ACTION_QUEST,
     ACTION_RESOLVE_BAG,
+    ACTION_RESOLVE_PENDING_EFFECT,
     ACTION_USE_ABILITY,
 )
 
@@ -54,15 +57,50 @@ def candidate_to_action(candidate: AutomatedActionCandidate) -> Action:
     if family == AutomatedActionFamily.CONCEDE:
         return Action(ACTION_CONCEDE, actor=actor)
     if family == AutomatedActionFamily.ACTIVATE_ABILITY:
-        return Action(ACTION_USE_ABILITY, actor=actor, source=candidate.source_instance_id, target=candidate.target_instance_id, choice=candidate.ability_id)
+        ability_id = candidate.ability_id or (candidate.metadata.get("ability_id") if candidate.metadata else None)
+        ability_index = candidate.ability_index or (candidate.metadata.get("ability_index") if candidate.metadata else None)
+        return Action(
+            ACTION_USE_ABILITY,
+            actor=actor,
+            source=candidate.source_instance_id,
+            target=candidate.target_instance_id,
+            choice={"ability_id": ability_id, "ability_index": ability_index}
+        )
     if family == AutomatedActionFamily.RESOLVE_BAG:
         bag_id = candidate.metadata.get("bag_id") if candidate.metadata else None
-        accept = candidate.resolve_optional if candidate.resolve_optional is not None else True
+        accept = candidate.metadata.get("accept") if candidate.metadata else True
+        # For optional triggers, resolve_optional indicates accept (True) or decline (False)
+        if candidate.resolve_optional is not None:
+            accept = candidate.resolve_optional
         return Action(
             ACTION_RESOLVE_BAG,
             actor=actor,
             source=candidate.source_instance_id,
             choice={"bag_id": bag_id, "accept": accept}
+        )
+    if family == AutomatedActionFamily.RESOLVE_EFFECT:
+        # B7: Map resolveEffect candidates to ACTION_RESOLVE_PENDING_EFFECT
+        pending_effect_id = candidate.pending_effect_id or (candidate.metadata.get("pending_effect_id") if candidate.metadata else None)
+        choice: dict[str, Any] = {"pending_effect_id": pending_effect_id}
+        
+        # Handle optional accept/decline
+        if candidate.resolve_optional is not None:
+            choice["accept"] = candidate.resolve_optional
+        
+        # Handle target selection
+        if candidate.target_instance_id is not None:
+            choice["target"] = candidate.target_instance_id
+        
+        # Handle choice index
+        if candidate.choice_index is not None:
+            choice["choice_index"] = candidate.choice_index
+        
+        return Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=actor,
+            source=candidate.source_instance_id,
+            target=candidate.target_instance_id,
+            choice=choice
         )
     raise CandidateAdapterError(f"Unsupported candidate family {family}")
 

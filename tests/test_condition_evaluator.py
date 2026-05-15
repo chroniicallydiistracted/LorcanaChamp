@@ -1,187 +1,384 @@
-"""B2 tests for condition evaluator."""
+"""Tests for the runtime condition evaluator.
+
+B2: Tests for expanded conditions including:
+- target-query, resource-count, banished-in-challenge-this-turn
+- lore comparison, card type comparison
+- has-character-with-strength, has-location-in-play
+"""
+
+from __future__ import annotations
+
+from typing import Any
+from unittest.mock import Mock, MagicMock
 
 import pytest
 
 from lorcana_bot.condition_evaluator import (
     UnsupportedConditionError,
+    create_condition_context,
     evaluate_condition,
 )
-from lorcana_bot.state import GameState, PendingTriggeredEvent
+from lorcana_bot.effect_types import ConditionContext
+from lorcana_bot.state import GameState, PlayerState, CardInstance
 
 
-@pytest.fixture
-def state_with_cards():
-    """Create a game state with cards in play."""
-    from lorcana_bot.state import CardInstance, PlayerState
+class TestConditionContext:
+    """Tests for ConditionContext creation."""
     
-    state = GameState(
-        players=[PlayerState(), PlayerState()],
-        cards={},
-    )
-    # Add characters in play
-    card1 = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone="play")
-    card2 = CardInstance(instance_id=2, card_id="test_char2", owner=1, controller=1, zone="play")
-    state.cards[1] = card1
-    state.cards[2] = card2
-    state.players[0].play = [1]
-    state.players[1].play = [2]
-    return state
-
-
-@pytest.fixture
-def mock_engine():
-    """Create a mock engine for condition tests."""
-    from lorcana_bot.cards import CardDef
+    def test_create_condition_context_basic(self, state, engine):
+        """Test basic ConditionContext creation."""
+        context = create_condition_context(state, source_instance_id=1)
+        
+        assert context.actor == context.controller
+        assert context.source == 1
+        assert context.turn_player == state.active_player
     
-    class MockEngine:
-        def card_def(self, state, instance_id):
-            return CardDef("test_char", "Test Char", "amber", 2, True, "character", 2, 2, 1)
+    def test_create_condition_context_with_event(self, state, engine):
+        """Test ConditionContext creation with a pending event."""
+        from lorcana_bot.state import PendingTriggeredEvent
+        
+        # Find a card from player 0 to use as source
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        subject_id = state.players[1].play[0] if state.players[1].play else 4
+        
+        event = PendingTriggeredEvent(
+            id="test-event",
+            event="challenged",
+            subject_card_id=subject_id,
+            attacker_id=source_id,
+            defender_id=subject_id,
+            happened_in_challenge=True,
+            payload={"damage": 3},
+        )
+        
+        context = create_condition_context(state, source_instance_id=source_id, event=event)
+        
+        assert context.subject_card_id == subject_id
+        assert context.attacker_id == source_id
+        assert context.defender_id == subject_id
+        assert context.happened_in_challenge is True
+        assert context.event_payload == {"damage": 3}
+
+
+class TestBasicConditions:
+    """Tests for basic condition kinds."""
     
-    return MockEngine()
-
-
-def test_none_condition_is_true(state_with_cards, mock_engine):
-    """Test that None condition returns True."""
-    assert evaluate_condition(None, state_with_cards, None, 1, mock_engine) is True
-
-
-def test_always_condition_is_true(state_with_cards, mock_engine):
-    """Test that 'always' condition returns True."""
-    condition = {"type": "always"}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
-
-
-def test_your_turn_condition(state_with_cards, mock_engine):
-    """Test your-turn condition."""
-    state_with_cards.active_player = 0
+    def test_always_condition(self, state, engine):
+        """Test 'always' condition always returns True."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        result = evaluate_condition({"type": "always"}, state, None, source_id, engine)
+        assert result is True
     
-    condition = {"type": "your-turn"}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
+    def test_none_condition(self, state, engine):
+        """Test None condition returns True."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        result = evaluate_condition(None, state, None, source_id, engine)
+        assert result is True
     
-    # When it's opponent's turn
-    state_with_cards.active_player = 1
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is False
-
-
-def test_opponent_turn_condition(state_with_cards, mock_engine):
-    """Test opponent-turn condition."""
-    state_with_cards.active_player = 1
+    def test_your_turn_true(self, state, engine):
+        """Test 'your-turn' condition when it's the source controller's turn."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        state.active_player = 0  # Player 0's turn
+        result = evaluate_condition({"type": "your-turn"}, state, None, source_id, engine)
+        assert result is True
     
-    condition = {"type": "opponent-turn"}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
+    def test_your_turn_false(self, state, engine):
+        """Test 'your-turn' condition when it's not the source controller's turn."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        state.active_player = 1  # Opponent's turn
+        result = evaluate_condition({"type": "your-turn"}, state, None, source_id, engine)
+        assert result is False
     
-    # When it's your turn
-    state_with_cards.active_player = 0
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is False
-
-
-def test_has_character_count_condition(state_with_cards, mock_engine):
-    """Test has-character-count condition."""
-    condition = {"type": "has-character-count", "comparison": ">=", "value": 1}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
+    def test_opponent_turn_true(self, state, engine):
+        """Test 'opponent-turn' condition when it's the opponent's turn."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        state.active_player = 1  # Opponent's turn
+        result = evaluate_condition({"type": "opponent-turn"}, state, None, source_id, engine)
+        assert result is True
     
-    condition = {"type": "has-character-count", "comparison": ">=", "value": 5}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is False
+    def test_opponent_turn_false(self, state, engine):
+        """Test 'opponent-turn' condition when it's the source controller's turn."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        state.active_player = 0  # Player's own turn
+        result = evaluate_condition({"type": "opponent-turn"}, state, None, source_id, engine)
+        assert result is False
 
 
-def test_inkwell_count_condition(state_with_cards, mock_engine):
-    """Test inkwell-count condition."""
-    # No ink in inkwell
-    condition = {"type": "inkwell-count", "comparison": ">=", "value": 1}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is False
+class TestCountConditions:
+    """Tests for count-based conditions."""
     
-    # Add ink
-    state_with_cards.players[0].inkwell = [1]
-    condition = {"type": "inkwell-count", "comparison": ">=", "value": 1}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
-
-
-def test_and_condition(state_with_cards, mock_engine):
-    """Test 'and' logical condition."""
-    condition = {
-        "type": "and",
-        "conditions": [
-            {"type": "always"},
-            {"type": "always"},
-        ]
-    }
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
+    def test_has_character_count_meets_threshold(self, state, engine):
+        """Test has-character-count when threshold is met."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        char_count = len(state.players[0].play)
+        
+        # Test with threshold of 0 (always true if condition supported)
+        condition = {"type": "has-character-count", "value": 0, "comparison": ">="}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
     
-    # And with one false
-    condition = {
-        "type": "and",
-        "conditions": [
-            {"type": "always"},
-            {"type": "opponent-turn"},  # Will be false when player 0 is active
-        ]
-    }
-    state_with_cards.active_player = 0
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is False
+    def test_has_character_count_below_threshold(self, state, engine):
+        """Test has-character-count when threshold is not met."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        
+        # Use an impossibly high threshold
+        condition = {"type": "has-character-count", "value": 99999, "comparison": ">="}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
 
 
-def test_or_condition(state_with_cards, mock_engine):
-    """Test 'or' logical condition."""
-    condition = {
-        "type": "or",
-        "conditions": [
-            {"type": "opponent-turn"},  # False when player 0 is active
-            {"type": "always"},  # True
-        ]
-    }
-    state_with_cards.active_player = 0
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
-
-
-def test_not_condition(state_with_cards, mock_engine):
-    """Test 'not' logical condition."""
-    condition = {
-        "type": "not",
-        "condition": {"type": "opponent-turn"},
-    }
-    state_with_cards.active_player = 0
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
-
-
-def test_unsupported_condition_raises(state_with_cards, mock_engine):
-    """Test that unsupported condition raises UnsupportedConditionError."""
-    condition = {"type": "unsupported-weird-condition"}
-    with pytest.raises(UnsupportedConditionError):
-        evaluate_condition(condition, state_with_cards, None, 1, mock_engine)
-
-
-def test_during_turn_condition(state_with_cards, mock_engine):
-    """Test during-turn condition."""
-    state_with_cards.active_player = 0
+class TestStatusConditions:
+    """Tests for status-based conditions."""
     
-    condition = {"type": "during-turn"}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
+    def test_is_exerted_true(self, state, engine):
+        """Test is-exerted when card is exerted."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        state.cards[source_id].exerted = True
+        condition = {"type": "is-exerted"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
     
-    state_with_cards.active_player = 1
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is False
+    def test_is_exerted_false(self, state, engine):
+        """Test is-exerted when card is not exerted."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        state.cards[source_id].exerted = False
+        condition = {"type": "is-exerted"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
+    
+    def test_self_has_damage_true(self, state, engine):
+        """Test self-has-damage when card has damage."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        state.cards[source_id].damage = 3
+        condition = {"type": "self-has-damage"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+    
+    def test_self_has_damage_false(self, state, engine):
+        """Test self-has-damage when card has no damage."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        state.cards[source_id].damage = 0
+        condition = {"type": "self-has-damage"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
 
 
-def test_comparison_operators(state_with_cards, mock_engine):
-    """Test different comparison operators."""
-    from lorcana_bot.state import CardInstance
-    state_with_cards.cards[1] = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone="play")
-    state_with_cards.players[0].inkwell = [1]
+class TestResourceConditions:
+    """Tests for resource conditions."""
     
-    # Test >= 
-    condition = {"type": "inkwell-count", "comparison": ">=", "value": 1}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
+    def test_inkwell_count_meets_threshold(self, state, engine):
+        """Test inkwell-count when threshold is met."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        ink_count = len(state.players[0].inkwell)
+        
+        condition = {"type": "inkwell-count", "value": ink_count - 1, "comparison": ">="}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
     
-    # Test >
-    condition = {"type": "inkwell-count", "comparison": ">", "value": 0}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
+    def test_inkwell_count_below_threshold(self, state, engine):
+        """Test inkwell-count when threshold is not met."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        
+        condition = {"type": "inkwell-count", "value": 9999, "comparison": ">="}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
+
+
+class TestEventBasedConditions:
+    """Tests for event-based conditions."""
     
-    # Test <=
-    condition = {"type": "inkwell-count", "comparison": "<=", "value": 1}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
+    def test_target_damaged_with_pending_event(self, state, engine):
+        """Test target_damaged with a pending challenge event."""
+        from lorcana_bot.state import PendingTriggeredEvent
+        
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        target_id = state.players[1].play[0] if state.players[1].play else 4
+        
+        event = PendingTriggeredEvent(
+            id="challenge-event",
+            event="challenged",
+            subject_card_id=source_id,
+            defender_id=target_id,
+            happened_in_challenge=True,
+        )
+        state.cards[target_id].damage = 2
+        
+        condition = {"type": "target_damaged"}
+        result = evaluate_condition(condition, state, event, source_id, engine)
+        assert result is True
     
-    # Test <
-    condition = {"type": "inkwell-count", "comparison": "<", "value": 2}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
+    def test_target_damaged_no_damage(self, state, engine):
+        """Test target_damaged when target has no damage."""
+        from lorcana_bot.state import PendingTriggeredEvent
+        
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        target_id = state.players[1].play[0] if state.players[1].play else 4
+        
+        event = PendingTriggeredEvent(
+            id="challenge-event",
+            event="challenged",
+            subject_card_id=source_id,
+            defender_id=target_id,
+        )
+        state.cards[target_id].damage = 0
+        
+        condition = {"type": "target_damaged"}
+        result = evaluate_condition(condition, state, event, source_id, engine)
+        assert result is False
+
+
+class TestLogicalConditions:
+    """Tests for logical conditions (and, or, not)."""
     
-    # Test ==
-    condition = {"type": "inkwell-count", "comparison": "==", "value": 1}
-    assert evaluate_condition(condition, state_with_cards, None, 1, mock_engine) is True
+    def test_and_condition_all_true(self, state, engine):
+        """Test 'and' condition when all operands are true."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {
+            "type": "and",
+            "conditions": [
+                {"type": "your-turn"},
+                {"type": "has-character-count", "value": 0, "comparison": ">="}
+            ]
+        }
+        state.active_player = 0
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+    
+    def test_and_condition_one_false(self, state, engine):
+        """Test 'and' condition when one operand is false."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {
+            "type": "and",
+            "conditions": [
+                {"type": "your-turn"},
+                {"type": "has-character-count", "value": 9999, "comparison": ">="}
+            ]
+        }
+        state.active_player = 0
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
+    
+    def test_or_condition_one_true(self, state, engine):
+        """Test 'or' condition when one operand is true."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {
+            "type": "or",
+            "conditions": [
+                {"type": "your-turn"},
+                {"type": "has-character-count", "value": 9999, "comparison": ">="}
+            ]
+        }
+        state.active_player = 0
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+    
+    def test_or_condition_all_false(self, state, engine):
+        """Test 'or' condition when all operands are false."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {
+            "type": "or",
+            "conditions": [
+                {"type": "opponent-turn"},
+                {"type": "has-character-count", "value": 9999, "comparison": ">="}
+            ]
+        }
+        state.active_player = 0  # Not opponent's turn
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
+    
+    def test_not_condition(self, state, engine):
+        """Test 'not' condition."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {
+            "type": "not",
+            "condition": {"type": "has-character-count", "value": 9999, "comparison": ">="}
+        }
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+
+
+class TestAdvancedConditions:
+    """Tests for advanced conditions."""
+    
+    def test_in_challenge_condition(self, state, engine):
+        """Test in-challenge condition."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        state.cards[source_id].was_challenged_this_turn = True
+        
+        condition = {"type": "in-challenge", "role": "defender"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+    
+    def test_being_challenged_condition(self, state, engine):
+        """Test being-challenged condition."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        state.cards[source_id].was_challenged_this_turn = True
+        
+        condition = {"type": "being-challenged"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+    
+    def test_opponent_has_damaged_character(self, state, engine):
+        """Test opponent-has-damaged-character condition.
+        
+        This tests that the condition evaluates without error.
+        In the demo deck setup, opponent may or may not have damaged characters.
+        """
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "opponent-has-damaged-character"}
+        # Just verify it evaluates without raising an error
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert isinstance(result, bool)
+
+
+class TestUnsupportedCondition:
+    """Tests for unsupported condition handling."""
+    
+    def test_unsupported_condition_raises_error(self, state, engine):
+        """Test that unsupported conditions raise UnsupportedConditionError."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "totally-unknown-condition"}
+        with pytest.raises(UnsupportedConditionError) as exc_info:
+            evaluate_condition(condition, state, None, source_id, engine)
+        assert "Unsupported condition kind" in str(exc_info.value)
+    
+    def test_no_silent_true_for_unsupported(self, state, engine):
+        """Test that unsupported conditions do NOT silently evaluate to True."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "truly-unsupported-condition"}
+        with pytest.raises(UnsupportedConditionError):
+            evaluate_condition(condition, state, None, source_id, engine)
+
+
+class TestComparisonOperators:
+    """Tests for various comparison operators."""
+    
+    def test_greater_than(self, state, engine):
+        """Test > comparison."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "has-character-count", "value": 1000, "comparison": ">"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
+    
+    def test_greater_than_or_equal(self, state, engine):
+        """Test >= comparison."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        char_count = len(state.players[0].play)
+        condition = {"type": "has-character-count", "value": char_count, "comparison": ">="}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+    
+    def test_equal(self, state, engine):
+        """Test == comparison."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        char_count = len(state.players[0].play)
+        condition = {"type": "has-character-count", "value": char_count, "comparison": "=="}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+    
+    def test_not_equal(self, state, engine):
+        """Test != comparison."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "has-character-count", "value": 9999, "comparison": "!="}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True

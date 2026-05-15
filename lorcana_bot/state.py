@@ -1,10 +1,30 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_INKWELL, ZONE_PLAY
 from .actions import Action
+from .pending_effects import PendingEffect
+from .static_effects import StaticEffectRegistry
+
+if TYPE_CHECKING:
+    from .replacement_effects import ReplacementEffectRegistry
+
+
+def _default_static_effect_registry() -> StaticEffectRegistry:
+    """Factory for default static effect registry."""
+    return StaticEffectRegistry()
+
+
+def _default_replacement_effect_registry() -> "ReplacementEffectRegistry":
+    """Factory for default replacement effect registry.
+    
+    Import is done lazily to avoid circular imports. The actual class
+    is defined in replacement_effects.py.
+    """
+    from .replacement_effects import ReplacementEffectRegistry as RER
+    return RER()
 
 
 @dataclass(slots=True)
@@ -56,20 +76,46 @@ class PlayerState:
 
 @dataclass(slots=True)
 class PendingTriggeredEvent:
-    """Buffered trigger event waiting for resolution boundary."""
+    """Buffered trigger event waiting for resolution boundary.
+    
+    This dataclass mirrors Lorcanito's PendingTriggeredEvent with rich payload
+    data for comprehensive trigger matching across SELF, YOU, OPPONENT, and
+    challenge/banish/ink contexts.
+    """
     id: str
     event: str
+    # Core identifiers
     player_id: int | None = None
     subject_card_id: int | None = None
     trigger_source_card_id: int | None = None
     source_card_type: str | None = None
+    # Zone tracking
     from_zone: str | None = None
     to_zone: str | None = None
+    # Challenge context
     attacker_id: int | None = None
     defender_id: int | None = None
+    defender_card_type: str | None = None
     happened_in_challenge: bool = False
+    # Event snapshot for delayed trigger evaluation
     event_snapshot: dict[str, Any] = field(default_factory=dict)
+    # Extended payload (Lorcanito-aligned event-specific data)
     payload: dict[str, Any] = field(default_factory=dict)
+    
+    @property
+    def card_played(self) -> dict[str, Any] | None:
+        """Get CardPlayedPayload if this event has play data."""
+        return self.payload.get("card_played")
+    
+    @property
+    def damage_dealt(self) -> dict[str, Any] | None:
+        """Get damage information from the payload."""
+        return self.payload.get("damage_dealt")
+    
+    @property
+    def lore_gained(self) -> int | None:
+        """Get lore gained from quest/lore events."""
+        return self.payload.get("lore")
 
 
 @dataclass(slots=True)
@@ -169,6 +215,16 @@ class GameState:
     trigger_occurrences: dict[str, int] = field(default_factory=dict)
     trigger_resolutions: dict[str, int] = field(default_factory=dict)
     event_counter: int = 0  # For deterministic event IDs
+    
+    # B3: Pending effect layer for target/choice resolution
+    pending_effects: list[PendingEffect] = field(default_factory=list)
+    pending_effect_next_seq: int = 1
+
+    # B5: Static effect registry for continuous card effects
+    static_effect_registry: StaticEffectRegistry = field(default_factory=_default_static_effect_registry)
+
+    # B6: Replacement effect registry for damage/banish interception
+    replacement_effect_registry: ReplacementEffectRegistry = field(default_factory=_default_replacement_effect_registry)
 
     def opponent(self, player: int) -> int:
         return 1 - player

@@ -110,19 +110,40 @@ ENGINE_EFFECT_MAP = {
     "conditional": "conditional",
     "for-each": "for_each",
     "choice": "choice",
+    # B4: Scry, search, reveal, and deck routing effects
+    "scry": "scry",
+    "reveal": "reveal_top_card",
+    "reveal-and-route": "reveal_and_route",
+    "reveal-hand": "reveal_hand",
+    "reveal-inkwell": "reveal_cards",
+    "reveal-top-card": "reveal_top_card",
+    "search-deck": "search_deck",
+    "put-in-hand": "put_card_in_hand",
+    "put-on-top": "put_card_on_top",
+    "put-on-bottom": "put_card_on_bottom",
+    "shuffle-into-deck": "shuffle_deck",
+    "name-a-card": "name_a_card",
 }
 
 TARGET_MAP = {
     "SELF": "self",
     "CONTROLLER": "controller",
+    "ACTOR": "actor",
+    "YOU": "you",
     "OPPONENT": "opponent",
     "EACH_OPPONENT": "opponent",
     "CHOSEN_CHARACTER": "chosen_character",
     "CHOSEN_OPPOSING_CHARACTER": "opposing_character",
     "CHOSEN_DAMAGED_CHARACTER": "chosen_character",
     "YOUR_CHARACTERS": "your_characters",
-    "YOUR_OTHER_CHARACTERS": "your_characters",
+    "YOUR_OTHER_CHARACTERS": "your_other_characters",
     "ALL_OPPOSING_CHARACTERS": "opposing_characters",
+    # B2: Event-derived targets for trigger projection
+    "EVENT_SOURCE": "event_source",
+    "EVENT_TARGET": "event_target",
+    "TRIGGER_SUBJECT": "trigger_subject",
+    "DAMAGED_CHARACTERS": "damaged_characters",
+    "ALL_CHARACTERS": "all_characters",
 }
 
 EXECUTABLE_TARGET_ALIASES = frozenset(TARGET_MAP)
@@ -452,39 +473,86 @@ SUPPORTED_TRIGGER_EFFECT_KINDS = frozenset({
 })
 
 # Supported target aliases for trigger projection
+# B2: Includes event-derived targets for trigger projection
+# NOTE: CHOSEN_* targets are NOT supported - they require player choice prompts
 SUPPORTED_TARGET_ALIASES = frozenset({
     "SELF",
     "CONTROLLER",
+    "ACTOR",
+    "YOU",
     "OPPONENT",
     "EACH_OPPONENT",
     "YOUR_CHARACTERS",
     "YOUR_OTHER_CHARACTERS",
     "ALL_OPPOSING_CHARACTERS",
     "OPPOSING_CHARACTERS",
+    # B2: Event-derived targets
+    "EVENT_SOURCE",
+    "EVENT_TARGET",
+    "TRIGGER_SUBJECT",
+    "DAMAGED_CHARACTERS",
+    "ALL_CHARACTERS",
 })
 
 # Supported condition kinds for trigger projection
+# B2: Expanded with all conditions appearing in real decks
 SUPPORTED_CONDITION_KINDS = frozenset({
+    # Basic conditions
     "always",
     "your-turn",
     "opponent-turn",
     "during-turn",
+    "turn",
+    # Count conditions
     "has-character-count",
     "has-item-count",
     "has-location-count",
+    "has-location-in-play",
+    "has-another-character",
+    # Character property conditions
     "has-character-with-keyword",
     "has-character-with-classification",
+    "has-character-with-strength",
     "has-named-character",
+    "has-named-item",
+    # Status conditions
     "is-exerted",
     "exerted",
     "has-any-damage",
     "no-damage",
     "self-has-damage",
+    # Resource conditions
     "inkwell-count",
+    "resource-count",
+    # Advanced conditions
+    "target-query",
     "comparison",
+    "lore-comparison",
+    "card-type-comparison",
+    # Event-based conditions
+    "banished-in-challenge-this-turn",
+    "in-challenge",
+    "being-challenged",
+    "has-card-under",
+    "at-location",
+    # Context conditions
+    "play-context",
+    "used-shift",
+    # Logical conditions
     "and",
     "or",
     "not",
+    "if",
+    # Additional conditions from real decks
+    "opponent-has-damaged-character",
+    "first-turn-non-otp",
+    "has-granted-ability",
+    "is-named",
+    "stat-threshold",
+    "target-aggregate-comparison",
+    "trigger-subject-had-card-under",
+    "put-card-under-any-this-turn",
+    "put-card-under-self-this-turn",
 })
 
 
@@ -565,6 +633,8 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
     """Project a source effect into an EffectDef for trigger execution.
     
     Returns None if the effect cannot be projected.
+    
+    NOTE: CHOSEN_* targets are not projectable because they require player choice prompts.
     """
     kind = ENGINE_EFFECT_MAP.get(effect.kind)
     if not kind:
@@ -577,6 +647,15 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
     target = None
     if effect.target:
         if effect.target.execution_status != ExecutionStatus.EXECUTABLE:
+            return None
+        # B2: Block CHOSEN_* targets - they require player prompts
+        if effect.target.alias and effect.target.alias.startswith("CHOSEN_"):
+            return None
+        # B2: Block selector-based chosen targets
+        if effect.target.selector == "chosen":
+            return None
+        # B2: Check against SUPPORTED_TARGET_ALIASES for trigger projection
+        if effect.target.alias and effect.target.alias not in SUPPORTED_TARGET_ALIASES:
             return None
         target = _project_target(effect.target)
     

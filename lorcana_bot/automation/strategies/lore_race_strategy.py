@@ -100,7 +100,40 @@ def score_lore_race(context: StrategyContext, candidate: AutomatedActionCandidat
         add("location_lore", 3 * int(loc.lore or 0))
         add("move_cost", -2 * int(loc.move_cost or 0))
     elif candidate.family in {AutomatedActionFamily.RESOLVE_BAG, AutomatedActionFamily.RESOLVE_EFFECT}:
-        add("resolve_required", 5)
+        # B7: Resolution candidates score based on polarity and projected benefit
+        add("resolve_required", 100)  # High base score for resolution priority
+        
+        # Score based on effect polarity
+        polarity = candidate.effect_polarity
+        if polarity == "beneficial":
+            add("beneficial_effect", 50)
+        elif polarity == "harmful":
+            add("harmful_effect", -30)
+        elif polarity == "mixed":
+            add("mixed_effect", 10)
+        
+        # Score based on projected benefit/harm
+        projected_benefit = candidate.projected_benefit
+        projected_harm = candidate.projected_harm
+        add("projected_benefit", projected_benefit)
+        add("projected_harm", -projected_harm)
+        
+        # Handle optional effects
+        if candidate.resolve_optional is not None:
+            if candidate.resolve_optional:  # Accepting
+                if polarity == "beneficial" or projected_benefit > projected_harm:
+                    add("accept_beneficial_optional", 20)
+                else:
+                    add("accept_harmful_optional", -40)
+            else:  # Declining
+                if polarity == "harmful" or projected_harm > projected_benefit:
+                    add("decline_harmful_optional", 20)
+                else:
+                    add("decline_beneficial_optional", -30)
+        
+        # Bonus for mandatory resolution (no optional choice)
+        if candidate.metadata.get("optional") is not True:
+            add("mandatory_resolution", 25)
     elif candidate.family == AutomatedActionFamily.PASS_TURN:
         add("pass", -50)
     elif candidate.family == AutomatedActionFamily.CONCEDE:

@@ -15,6 +15,8 @@ from lorcana_bot.constants import (
     ACTION_PLAY_CARD,
     ACTION_QUEST,
     ACTION_RESOLVE_BAG,
+    ACTION_RESOLVE_PENDING_EFFECT,
+    ACTION_USE_ABILITY,
     CARD_ACTION,
 )
 from lorcana_bot.engine import GameEngine
@@ -43,17 +45,8 @@ def enumerate_automated_action_candidates(
     legal = sorted(engine.legal_actions(state, actor), key=_action_sort_key)
     raw_candidates: list[AutomatedActionCandidate] = []
 
-    if getattr(state, "bag", None):
-        for idx, trigger in enumerate(state.bag[: caps.max_candidates_per_family]):
-            if getattr(trigger, "controller", None) == actor:
-                result.unsupported_skips.append(
-                    {
-                        "family": AutomatedActionFamily.RESOLVE_BAG,
-                        "source_card": _source_card_id(state, trigger.source),
-                        "trigger_id": str(idx),
-                        "unsupported_reason": "engine auto-resolves bag and has no resolver action yet",
-                    }
-                )
+    # B7: Enumerate pending effects (resolveEffect) - these rank at family order 2
+    raw_candidates.extend(_pending_effect_candidates(state, engine, actor))
 
     for action in legal:
         candidate = _candidate_from_action(state, engine, action)
@@ -88,6 +81,288 @@ def enumerate_automated_action_candidates(
 
     result.candidates = [by_key[key] for key in sorted(by_key)]
     return result
+
+
+def _pending_effect_candidates(
+    state: GameState,
+    engine: GameEngine,
+    actor: int,
+) -> list[AutomatedActionCandidate]:
+    """Generate RESOLVE_EFFECT candidates from pending effects.
+    
+    This mirrors Lorcanito's resolution enumeration for pending action effects.
+    Priority ordering:
+    1. Optional accept/decline choices
+    2. Target selection choices
+    3. Index/choice selection
+    """
+    from lorcana_bot.pending_effects import get_current_pending_effect, get_valid_targets_for_requirement
+    from lorcana_bot.cards import EffectDef
+    
+    candidates = []
+    pe = get_current_pending_effect(state, actor)
+    if pe is None:
+        return candidates
+    
+    # Determine effect metadata
+    effect_kind = _get_effect_kind(pe)
+    effect_polarity = _classify_effect_polarity(pe, actor)
+    projected_benefit, projected_harm = _estimate_effect_impact(pe, engine, actor)
+    
+    # Check if this is optional (accept/decline)
+    if pe.optional and pe.accepted is None:
+        # Accept option
+        candidates.append(AutomatedActionCandidate(
+            family=AutomatedActionFamily.RESOLVE_EFFECT,
+            actor=actor,
+            stable_key=make_stable_key(
+                AutomatedActionFamily.RESOLVE_EFFECT,
+                actor,
+                pending_effect_id=pe.id,
+                accept=True,
+            ),
+            source_instance_id=pe.source_id,
+            source_card_id=pe.source_card_id,
+            pending_effect_id=pe.id,
+            resolve_optional=True,
+            label=f"Accept optional effect",
+            metadata={
+                "pending_effect_id": pe.id,
+                "accept": True,
+                "optional": True,
+                "effect_kind": effect_kind,
+                "effect_polarity": effect_polarity,
+                "projected_benefit": projected_benefit,
+                "projected_harm": projected_harm,
+                "ability_name": _get_ability_name(pe),
+                "origin": pe.origin,
+            },
+            effect_kind=effect_kind,
+            effect_polarity=effect_polarity,
+            projected_benefit=projected_benefit,
+            projected_harm=projected_harm,
+            origin=pe.origin,
+        ))
+        # Decline option
+        candidates.append(AutomatedActionCandidate(
+            family=AutomatedActionFamily.RESOLVE_EFFECT,
+            actor=actor,
+            stable_key=make_stable_key(
+                AutomatedActionFamily.RESOLVE_EFFECT,
+                actor,
+                pending_effect_id=pe.id,
+                accept=False,
+            ),
+            source_instance_id=pe.source_id,
+            source_card_id=pe.source_card_id,
+            pending_effect_id=pe.id,
+            resolve_optional=False,  # explicit decline
+            label=f"Decline optional effect",
+            metadata={
+                "pending_effect_id": pe.id,
+                "accept": False,
+                "optional": True,
+                "effect_kind": effect_kind,
+                "effect_polarity": effect_polarity,
+                "projected_benefit": projected_benefit,
+                "projected_harm": projected_harm,
+                "ability_name": _get_ability_name(pe),
+                "origin": pe.origin,
+            },
+            effect_kind=effect_kind,
+            effect_polarity=effect_polarity,
+            projected_benefit=projected_benefit,
+            projected_harm=projected_harm,
+            origin=pe.origin,
+        ))
+    elif pe.requires_target_input and pe.current_requirement:
+        # Target selection required
+        requirement = pe.current_requirement
+        valid_targets = get_valid_targets_for_requirement(state, requirement, actor, engine)
+        for target in valid_targets:
+            cdef = engine.card_def(state, target) if target in state.cards else None
+            candidates.append(AutomatedActionCandidate(
+                family=AutomatedActionFamily.RESOLVE_EFFECT,
+                actor=actor,
+                stable_key=make_stable_key(
+                    AutomatedActionFamily.RESOLVE_EFFECT,
+                    actor,
+                    pending_effect_id=pe.id,
+                    target=target,
+                ),
+                source_instance_id=pe.source_id,
+                source_card_id=pe.source_card_id,
+                target_instance_id=target,
+                target_card_id=cdef.id if cdef else None,
+                pending_effect_id=pe.id,
+                targets=(target,),
+                label=f"Select {cdef.full_name if cdef else 'target'} for effect",
+                metadata={
+                    "pending_effect_id": pe.id,
+                    "target": target,
+                    "effect_kind": effect_kind,
+                    "effect_polarity": effect_polarity,
+                    "target_requirement_kind": requirement.kind,
+                    "ability_name": _get_ability_name(pe),
+                    "origin": pe.origin,
+                },
+                effect_kind=effect_kind,
+                effect_polarity=effect_polarity,
+                target_requirement_kind=requirement.kind,
+                origin=pe.origin,
+            ))
+    elif pe.requires_choice_input:
+        # Choice index selection required
+        for choice_idx in range(len(pe.choice_options)):
+            candidates.append(AutomatedActionCandidate(
+                family=AutomatedActionFamily.RESOLVE_EFFECT,
+                actor=actor,
+                stable_key=make_stable_key(
+                    AutomatedActionFamily.RESOLVE_EFFECT,
+                    actor,
+                    pending_effect_id=pe.id,
+                    choice_index=choice_idx,
+                ),
+                source_instance_id=pe.source_id,
+                source_card_id=pe.source_card_id,
+                pending_effect_id=pe.id,
+                choice_index=choice_idx,
+                label=f"Choose option {choice_idx + 1}",
+                metadata={
+                    "pending_effect_id": pe.id,
+                    "choice_index": choice_idx,
+                    "choice_options_count": len(pe.choice_options),
+                    "effect_kind": effect_kind,
+                    "effect_polarity": effect_polarity,
+                    "ability_name": _get_ability_name(pe),
+                    "origin": pe.origin,
+                },
+                effect_kind=effect_kind,
+                effect_polarity=effect_polarity,
+                origin=pe.origin,
+            ))
+    else:
+        # No input required, just resolve
+        candidates.append(AutomatedActionCandidate(
+            family=AutomatedActionFamily.RESOLVE_EFFECT,
+            actor=actor,
+            stable_key=make_stable_key(
+                AutomatedActionFamily.RESOLVE_EFFECT,
+                actor,
+                pending_effect_id=pe.id,
+            ),
+            source_instance_id=pe.source_id,
+            source_card_id=pe.source_card_id,
+            pending_effect_id=pe.id,
+            label=f"Resolve effect",
+            metadata={
+                "pending_effect_id": pe.id,
+                "effect_kind": effect_kind,
+                "effect_polarity": effect_polarity,
+                "ability_name": _get_ability_name(pe),
+                "origin": pe.origin,
+            },
+            effect_kind=effect_kind,
+            effect_polarity=effect_polarity,
+            origin=pe.origin,
+        ))
+    
+    return candidates
+
+
+def _get_effect_kind(pe: Any) -> str | None:
+    """Extract the effect kind from a pending effect."""
+    if not pe.effects:
+        return None
+    if pe.current_effect_index < len(pe.effects):
+        effect = pe.effects[pe.current_effect_index]
+        if hasattr(effect, 'kind'):
+            return effect.kind
+        if isinstance(effect, dict):
+            return effect.get('kind')
+    return None
+
+
+def _classify_effect_polarity(pe: Any, actor: int) -> str:
+    """Classify effect polarity for the given actor.
+    
+    Mirrors Lorcanito's classifyTargetedStepPolarity and classifyEffectPolarity.
+    """
+    effect = None
+    if pe.effects and pe.current_effect_index < len(pe.effects):
+        effect = pe.effects[pe.current_effect_index]
+    
+    if effect is None:
+        return "neutral"
+    
+    effect_target = None
+    if hasattr(effect, 'target'):
+        effect_target = effect.target
+    elif isinstance(effect, dict):
+        effect_target = effect.get('target')
+    
+    # Determine polarity based on effect type and target
+    effect_kind = _get_effect_kind(pe)
+    
+    # DRAW, GAIN_LORE, PLAY_CARD are generally beneficial
+    beneficial_effects = {"draw", "gain_lore", "play_card", "put_in_play", "gain_ink"}
+    # DEAL_DAMAGE to opponent is beneficial, to self is harmful
+    # HEAL is generally beneficial
+    
+    if effect_kind in beneficial_effects:
+        if effect_target in {"YOU", "CONTROLLER", None} or effect_target == str(actor):
+            return "beneficial"
+        if effect_target in {"OPPONENT", "EACH_OPPONENT"}:
+            return "beneficial"
+        return "mixed"
+    
+    if effect_kind == "deal_damage":
+        if effect_target in {"OPPONENT", "EACH_OPPONENT"}:
+            return "beneficial"
+        if effect_target in {"YOU", "CONTROLLER", None} or effect_target == str(actor):
+            return "harmful"
+        return "mixed"
+    
+    if effect_kind == "banish":
+        return "neutral"  # Depends heavily on what's being banished
+    
+    return "neutral"
+
+
+def _estimate_effect_impact(pe: Any, engine: GameEngine | None, actor: int) -> tuple[float, float]:
+    """Estimate projected benefit and harm for an effect.
+    
+    Mirrors Lorcanito's estimateEffectBenefit with simple heuristics.
+    """
+    benefit = 0.0
+    harm = 0.0
+    
+    effect_kind = _get_effect_kind(pe)
+    
+    # Simple benefit estimates based on effect type
+    if effect_kind == "draw":
+        benefit += 3.0  # Cards have value
+    elif effect_kind == "gain_lore":
+        benefit += 4.0  # Lore wins games
+    elif effect_kind == "play_card":
+        benefit += 5.0  # Getting a card into play is valuable
+    elif effect_kind == "gain_ink":
+        benefit += 2.0  # Ink is resource
+    elif effect_kind == "deal_damage":
+        harm += 2.0  # Damage is harm to opponent
+    elif effect_kind == "banish":
+        harm += 3.0  # Banishing is harmful
+    
+    return benefit, harm
+
+
+def _get_ability_name(pe: Any) -> str | None:
+    """Get ability name from pending effect."""
+    if pe.origin_id:
+        return pe.origin_id
+    if pe.raw and isinstance(pe.raw, dict):
+        return pe.raw.get("ability_name")
+    return None
 
 
 def _candidate_from_action(state: GameState, engine: GameEngine, action: Action) -> AutomatedActionCandidate | None:
@@ -235,6 +510,47 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
                 "effect_kinds": effect_kinds,
             },
         )
+    if action.kind == ACTION_USE_ABILITY:
+        from lorcana_bot.abilities import get_activated_abilities_for_card
+        
+        source_card_id = None
+        ability_id = action.choice.get("ability_id") if action.choice else None
+        ability_index = action.choice.get("ability_index") if action.choice else None
+        
+        if action.source:
+            source_card_id = state.cards[action.source].card_id if action.source in state.cards else None
+        
+        # Get ability name from card
+        ability_name = None
+        if action.source:
+            card_def = engine.card_def(state, action.source)
+            abilities = get_activated_abilities_for_card(state, action.source, card_def)
+            for a in abilities:
+                if a.ability_index == ability_index or a.ability_id == ability_id:
+                    ability_name = a.name
+                    break
+        
+        return AutomatedActionCandidate(
+            family=AutomatedActionFamily.ACTIVATE_ABILITY,
+            actor=actor,
+            stable_key=make_stable_key(
+                AutomatedActionFamily.ACTIVATE_ABILITY, 
+                actor, 
+                source=action.source,
+                ability_id=ability_id,
+                ability_index=ability_index,
+            ),
+            source_instance_id=action.source,
+            source_card_id=source_card_id,
+            ability_id=ability_id,
+            ability_index=ability_index,
+            label=f"Use ability: {ability_name or ability_id or 'activated'}",
+            metadata={
+                "ability_id": ability_id,
+                "ability_index": ability_index,
+                "ability_name": ability_name,
+            },
+        )
     return None
 
 
@@ -267,18 +583,20 @@ def _mulligan_structural_candidates(state: GameState, engine: GameEngine, actor:
 
 
 def _record_activated_ability_skips(state: GameState, engine: GameEngine, actor: int, result: CandidateEnumerationResult) -> None:
-    for cid in sorted(state.players[actor].play):
-        card = engine.card_def(state, cid)
-        abilities = tuple(getattr(card, "activated_abilities", ()))
-        raw_candidates = abilities or tuple(a for a in getattr(card, "unsupported_abilities", ()) if "activate" in str(a).casefold() or "exert" in str(a).casefold())
-        for idx, ability in enumerate(raw_candidates):
+    from lorcana_bot.abilities import get_available_abilities_for_player, validate_ability_costs
+    
+    # Only report skipped abilities that can't be used this turn
+    for ability in get_available_abilities_for_player(state, engine, actor):
+        can_pay, _ = validate_ability_costs(state, engine, ability)
+        if not can_pay:
             result.unsupported_skips.append(
                 {
                     "family": AutomatedActionFamily.ACTIVATE_ABILITY,
-                    "source_card": card.id,
-                    "ability_index": idx,
-                    "unsupported_reason": "activated ability execution is reserved for Milestone B",
-                    "raw_ability_summary": str(ability)[:240],
+                    "source_card": ability.source_card_id,
+                    "ability_id": ability.ability_id,
+                    "ability_index": ability.ability_index,
+                    "unsupported_reason": "cannot pay ability costs",
+                    "raw_ability_summary": str(ability.raw)[:240],
                 }
             )
 

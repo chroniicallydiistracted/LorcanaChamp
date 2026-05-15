@@ -139,8 +139,8 @@ class TestProjectTriggers:
             lore=1,
         )
         
-        # scry effect is not supported
-        ability = _make_source_ability("triggered", trigger_event="play", effect_kind="scry")
+        # shift effect is not supported for trigger projection
+        ability = _make_source_ability("triggered", trigger_event="play", effect_kind="shift")
         object.__setattr__(card, 'source_abilities', (ability,))
         
         result = project_triggers(card)
@@ -228,3 +228,384 @@ class TestSupportedTriggerEffectKinds:
     def test_search_deck_not_supported(self):
         """Search deck effect is not supported in B2."""
         assert "search-deck" not in SUPPORTED_TRIGGER_EFFECT_KINDS
+
+
+class TestEventDerivedTargetProjection:
+    """Tests for event-derived target projection in trigger projection."""
+
+    def _make_trigger_with_target(self, effect_kind, target_alias):
+        """Create a triggered ability with a specific target alias."""
+        from lorcana_bot.card_logic import SourceAbilityDef, SourceEffectDef, SourceTargetDef, SourceTriggerDef, ExecutionStatus
+        
+        trigger = SourceTriggerDef(
+            event="challenge",
+            on=None,
+            timing=None,
+            subject=None,
+            raw={},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+        )
+        
+        target = SourceTargetDef(
+            kind="alias",
+            alias=target_alias,
+            raw={"value": target_alias},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.EXECUTABLE,
+        )
+        
+        effect = SourceEffectDef(
+            kind=effect_kind,
+            target=target,
+            raw={"type": effect_kind, "target": target_alias},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.EXECUTABLE,
+        )
+        
+        return SourceAbilityDef(
+            id=f"triggered_with_{target_alias}",
+            kind="triggered",
+            name=f"Test {target_alias}",
+            effects=(effect,),
+            trigger=trigger,
+            costs=(),
+            condition=None,
+            restrictions=(),
+            source_zones=(),
+            raw={"type": "triggered", "effect": {"type": effect_kind, "target": target_alias}},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+            auto_resolve=None,
+        )
+
+    def test_event_source_target_projects(self):
+        """EVENT_SOURCE target should project."""
+        from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
+        
+        card = CardDef(
+            id="test_card",
+            full_name="Test Card",
+            ink="amber",
+            cost=2,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=2,
+            lore=1,
+        )
+        ability = self._make_trigger_with_target("deal-damage", "EVENT_SOURCE")
+        object.__setattr__(card, 'source_abilities', (ability,))
+        
+        result = project_triggers(card)
+        assert len(result) == 1
+
+    def test_event_target_target_projects(self):
+        """EVENT_TARGET target should project."""
+        from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
+        
+        card = CardDef(
+            id="test_card",
+            full_name="Test Card",
+            ink="amber",
+            cost=2,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=2,
+            lore=1,
+        )
+        ability = self._make_trigger_with_target("deal-damage", "EVENT_TARGET")
+        object.__setattr__(card, 'source_abilities', (ability,))
+        
+        result = project_triggers(card)
+        assert len(result) == 1
+
+    def test_trigger_subject_target_projects(self):
+        """TRIGGER_SUBJECT target should project."""
+        from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
+        
+        card = CardDef(
+            id="test_card",
+            full_name="Test Card",
+            ink="amber",
+            cost=2,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=2,
+            lore=1,
+        )
+        ability = self._make_trigger_with_target("deal-damage", "TRIGGER_SUBJECT")
+        object.__setattr__(card, 'source_abilities', (ability,))
+        
+        result = project_triggers(card)
+        assert len(result) == 1
+
+    def test_your_other_characters_target_projects(self):
+        """YOUR_OTHER_CHARACTERS target should project correctly."""
+        from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
+        
+        card = CardDef(
+            id="test_card",
+            full_name="Test Card",
+            ink="amber",
+            cost=2,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=2,
+            lore=1,
+        )
+        ability = self._make_trigger_with_target("deal-damage", "YOUR_OTHER_CHARACTERS")
+        object.__setattr__(card, 'source_abilities', (ability,))
+        
+        result = project_triggers(card)
+        assert len(result) == 1
+
+    def test_all_opposing_characters_target_projects(self):
+        """ALL_OPPOSING_CHARACTERS target should project."""
+        from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
+        
+        card = CardDef(
+            id="test_card",
+            full_name="Test Card",
+            ink="amber",
+            cost=2,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=2,
+            lore=1,
+        )
+        ability = self._make_trigger_with_target("deal-damage", "ALL_OPPOSING_CHARACTERS")
+        object.__setattr__(card, 'source_abilities', (ability,))
+        
+        result = project_triggers(card)
+        assert len(result) == 1
+
+    def test_chosen_character_target_blocks_projection(self):
+        """CHOSEN_CHARACTER target should block projection (no fake prompts)."""
+        from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
+        
+        card = CardDef(
+            id="test_card",
+            full_name="Test Card",
+            ink="amber",
+            cost=2,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=2,
+            lore=1,
+        )
+        ability = self._make_trigger_with_target("deal-damage", "CHOSEN_CHARACTER")
+        object.__setattr__(card, 'source_abilities', (ability,))
+        
+        # CHOSEN_CHARACTER should NOT project because it requires a player choice
+        result = project_triggers(card)
+        assert len(result) == 0
+
+
+class TestQuestTriggerGainLore:
+    """Tests for quest trigger gaining lore for controller."""
+
+    def test_quest_trigger_with_controller_target(self):
+        """Quest trigger with gain-lore should project for controller."""
+        from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
+        from lorcana_bot.card_logic import SourceAbilityDef, SourceEffectDef, SourceTargetDef, SourceTriggerDef, ExecutionStatus
+        
+        card = CardDef(
+            id="quest_lore_card",
+            full_name="Quest Lore Card",
+            ink="amber",
+            cost=3,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=2,
+            lore=1,
+        )
+        
+        trigger = SourceTriggerDef(
+            event="quest",
+            on=None,
+            timing=None,
+            subject=None,
+            raw={},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+        )
+        
+        target = SourceTargetDef(
+            kind="alias",
+            alias="CONTROLLER",
+            raw={"value": "CONTROLLER"},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.EXECUTABLE,
+        )
+        
+        effect = SourceEffectDef(
+            kind="gain-lore",
+            target=target,
+            amount=1,
+            raw={"type": "gain-lore", "target": "CONTROLLER", "amount": 1},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.EXECUTABLE,
+        )
+        
+        ability = SourceAbilityDef(
+            id="quest_gain_lore",
+            kind="triggered",
+            name="Quest Gain Lore",
+            effects=(effect,),
+            trigger=trigger,
+            costs=(),
+            condition=None,
+            restrictions=(),
+            source_zones=(),
+            raw={"type": "triggered", "trigger": {"event": "quest"}},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+            auto_resolve=None,
+        )
+        
+        object.__setattr__(card, 'source_abilities', (ability,))
+        result = project_triggers(card)
+        
+        assert len(result) == 1
+        assert result[0].event == "quest"
+        assert result[0].effects[0].target == "controller"
+
+
+class TestChallengeTriggerDamagesEventTarget:
+    """Tests for challenge trigger damaging event target."""
+
+    def test_challenge_trigger_with_event_target(self):
+        """Challenge trigger with deal-damage to event_target should project."""
+        from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
+        from lorcana_bot.card_logic import SourceAbilityDef, SourceEffectDef, SourceTargetDef, SourceTriggerDef, ExecutionStatus
+        
+        card = CardDef(
+            id="challenge_damage_card",
+            full_name="Challenge Damage Card",
+            ink="ruby",
+            cost=3,
+            inkable=True,
+            card_type="character",
+            strength=3,
+            willpower=2,
+            lore=1,
+        )
+        
+        trigger = SourceTriggerDef(
+            event="challenge",
+            on="SELF",
+            timing=None,
+            subject=None,
+            raw={},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+        )
+        
+        target = SourceTargetDef(
+            kind="alias",
+            alias="EVENT_TARGET",
+            raw={"value": "EVENT_TARGET"},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.EXECUTABLE,
+        )
+        
+        effect = SourceEffectDef(
+            kind="deal-damage",
+            target=target,
+            amount=2,
+            raw={"type": "deal-damage", "target": "EVENT_TARGET", "amount": 2},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.EXECUTABLE,
+        )
+        
+        ability = SourceAbilityDef(
+            id="challenge_deal_damage",
+            kind="triggered",
+            name="Challenge Deal Damage",
+            effects=(effect,),
+            trigger=trigger,
+            costs=(),
+            condition=None,
+            restrictions=(),
+            source_zones=(),
+            raw={"type": "triggered", "trigger": {"event": "challenge", "on": "SELF"}},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+            auto_resolve=None,
+        )
+        
+        object.__setattr__(card, 'source_abilities', (ability,))
+        result = project_triggers(card)
+        
+        assert len(result) == 1
+        assert result[0].event == "challenge"
+        assert result[0].effects[0].target == "event_target"
+
+
+class TestBanishTriggerDrawsForController:
+    """Tests for banish trigger drawing for controller."""
+
+    def test_banish_trigger_draws_for_controller(self):
+        """Banish trigger with draw for controller should project."""
+        from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
+        from lorcana_bot.card_logic import SourceAbilityDef, SourceEffectDef, SourceTargetDef, SourceTriggerDef, ExecutionStatus
+        
+        card = CardDef(
+            id="banish_draw_card",
+            full_name="Banish Draw Card",
+            ink="sapphire",
+            cost=2,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=2,
+            lore=1,
+        )
+        
+        trigger = SourceTriggerDef(
+            event="banish",
+            on=None,
+            timing=None,
+            subject=None,
+            raw={},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+        )
+        
+        effect = SourceEffectDef(
+            kind="draw",
+            amount=1,
+            raw={"type": "draw", "amount": 1},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.EXECUTABLE,
+        )
+        
+        ability = SourceAbilityDef(
+            id="banish_draw",
+            kind="triggered",
+            name="Banish Draw",
+            effects=(effect,),
+            trigger=trigger,
+            costs=(),
+            condition=None,
+            restrictions=(),
+            source_zones=(),
+            raw={"type": "triggered", "trigger": {"event": "banish"}},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+            auto_resolve=None,
+        )
+        
+        object.__setattr__(card, 'source_abilities', (ability,))
+        result = project_triggers(card)
+        
+        assert len(result) == 1
+        assert result[0].event == "banish"
+        assert result[0].effects[0].kind == "draw"

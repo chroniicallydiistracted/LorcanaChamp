@@ -174,3 +174,170 @@ def test_choice_optional_and_conditional_control_flow_are_declarative():
     )
     engine.effect_resolver.resolve(state, conditional, EffectResolutionContext(actor=0))
     assert state.players[0].lore == 3
+
+
+class TestEventContextTargets:
+    """Tests for trigger context targets in effects."""
+
+    def test_self_target_uses_source(self):
+        """self target should resolve to context.source."""
+        engine, state = setup_effect_game()
+        ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+        state.cards[ally].damage = 3
+        
+        # Use deal_damage with self target - should damage the source
+        effect = EffectDef("deal_damage", 2, "self")
+        engine.effect_resolver.resolve(
+            state, effect, 
+            EffectResolutionContext(actor=0, source=ally)
+        )
+        assert state.cards[ally].damage == 5
+
+    def test_trigger_subject_target(self):
+        """trigger_subject target should resolve to context.trigger_subject."""
+        engine, state = setup_effect_game()
+        ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+        
+        # Use deal_damage with trigger_subject target
+        effect = EffectDef("deal_damage", 2, "trigger_subject")
+        engine.effect_resolver.resolve(
+            state, effect, 
+            EffectResolutionContext(actor=0, source=ally, trigger_subject=target)
+        )
+        assert state.cards[target].damage == 2
+
+    def test_your_other_characters_excludes_source(self):
+        """your_other_characters should exclude the source."""
+        engine, state = setup_effect_game()
+        ally1 = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+        ally2 = put_card(state, engine, 0, "Filler", ZONE_PLAY, exerted=False, drying=False)
+        
+        # Use for_each with your_other_characters
+        effect = EffectDef("for_each", value="your_other_characters", effects=(EffectDef("exert", target="target"),))
+        context = EffectResolutionContext(actor=0, source=ally1)
+        
+        before_exerted = {cid: state.cards[cid].exerted for cid in [ally1, ally2]}
+        engine.effect_resolver.resolve(state, effect, context)
+        
+        # ally1 (source) should NOT be exerted
+        assert state.cards[ally1].exerted == before_exerted[ally1]
+        # ally2 (other) SHOULD be exerted
+        assert state.cards[ally2].exerted == True
+
+    def test_opposing_characters_targets_opponent(self):
+        """opposing_characters should target opponent's characters."""
+        engine, state = setup_effect_game()
+        ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+        
+        # Use deal_damage with opposing_characters
+        effect = EffectDef("deal_damage", 1, "opposing_characters")
+        engine.effect_resolver.resolve(
+            state, effect, 
+            EffectResolutionContext(actor=0, source=ally)
+        )
+        # Target (opponent character) should have damage
+        assert state.cards[target].damage == 1
+        # Ally (own character) should not have damage added
+        assert state.cards[ally].damage == 0
+
+    def test_all_characters_targets_both_players(self):
+        """all_characters should target characters from both players."""
+        engine, state = setup_effect_game()
+        ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+        
+        # Use deal_damage with all_characters
+        effect = EffectDef("deal_damage", 1, "all_characters")
+        engine.effect_resolver.resolve(
+            state, effect, 
+            EffectResolutionContext(actor=0, source=ally)
+        )
+        # Both should have damage
+        assert state.cards[ally].damage == 1
+        assert state.cards[target].damage == 1
+
+
+class TestEventPayloadTargets:
+    """Tests for event_payload-based targets."""
+
+    def test_event_target_from_payload(self):
+        """event_target should use event_payload event_target_id if present."""
+        engine, state = setup_effect_game()
+        ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+        
+        # Use deal_damage with event_target that has payload
+        effect = EffectDef("deal_damage", 2, "event_target")
+        context = EffectResolutionContext(
+            actor=0, 
+            source=ally, 
+            target=None,  # No direct target
+            event_payload={"event_target_id": target}  # Payload has target
+        )
+        engine.effect_resolver.resolve(state, effect, context)
+        
+        assert state.cards[target].damage == 2
+
+    def test_trigger_source_target(self):
+        """trigger_source should resolve to context.trigger_source."""
+        engine, state = setup_effect_game()
+        ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+        
+        # Use deal_damage with trigger_source (self, essentially)
+        effect = EffectDef("deal_damage", 3, "event_source")
+        context = EffectResolutionContext(
+            actor=0, 
+            source=ally,
+            trigger_source=ally  # Explicit trigger source
+        )
+        engine.effect_resolver.resolve(state, effect, context)
+        
+        assert state.cards[ally].damage == 3
+
+
+class TestPlayerTargets:
+    """Tests for player-based targets in triggers."""
+
+    def test_controller_target(self):
+        """controller target should resolve to context.actor."""
+        engine, state = setup_effect_game()
+        initial_lore = state.players[0].lore
+        
+        # Use gain_lore with controller target
+        effect = EffectDef("gain_lore", 3, "controller")
+        engine.effect_resolver.resolve(
+            state, effect, 
+            EffectResolutionContext(actor=0)
+        )
+        assert state.players[0].lore == initial_lore + 3
+
+    def test_opponent_target(self):
+        """opponent target should resolve to opponent player."""
+        engine, state = setup_effect_game()
+        state.players[1].lore = 5
+        initial_lore = state.players[1].lore
+        
+        # Use lose_lore with opponent target
+        effect = EffectDef("lose_lore", 2, "opponent")
+        engine.effect_resolver.resolve(
+            state, effect, 
+            EffectResolutionContext(actor=0)
+        )
+        assert state.players[1].lore == initial_lore - 2
+
+    def test_you_target_alias(self):
+        """you target should resolve to context.actor."""
+        engine, state = setup_effect_game()
+        initial_lore = state.players[0].lore
+        
+        # Use draw with you target (draws for you)
+        effect = EffectDef("draw", 2, "you")
+        hand_before = len(state.players[0].hand)
+        engine.effect_resolver.resolve(
+            state, effect, 
+            EffectResolutionContext(actor=0)
+        )
+        assert len(state.players[0].hand) == hand_before + 2

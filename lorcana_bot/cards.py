@@ -236,6 +236,8 @@ class CardDef:
     source_triggers: tuple[SourceTriggerDef, ...] = ()
     source_static_abilities: tuple[SourceStaticEffectDef, ...] = ()
     source_replacement_abilities: tuple[SourceReplacementEffectDef, ...] = ()
+    # B10: Play modes support
+    action_subtype: str | None = None  # "song" for song actions
     raw_lorcanito_source: dict[str, Any] = field(default_factory=dict, compare=False, repr=False)
     source_mapping_status: str = "unknown"
     source_execution_status: str = "unknown"
