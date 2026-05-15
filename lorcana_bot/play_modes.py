@@ -147,6 +147,8 @@ def can_sing_song(
 ) -> tuple[bool, str]:
     """Check if a singer character can sing a song card.
     
+    Lorcanito-aligned rules: Singing does NOT pay ink. The singer exerts instead.
+    
     Args:
         state: The game state
         engine: The game engine
@@ -189,16 +191,12 @@ def can_sing_song(
     if action_subtype != "song":
         return False, "Card is not a song"
     
-    # Check song cost is within singer's threshold
+    # Check song cost is within singer's threshold (no ink needed)
     song_cost = song_card.cost
     if song_cost > singer_info.threshold:
         return False, f"Song cost {song_cost} exceeds Singer threshold {singer_info.threshold}"
     
-    # Check player has enough ink
-    player = singer_inst.controller
-    if engine.available_ink(state, player) < song_cost:
-        return False, f"Not enough ink to pay song cost {song_cost}"
-    
+    # B11: NO ink requirement for singing — singer exerts instead
     return True, ""
 
 
@@ -412,12 +410,13 @@ def execute_sing_song(
 ) -> None:
     """Execute singing a song.
     
+    Lorcanito-aligned: Singing does NOT pay ink. The singer exerts instead.
+    
     This performs the song singing action:
-    1. Pay ink cost for the song
-    2. Exert the singer character
-    3. Move the song to discard
-    4. Resolve song effects
-    5. Emit SING event with sung=True
+    1. Exert the singer character (no ink payment)
+    2. Move the song to discard
+    3. Resolve song effects
+    4. Emit CARD_PLAYED event with sung=True, cost_type="sing"
     
     Args:
         state: The game state
@@ -433,13 +432,8 @@ def execute_sing_song(
         raise ValueError(f"Cannot sing song: {reason}")
     
     player = state.cards[singer_id].controller
-    song_card = engine.card_def(state, song_card_id)
-    song_cost = song_card.cost
     
-    # Pay ink
-    engine._pay_ink(state, player, song_cost)
-    
-    # Exert singer
+    # B11: Singer exerts — NO ink payment for singing
     state.cards[singer_id].exerted = True
     
     # Store pre-move state for event
@@ -451,7 +445,7 @@ def execute_sing_song(
     # Resolve song effects
     engine._resolve_effects(state, player, song_card_id, None)
     
-    # Emit sing event with sung=True
+    # Emit CARD_PLAYED with sung=True and cost_type="sing"
     engine.emit_event(
         state,
         "CARD_PLAYED",
@@ -465,6 +459,7 @@ def execute_sing_song(
             "played_from": from_zone,
             "played_to": "discard",
             "sung": True,
+            "cost_type": "sing",
             "singer_id": singer_id,
             "singer_card_id": state.cards[singer_id].card_id,
         },
@@ -479,19 +474,15 @@ def execute_shift_play(
 ) -> None:
     """Execute playing a shifted character on a target.
     
+    Lorcanito-aligned: The target character goes UNDER the shifted card (shift stack),
+    NOT to discard. The shifted card is placed in play on top of the stack.
+    
     This performs the shift play action:
     1. Pay shift cost
-    2. Move the target character to the shifted card's location
-    3. Place the shifted character in play (optionally on target location)
-    4. Transfer appropriate state conservatively
-    5. Emit PLAY event with used_shift=True
-    
-    Conservative state transfer (per Lorcanito reference):
-    - Shifted card inherits target's zone (play), controller, owner
-    - Shifted card does NOT inherit damage, exerted status
-    - Shifted card does NOT inherit location_instance_id
-    - Shifted card is NOT drying when played via shift
-    - Shifted card starts with just_played=True
+    2. Move shifted card to play
+    3. Attach target under shifted card (cards_under / stack_parent_id)
+    4. Mark shifted card played_via_shift=True, played_cost_type="shift"
+    5. Emit CARD_PLAYED event with used_shift=True
     
     Args:
         state: The game state
@@ -516,24 +507,47 @@ def execute_shift_play(
     
     # Store pre-move state
     from_zone = state.cards[shifted_card_id].zone
-    target_inst = state.cards[target_character_id]
     target_def = engine.card_def(state, target_character_id)
     
-    # Move shifted card to play (conservative state transfer)
+    # B12: Move shifted card to play
     state.move_card(shifted_card_id, "play")
     
     # Set conservative state for shifted card
     inst = state.cards[shifted_card_id]
     inst.exerted = False
     inst.damage = 0
-    inst.drying = False  # Shifted characters are not drying
+    inst.drying = False
     inst.just_played = True
-    inst.location_instance_id = None  # Don't inherit location
+    inst.location_instance_id = None
+    # B12: Mark as played via shift
+    inst.played_via_shift = True
+    inst.played_cost_type = "shift"
     
-    # Move target character to discard (consumed by shift)
-    state.move_card(target_character_id, "discard")
+    # B12: Attach target UNDER shifted card — NOT to discard
+    target_inst = state.cards[target_character_id]
     
-    # Emit play event with used_shift=True
+    # Remove target from play zone list
+    if target_character_id in state.players[player].play:
+        state.players[player].play.remove(target_character_id)
+    
+    # Preserve any existing cards_under chain from target
+    existing_under = list(target_inst.cards_under)
+    
+    # Link target into shifted card's cards_under (target on bottom)
+    inst.cards_under = [target_character_id] + existing_under
+    
+    # Link each card in the existing chain to this target
+    for under_id in existing_under:
+        if under_id in state.cards:
+            state.cards[under_id].stack_parent_id = target_character_id
+    
+    # Mark target's stack_parent
+    target_inst.stack_parent_id = shifted_card_id
+    
+    # Target zone stays "play" conceptually but it's hidden under shifted card
+    target_inst.zone = "play"
+    
+    # Emit CARD_PLAYED with used_shift=True
     engine.emit_event(
         state,
         "CARD_PLAYED",
@@ -550,5 +564,51 @@ def execute_shift_play(
             "shift_cost": shift_cost,
             "shift_target_id": target_character_id,
             "shift_target_name": target_def.full_name,
+            "cost_type": "shift",
         },
     )
+
+
+def get_stacked_card_ids(state: GameState, top_id: int) -> list[int]:
+    """Get all card instance IDs in the shift stack under a given top card.
+    
+    Args:
+        state: The game state
+        top_id: The instance ID of the top card in the shift stack
+        
+    Returns:
+        List of all card IDs in the stack (top first, then cards_under chain)
+    """
+    result = [top_id]
+    current_id = top_id
+    while True:
+        inst = state.cards.get(current_id)
+        if inst is None or not inst.cards_under:
+            break
+        next_id = inst.cards_under[0]  # Bottom of the chain
+        result.append(next_id)
+        current_id = next_id
+    return result
+
+
+def move_card_out_of_play_with_stack(
+    state: GameState,
+    top_id: int,
+    destination: str,
+    controller: int | None = None,
+) -> None:
+    """Move a shifted card and its entire stack to a destination.
+    
+    B12: When a shifted top card leaves play, all cards_under move with it.
+    
+    Args:
+        state: The game state
+        top_id: The instance ID of the top card in the shift stack
+        destination: The destination zone
+        controller: Optional new controller
+    """
+    # Get all cards in the stack
+    stack_ids = get_stacked_card_ids(state, top_id)
+    
+    for cid in stack_ids:
+        state.move_card(cid, destination, controller=controller)

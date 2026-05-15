@@ -328,17 +328,17 @@ class TestCanSingSong:
         assert can_sing is False
         assert "song" in reason
 
-    def test_insufficient_ink_fails(self):
-        """Insufficient ink should fail."""
+    def test_singing_works_without_ink(self):
+        """Singing should work even with no ready ink (per B11 - singer covers cost, no ink paid)."""
         engine, state = self._setup_full_game_state()
-        
-        # Exhaust all ink
+
+        # Exhaust all ink - singer still covers cost
         for cid in list(state.players[0].inkwell):
             state.cards[cid].exerted = True
-        
+
         can_sing, reason = can_sing_song(state, engine, 1, 2)
-        assert can_sing is False
-        assert "ink" in reason
+        # B11: Singing does NOT pay ink; singer exerts to cover the cost
+        assert can_sing is True
 
 
 class TestExecuteSingSong:
@@ -413,8 +413,8 @@ class TestExecuteSingSong:
         assert 2 not in state.players[0].hand
         assert 2 in state.players[0].discard
 
-    def test_singing_pays_ink(self):
-        """Singing should pay ink cost."""
+    def test_singing_does_not_pay_ink(self):
+        """Singing should NOT pay ink cost (per B11 - singer covers cost)."""
         engine, state = self._setup_full_game_state()
         
         available_before = engine.available_ink(state, 0)
@@ -422,8 +422,9 @@ class TestExecuteSingSong:
         
         execute_sing_song(state, engine, 1, 2)
         
+        # B11: Singing does NOT pay ink; singer exerts instead
         available_after = engine.available_ink(state, 0)
-        assert available_after == available_before - 3
+        assert available_after == available_before  # Ink unchanged
 
     def test_singing_emits_sung_event(self):
         """Singing should emit event with sung=True payload."""

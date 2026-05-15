@@ -393,13 +393,15 @@ class TestAutomationIntegration:
         state.players[0].play = [1]
         state.phase = PHASE_MAIN
         state.active_player = 0
-        
+        state.turn_number = 1  # Required for once-per-turn tracking
+
         result = enumerate_automated_action_candidates(state, engine, 0)
         
         # Check for ACTIVATE_ABILITY candidates
+        # B20-fix: family.value is lowercase string, not enum value
         ability_candidates = [
             c for c in result.candidates 
-            if c.family.value == "ACTIVATE_ABILITY"
+            if c.family == "activateAbility"
         ]
         
         assert len(ability_candidates) >= 1

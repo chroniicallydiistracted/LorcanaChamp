@@ -88,28 +88,33 @@ class TriggerCandidate:
 
 
 def canonical_trigger_event(event: GameEvent | str) -> str:
-    """Map a legacy event name or GameEvent to canonical trigger event name."""
+    """Map a legacy event name or GameEvent to canonical trigger event name.
+    
+    Uses LEGACY_EVENT_MAP from constants.py (which has been expanded to cover
+    all gameplay events including INKED, CARD_DRAWN, DAMAGE_DEALT, etc.).
+    """
     if isinstance(event, GameEvent):
         event_type = event.event_type
     else:
         event_type = str(event)
     
-    # Map legacy event types to canonical form
-    legacy_map = {
-        "TURN_START": TRIGGER_EVENT_START_TURN,
-        "CARD_PLAYED": TRIGGER_EVENT_PLAY,
-        "QUESTED": TRIGGER_EVENT_QUEST,
-        "CHALLENGE_STARTED": TRIGGER_EVENT_CHALLENGE,
-        "CHARACTER_BANISHED": TRIGGER_EVENT_BANISH,
-        "TURN_END": TRIGGER_EVENT_END_TURN,
-        "MOVED_TO_LOCATION": TRIGGER_EVENT_MOVE,
-    }
+    return LEGACY_EVENT_MAP.get(event_type, event_type)
+
+
+def expand_trigger_event(event: str) -> tuple[str, ...]:
+    """Expand a canonical event into the full set of trigger event names to check.
     
-    if event_type in legacy_map:
-        return legacy_map[event_type]
-    
-    # Already canonical
-    return event_type
+    lorcanito-style leave-play expansion: when a card leaves play, it can trigger
+    on banish, banish-in-challenge, return-to-hand, or ink events.
+    """
+    if event == TRIGGER_EVENT_LEAVE_PLAY:
+        return (
+            TRIGGER_EVENT_BANISH,
+            "banish-in-challenge",
+            TRIGGER_EVENT_RETURN_TO_HAND,
+            TRIGGER_EVENT_INK,
+        )
+    return (event,)
 
 
 def buffer_trigger_event(

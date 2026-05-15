@@ -49,6 +49,14 @@ class CardInstance:
     was_challenged_this_turn: bool = False
     temporary_keywords: list[str] = field(default_factory=list)
     temporary_modifiers: dict[str, int] = field(default_factory=dict)
+    # B12: Shift stack support — cards placed under this card (shifted onto)
+    cards_under: list[int] = field(default_factory=list)
+    # B12: The instance ID of the shifted card this card is under (None if top of stack)
+    stack_parent_id: int | None = None
+    # B12: Whether this card was played via Shift
+    played_via_shift: bool = False
+    # B12: Cost type used to play this card ("ink", "shift", "sing", None)
+    played_cost_type: str | None = None
 
 
 @dataclass(slots=True)

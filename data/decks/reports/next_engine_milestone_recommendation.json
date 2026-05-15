@@ -19,6 +19,7 @@
       "notes": "",
       "representative_blockers": [
         "unsupported_trigger_resolution_requirement:amount",
+        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_event:banish-in-challenge",
         "unsupported_trigger_condition:turn-metric"
       ],
@@ -50,24 +51,26 @@
       "milestone": "scry_search_reveal",
       "notes": "",
       "representative_blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
+        "unsupported_trigger_resolution_requirement:amount",
+        "unsupported_trigger_condition:has-card-under"
       ],
       "representative_cards": [],
       "score": 141,
       "unique_cards_affected": 4
     },
     {
-      "copies_affected": 8,
-      "deck_presence": 2,
+      "copies_affected": 20,
+      "deck_presence": 4,
       "dependencies": [],
       "milestone": "condition_evaluator_expansion",
       "notes": "",
       "representative_blockers": [
+        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_condition:turn-metric"
       ],
       "representative_cards": [],
-      "score": 54,
-      "unique_cards_affected": 2
+      "score": 125,
+      "unique_cards_affected": 5
     },
     {
       "copies_affected": 8,

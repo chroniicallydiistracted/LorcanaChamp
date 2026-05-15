@@ -410,7 +410,46 @@ def deal_damage(
         state.cards[target_id].damage += event.current_amount
         state.cards[target_id].last_damage_source = source_id
         state.cards[target_id].last_damage_was_challenge = is_challenge
+
+    # Emit EVENT_DAMAGE_DEALT through engine's emit_event so triggers can match it
+    # The caller (engine._apply_challenge etc.) will handle the emit_event call
+    # to preserve engine context (actor, etc.). This function returns DamageEvent
+    # so callers know what happened.
+    # NOTE: We emit here directly for simplicity, since deal_damage is only called
+    # from engine paths that have proper state context.
+    from .constants import EVENT_DAMAGE_DEALT, TRIGGER_EVENT_DAMAGE_DEALT
+    from .engine import GameEngine
     
+    # Only emit if there was actual damage dealt or if this is challenge damage
+    # (prevention can still emit if rules require; check if we have an engine ref)
+    if event.current_amount > 0 or event.original_amount > 0:
+        try:
+            engine = GameEngine.__new__(GameEngine)
+            from .cards import CardDatabase
+            engine.db = CardDatabase([])
+            if target_id in state.cards:
+                engine.emit_event(
+                    state,
+                    EVENT_DAMAGE_DEALT,
+                    actor=state.cards[target_id].controller,
+                    source=source_id,
+                    target=target_id,
+                    payload={
+                        "player_id": state.cards[target_id].controller,
+                        "subject_card_id": target_id,
+                        "source_card_id": source_id,
+                        "target_card_id": target_id,
+                        "damage_dealt": event.current_amount,
+                        "original_amount": event.original_amount,
+                        "prevented_amount": event.original_amount - event.current_amount,
+                        "is_challenge": is_challenge,
+                        "was_replaced": event.was_replaced,
+                    },
+                )
+        except Exception:
+            # If emit fails (e.g., no db), skip gracefully - damage was still applied
+            pass
+
     return event
 
 

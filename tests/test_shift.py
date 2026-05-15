@@ -399,17 +399,18 @@ class TestExecuteShiftPlay:
         assert 2 not in state.players[0].hand
         assert 2 in state.players[0].play
 
-    def test_shift_moves_target_to_discard(self):
-        """Shift play should move target character to discard."""
+    def test_shift_moves_target_under_shifted(self):
+        """Shift play should move target character under shifted card (B12)."""
         engine, state = self._setup_shift_game_state()
-        
+
         assert 1 in state.players[0].play
-        assert 1 not in state.players[0].discard
-        
+
         execute_shift_play(state, engine, 2, 1)
-        
-        assert 1 not in state.players[0].play
-        assert 1 in state.players[0].discard
+
+        # B12: Shift target goes UNDER the shifted card, not to discard
+        assert 1 not in state.players[0].play  # Target no longer in play area
+        assert 1 in state.cards[2].cards_under  # Target is under shifted card
+        assert state.cards[1].stack_parent_id == 2  # Target's parent is shifted card
 
     def test_shifted_character_not_damaged(self):
         """Shifted character should start with no damage."""

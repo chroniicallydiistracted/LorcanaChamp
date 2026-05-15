@@ -694,6 +694,36 @@
     },
     {
       "ability_index": 1,
+      "card_id": "Mni",
+      "condition_kinds": [
+        "has-card-under"
+      ],
+      "copy_weight": 4,
+      "deck_ids": [
+        "as_steelsong_brian_law_taipei_2026_03_14"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_condition:has-card-under"
+      ],
+      "full_name": "Ariel - Ethereal Voice",
+      "raw_snippet": "{'event': 'play', 'on': {'cardType': 'song', 'controller': 'you'}, 'restrictions': [{'type': 'during-turn', 'whose': 'your'}, {'type': 'once-per-turn'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": {
+        "cardType": "song",
+        "controller": "you"
+      }
+    },
+    {
+      "ability_index": 1,
       "card_id": "Ab7",
       "condition_kinds": [
         "has-card-under"
@@ -706,12 +736,14 @@
         "scry"
       ],
       "failure_reasons": [
+        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_resolution_requirement:amount",
         "unsupported_trigger_resolution_requirement:scry_ordering"
       ],
       "full_name": "Bambi - Ethereal Fawn",
       "raw_snippet": "{'event': 'exert', 'on': 'SELF', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
       "recommended_engine_work": [
+        "condition_evaluator_expansion",
         "scry_search_reveal",
         "target_choice_prompts"
       ],
@@ -811,6 +843,36 @@
       "target_kinds": [],
       "trigger_event": "play",
       "trigger_on": "SELF"
+    },
+    {
+      "ability_index": 1,
+      "card_id": "Mni",
+      "condition_kinds": [
+        "has-card-under"
+      ],
+      "copy_weight": 3,
+      "deck_ids": [
+        "as_value_harlan_2026_04_04"
+      ],
+      "effect_kinds": [
+        "optional"
+      ],
+      "failure_reasons": [
+        "unsupported_trigger_condition:has-card-under"
+      ],
+      "full_name": "Ariel - Ethereal Voice",
+      "raw_snippet": "{'event': 'play', 'on': {'cardType': 'song', 'controller': 'you'}, 'restrictions': [{'type': 'during-turn', 'whose': 'your'}, {'type': 'once-per-turn'}], 'timing': 'whenever'}",
+      "recommended_engine_work": [
+        "condition_evaluator_expansion"
+      ],
+      "resolution_requirements": [],
+      "source_file": "",
+      "target_kinds": [],
+      "trigger_event": "play",
+      "trigger_on": {
+        "cardType": "song",
+        "controller": "you"
+      }
     },
     {
       "ability_index": 0,
@@ -1253,11 +1315,13 @@
         "deal-damage"
       ],
       "failure_reasons": [
+        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_resolution_requirement:amount"
       ],
       "full_name": "Robin Hood - Ephemeral Archer",
       "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
       "recommended_engine_work": [
+        "condition_evaluator_expansion",
         "target_choice_prompts"
       ],
       "resolution_requirements": [
@@ -1380,6 +1444,7 @@
   "schema_version": 1,
   "summary": {
     "failure_reason_counts_by_copies": {
+      "unsupported_trigger_condition:has-card-under": 12,
       "unsupported_trigger_condition:turn-metric": 8,
       "unsupported_trigger_effect:create-replacement-effect": 8,
       "unsupported_trigger_effect:or": 2,
@@ -1395,10 +1460,10 @@
     "failure_reason_counts_by_unique_cards": {
       "1sm": 2,
       "5EC": 1,
-      "6Ji": 1,
+      "6Ji": 2,
       "7Vg": 1,
       "8nj": 2,
-      "Ab7": 2,
+      "Ab7": 3,
       "B2Y": 4,
       "D7f": 2,
       "G4S": 1,
@@ -1406,6 +1471,7 @@
       "HVE": 2,
       "J1F": 1,
       "Jj0": 1,
+      "Mni": 2,
       "NLA": 4,
       "YW7": 2,
       "ZnW": 1,

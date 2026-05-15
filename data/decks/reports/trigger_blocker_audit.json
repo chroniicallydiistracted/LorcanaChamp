@@ -4761,8 +4761,10 @@
       "ability_kind": "triggered",
       "ability_name": "COMMAND PERFORMANCE Once",
       "appears_in_deck": true,
-      "blocker_family": "unknown",
-      "blockers": [],
+      "blocker_family": "condition_unsupported",
+      "blockers": [
+        "unsupported_trigger_condition:has-card-under"
+      ],
       "canonical_id": "ci_izM",
       "card_count": 4,
       "card_id": "Mni",
@@ -4780,11 +4782,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "executable",
+      "execution_status": "mapped_not_executable",
       "full_name": "Ariel - Ethereal Voice",
       "ink": "amber",
-      "primary_blocker": null,
-      "projection_status": "projected",
+      "primary_blocker": "unsupported_trigger_condition:has-card-under",
+      "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 1,
         "condition": {
@@ -4839,7 +4841,9 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [],
+      "recommended_engine_work": [
+        "condition_evaluator_expansion"
+      ],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
@@ -4858,8 +4862,9 @@
       "ability_kind": "triggered",
       "ability_name": "COME SEE!",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
+      "blocker_family": "condition_unsupported",
       "blockers": [
+        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_resolution_requirement:amount",
         "unsupported_trigger_resolution_requirement:scry_ordering"
       ],
@@ -4883,7 +4888,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Bambi - Ethereal Fawn",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
+      "primary_blocker": "unsupported_trigger_condition:has-card-under",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 1,
@@ -4943,6 +4948,7 @@
         "timing": "whenever"
       },
       "recommended_engine_work": [
+        "condition_evaluator_expansion",
         "scry_search_reveal",
         "target_choice_prompts"
       ],
@@ -5573,8 +5579,10 @@
       "ability_kind": "triggered",
       "ability_name": "COMMAND PERFORMANCE Once",
       "appears_in_deck": true,
-      "blocker_family": "unknown",
-      "blockers": [],
+      "blocker_family": "condition_unsupported",
+      "blockers": [
+        "unsupported_trigger_condition:has-card-under"
+      ],
       "canonical_id": "ci_izM",
       "card_count": 3,
       "card_id": "Mni",
@@ -5592,11 +5600,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "executable",
+      "execution_status": "mapped_not_executable",
       "full_name": "Ariel - Ethereal Voice",
       "ink": "amber",
-      "primary_blocker": null,
-      "projection_status": "projected",
+      "primary_blocker": "unsupported_trigger_condition:has-card-under",
+      "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 1,
         "condition": {
@@ -5651,7 +5659,9 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [],
+      "recommended_engine_work": [
+        "condition_evaluator_expansion"
+      ],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
@@ -8653,8 +8663,9 @@
       "ability_kind": "triggered",
       "ability_name": "EXPERT SHOT",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
+      "blocker_family": "condition_unsupported",
       "blockers": [
+        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_resolution_requirement:amount"
       ],
       "canonical_id": "ci_ZXj",
@@ -8677,7 +8688,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Robin Hood - Ephemeral Archer",
       "ink": "steel",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
+      "primary_blocker": "unsupported_trigger_condition:has-card-under",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 1,
@@ -8718,6 +8729,7 @@
         "timing": "whenever"
       },
       "recommended_engine_work": [
+        "condition_evaluator_expansion",
         "target_choice_prompts"
       ],
       "resolution_requirements": [
@@ -9183,8 +9195,8 @@
     "broad_unsupported_trigger_copies": 0,
     "deck_count": 12,
     "specific_trigger_blocker_copies": 0,
-    "trigger_blocked_card_copies": 177,
-    "trigger_blocked_unique_cards": 27,
+    "trigger_blocked_card_copies": 184,
+    "trigger_blocked_unique_cards": 28,
     "unclassified_trigger_blocker_copies": 0
   }
 }

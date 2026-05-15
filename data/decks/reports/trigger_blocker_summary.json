@@ -1,14 +1,14 @@
 {
   "by_condition_kind": [
     {
-      "condition_kind": "turn-metric",
-      "copies": 8,
-      "deck_presence": 2,
-      "unique_cards": 2
+      "condition_kind": "has-card-under",
+      "copies": 12,
+      "deck_presence": 3,
+      "unique_cards": 3
     },
     {
-      "condition_kind": "has-card-under",
-      "copies": 5,
+      "condition_kind": "turn-metric",
+      "copies": 8,
       "deck_presence": 2,
       "unique_cards": 2
     },
@@ -27,10 +27,10 @@
       "unique_cards": 10
     },
     {
-      "copies": 35,
-      "deck_presence": 7,
+      "copies": 42,
+      "deck_presence": 9,
       "effect_kind": "optional",
-      "unique_cards": 5
+      "unique_cards": 6
     },
     {
       "copies": 34,
@@ -84,11 +84,11 @@
   "by_primary_blocker_copies": [
     {
       "blocker": "unsupported_trigger_resolution_requirement:amount",
-      "copies": 104,
+      "copies": 99,
       "deck_presence": 11,
       "example_cards": [],
       "recommended_engine_work": "target_choice_prompts",
-      "unique_cards": 16
+      "unique_cards": 14
     },
     {
       "blocker": "unsupported_trigger_event:banish-in-challenge",
@@ -105,6 +105,14 @@
       "example_cards": [],
       "recommended_engine_work": "broader_trigger_projection",
       "unique_cards": 1
+    },
+    {
+      "blocker": "unsupported_trigger_condition:has-card-under",
+      "copies": 12,
+      "deck_presence": 3,
+      "example_cards": [],
+      "recommended_engine_work": "condition_evaluator_expansion",
+      "unique_cards": 3
     },
     {
       "blocker": "unsupported_trigger_condition:turn-metric",
@@ -168,6 +176,7 @@
   "by_recommended_engine_work": [
     {
       "blockers": [
+        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_condition:turn-metric",
         "unsupported_trigger_event:banish-in-challenge",
         "unsupported_trigger_resolution_requirement:amount"
@@ -193,6 +202,7 @@
     },
     {
       "blockers": [
+        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_resolution_requirement:amount"
       ],
       "copies": 22,
@@ -202,21 +212,22 @@
     },
     {
       "blockers": [
+        "unsupported_trigger_condition:has-card-under",
+        "unsupported_trigger_condition:turn-metric"
+      ],
+      "copies": 20,
+      "deck_presence": 4,
+      "recommended_engine_work": "condition_evaluator_expansion",
+      "unique_cards": 5
+    },
+    {
+      "blockers": [
         "unsupported_trigger_effect:create-replacement-effect"
       ],
       "copies": 8,
       "deck_presence": 2,
       "recommended_engine_work": "replacement_prevention",
       "unique_cards": 1
-    },
-    {
-      "blockers": [
-        "unsupported_trigger_condition:turn-metric"
-      ],
-      "copies": 8,
-      "deck_presence": 2,
-      "recommended_engine_work": "condition_evaluator_expansion",
-      "unique_cards": 2
     },
     {
       "blockers": [
@@ -270,10 +281,10 @@
   ],
   "by_trigger_event": [
     {
-      "copies": 73,
+      "copies": 80,
       "deck_presence": 11,
       "trigger_event": "play",
-      "unique_cards": 11
+      "unique_cards": 12
     },
     {
       "copies": 16,
@@ -357,6 +368,12 @@
     },
     {
       "copies": 8,
+      "deck_presence": 3,
+      "trigger_on": "filter:{\"cardType\": \"song\", \"controller\": \"you\"}",
+      "unique_cards": 2
+    },
+    {
+      "copies": 8,
       "deck_presence": 2,
       "trigger_on": "filter:{\"cardType\": \"action\", \"controller\": \"you\"}",
       "unique_cards": 1
@@ -372,23 +389,17 @@
       "deck_presence": 1,
       "trigger_on": "CHARACTERS_HERE",
       "unique_cards": 1
-    },
-    {
-      "copies": 1,
-      "deck_presence": 1,
-      "trigger_on": "filter:{\"cardType\": \"song\", \"controller\": \"you\"}",
-      "unique_cards": 1
     }
   ],
   "schema_version": 1,
   "summary": {
-    "blocked_trigger_copies": 177,
-    "blocked_trigger_rows": 48,
+    "blocked_trigger_copies": 184,
+    "blocked_trigger_rows": 50,
     "broad_unsupported_trigger_copies": 0,
-    "projected_trigger_rows": 67,
+    "projected_trigger_rows": 65,
     "total_decks": 12,
     "total_trigger_rows": 115,
-    "unclassified_trigger_rows": 67
+    "unclassified_trigger_rows": 65
   },
   "top_cards_by_blocked_copies": [],
   "top_decks_by_blocked_copies": []

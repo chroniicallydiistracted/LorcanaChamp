@@ -166,6 +166,8 @@ class TestInkCost:
             cards={
                 1: CardInstance(instance_id=1, card_id="ink1", owner=0, controller=0),
                 2: CardInstance(instance_id=2, card_id="ink2", owner=0, controller=0),
+                # B15-fix: source_instance_id=3 must exist in state.cards for _pay_ink_cost
+                3: CardInstance(instance_id=3, card_id="test", owner=0, controller=0),
             },
         )
         state.players[0].inkwell = [1, 2]
@@ -173,6 +175,7 @@ class TestInkCost:
         state.cards[1].exerted = False
         state.cards[2].zone = ZONE_INKWELL
         state.cards[2].exerted = False
+        state.cards[3].zone = ZONE_PLAY
         
         engine = MagicMock(spec=GameEngine)
         engine.available_ink.return_value = 2
@@ -195,8 +198,11 @@ class TestInkCost:
         """Ink cost should NOT be payable when player lacks ready ink."""
         state = GameState(
             players=[PlayerState(), PlayerState()],
-            cards={},
+            cards={
+                3: CardInstance(instance_id=3, card_id="test", owner=0, controller=0),
+            },
         )
+        state.cards[3].zone = ZONE_PLAY
         engine = MagicMock(spec=GameEngine)
         engine.available_ink.return_value = 0
         
@@ -221,6 +227,7 @@ class TestInkCost:
             cards={
                 1: CardInstance(instance_id=1, card_id="ink1", owner=0, controller=0),
                 2: CardInstance(instance_id=2, card_id="ink2", owner=0, controller=0),
+                3: CardInstance(instance_id=3, card_id="test", owner=0, controller=0),
             },
         )
         state.players[0].inkwell = [1, 2]
@@ -228,6 +235,7 @@ class TestInkCost:
         state.cards[1].exerted = False
         state.cards[2].zone = ZONE_INKWELL
         state.cards[2].exerted = False
+        state.cards[3].zone = ZONE_PLAY
         
         engine = MagicMock(spec=GameEngine)
         engine.available_ink.return_value = 2
@@ -329,10 +337,16 @@ class TestBanishSelfCost:
 
 
 class TestDiscardCost:
-    """Test discard N cards cost validation and payment."""
+    """Test discard N cards cost validation and payment.
     
-    def test_discard_cost_payable_with_sufficient_cards(self):
-        """Discard cost should be payable when player has enough cards."""
+    Per B15, non-random discard costs require a choice prompt (pending cost-selection)
+    which is not yet fully supported. So validate_cost_payable returns False for
+    non-random discard costs. This is scaffold_only behavior — the cost is blocked
+    until pending cost-selection is implemented.
+    """
+    
+    def test_discard_cost_requires_choice_prompt(self):
+        """Discard cost requires a choice prompt (scaffold_only per B15)."""
         state = GameState(
             players=[PlayerState(), PlayerState()],
             cards={
@@ -355,6 +369,40 @@ class TestDiscardCost:
             costs=(_make_source_cost("discard", 1),),
             effects=(),
             condition=None,
+        )
+        
+        # B15: Non-random discard requires choice prompt — marked scaffold_only
+        can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
+        assert can_pay is False
+        assert "choice prompt" in reason.lower() or "not yet supported" in reason.lower()
+    
+    def test_random_discard_cost_payable_with_sufficient_cards(self):
+        """Random discard cost is payable when player has enough cards."""
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={
+                1: CardInstance(instance_id=1, card_id="hand1", owner=0, controller=0),
+                2: CardInstance(instance_id=2, card_id="hand2", owner=0, controller=0),
+                3: CardInstance(instance_id=3, card_id="test", owner=0, controller=0),
+            },
+        )
+        state.players[0].hand = [1, 2]
+        state.cards[1].zone = ZONE_HAND
+        state.cards[2].zone = ZONE_HAND
+        state.cards[3].zone = ZONE_PLAY
+        
+        engine = MagicMock(spec=GameEngine)
+        
+        ability = ActivatedAbility(
+            source_instance_id=3,
+            source_card_id="test",
+            ability_id="discard_ability",
+            ability_index=0,
+            name="Discard",
+            costs=(_make_source_cost("discard", 1),),
+            effects=(),
+            condition=None,
+            raw={"random_discard": True},  # B15: Marked as explicitly random
         )
         
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])

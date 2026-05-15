@@ -118,22 +118,31 @@ ALL_GAMEPLAY_EVENTS = frozenset({
     EVENT_BANISH_IN_CHALLENGE,
 })
 
-# Legacy event mappings (kept for compatibility)
+# Legacy event mappings — canonical names used by trigger projection and matching.
+# Maps LorcanaChamp GameEvent.event_type strings to Lorcanito-aligned trigger event names.
 LEGACY_EVENT_MAP = {
+    # Turn lifecycle
     "TURN_START": TRIGGER_EVENT_START_TURN,
+    "TURN_END": TRIGGER_EVENT_END_TURN,
+    # Play / ink
     "CARD_PLAYED": TRIGGER_EVENT_PLAY,
+    "INKED": TRIGGER_EVENT_INK,
+    # Quest / challenge
     "QUESTED": TRIGGER_EVENT_QUEST,
     "CHALLENGE_STARTED": TRIGGER_EVENT_CHALLENGE,
-    "CHARACTER_BANISHED": TRIGGER_EVENT_BANISH,
-    "TURN_END": TRIGGER_EVENT_END_TURN,
-    "MOVED_TO_LOCATION": TRIGGER_EVENT_MOVE,
     "CHALLENGED": TRIGGER_EVENT_CHALLENGED,
+    # Damage / banish
     "DAMAGE_DEALT": TRIGGER_EVENT_DAMAGE_DEALT,
+    "CHARACTER_BANISHED": TRIGGER_EVENT_BANISH,
+    "BANISH_IN_CHALLENGE": "banish-in-challenge",
+    # Deck / hand / discard / return / ready / exert
+    "CARD_DRAWN": TRIGGER_EVENT_DRAW,
     "CARD_DISCARDED": TRIGGER_EVENT_DISCARD,
     "CARD_RETURNED_TO_HAND": TRIGGER_EVENT_RETURN_TO_HAND,
     "CARD_READIED": TRIGGER_EVENT_READY,
     "CARD_EXERTED": TRIGGER_EVENT_EXERT,
-    "CARD_DRAWN": TRIGGER_EVENT_DRAW,
+    # Movement / lore / support
+    "MOVED_TO_LOCATION": TRIGGER_EVENT_MOVE,
     "LOCATION_LORE_GAINED": TRIGGER_EVENT_GAIN_LORE,
     "SUPPORT": TRIGGER_EVENT_SUPPORT,
 }
