@@ -15,9 +15,13 @@ from lorcana_bot.replacement_effects import (
     check_cannot_be_targeted,
     get_registry,
     register_replacement_effect,
+    parse_replacement_effects_from_card,
     cleanup_replacement_effects_on_turn_end,
 )
 from lorcana_bot.constants import ZONE_PLAY, ZONE_DISCARD, ZONE_HAND
+from lorcana_bot.card_logic.abilities import SourceAbilityDef
+from lorcana_bot.card_logic.effects import SourceEffectDef
+from lorcana_bot.card_logic.targets import SourceTargetDef
 
 
 @pytest.fixture
@@ -678,3 +682,121 @@ class TestEdgeCases:
         # Effect doesn't apply (opponent's character)
         assert event.was_replaced is False
         assert simple_state.cards[2].damage == 5
+
+
+class TestParseReplacementEffectsFromSourceDataclasses:
+    """Tests for parsing replacement/prevention effects from Lorcanito source dataclasses."""
+
+    def test_parse_source_prevent_damage_replacement_ability(self):
+        ability = SourceAbilityDef(
+            id="prevent_damage",
+            kind="replacement",
+            effects=(
+                SourceEffectDef(
+                    kind="prevent-damage",
+                    amount=2,
+                    target=SourceTargetDef(kind="alias", alias="YOUR_CHARACTERS"),
+                    raw={"oncePerTurn": True},
+                ),
+            ),
+        )
+
+        effects = parse_replacement_effects_from_card((ability,), source_id=20)
+
+        assert len(effects) == 1
+        assert effects[0].source_id == 20
+        assert effects[0].effect_type == ReplacementEffectType.PREVENT_DAMAGE
+        assert effects[0].amount == 2
+        assert effects[0].target_mode == "your_characters"
+        assert effects[0].once_per_turn is True
+        assert effects[0].usage_key == "prevent_damage_20"
+
+    def test_parse_source_replace_banish_replacement_ability(self):
+        ability = SourceAbilityDef(
+            id="replace_banish",
+            kind="replacement",
+            effects=(
+                SourceEffectDef(
+                    kind="replace-banish",
+                    target=SourceTargetDef(kind="alias", alias="SELF"),
+                    raw={"replacement": "return-to-hand"},
+                ),
+            ),
+        )
+
+        effects = parse_replacement_effects_from_card((ability,), source_id=21)
+
+        assert len(effects) == 1
+        assert effects[0].source_id == 21
+        assert effects[0].effect_type == ReplacementEffectType.REPLACE_BANISH_RETURN_TO_HAND
+        assert effects[0].target_mode == "self"
+        assert effects[0].replacement_effect == "return_to_hand"
+
+    def test_parse_source_cannot_be_challenged_static_ability(self):
+        ability = SourceAbilityDef(
+            id="cannot_be_challenged",
+            kind="static",
+            effects=(
+                SourceEffectDef(
+                    kind="cannot-be-challenged",
+                    target=SourceTargetDef(kind="alias", alias="SELF"),
+                ),
+            ),
+        )
+
+        effects = parse_replacement_effects_from_card((ability,), source_id=22)
+
+        assert len(effects) == 1
+        assert effects[0].source_id == 22
+        assert effects[0].effect_type == ReplacementEffectType.CANNOT_BE_CHALLENGED
+        assert effects[0].target_mode == "self"
+
+    def test_parse_source_cannot_be_targeted_static_ability(self):
+        ability = SourceAbilityDef(
+            id="cannot_be_targeted",
+            kind="static",
+            effects=(
+                SourceEffectDef(
+                    kind="cannot-be-targeted",
+                    target=SourceTargetDef(kind="alias", alias="YOUR_CHARACTERS"),
+                ),
+            ),
+        )
+
+        effects = parse_replacement_effects_from_card((ability,), source_id=23)
+
+        assert len(effects) == 1
+        assert effects[0].source_id == 23
+        assert effects[0].effect_type == ReplacementEffectType.CANNOT_BE_TARGETED
+        assert effects[0].target_mode == "your_characters"
+
+    def test_parse_source_replacement_ignores_non_replacement_non_static_kind(self):
+        ability = SourceAbilityDef(
+            id="triggered_not_replacement",
+            kind="triggered",
+            effects=(
+                SourceEffectDef(kind="prevent-damage", amount=2),
+            ),
+        )
+
+        effects = parse_replacement_effects_from_card((ability,), source_id=24)
+
+        assert effects == []
+
+    def test_parse_dict_replacement_fallback_still_works(self):
+        ability = {
+            "type": "replacement",
+            "effect": {
+                "type": "prevent-damage",
+                "amount": 1,
+                "target": "SELF",
+            },
+        }
+
+        effects = parse_replacement_effects_from_card((ability,), source_id=25)
+
+        assert len(effects) == 1
+        assert effects[0].source_id == 25
+        assert effects[0].effect_type == ReplacementEffectType.PREVENT_DAMAGE
+        assert effects[0].amount == 1
+        assert effects[0].target_mode == "self"

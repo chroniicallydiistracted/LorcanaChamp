@@ -123,15 +123,48 @@ def source_ability_kind(obj: Any) -> str | None:
 
 
 def source_ability_effects(obj: Any) -> tuple:
-    """Get the effects tuple from a source ability object."""
+    """Get effect definitions from a source ability object.
+
+    Supports:
+    - SourceAbilityDef.effects
+    - SourceAbilityDef.raw["effect"], raw["effects"], raw["staticEffect"], raw["replacementEffect"]
+    - raw dict equivalents
+    """
     if obj is None:
         return ()
+
     if hasattr(obj, "effects"):
         effs = getattr(obj, "effects", None)
-        if effs is not None:
+        if effs:
             return tuple(effs)
+
+    raw = getattr(obj, "raw", None)
+    if isinstance(raw, dict):
+        raw_effects = (
+            raw.get("effects")
+            or raw.get("effect")
+            or raw.get("staticEffect")
+            or raw.get("replacementEffect")
+        )
+        if raw_effects is None:
+            return ()
+        if isinstance(raw_effects, (list, tuple)):
+            return tuple(raw_effects)
+        return (raw_effects,)
+
     if isinstance(obj, dict):
-        return tuple(obj.get("effects") or ())
+        raw_effects = (
+            obj.get("effects")
+            or obj.get("effect")
+            or obj.get("staticEffect")
+            or obj.get("replacementEffect")
+        )
+        if raw_effects is None:
+            return ()
+        if isinstance(raw_effects, (list, tuple)):
+            return tuple(raw_effects)
+        return (raw_effects,)
+
     return ()
 
 
@@ -170,12 +203,15 @@ def source_effect_kind(obj: Any) -> str | None:
     return None
 
 
-def source_effect_target(obj: Any) -> str | None:
-    """Get the target alias from a source effect object."""
+def source_effect_target(obj: Any) -> Any:
+    """Get the target object from a source effect object."""
     if obj is None:
         return None
     if hasattr(obj, "target"):
         return getattr(obj, "target", None)
+    raw = getattr(obj, "raw", None)
+    if isinstance(raw, dict) and "target" in raw:
+        return raw.get("target")
     if isinstance(obj, dict):
         return obj.get("target")
     return None
@@ -243,26 +279,123 @@ TARGET_ALIAS_MAP: dict[str, str] = {
 }
 
 
-def source_target_alias(obj: Any) -> str | None:
-    """Normalize a target/selector from a source effect to engine target alias."""
+def _normalize_target_string(value: str) -> str:
+    """Normalize a raw Lorcanito target alias/selector into an engine target alias."""
+    raw = value.strip()
+    lowered = raw.lower().replace("-", "_").replace(" ", "_")
+    uppered = raw.upper()
+
+    if raw in TARGET_ALIAS_MAP:
+        return TARGET_ALIAS_MAP[raw]
+    if lowered in TARGET_ALIAS_MAP:
+        return TARGET_ALIAS_MAP[lowered]
+    if uppered in TARGET_ALIAS_MAP:
+        return TARGET_ALIAS_MAP[uppered]
+
+    alias_map = {
+        "SELF": "self",
+        "SOURCE": "source",
+        "CONTROLLER": "controller",
+        "YOU": "controller",
+        "OPPONENT": "opponent",
+        "EACH_OPPONENT": "each_opponent",
+        "EVENT_SOURCE": "event_source",
+        "EVENT_TARGET": "event_target",
+        "TRIGGER_SUBJECT": "trigger_subject",
+        "YOUR_CHARACTERS": "your_characters",
+        "YOUR_OTHER_CHARACTERS": "your_other_characters",
+        "OPPOSING_CHARACTERS": "opposing_characters",
+        "ALL_OPPOSING_CHARACTERS": "opposing_characters",
+        "ALL_CHARACTERS": "all_characters",
+        "ANY_CHARACTER": "any_character",
+        "CHOSEN_CHARACTER": "chosen_character",
+        "CHOSEN_OPPOSING_CHARACTER": "chosen_opposing_character",
+        "CHOSEN_DAMAGED_CHARACTER": "chosen_character",
+        "CHOSEN_ITEM": "chosen_item",
+        "CHOSEN_LOCATION": "chosen_location",
+        "CHOSEN_PLAYER": "chosen_player",
+        "YOUR_ITEMS": "your_items",
+        "YOUR_LOCATIONS": "your_locations",
+    }
+    return alias_map.get(uppered, lowered)
+
+
+def source_target_alias(obj: Any) -> str | dict[str, Any] | None:
+    """Normalize a source effect target into an engine target alias.
+
+    Supports:
+    - raw string aliases
+    - raw dict target objects
+    - SourceTargetDef dataclasses with alias/selector/card_types/classifications
+    """
     raw = source_effect_target(obj)
     if raw is None:
         return None
+
     if isinstance(raw, str):
-        return TARGET_ALIAS_MAP.get(raw, raw)
-    # Object query — represented as dict in Lorcanito source
+        return _normalize_target_string(raw)
+
     if isinstance(raw, dict):
-        # Return the raw dict for query-based targeting (handled separately)
+        alias = raw.get("alias") or raw.get("selector") or raw.get("type") or raw.get("kind")
+        if isinstance(alias, str):
+            return _normalize_target_string(alias)
         return raw
+
+    alias = getattr(raw, "alias", None)
+    if isinstance(alias, str) and alias:
+        return _normalize_target_string(alias)
+
+    selector = getattr(raw, "selector", None)
+    if isinstance(selector, str) and selector:
+        return _normalize_target_string(selector)
+
+    kind = getattr(raw, "kind", None)
+    if isinstance(kind, str) and kind:
+        return _normalize_target_string(kind)
+
     return None
 
 
 def source_target_selector(obj: Any) -> dict[str, Any] | None:
-    """Extract selector query dict from a source effect (for complex targeting)."""
+    """Extract selector query data from a source target object."""
     raw = source_effect_target(obj)
+
     if isinstance(raw, dict):
         return raw
-    return None
+
+    if raw is None or isinstance(raw, str):
+        return None
+
+    selector: dict[str, Any] = {}
+
+    alias = getattr(raw, "alias", None)
+    raw_selector = getattr(raw, "selector", None)
+    kind = getattr(raw, "kind", None)
+    if alias:
+        selector["alias"] = alias
+    if raw_selector:
+        selector["selector"] = raw_selector
+    if kind:
+        selector["kind"] = kind
+
+    card_types = getattr(raw, "card_types", None)
+    classifications = getattr(raw, "classifications", None)
+    controller = getattr(raw, "controller", None)
+    owner = getattr(raw, "owner", None)
+    exclude_self = getattr(raw, "exclude_self", None)
+
+    if card_types:
+        selector["card_types"] = tuple(card_types)
+    if classifications:
+        selector["classifications"] = tuple(classifications)
+    if controller:
+        selector["controller"] = controller
+    if owner:
+        selector["owner"] = owner
+    if exclude_self is not None:
+        selector["exclude_self"] = bool(exclude_self)
+
+    return selector or None
 
 
 # ----------------------------------------------------------------------

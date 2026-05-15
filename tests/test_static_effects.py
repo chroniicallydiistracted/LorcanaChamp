@@ -12,11 +12,15 @@ from lorcana_bot.static_effects import (
     create_cost_reduction_effect,
     create_quest_restriction_effect,
     create_challenge_restriction_effect,
+    parse_static_effects_from_card,
     register_static_effects_for_card,
     deregister_static_effects_for_card,
     get_static_modifier,
 )
 from lorcana_bot.cards import CardDef, CardDatabase
+from lorcana_bot.card_logic.abilities import SourceAbilityDef
+from lorcana_bot.card_logic.effects import SourceEffectDef
+from lorcana_bot.card_logic.targets import SourceTargetDef
 
 
 @pytest.fixture
@@ -535,3 +539,107 @@ class TestStaticEffectRegistryClear:
         state.static_effect_registry.clear()
         
         assert len(state.static_effect_registry.effects) == 0
+
+
+class TestParseStaticEffectsFromSourceDataclasses:
+    """Tests for parsing static effects from Lorcanito source dataclasses."""
+
+    def test_parse_source_modify_stat_static_ability(self):
+        """Test parsing SourceAbilityDef with modify-stat effect."""
+        ability = SourceAbilityDef(
+            id="static_modify",
+            kind="static",
+            effects=(
+                SourceEffectDef(
+                    kind="modify-stat",
+                    amount=2,
+                    target=SourceTargetDef(kind="alias", alias="YOUR_CHARACTERS"),
+                    raw={"attribute": "strength"},
+                ),
+            ),
+        )
+
+        effects = parse_static_effects_from_card((ability,), source_id=10)
+
+        assert len(effects) == 1
+        assert effects[0].source_id == 10
+        assert effects[0].effect_type == StaticEffectType.MODIFY_STRENGTH
+        assert effects[0].amount == 2
+        assert effects[0].target_mode == "your_characters"
+
+    def test_parse_source_gain_keyword_static_ability(self):
+        """Test parsing SourceAbilityDef with gain-keyword effect."""
+        ability = SourceAbilityDef(
+            id="static_keyword",
+            kind="static",
+            effects=(
+                SourceEffectDef(
+                    kind="gain-keyword",
+                    target=SourceTargetDef(kind="alias", alias="SELF"),
+                    raw={"keyword": "evasive"},
+                ),
+            ),
+        )
+
+        effects = parse_static_effects_from_card((ability,), source_id=11)
+
+        assert len(effects) == 1
+        assert effects[0].source_id == 11
+        assert effects[0].effect_type == StaticEffectType.GRANT_KEYWORD
+        assert effects[0].keyword == "EVASIVE"
+        assert effects[0].target_mode == "self"
+
+    def test_parse_source_cost_reduction_static_ability(self):
+        """Test parsing SourceAbilityDef with cost-reduction effect."""
+        ability = SourceAbilityDef(
+            id="static_cost_reduction",
+            kind="static",
+            effects=(
+                SourceEffectDef(
+                    kind="cost-reduction",
+                    amount=1,
+                    raw={"cardType": "character"},
+                ),
+            ),
+        )
+
+        effects = parse_static_effects_from_card((ability,), source_id=12)
+
+        assert len(effects) == 1
+        assert effects[0].source_id == 12
+        assert effects[0].effect_type == StaticEffectType.COST_REDUCTION
+        assert effects[0].cost_reduction_amount == 1
+        assert effects[0].cost_reduction_card_type == "character"
+
+    def test_parse_source_static_ability_ignores_non_static_kind(self):
+        """Test that SourceAbilityDef with non-static kind is ignored."""
+        ability = SourceAbilityDef(
+            id="triggered_not_static",
+            kind="triggered",
+            effects=(
+                SourceEffectDef(kind="modify-stat", amount=2, raw={"attribute": "strength"}),
+            ),
+        )
+
+        effects = parse_static_effects_from_card((ability,), source_id=13)
+
+        assert effects == []
+
+    def test_parse_dict_static_fallback_still_works(self):
+        """Test that raw dict static abilities still parse correctly."""
+        ability = {
+            "type": "static",
+            "effect": {
+                "type": "modify-stat",
+                "attribute": "willpower",
+                "amount": 3,
+                "target": "SELF",
+            },
+        }
+
+        effects = parse_static_effects_from_card((ability,), source_id=14)
+
+        assert len(effects) == 1
+        assert effects[0].effect_type == StaticEffectType.MODIFY_WILLPOWER
+        assert effects[0].amount == 3
+        assert effects[0].target_mode == "self"

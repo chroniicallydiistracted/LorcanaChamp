@@ -544,126 +544,150 @@ def parse_replacement_effects_from_card(
     card_abilities: tuple,
     source_id: int,
 ) -> list[ReplacementEffectEntry]:
-    """Parse replacement effects from a card's source abilities.
-    
-    This is used when a card enters play to register its replacement effects.
+    """Parse replacement/prevention effects from card source abilities.
+
+    Supports both raw dict abilities and SourceAbilityDef/SourceEffectDef
+    dataclasses produced by the Lorcanito source importer.
     """
+    from .card_logic.effect_utils import (
+        source_ability_effects,
+        source_ability_kind,
+        source_effect_amount,
+        source_effect_condition,
+        source_effect_kind,
+        to_engine_replacement_kind,
+    )
+
     effects: list[ReplacementEffectEntry] = []
-    
+
     for ability in card_abilities:
-        if not isinstance(ability, dict):
+        ability_type = source_ability_kind(ability)
+        if ability_type not in {"replacement", "static"}:
             continue
-        
-        # Check if this is a replacement effect ability
-        ability_type = ability.get("type") or ability.get("kind", "")
-        
-        if ability_type != "replacement" and ability_type != "static":
-            continue
-        
-        # Parse the replacement effect
-        effect_raw = ability.get("effect") or ability.get("replacementEffect") or ability.get("staticEffect") or {}
-        
-        # Handle different replacement effect types
-        effect_type_str = effect_raw.get("type") or effect_raw.get("kind", "")
-        
-        if effect_type_str == "prevent-damage":
-            # Parse prevent damage effect
-            amount = int(effect_raw.get("amount") or effect_raw.get("value", 1))
-            once_per_turn = effect_raw.get("oncePerTurn", False)
-            target_mode, _ = _parse_target_from_replacement(effect_raw, ability)
-            condition = effect_raw.get("condition")
-            
-            effect = ReplacementEffectEntry(
-                source_id=source_id,
-                effect_type=ReplacementEffectType.PREVENT_DAMAGE,
-                target_mode=target_mode,
-                amount=amount,
-                once_per_turn=once_per_turn,
-                condition=condition,
-                usage_key=f"prevent_damage_{source_id}" if once_per_turn else None,
-            )
-            effects.append(effect)
-        
-        elif effect_type_str == "replace-banish":
-            # Parse banish replacement effect
-            replacement = effect_raw.get("replacement") or "return_to_hand"
-            target_mode, _ = _parse_target_from_replacement(effect_raw, ability)
-            once_per_turn = effect_raw.get("oncePerTurn", False)
-            condition = effect_raw.get("condition")
-            
-            if replacement == "return_to_hand":
-                effect_type = ReplacementEffectType.REPLACE_BANISH_RETURN_TO_HAND
-            else:
-                effect_type = ReplacementEffectType.REPLACE_BANISH_DISCARD
-            
-            effect = ReplacementEffectEntry(
-                source_id=source_id,
-                effect_type=effect_type,
-                target_mode=target_mode,
-                once_per_turn=once_per_turn,
-                replacement_effect=replacement,
-                condition=condition,
-                usage_key=f"replace_banish_{source_id}" if once_per_turn else None,
-            )
-            effects.append(effect)
-        
-        elif effect_type_str == "cannot-be-challenged":
-            # Parse cannot be challenged restriction
-            target_mode, _ = _parse_target_from_replacement(effect_raw, ability)
-            condition = effect_raw.get("condition")
-            
-            effect = ReplacementEffectEntry(
-                source_id=source_id,
-                effect_type=ReplacementEffectType.CANNOT_BE_CHALLENGED,
-                target_mode=target_mode,
-                condition=condition,
-            )
-            effects.append(effect)
-        
-        elif effect_type_str == "cannot-be-targeted":
-            # Parse cannot be targeted restriction
-            target_mode, _ = _parse_target_from_replacement(effect_raw, ability)
-            condition = effect_raw.get("condition")
-            
-            effect = ReplacementEffectEntry(
-                source_id=source_id,
-                effect_type=ReplacementEffectType.CANNOT_BE_TARGETED,
-                target_mode=target_mode,
-                condition=condition,
-            )
-            effects.append(effect)
-    
+
+        for source_effect in source_ability_effects(ability):
+            raw = source_effect if isinstance(source_effect, dict) else getattr(source_effect, "raw", {}) or {}
+            raw_kind = source_effect_kind(source_effect) or raw.get("type") or raw.get("kind")
+            if not raw_kind:
+                continue
+
+            effect_type_str = to_engine_replacement_kind(raw_kind)
+
+            if effect_type_str == "prevent_damage":
+                amount = source_effect_amount(source_effect)
+                if amount is None:
+                    amount = int(raw.get("value") or raw.get("prevent") or 1)
+
+                once_per_turn = bool(raw.get("oncePerTurn") or raw.get("once_per_turn") or False)
+                target_mode, _ = _parse_target_from_replacement(source_effect, ability)
+                condition = source_effect_condition(source_effect) or raw.get("condition")
+
+                effects.append(ReplacementEffectEntry(
+                    source_id=source_id,
+                    effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+                    target_mode=target_mode,
+                    amount=int(amount),
+                    once_per_turn=once_per_turn,
+                    condition=condition,
+                    usage_key=f"prevent_damage_{source_id}" if once_per_turn else None,
+                ))
+
+            elif effect_type_str == "replace_banish":
+                replacement = (
+                    raw.get("replacement")
+                    or raw.get("replacement_effect")
+                    or raw.get("replacementEffect")
+                    or "return_to_hand"
+                )
+                normalized_replacement = str(replacement).replace("-", "_")
+                target_mode, _ = _parse_target_from_replacement(source_effect, ability)
+                once_per_turn = bool(raw.get("oncePerTurn") or raw.get("once_per_turn") or False)
+                condition = source_effect_condition(source_effect) or raw.get("condition")
+
+                if normalized_replacement == "return_to_hand":
+                    effect_type = ReplacementEffectType.REPLACE_BANISH_RETURN_TO_HAND
+                else:
+                    effect_type = ReplacementEffectType.REPLACE_BANISH_DISCARD
+
+                effects.append(ReplacementEffectEntry(
+                    source_id=source_id,
+                    effect_type=effect_type,
+                    target_mode=target_mode,
+                    once_per_turn=once_per_turn,
+                    replacement_effect=normalized_replacement,
+                    condition=condition,
+                    usage_key=f"replace_banish_{source_id}" if once_per_turn else None,
+                ))
+
+            elif effect_type_str in {"cannot_be_challenged", "cannot-be-challenged"}:
+                target_mode, _ = _parse_target_from_replacement(source_effect, ability)
+                condition = source_effect_condition(source_effect) or raw.get("condition")
+                effects.append(ReplacementEffectEntry(
+                    source_id=source_id,
+                    effect_type=ReplacementEffectType.CANNOT_BE_CHALLENGED,
+                    target_mode=target_mode,
+                    condition=condition,
+                ))
+
+            elif effect_type_str in {"cannot_be_targeted", "cannot-be-targeted"}:
+                target_mode, _ = _parse_target_from_replacement(source_effect, ability)
+                condition = source_effect_condition(source_effect) or raw.get("condition")
+                effects.append(ReplacementEffectEntry(
+                    source_id=source_id,
+                    effect_type=ReplacementEffectType.CANNOT_BE_TARGETED,
+                    target_mode=target_mode,
+                    condition=condition,
+                ))
+
     return effects
 
 
-def _parse_target_from_replacement(effect_raw: dict, ability: dict) -> tuple[str, str | None]:
-    """Parse target specification from a replacement effect."""
-    target = effect_raw.get("target") or ability.get("target", {})
-    
-    if isinstance(target, dict):
-        selector = target.get("selector") or target.get("type")
-        if selector == "your_characters":
-            return ("your_characters", None)
-        elif selector == "opposing_characters" or selector == "opponent_characters":
-            return ("opposing_characters", None)
-        elif selector == "all_characters":
-            return ("all_characters", None)
-        elif selector == "self":
+def _parse_target_from_replacement(effect_obj: object, ability_obj: object) -> tuple[str, str | None]:
+    """Parse target specification from a replacement/prevention effect.
+
+    Accepts SourceEffectDef/SourceTargetDef dataclasses and raw dicts.
+    """
+    from .card_logic.effect_utils import (
+        source_target_alias,
+        source_target_selector,
+    )
+
+    alias = source_target_alias(effect_obj) or source_target_alias(ability_obj)
+    selector = source_target_selector(effect_obj) or source_target_selector(ability_obj) or {}
+
+    if isinstance(alias, str):
+        normalized = alias.lower()
+        if normalized in {"self", "source"}:
             return ("self", None)
-        else:
+        if normalized in {"your_characters", "your_other_characters", "controller"}:
             return ("your_characters", None)
-    
-    if isinstance(target, str):
-        target_upper = target.upper()
-        if "YOUR" in target_upper:
-            return ("your_characters", None)
-        elif "OPPOSING" in target_upper or "OPPONENT" in target_upper:
+        if normalized in {"opposing_characters", "opponent"}:
             return ("opposing_characters", None)
-        elif "ALL" in target_upper:
+        if normalized in {"all_characters", "any_character"}:
             return ("all_characters", None)
-        elif "SELF" in target_upper:
-            return ("self", None)
-    
+
+    if isinstance(alias, dict):
+        selector = {**alias, **selector}
+
+    controller = selector.get("controller")
+    if controller in {"self", "you", "controller"}:
+        return ("your_characters", None)
+    if controller in {"opponent", "opposing"}:
+        return ("opposing_characters", None)
+
+    if selector.get("exclude_self") or selector.get("excludeSelf"):
+        return ("your_characters", None)
+
+    classifications = (
+        selector.get("classifications")
+        or selector.get("classification")
+        or selector.get("cardTypes")
+        or selector.get("card_types")
+        or ()
+    )
+    if classifications:
+        return ("all_characters", None)
+
     return ("self", None)
 
 
