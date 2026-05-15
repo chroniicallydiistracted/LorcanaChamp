@@ -303,13 +303,21 @@ def _convert_source_effects(source_effects: tuple[Any, ...]) -> tuple["EffectDef
             effect_defs.append(src_effect)
         else:
             # Convert from SourceEffectDef
-            # Note: EffectDef doesn't have branches - use effects for conditional branches
+            # Use alias mapping if available, otherwise use selector
+            target_selector = None
+            if src_effect.target:
+                if src_effect.target.alias:
+                    target_selector = TARGET_ALIAS_MAP.get(src_effect.target.alias, src_effect.target.alias)
+                elif src_effect.target.selector:
+                    target_selector = src_effect.target.selector
+            
             effect_def = EffectDef(
                 kind=src_effect.kind,
-                target=src_effect.target.selector if src_effect.target else None,
+                target=target_selector,
                 amount=src_effect.amount,
-                value=src_effect.value,
-                keyword=src_effect.keyword,
+                # value and keyword are not in SourceEffectDef, pass through raw
+                value=src_effect.raw.get("value"),
+                keyword=src_effect.raw.get("keyword"),
                 effects=tuple(_convert_source_effects(src_effect.effects)) if src_effect.effects else (),
                 optional=src_effect.optional,
                 condition=src_effect.condition,
@@ -318,6 +326,117 @@ def _convert_source_effects(source_effects: tuple[Any, ...]) -> tuple["EffectDef
             effect_defs.append(effect_def)
     
     return tuple(effect_defs)
+
+
+# Target alias to engine selector mapping
+TARGET_ALIAS_MAP = {
+    "CONTROLLER": "controller",
+    "YOU": "controller",
+    "OPPONENT": "opponent",
+    "EACH_OPPONENT": "each_opponent",
+    "SELF": "self",
+    "EVENT_SOURCE": "event_source",
+    "EVENT_TARGET": "event_target",
+    "CHOSEN_CHARACTER": "chosen_character",
+    "CHOSEN_OPPOSING_CHARACTER": "chosen_opposing_character",
+    "YOUR_CHARACTERS": "your_characters",
+    "YOUR_OTHER_CHARACTERS": "your_other_characters",
+    "OPPOSING_CHARACTERS": "opposing_characters",
+    "ANY_CHARACTER": "any_character",
+    "YOUR_ITEMS": "your_items",
+    "YOUR_LOCATIONS": "your_locations",
+}
+
+# Unsupported target aliases that require choice prompts
+UNSUPPORTED_TARGET_ALIASES = frozenset({
+    "CHOSEN_CHARACTER",
+    "CHOSEN_OPPOSING_CHARACTER", 
+    "CHOSEN_PLAYER",
+    "CHOSEN_ITEM",
+    "CHOSEN_LOCATION",
+})
+
+
+def validate_effects_supported(ability: ActivatedAbility) -> tuple[bool, str]:
+    """Validate that all effects of an ability can be resolved.
+    
+    Args:
+        ability: The activated ability to validate
+        
+    Returns:
+        Tuple of (is_supported, reason_if_not)
+    """
+    if not ability.effects:
+        return True, ""
+    
+    for effect in ability.effects:
+        # Check effect kind is supported
+        if not _is_effect_kind_supported(effect.kind):
+            return False, f"Unsupported effect kind: {effect.kind}"
+        
+        # Check target is supported (no choice prompts required)
+        if effect.target:
+            alias = effect.target.alias
+            if alias in UNSUPPORTED_TARGET_ALIASES:
+                return False, f"Target requires choice prompt: {alias}"
+            if alias and alias not in TARGET_ALIAS_MAP:
+                # Unknown alias might be fine, but check selector
+                selector = effect.target.selector
+                if selector and selector not in {"self", "controller", "opponent", "each_opponent"}:
+                    return False, f"Unsupported target: {alias or selector}"
+        
+        # Recursively check child effects
+        if effect.effects:
+            for child in effect.effects:
+                supported, reason = validate_effects_supported(
+                    ActivatedAbility(
+                        source_instance_id=ability.source_instance_id,
+                        source_card_id=ability.source_card_id,
+                        ability_id=ability.ability_id,
+                        ability_index=ability.ability_index,
+                        name=ability.name,
+                        costs=ability.costs,
+                        effects=child.effects if hasattr(child, 'effects') else (),
+                        condition=None,
+                    )
+                )
+                if not supported:
+                    return False, reason
+    
+    return True, ""
+
+
+def _is_effect_kind_supported(kind: str) -> bool:
+    """Check if an effect kind is supported for activated abilities.
+    
+    Supported kinds for activated abilities include basic effects that
+    don't require special targeting.
+    """
+    SUPPORTED_EFFECT_KINDS = frozenset({
+        "draw",
+        "gain_lore",
+        "lose_lore",
+        "deal_damage",
+        "remove_damage",
+        "banish",
+        "discard",
+        "return_to_hand",
+        "ready",
+        "exert",
+        "move_to_location",
+        "shuffle_deck",
+        "put_card_in_hand",
+        "put_card_on_top",
+        "put_card_on_bottom",
+        "cost_reduction",
+        "keyword_grant",
+        "temporary_modifier",
+        "optional",
+        "sequence",
+        "conditional",
+        "for_each",
+    })
+    return kind in SUPPORTED_EFFECT_KINDS
 
 
 def use_ability(
@@ -371,8 +490,9 @@ def use_ability(
             effects_resolved=True,
         )
     except Exception as e:
+        # Effect failure means the ability FAILED, not succeeded with partial effects
         return AbilityUseResult(
-            success=True,  # Costs were paid even if effects failed
+            success=False,
             costs_paid=paid_costs,
             effects_resolved=False,
             error_message=str(e),

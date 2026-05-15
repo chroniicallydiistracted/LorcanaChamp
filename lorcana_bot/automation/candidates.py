@@ -13,6 +13,8 @@ class AutomatedActionFamily(StrEnum):
     RESOLVE_EFFECT = "resolveEffect"
     PUT_CARD_INTO_INKWELL = "putCardIntoInkwell"
     PLAY_CARD = "playCard"
+    SING_SONG = "singSong"           # B10: Singer singing a song
+    PLAY_SHIFTED = "playShifted"     # B10: Shift character on target
     ACTIVATE_ABILITY = "activateAbility"
     QUEST = "quest"
     CHALLENGE = "challenge"
@@ -28,6 +30,8 @@ FAMILY_ORDER: dict[str, float] = {
     AutomatedActionFamily.RESOLVE_EFFECT: 2,  # Pending effect resolution (target/choice input)
     AutomatedActionFamily.RESOLVE_BAG: 3,     # Bag trigger resolution
     AutomatedActionFamily.PLAY_CARD: 4,
+    AutomatedActionFamily.SING_SONG: 4,       # B10: Songs sung by singers
+    AutomatedActionFamily.PLAY_SHIFTED: 4,   # B10: Shift characters
     AutomatedActionFamily.QUEST: 4.5,
     AutomatedActionFamily.PUT_CARD_INTO_INKWELL: 5,
     AutomatedActionFamily.ACTIVATE_ABILITY: 6,

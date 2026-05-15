@@ -37,6 +37,125 @@ class TargetRequirement:
     owner_filter: str | None = None  # "opponent", "controller", "any"
 
 
+# B5.1: Explicit pending requirement kinds for scry/search/reveal/routing
+
+PENDING_REQUIREMENT_KINDS = frozenset({
+    "choice",  # Index-based choice
+    "optional",  # Accept/decline
+    "named_card",  # Name a specific card
+    "amount",  # Choose a numeric amount
+    "destination",  # Choose destination zone
+    "ordering",  # Order cards (top/bottom)
+    "opponent_choice",  # Opponent chooses
+    "scry_ordering",  # Scry: put N on top, rest on bottom
+    "reveal_routing",  # Reveal and route to destination
+    "search_selection",  # Search deck and select card
+    "deck_ordering",  # General deck ordering
+})
+
+
+@dataclass(slots=True)
+class ScryRequirement:
+    """Describes a scry ordering requirement.
+    
+    For scry N:
+    - Look at top N cards of chooser's deck
+    - Put any subset on top in chosen order
+    - Put rest on bottom in chosen order
+    - Private to chooser only
+    """
+    kind: str = "scry_ordering"
+    amount: int = 1  # How many cards to scry
+    candidate_ids: tuple[int, ...] = ()  # Top N card instance IDs (private)
+    min_top: int = 0  # Minimum cards to put on top
+    max_top: int | None = None  # Maximum cards to put on top (None = all)
+    min_bottom: int = 0  # Minimum cards to put on bottom
+    visibility: str = "private"  # "private" (chooser only) or "public"
+    chooser_id: int = 0  # Who is scrying
+    deck_owner: int = 0  # Whose deck is being scried
+    
+    @property
+    def requires_input(self) -> bool:
+        """Scry requires player to decide ordering."""
+        return True
+
+
+@dataclass(slots=True)
+class SearchRequirement:
+    """Describes a search deck selection requirement.
+    
+    For search:
+    - Look at cards matching filter in hidden deck
+    - Select one/more cards
+    - Move to destination
+    - Optional shuffle after
+    """
+    kind: str = "search_selection"
+    candidate_ids: tuple[int, ...] = ()  # Card IDs matching filter (private to chooser)
+    min_select: int = 1  # Minimum cards to select
+    max_select: int = 1  # Maximum cards to select
+    destination: str = "hand"  # "hand", "play", "discard", "inkwell", etc.
+    reveal_policy: str = "private"  # "private" (chooser sees candidates) or "public" (all see candidates)
+    shuffle_after: bool = True  # Shuffle deck after search
+    filter_desc: str | None = None  # Human-readable description of filter
+    chooser_id: int = 0  # Who searches
+    deck_owner: int = 0  # Whose deck is searched
+    
+    @property
+    def requires_input(self) -> bool:
+        """Search requires player to select card(s)."""
+        return len(self.candidate_ids) > self.max_select or self.max_select > 1
+
+
+@dataclass(slots=True)
+class RevealRoutingRequirement:
+    """Describes a reveal and route requirement.
+    
+    For reveal-and-route:
+    - Reveal top card(s) from deck
+    - Move to destination or create pending destination choice
+    """
+    kind: str = "reveal_routing"
+    card_ids: tuple[int, ...] = ()  # Card IDs being revealed
+    reveal_policy: str = "public"  # "public" or "private"
+    destination: str | None = None  # Fixed destination if deterministic, None if choice required
+    destination_options: tuple[str, ...] = ()  # Available destinations if choice required
+    chooser_id: int = 0  # Who makes routing choice
+    
+    @property
+    def requires_input(self) -> bool:
+        """Routing requires input if destination is not fixed."""
+        return self.destination is None and len(self.destination_options) > 1
+
+
+@dataclass(slots=True)
+class DeckOrderingRequirement:
+    """Describes a general deck ordering requirement."""
+    kind: str = "deck_ordering"
+    card_ids: tuple[int, ...] = ()  # Cards to order (private to chooser)
+    min_order: int = 0  # Minimum cards to reorder
+    max_order: int | None = None  # Maximum cards to reorder
+    visibility: str = "private"
+    chooser_id: int = 0
+    deck_owner: int = 0
+    
+    @property
+    def requires_input(self) -> bool:
+        return len(self.card_ids) > 1
+
+
+@dataclass(slots=True)
+class NamedCardRequirement:
+    """Describes a name-a-card requirement."""
+    kind: str = "named_card"
+    valid_card_def_ids: tuple[str, ...] = ()  # Valid card definition IDs to name
+    chooser_id: int = 0
+    
+    @property
+    def requires_input(self) -> bool:
+        return len(self.valid_card_def_ids) > 1
+
+
 @dataclass(slots=True)
 class PendingEffect:
     """A pending effect awaiting player input for target/choice resolution.
@@ -390,3 +509,399 @@ def get_pending_effect_by_id(state: GameState, pending_id: str) -> PendingEffect
         if pe.id == pending_id:
             return pe
     return None
+
+
+def get_next_pending_effect_chooser(state: GameState) -> int | None:
+    """Get the player ID who should act on the next pending effect.
+    
+    Returns the chooser_id of the first incomplete pending effect,
+    or None if there are no pending effects.
+    """
+    for pe in state.pending_effects:
+        if not pe.is_complete:
+            return pe.chooser_id
+    return None
+
+
+def get_incomplete_pending_effects(state: GameState) -> list[PendingEffect]:
+    """Get all incomplete pending effects."""
+    return [pe for pe in state.pending_effects if not pe.is_complete]
+
+
+# B5.1: Create functions for scry/search/reveal pending requirements
+
+def create_scry_pending_effect(
+    state: GameState,
+    controller_id: int,
+    chooser_id: int,
+    source_id: int | None,
+    source_card_id: str | None,
+    amount: int,
+    *,
+    origin: str = "scry",
+) -> PendingEffect:
+    """Create a scry pending effect with proper requirement tracking.
+    
+    This stores the top N card IDs privately for the chooser to order.
+    Cards are NOT moved until resolution provides the ordering.
+    
+    Args:
+        state: Game state
+        controller_id: Who controls the effect
+        chooser_id: Who makes the scry decision
+        source_id: Card instance triggering scry
+        source_card_id: Card definition ID
+        amount: How many cards to scry
+        origin: Origin string for tracking
+    
+    Returns:
+        PendingEffect with ScryRequirement in raw
+    """
+    # Get top N cards from chooser's deck (private info)
+    deck_owner = chooser_id
+    deck = state.players[deck_owner].deck
+    candidate_ids = tuple(deck[:min(amount, len(deck))])
+    
+    scry_req = ScryRequirement(
+        kind="scry_ordering",
+        amount=amount,
+        candidate_ids=candidate_ids,
+        min_top=0,
+        max_top=amount,
+        min_bottom=0,
+        visibility="private",
+        chooser_id=chooser_id,
+        deck_owner=deck_owner,
+    )
+    
+    # Create the pending effect with empty effects (resolved via scry_req)
+    pending_id = f"pe_{state.next_bag_id()}"
+    
+    pending = PendingEffect(
+        id=pending_id,
+        controller_id=controller_id,
+        chooser_id=chooser_id,
+        source_id=source_id,
+        source_card_id=source_card_id,
+        effects=(),  # No effects - resolved via raw requirement
+        required_targets=(),
+        choice_options=(),
+        optional=False,
+        origin=origin,
+        origin_id=None,
+        raw={
+            "requirement": scry_req,
+            "requirement_kind": "scry_ordering",
+        },
+    )
+    
+    state.pending_effects.append(pending)
+    return pending
+
+
+def create_search_pending_effect(
+    state: GameState,
+    controller_id: int,
+    chooser_id: int,
+    source_id: int | None,
+    source_card_id: str | None,
+    candidate_ids: tuple[int, ...],
+    destination: str = "hand",
+    shuffle_after: bool = True,
+    filter_desc: str | None = None,
+    max_select: int = 1,
+    *,
+    origin: str = "search_deck",
+) -> PendingEffect:
+    """Create a search pending effect with proper requirement tracking.
+    
+    Candidate IDs are private to the chooser - opponent should not see them.
+    
+    Args:
+        state: Game state
+        controller_id: Who controls the effect
+        chooser_id: Who makes the search selection (deck owner)
+        source_id: Card instance triggering search
+        source_card_id: Card definition ID
+        candidate_ids: Card instance IDs matching search filter
+        destination: Where selected card goes
+        shuffle_after: Whether to shuffle after search
+        filter_desc: Human-readable filter description
+        max_select: Maximum cards to select
+        origin: Origin string for tracking
+    
+    Returns:
+        PendingEffect with SearchRequirement in raw
+    """
+    search_req = SearchRequirement(
+        kind="search_selection",
+        candidate_ids=candidate_ids,
+        min_select=1,
+        max_select=max_select,
+        destination=destination,
+        reveal_policy="private",  # Candidates hidden from opponent
+        shuffle_after=shuffle_after,
+        filter_desc=filter_desc,
+        chooser_id=chooser_id,
+        deck_owner=chooser_id,
+    )
+    
+    pending_id = f"pe_{state.next_bag_id()}"
+    
+    pending = PendingEffect(
+        id=pending_id,
+        controller_id=controller_id,
+        chooser_id=chooser_id,
+        source_id=source_id,
+        source_card_id=source_card_id,
+        effects=(),
+        required_targets=(),
+        choice_options=candidate_ids,  # Available card IDs (private)
+        optional=False,
+        origin=origin,
+        origin_id=None,
+        raw={
+            "requirement": search_req,
+            "requirement_kind": "search_selection",
+        },
+    )
+    
+    state.pending_effects.append(pending)
+    return pending
+
+
+def create_reveal_routing_pending_effect(
+    state: GameState,
+    controller_id: int,
+    chooser_id: int,
+    source_id: int | None,
+    source_card_id: str | None,
+    card_ids: tuple[int, ...],
+    destination: str | None = None,
+    destination_options: tuple[str, ...] = (),
+    reveal_policy: str = "public",
+    *,
+    origin: str = "reveal_and_route",
+) -> PendingEffect:
+    """Create a reveal-and-route pending effect with explicit routing.
+    
+    If destination is fixed, can auto-route. If destination is None,
+    creates a pending choice.
+    
+    Args:
+        state: Game state
+        controller_id: Who controls the effect
+        chooser_id: Who makes routing choice
+        source_id: Card instance triggering reveal
+        source_card_id: Card definition ID
+        card_ids: Card IDs being revealed
+        destination: Fixed destination or None for choice
+        destination_options: Available destinations if choice required
+        reveal_policy: "public" or "private"
+        origin: Origin string for tracking
+    
+    Returns:
+        PendingEffect with RevealRoutingRequirement in raw
+    """
+    routing_req = RevealRoutingRequirement(
+        kind="reveal_routing",
+        card_ids=card_ids,
+        reveal_policy=reveal_policy,
+        destination=destination,
+        destination_options=destination_options,
+        chooser_id=chooser_id,
+    )
+    
+    pending_id = f"pe_{state.next_bag_id()}"
+    
+    pending = PendingEffect(
+        id=pending_id,
+        controller_id=controller_id,
+        chooser_id=chooser_id,
+        source_id=source_id,
+        source_card_id=source_card_id,
+        effects=(),
+        required_targets=(),
+        choice_options=destination_options if destination is None else (),
+        optional=False,
+        origin=origin,
+        origin_id=None,
+        raw={
+            "requirement": routing_req,
+            "requirement_kind": "reveal_routing",
+        },
+    )
+    
+    state.pending_effects.append(pending)
+    return pending
+
+
+def resolve_scry_ordering(
+    state: GameState,
+    pending_id: str,
+    top_cards: tuple[int, ...],
+    bottom_cards: tuple[int, ...],
+) -> None:
+    """Resolve a scry pending effect with ordering.
+    
+    Args:
+        state: Game state
+        pending_id: Pending effect ID
+        top_cards: Card IDs to put on top (in order)
+        bottom_cards: Card IDs to put on bottom (in order)
+    
+    Raises:
+        ValueError: If card IDs are not valid scry candidates or counts don't match
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+    
+    req = pe.raw.get("requirement")
+    if not isinstance(req, ScryRequirement):
+        raise ValueError(f"Pending effect {pending_id} is not a scry")
+    
+    # Validate: top + bottom must equal amount
+    if len(top_cards) + len(bottom_cards) != req.amount:
+        raise ValueError(
+            f"Scry ordering count mismatch: expected {req.amount}, "
+            f"got {len(top_cards)} top + {len(bottom_cards)} bottom"
+        )
+    
+    # Validate all cards are valid candidates
+    all_ordered = top_cards + bottom_cards
+    for cid in all_ordered:
+        if cid not in req.candidate_ids:
+            raise ValueError(f"Card {cid} is not a valid scry candidate")
+    
+    # Apply ordering: rebuild deck with new order
+    player_deck = state.players[req.deck_owner].deck
+    
+    # Remove all scried cards from deck
+    for cid in req.candidate_ids:
+        if cid in player_deck:
+            player_deck.remove(cid)
+    
+    # Put top cards on top (in order)
+    player_deck[0:0] = list(top_cards)
+    
+    # Put bottom cards on bottom (in order)
+    player_deck.extend(list(bottom_cards))
+    
+    # Emit private scry event (no identity leak) - uses GameEvent from state
+    from lorcana_bot.state import GameEvent
+    state.event_log.append(GameEvent(
+        event_type="SCRY_RESOLVED",
+        actor=req.chooser_id,
+        source=req.deck_owner,
+        target=None,
+        payload={
+            "count": req.amount,
+            "top_count": len(top_cards),
+            "bottom_count": len(bottom_cards),
+            "private": True,  # Card identities not in public log
+        },
+    ))
+
+
+def resolve_search_selection(
+    state: GameState,
+    pending_id: str,
+    selected_card_id: int,
+) -> None:
+    """Resolve a search pending effect with card selection.
+    
+    Args:
+        state: Game state
+        pending_id: Pending effect ID
+        selected_card_id: Card ID selected from deck
+    
+    Raises:
+        ValueError: If card is not a valid search candidate
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+    
+    req = pe.raw.get("requirement")
+    if not isinstance(req, SearchRequirement):
+        raise ValueError(f"Pending effect {pending_id} is not a search")
+    
+    # Validate selection
+    if selected_card_id not in req.candidate_ids:
+        raise ValueError(f"Card {selected_card_id} is not a valid search candidate")
+    
+    # Move card to destination
+    state.move_card(selected_card_id, req.destination)
+    
+    # Shuffle if required
+    if req.shuffle_after:
+        import random
+        state.shuffle_counter += 1
+        rng = random.Random(f"{state.seed}:search_shuffle:{req.deck_owner}:{state.shuffle_counter}")
+        rng.shuffle(state.players[req.deck_owner].deck)
+    
+    # Emit private search event - use engine pattern for consistency
+    from lorcana_bot.state import GameEvent
+    state.event_log.append(GameEvent(
+        event_type="SEARCH_RESOLVED",
+        actor=req.chooser_id,
+        source=selected_card_id,
+        target=None,
+        payload={
+            "destination": req.destination,
+            "shuffled": req.shuffle_after,
+            "private": True,  # Filter not revealed to opponent
+        },
+    ))
+
+
+def resolve_reveal_routing(
+    state: GameState,
+    pending_id: str,
+    destination: str | None = None,
+) -> None:
+    """Resolve a reveal routing pending effect.
+    
+    Args:
+        state: Game state
+        pending_id: Pending effect ID
+        destination: Chosen destination if not fixed
+    
+    Raises:
+        ValueError: If destination is required but not provided
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+    
+    req = pe.raw.get("requirement")
+    if not isinstance(req, RevealRoutingRequirement):
+        raise ValueError(f"Pending effect {pending_id} is not a reveal routing")
+    
+    # Determine final destination
+    final_dest = destination if destination else req.destination
+    if final_dest is None:
+        raise ValueError("Destination required but not provided")
+    
+    # Reveal and move cards
+    for cid in req.card_ids:
+        # Mark as revealed
+        state.cards[cid].revealed = True
+        
+        # Emit reveal event - use GameEvent for consistency
+        from lorcana_bot.state import GameEvent
+        state.event_log.append(GameEvent(
+            event_type="CARD_REVEALED",
+            actor=req.chooser_id,
+            source=cid,
+            target=None,
+            payload={
+                "card_id": cid,
+                "card_def_id": state.cards[cid].card_id,
+                "reveal_policy": req.reveal_policy,
+            },
+        ))
+        
+        # Move to destination
+        state.move_card(cid, final_dest)

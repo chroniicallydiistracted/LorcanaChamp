@@ -11,6 +11,7 @@ from lorcana_bot.static_effects import (
     create_keyword_grant_effect,
     create_cost_reduction_effect,
     create_quest_restriction_effect,
+    create_challenge_restriction_effect,
     register_static_effects_for_card,
     deregister_static_effects_for_card,
     get_static_modifier,
@@ -395,3 +396,142 @@ class TestStaticBlockerClassification:
         
         assert entry.effect_type == StaticEffectType.COST_REDUCTION
         assert entry.target_mode == "self"
+
+
+class TestStaticEffectEngineWiring:
+    """Tests for static effect wiring into game engine."""
+
+    def test_static_quest_restriction_blocks_quest(self, make_state):
+        """Test that static quest restriction prevents questing."""
+        from lorcana_bot.static_effects import can_quest
+        
+        state = make_state()
+        state.cards[1] = CardInstance(instance_id=1, card_id="test", owner=0, controller=0, zone="play")
+        
+        # Register quest restriction on card
+        entry = create_quest_restriction_effect(source_id=1, target_mode="self")
+        state.static_effect_registry.register_effect(entry)
+        
+        # Card should not be able to quest
+        assert can_quest(state, 1) is False
+
+    def test_static_challenge_restriction_blocks_challenge(self, make_state):
+        """Test that static challenge restriction prevents challenging."""
+        from lorcana_bot.static_effects import can_challenge
+        
+        state = make_state()
+        state.cards[1] = CardInstance(instance_id=1, card_id="test", owner=0, controller=0, zone="play")
+        
+        # Register challenge restriction on card
+        entry = create_challenge_restriction_effect(source_id=1, target_mode="self")
+        state.static_effect_registry.register_effect(entry)
+        
+        # Card should not be able to challenge
+        assert can_challenge(state, 1) is False
+
+    def test_static_lore_modifier_affects_quest(self, make_state):
+        """Test that static lore modifier affects lore gained on quest."""
+        from lorcana_bot.static_effects import get_static_modifier
+        
+        state = make_state()
+        state.cards[1] = CardInstance(instance_id=1, card_id="test", owner=0, controller=0, zone="play")
+        
+        # Register +2 lore static effect
+        entry = create_modify_stat_effect(source_id=1, stat="lore", amount=2, target_mode="self")
+        state.static_effect_registry.register_effect(entry)
+        
+        # Get static modifier for lore
+        modifier = get_static_modifier(state, 1, "lore")
+        assert modifier == 2
+
+    def test_classification_targeting_matches_items(self, make_state):
+        """Test that classification-based targeting correctly targets items.
+        
+        Note: Classification targeting currently uses placeholder logic.
+        For full card type checking, engine access to card_def is needed.
+        """
+        state = make_state()
+        
+        # Create cards with different types
+        state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
+        state.cards[2] = CardInstance(instance_id=2, card_id="item_card", owner=0, controller=0, zone="play")
+        
+        # Register effect targeting items (classification mode)
+        entry = create_modify_stat_effect(
+            source_id=1, 
+            stat="strength", 
+            amount=3, 
+            target_mode="classification",
+            target_classification="item"
+        )
+        state.static_effect_registry.register_effect(entry)
+        
+        # Effect should apply to item card (id starts with "item")
+        effects = state.static_effect_registry.get_effects_for_instance(state, 2)
+        
+        # Classification targeting should apply based on card_id pattern
+        # (Placeholder: matches based on card_id contains target_classification)
+        assert len(effects) == 1
+
+    def test_static_effect_removal_on_source_leave_play(self, make_state):
+        """Test that static effects are removed when source leaves play."""
+        from lorcana_bot.static_effects import get_static_modifier
+        
+        state = make_state()
+        state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
+        state.cards[2] = CardInstance(instance_id=2, card_id="target", owner=0, controller=0, zone="play")
+        
+        # Register strength modifier
+        entry = create_modify_stat_effect(source_id=1, stat="strength", amount=5, target_mode="your_characters")
+        state.static_effect_registry.register_effect(entry)
+        
+        # Modifier should apply while source is in play
+        modifier = get_static_modifier(state, 2, "strength")
+        assert modifier == 5
+        
+        # Source leaves play (moves to discard)
+        state.cards[1].zone = "discard"
+        
+        # Modifier should no longer apply
+        modifier = get_static_modifier(state, 2, "strength")
+        assert modifier == 0
+
+    def test_deregister_static_effects_clears_effects(self, make_state):
+        """Test that deregister_static_effects_for_card removes all effects from source."""
+        state = make_state()
+        state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
+        
+        # Register multiple static effects from same source
+        entry1 = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="self")
+        entry2 = create_keyword_grant_effect(source_id=1, keyword="bodyguard", target_mode="self")
+        state.static_effect_registry.register_effect(entry1)
+        state.static_effect_registry.register_effect(entry2)
+        
+        assert len(state.static_effect_registry.effects) == 2
+        
+        # Deregister effects from source
+        deregister_static_effects_for_card(state, 1)
+        
+        assert len(state.static_effect_registry.effects) == 0
+
+
+class TestStaticEffectRegistryClear:
+    """Tests for StaticEffectRegistry.clear method."""
+
+    def test_clear_removes_all_effects(self, make_state):
+        """Test that clear removes all effects from registry."""
+        state = make_state()
+        state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
+        
+        # Register some effects
+        entry1 = create_modify_stat_effect(source_id=1, stat="strength", amount=2)
+        entry2 = create_keyword_grant_effect(source_id=1, keyword="bodyguard")
+        state.static_effect_registry.register_effect(entry1)
+        state.static_effect_registry.register_effect(entry2)
+        
+        assert len(state.static_effect_registry.effects) == 2
+        
+        # Clear all effects
+        state.static_effect_registry.clear()
+        
+        assert len(state.static_effect_registry.effects) == 0

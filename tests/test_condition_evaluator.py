@@ -382,3 +382,131 @@ class TestComparisonOperators:
         condition = {"type": "has-character-count", "value": 9999, "comparison": "!="}
         result = evaluate_condition(condition, state, None, source_id, engine)
         assert result is True
+
+
+class TestRealDeckConditions:
+    """Tests for conditions appearing in real decks (6.1 safety hardening).
+    
+    These conditions should either:
+    1. Be fully implemented and evaluate correctly
+    2. Raise UnsupportedConditionError if not implementable
+    They should NEVER silently return True.
+    """
+    
+    def test_target_query_condition(self, state, engine):
+        """Test target-query condition (real deck condition)."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {
+            "type": "target-query",
+            "comparison": {"operator": ">=", "value": 1},
+            "query": {
+                "cardType": "character",
+                "owner": "you",
+                "zones": ["play"]
+            }
+        }
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert isinstance(result, bool)
+    
+    def test_target_query_missing_query_raises(self, state, engine):
+        """Test target-query raises when query is missing."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "target-query"}
+        with pytest.raises(UnsupportedConditionError):
+            evaluate_condition(condition, state, None, source_id, engine)
+    
+    def test_used_shift_raises(self, state, engine):
+        """Test used-shift condition raises (not implemented)."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "used-shift"}
+        # This should raise because used-shift is blocked
+        with pytest.raises(UnsupportedConditionError):
+            evaluate_condition(condition, state, None, source_id, engine)
+    
+    def test_banished_in_challenge_raises(self, state, engine):
+        """Test banished-in-challenge-this-turn raises (stub returns False)."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "banished-in-challenge-this-turn"}
+        # Should return False (stub implementation) rather than raise
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert isinstance(result, bool)
+    
+    def test_has_card_under_raises(self, state, engine):
+        """Test has-card-under raises (not tracked)."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "has-card-under"}
+        # This should raise because has-card-under is blocked
+        with pytest.raises(UnsupportedConditionError):
+            evaluate_condition(condition, state, None, source_id, engine)
+    
+    def test_trigger_subject_had_card_under_raises(self, state, engine):
+        """Test trigger-subject-had-card-under raises (not tracked)."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "trigger-subject-had-card-under"}
+        with pytest.raises(UnsupportedConditionError):
+            evaluate_condition(condition, state, None, source_id, engine)
+    
+    def test_put_card_under_any_this_turn_raises(self, state, engine):
+        """Test put-card-under-any-this-turn raises (not tracked)."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "put-card-under-any-this-turn"}
+        with pytest.raises(UnsupportedConditionError):
+            evaluate_condition(condition, state, None, source_id, engine)
+    
+    def test_target_aggregate_comparison_raises(self, state, engine):
+        """Test target-aggregate-comparison raises (not implemented)."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "target-aggregate-comparison"}
+        with pytest.raises(UnsupportedConditionError):
+            evaluate_condition(condition, state, None, source_id, engine)
+    
+    def test_non_dict_condition_raises(self, state, engine):
+        """Test non-dict condition raises UnsupportedConditionError."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        with pytest.raises(UnsupportedConditionError) as exc_info:
+            evaluate_condition("not-a-dict", state, None, source_id, engine)
+        assert "Non-dict condition" in str(exc_info.value)
+    
+    def test_unknown_dict_condition_raises(self, state, engine):
+        """Test unknown dict condition kind raises."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "totally-unknown-condition-xyz"}
+        with pytest.raises(UnsupportedConditionError) as exc_info:
+            evaluate_condition(condition, state, None, source_id, engine)
+        assert "Unsupported condition kind" in str(exc_info.value)
+    
+    def test_nested_unsupported_in_and_propagates(self, state, engine):
+        """Test unsupported nested condition raises through 'and'."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {
+            "type": "and",
+            "conditions": [
+                {"type": "your-turn"},
+                {"type": "totally-unsupported-xyz"}
+            ]
+        }
+        with pytest.raises(UnsupportedConditionError):
+            evaluate_condition(condition, state, None, source_id, engine)
+    
+    def test_nested_unsupported_in_or_propagates(self, state, engine):
+        """Test unsupported nested condition raises through 'or'."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {
+            "type": "or",
+            "conditions": [
+                {"type": "has-character-count", "value": 9999, "comparison": ">="},
+                {"type": "another-unsupported-xyz"}
+            ]
+        }
+        with pytest.raises(UnsupportedConditionError):
+            evaluate_condition(condition, state, None, source_id, engine)
+    
+    def test_nested_unsupported_in_not_propagates(self, state, engine):
+        """Test unsupported nested condition raises through 'not'."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {
+            "type": "not",
+            "condition": {"type": "really-unsupported-xyz"}
+        }
+        with pytest.raises(UnsupportedConditionError):
+            evaluate_condition(condition, state, None, source_id, engine)

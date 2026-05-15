@@ -77,6 +77,7 @@ from .pending_effects import (
     resolve_pending_effect_optional,
     advance_pending_effect,
     complete_pending_effect,
+    get_next_pending_effect_chooser,
 )
 from .triggers import buffer_trigger_event, flush_triggered_events_to_bag, get_next_bag_resolver, has_pending_bag_items, remove_bag_effect, set_last_bag_resolver, record_bag_effect_resolution, can_resolve_bag_effect_by_restrictions
 from .condition_evaluator import evaluate_condition, UnsupportedConditionError
@@ -99,6 +100,14 @@ from .static_effects import (
     create_modify_stat_effect,
     create_keyword_grant_effect,
     create_cost_reduction_effect,
+)
+from .replacement_effects import (
+    register_replacement_effects_for_card,
+    deregister_replacement_effects_from_card,
+    deal_damage as replacement_deal_damage,
+    banish_card as replacement_banish_card,
+    check_cannot_be_challenged,
+    check_cannot_be_targeted,
 )
 
 # Diagnostic event types that should not recursively trigger buffering
@@ -343,6 +352,39 @@ class GameEngine:
                 else:
                     actions.append(Action(ACTION_PLAY_CARD, actor=player, card=cid))
 
+        # B10: Alternative play modes - Songs and Shift
+        from .play_modes import (
+            is_song_card, get_singer_info, can_sing_song,
+            get_shift_info, get_shift_targets, can_play_as_shift,
+        )
+        
+        # Generate SING_SONG actions for songs with singers
+        for song_cid in ps.hand:
+            song_card = self.card_def(state, song_cid)
+            if song_card.card_type == CARD_ACTION and is_song_card(self, song_cid, state):
+                # Find all singers who can sing this song
+                for singer_cid in ps.play:
+                    singer_info = get_singer_info(state, self, singer_cid)
+                    if singer_info is not None and not singer_info.sing_together:
+                        can_sing, _ = can_sing_song(state, self, singer_cid, song_cid)
+                        if can_sing:
+                            actions.append(Action(
+                                "SING_SONG", actor=player, card=song_cid, source=singer_cid
+                            ))
+        
+        # Generate PLAY_SHIFTED actions for shift characters
+        for shift_cid in ps.hand:
+            shift_card = self.card_def(state, shift_cid)
+            if shift_card.card_type == CARD_CHARACTER:
+                shift_cost = get_shift_info(state, self, shift_cid)
+                if shift_cost is not None:
+                    for target in get_shift_targets(state, self, shift_cid):
+                        can_play, _ = can_play_as_shift(state, self, shift_cid, target.instance_id)
+                        if can_play:
+                            actions.append(Action(
+                                "PLAY_SHIFTED", actor=player, card=shift_cid, target=target.instance_id
+                            ))
+        
         for cid in ps.play:
             if self.can_quest(state, cid):
                 actions.append(Action(ACTION_QUEST, actor=player, source=cid))
@@ -356,16 +398,26 @@ class GameEngine:
                 actions.append(Action(ACTION_MOVE_TO_LOCATION, actor=player, source=source, target=location))
 
         # B7: Activated abilities - generate USE_ABILITY actions
+        from .abilities import validate_effects_supported, can_use_ability_this_turn
         for ability in get_available_abilities_for_player(state, self, player):
+            # Check once-per-turn restriction
+            if not can_use_ability_this_turn(state, ability):
+                continue
+            # Check costs are payable
             can_pay, _ = validate_ability_costs(state, self, ability)
-            if can_pay:
-                # Use choice to encode the ability identifier
-                actions.append(Action(
-                    ACTION_USE_ABILITY,
-                    actor=player,
-                    source=ability.source_instance_id,
-                    choice={"ability_id": ability.ability_id, "ability_index": ability.ability_index},
-                ))
+            if not can_pay:
+                continue
+            # Check effects are supported (no pending prompts required)
+            effects_supported, _ = validate_effects_supported(ability)
+            if not effects_supported:
+                continue
+            # Use choice to encode the ability identifier
+            actions.append(Action(
+                ACTION_USE_ABILITY,
+                actor=player,
+                source=ability.source_instance_id,
+                choice={"ability_id": ability.ability_id, "ability_index": ability.ability_index},
+            ))
 
         actions.append(Action(ACTION_END_TURN, actor=player))
         actions.append(Action(ACTION_CONCEDE, actor=player))
@@ -395,6 +447,10 @@ class GameEngine:
             return False
         if self.has_keyword(state, source, KEYWORD_RECKLESS):
             return False
+        # B7.1: Check static quest restrictions
+        from .static_effects import can_quest as static_can_quest
+        if not static_can_quest(state, source):
+            return False
         return True
 
     def challenge_targets(self, state: GameState, source: int) -> list[int]:
@@ -409,6 +465,10 @@ class GameEngine:
             return []
         if inst.drying and not self.has_keyword(state, source, KEYWORD_RUSH):
             return []
+        # B7.1: Check static challenge restriction - if source cannot challenge, return empty
+        from .static_effects import can_challenge as static_can_challenge
+        if not static_can_challenge(state, source):
+            return []
 
         opponent = state.opponent(player)
         character_candidates: list[int] = []
@@ -421,6 +481,9 @@ class GameEngine:
                 if not target_inst.exerted:
                     continue
                 if self.has_keyword(state, target, KEYWORD_EVASIVE) and not self.has_keyword(state, source, KEYWORD_EVASIVE):
+                    continue
+                # B8: Check cannot-be-challenged restriction
+                if check_cannot_be_challenged(state, target, source):
                     continue
                 if self.has_keyword(state, target, KEYWORD_BODYGUARD):
                     bodyguards.append(target)
@@ -570,6 +633,11 @@ class GameEngine:
             self._apply_resolve_pending_effect(next_state, action)
         elif action.kind == ACTION_USE_ABILITY:
             self._apply_use_ability(next_state, action)
+        # B10: Alternative play mode dispatch
+        elif action.kind == "SING_SONG":
+            self._apply_sing_song(next_state, action)
+        elif action.kind == "PLAY_SHIFTED":
+            self._apply_play_shifted(next_state, action)
         else:
             raise IllegalActionError(f"Unhandled action kind {action.kind}")
 
@@ -718,7 +786,11 @@ class GameEngine:
         raise RuntimeError("Bag must be resolved through ACTION_RESOLVE_BAG. Use legal_actions() to get RESOLVE_BAG actions.")
 
     def resolve_banishes(self, state: GameState) -> None:
-        """Resolve banishes with rich Lorcanito-aligned payloads including challenge context."""
+        """Resolve banishes with rich Lorcanito-aligned payloads including challenge context.
+        
+        B8: Uses banish_card() from replacement_effects to allow replacement effects
+        to redirect the banish destination (e.g., return to hand instead of discard).
+        """
         banished: list[tuple[int, str]] = []  # (cid, card_type)
         for cid, inst in list(state.cards.items()):
             if inst.zone != ZONE_PLAY:
@@ -734,9 +806,23 @@ class GameEngine:
             last_damage_source = card.last_damage_source
             happened_in_challenge = card.last_damage_was_challenge
             
-            state.move_card(cid, ZONE_DISCARD)
+            # B7.1: Deregister static effects before moving card from play
+            deregister_static_effects_for_card(state, cid)
+            # B8: Deregister replacement effects before moving card from play
+            deregister_replacement_effects_from_card(state, cid)
+            
+            # B8: Use replacement-aware banish_card
+            # last_damage_source can be int or str (card name), cast to int for the API
+            source_for_banish: int | None = int(last_damage_source) if isinstance(last_damage_source, (int, str)) and last_damage_source else None
+            banish_event = replacement_banish_card(
+                state,
+                target_id=cid,
+                source_id=source_for_banish,
+                default_destination=ZONE_DISCARD,
+            )
             
             # Emit banish event with rich Lorcanito-aligned payload
+            # Use actual_destination from replacement event
             self.emit_event(
                 state,
                 EVENT_CHARACTER_BANISHED,
@@ -746,10 +832,12 @@ class GameEngine:
                     "player_id": controller,
                     "subject_card_id": cid,
                     "from_zone": from_zone,
-                    "to_zone": ZONE_DISCARD,
+                    "to_zone": banish_event.actual_destination,
                     "happened_in_challenge": happened_in_challenge,
                     "last_damage_source": last_damage_source,
                     "banished_card_type": card_type,
+                    "was_replaced": banish_event.was_replaced,
+                    "replacement_description": banish_event.replacement_description,
                 },
             )
 
@@ -816,6 +904,13 @@ class GameEngine:
             inst.drying = card.card_type == CARD_CHARACTER
             inst.just_played = True
             to_zone = ZONE_PLAY
+            
+        # B7.1: Register static effects for non-action permanents
+        if card.card_type != CARD_ACTION:
+            source_abilities = getattr(card, "source_abilities", None) or getattr(card, "abilities", ())
+            register_static_effects_for_card(state, action.card, source_abilities)
+            # B8: Register replacement effects for non-action cards entering play
+            register_replacement_effects_for_card(state, action.card, source_abilities)
         
         # Emit play event with rich Lorcanito-aligned payload
         self.emit_event(
@@ -840,7 +935,11 @@ class GameEngine:
         assert action.source is not None
         source = action.source
         cdef = self.card_def(state, source)
-        lore = int(cdef.lore or 0)
+        # B7.1: Calculate effective lore including static modifiers
+        base_lore = int(cdef.lore or 0)
+        from .static_effects import get_static_modifier
+        lore_modifier = get_static_modifier(state, source, "lore")
+        lore = base_lore + lore_modifier
         state.cards[source].exerted = True
         state.cards[source].has_quested_this_turn = True
         state.players[action.actor].lore += lore
@@ -867,18 +966,37 @@ class GameEngine:
         target_inst = state.cards[action.target]
         source_inst.exerted = True
 
-        # Calculate damage with resist
-        attacker_damage_dealt = self._damage_after_resist(target_def, self.effective_strength(state, action.source))
+        # Calculate base damage with resist (before replacement)
+        attacker_base_damage = self._damage_after_resist(target_def, self.effective_strength(state, action.source))
+        defender_base_damage = 0
         defender_damage_dealt = 0
         if target_def.card_type == CARD_CHARACTER:
-            defender_damage_dealt = self._damage_after_resist(source_def, self.effective_strength(state, action.target))
+            defender_base_damage = self._damage_after_resist(source_def, self.effective_strength(state, action.target))
         
-        target_inst.damage += attacker_damage_dealt
+        # Apply damage through replacement layer for attacker -> target
+        attacker_event = replacement_deal_damage(
+            state,
+            target_id=action.target,
+            source_id=action.source,
+            amount=attacker_base_damage,
+            is_challenge=True,
+        )
+        attacker_damage_dealt = attacker_event.current_amount
+        
+        # Apply damage through replacement layer for target -> attacker (only for characters)
         if target_def.card_type == CARD_CHARACTER:
-            source_inst.damage += defender_damage_dealt
-            source_inst.last_damage_source = action.target
-            source_inst.last_damage_was_challenge = True
-
+            defender_event = replacement_deal_damage(
+                state,
+                target_id=action.source,
+                source_id=action.target,
+                amount=defender_base_damage,
+                is_challenge=True,
+            )
+            defender_damage_dealt = defender_event.current_amount
+            if defender_damage_dealt > 0:
+                source_inst.last_damage_source = action.target
+                source_inst.last_damage_was_challenge = True
+        
         target_inst.last_damage_source = action.source
         target_inst.last_damage_was_challenge = True
         target_inst.was_challenged_this_turn = True
@@ -1009,6 +1127,38 @@ class GameEngine:
         rng = random.Random(f"{state.seed}:{salt}:{player}:{state.shuffle_counter}")
         rng.shuffle(state.players[player].deck)
 
+    def _apply_sing_song(self, state: GameState, action: Action) -> None:
+        """Apply SING_SONG action - singer exerts and sings a song card.
+        
+        Action fields:
+        - card: The song card instance ID from hand
+        - source: The singer character instance ID in play
+        """
+        from .play_modes import execute_sing_song
+        
+        if action.card is None:
+            raise IllegalActionError("SING_SONG requires a song card")
+        if action.source is None:
+            raise IllegalActionError("SING_SONG requires a singer source")
+        
+        execute_sing_song(state, self, action.source, action.card)
+
+    def _apply_play_shifted(self, state: GameState, action: Action) -> None:
+        """Apply PLAY_SHIFTED action - play a shifted character on a target.
+        
+        Action fields:
+        - card: The shifted character instance ID from hand
+        - target: The target character instance ID in play
+        """
+        from .play_modes import execute_shift_play
+        
+        if action.card is None:
+            raise IllegalActionError("PLAY_SHIFTED requires a shifted card")
+        if action.target is None:
+            raise IllegalActionError("PLAY_SHIFTED requires a target character")
+        
+        execute_shift_play(state, self, action.card, action.target)
+
     def _pay_ink(self, state: GameState, player: int, amount: int) -> None:
         ready_ink = [cid for cid in state.players[player].inkwell if not state.cards[cid].exerted]
         if len(ready_ink) < amount:
@@ -1032,6 +1182,9 @@ class GameEngine:
                         if cdef.card_type != CARD_CHARACTER:
                             continue
                         if who != player and self.has_keyword(state, cid, KEYWORD_WARD):
+                            continue
+                        # B8: Check cannot-be-targeted restriction
+                        if check_cannot_be_targeted(state, cid, source):
                             continue
                         targets.add(cid)
         return sorted(targets)
@@ -1136,15 +1289,30 @@ class GameEngine:
                 return
         
         # B2: Resolve effects as the trigger controller, not the chooser
+        # Normalize event target from payload (handles defender_id from challenge events)
+        event_payload = entry.event.payload if entry.event else {}
+        event_target = (
+            event_payload.get('event_target_id')
+            or event_payload.get('target_id')
+            or event_payload.get('defender_id')
+            or event_payload.get('subject_card_id')
+        )
+        
+        # Build current_targets tuple for collection-based targeting
+        current_targets: tuple[int, ...] = ()
+        if event_target:
+            current_targets = (event_target,)
+        
         context = EffectResolutionContext(
             actor=entry.controller_id,
             source=entry.source_id,
-            target=None,
+            target=event_target,
             event=entry.event,
-            event_payload=entry.event.payload if entry.event else {},
+            event_payload=event_payload,
             pending_trigger_id=entry.id,
             trigger_source=entry.source_id,
             trigger_subject=entry.event.subject_card_id if entry.event else None,
+            current_targets=current_targets,
         )
         self._resolve_explicit_effects(state, entry.effects, context)
         
@@ -1261,26 +1429,48 @@ class GameEngine:
                 complete_pending_effect(state, pending_id)
                 return
             # Continue to resolve the effect
+        elif pe.optional and pe.accepted is None and accept is None:
+            # Optional effect requires explicit accept/decline
+            raise IllegalActionError("Optional pending effect requires explicit accept/decline")
         
-        # Handle target selection
-        if action.target is not None:
-            # Validate target is in selected targets or is a valid choice
-            resolve_pending_effect_target(state, pending_id, (action.target,))
+        # Check if target input is required but not provided
+        requirement = pe.current_requirement
+        if pe.requires_target_input and requirement is not None:
+            # Target selection required - validate that we have a target
+            if not pe.selected_targets and action.target is None:
+                raise IllegalActionError(f"Pending effect {pending_id} requires a target selection")
+            # Validate the target is in the stored selections or action target
+            if action.target is not None:
+                resolve_pending_effect_target(state, pending_id, (action.target,))
         
-        # Handle choice index
-        if choice_index is not None:
-            resolve_pending_effect_choice(state, pending_id, choice_index)
+        # Check if choice input is required but not provided
+        if pe.requires_choice_input:
+            if not pe.selected_choice and choice_index is None:
+                raise IllegalActionError(f"Pending effect {pending_id} requires a choice selection")
+            if choice_index is not None:
+                resolve_pending_effect_choice(state, pending_id, choice_index)
         
         # Resolve the current effect
         current_effect = pe.current_effect
         if current_effect is not None:
-            requirement = pe.current_requirement
+            # Get target from stored selected_targets or action target
+            selected_target = pe.selected_targets[0] if pe.selected_targets else action.target
+            # Get choice from stored selected_choice or action choice_index
+            selected_choice = pe.selected_choice if pe.selected_choice is not None else choice_index
+            
+            # Extract event context from raw
+            raw = pe.raw or {}
+            event = raw.get('event')
+            event_payload = raw.get('event_payload', {})
             
             # Build context with target from pending effect
             context = EffectResolutionContext(
                 actor=pe.controller_id,
                 source=pe.source_id,
-                target=action.target if action.target else None,
+                target=selected_target,
+                event=event,
+                event_payload=event_payload,
+                choice=selected_choice,
             )
             
             # Resolve the effect
@@ -1319,8 +1509,16 @@ class GameRunner:
     ) -> GameResult:
         actions_taken = 0
         while state.winner is None and actions_taken < self.max_actions:
-            # B2: Determine the correct player to act - bag resolver takes priority
-            if has_pending_bag_items(state):
+            # B2: Actor priority: pending effects > bag resolver > active player
+            if has_pending_effects(state):
+                # Get the current pending effect's chooser (first pending effect)
+                pe = state.pending_effects[0] if state.pending_effects else None
+                if pe is None:
+                    state.winner = state.opponent(state.active_player)
+                    state.loss_reason = "pending_effect_had_no_chooser"
+                    break
+                player = pe.chooser_id
+            elif has_pending_bag_items(state):
                 player = get_next_bag_resolver(state)
                 if player is None:
                     state.winner = state.opponent(state.active_player)

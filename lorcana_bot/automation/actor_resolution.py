@@ -16,12 +16,28 @@ class ActorResolution:
 
 
 def resolve_current_actor(state: GameState, engine: GameEngine) -> ActorResolution:
+    """Resolve the current actor for automation decisions.
+    
+    Priority (mirrors GameRunner.play()):
+    1. Pending effect chooser
+    2. Bag resolver  
+    3. Active player
+    
+    This ordering ensures resolution happens before normal gameplay.
+    """
+    # 1. Check for pending effects - the chooser acts even when not active player
     pending_effects = getattr(state, "pending_effects", None)
     if pending_effects:
-        pending = pending_effects[0]
-        actor = getattr(pending, "actor", None) or getattr(pending, "controller", None)
-        if actor is not None:
-            return ActorResolution(actor=actor, reason="pending_effect_chooser", pending_object_type="effect", pending_object_id=str(getattr(pending, "id", 0)))
+        for pe in pending_effects:
+            if not getattr(pe, "is_complete", False) and getattr(pe, "accepted", None) is None:
+                chooser_id = getattr(pe, "chooser_id", None)
+                if chooser_id is not None:
+                    return ActorResolution(
+                        actor=chooser_id,
+                        reason="pending_effect_chooser",
+                        pending_object_type="effect",
+                        pending_object_id=str(getattr(pe, "id", 0)),
+                    )
 
     if getattr(state, "bag", None):
         trigger = state.bag[0]

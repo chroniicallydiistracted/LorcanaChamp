@@ -101,7 +101,10 @@ def evaluate_condition(
         return True
     
     if not isinstance(condition, dict):
-        return True  # Non-dict conditions are unknown but treated as passthrough
+        raise UnsupportedConditionError(
+            f"Non-dict condition received: {type(condition).__name__}. "
+            "Conditions must be dicts with 'type' or 'kind' key."
+        )
     
     kind = str(condition.get("type") or condition.get("kind") or "unknown")
     
@@ -249,29 +252,50 @@ def _evaluate_logical_condition(
     source_instance_id: int,
     engine: "GameEngine",  # type: ignore[name-defined]
 ) -> bool:
-    """Evaluate logical conditions (and, or, not, if)."""
+    """Evaluate logical conditions (and, or, not, if).
+    
+    Errors from nested conditions propagate upward - they are NOT swallowed.
+    """
     if kind == "not":
-        inner_condition = condition.get("condition") or condition.get("conditions", [{}])[0] if condition.get("conditions") else None
+        # Handle "condition" key first, then "conditions" array
+        inner_condition = condition.get("condition")
+        if inner_condition is None:
+            conditions_list = condition.get("conditions") or condition.get("operands") or []
+            if conditions_list:
+                inner_condition = conditions_list[0]
         if inner_condition is None:
             return True
-        return not evaluate_condition(inner_condition, state, event, source_instance_id, engine)
+        # Error propagates if inner condition is unsupported
+        result = evaluate_condition(inner_condition, state, event, source_instance_id, engine)
+        return not result
     
     if kind == "and":
         operands = condition.get("conditions") or condition.get("operands") or []
         if not operands:
             return True
-        return all(evaluate_condition(op, state, event, source_instance_id, engine) for op in operands)
+        # Each operand must be evaluated; errors propagate
+        for op in operands:
+            result = evaluate_condition(op, state, event, source_instance_id, engine)
+            if not result:
+                return False
+        return True
     
     if kind == "or":
         operands = condition.get("conditions") or condition.get("operands") or []
         if not operands:
             return False
-        return any(evaluate_condition(op, state, event, source_instance_id, engine) for op in operands)
+        # Each operand must be evaluated; errors propagate
+        for op in operands:
+            result = evaluate_condition(op, state, event, source_instance_id, engine)
+            if result:
+                return True
+        return False
     
     if kind == "if":
         if_cond = condition.get("condition") or condition.get("expression")
         if if_cond is None:
             return True
+        # Error propagates if condition is unsupported
         return evaluate_condition(if_cond, state, event, source_instance_id, engine)
     
     return True
@@ -891,9 +915,13 @@ def _evaluate_has_card_under(
     state: GameState,
     source_instance_id: int,
 ) -> bool:
-    """Evaluate has-card-under conditions."""
-    # Cards under is not currently tracked in the engine
-    return False
+    """Evaluate has-card-under conditions.
+    
+    Cards under is not currently tracked in the engine, so this raises.
+    """
+    raise UnsupportedConditionError(
+        "has-card-under: cards-under tracking is not currently implemented"
+    )
 
 
 def _evaluate_at_location(
@@ -1019,7 +1047,9 @@ def _evaluate_trigger_subject_had_card_under(
     source_instance_id: int,
 ) -> bool:
     """Evaluate trigger-subject-had-card-under conditions."""
-    return False
+    raise UnsupportedConditionError(
+        "trigger-subject-had-card-under: cards-under tracking is not currently implemented"
+    )
 
 
 def _evaluate_put_card_under_any_this_turn(
@@ -1028,7 +1058,9 @@ def _evaluate_put_card_under_any_this_turn(
     source_instance_id: int,
 ) -> bool:
     """Evaluate put-card-under-any-this-turn conditions."""
-    return False
+    raise UnsupportedConditionError(
+        "put-card-under-any-this-turn: cards-under tracking is not currently implemented"
+    )
 
 
 def _evaluate_put_card_under_self_this_turn(
@@ -1037,7 +1069,9 @@ def _evaluate_put_card_under_self_this_turn(
     source_instance_id: int,
 ) -> bool:
     """Evaluate put-card-under-self-this-turn conditions."""
-    return False
+    raise UnsupportedConditionError(
+        "put-card-under-self-this-turn: cards-under tracking is not currently implemented"
+    )
 
 
 def _evaluate_numeric_comparison(

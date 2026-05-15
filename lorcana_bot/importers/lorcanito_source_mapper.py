@@ -475,6 +475,8 @@ SUPPORTED_TRIGGER_EFFECT_KINDS = frozenset({
 # Supported target aliases for trigger projection
 # B2: Includes event-derived targets for trigger projection
 # NOTE: CHOSEN_* targets are NOT supported - they require player choice prompts
+# B3: Supported target aliases for trigger projection
+# CHOSEN_* aliases are supported via pending effect layer
 SUPPORTED_TARGET_ALIASES = frozenset({
     "SELF",
     "CONTROLLER",
@@ -492,67 +494,86 @@ SUPPORTED_TARGET_ALIASES = frozenset({
     "TRIGGER_SUBJECT",
     "DAMAGED_CHARACTERS",
     "ALL_CHARACTERS",
+    # B3: CHOSEN_* targets supported via pending effect layer
+    "CHOSEN_CHARACTER",
+    "CHOSEN_OPPOSING_CHARACTER",
+    "CHOSEN_DAMAGED_CHARACTER",
+    "CHOSEN_ITEM",
+    "CHOSEN_LOCATION",
+    "CHOSEN_PLAYER",
+    "CHOSEN_CARD",
+    "CHOSEN_CARD_FROM_HAND",
+    "CHOSEN_CARD_FROM_DISCARD",
+    "CHOSEN_CARD_FROM_DECK",
 })
 
 # Supported condition kinds for trigger projection
 # B2: Expanded with all conditions appearing in real decks
+# B3: Removed conditions that cannot be truthfully evaluated (stub-only or raise)
 SUPPORTED_CONDITION_KINDS = frozenset({
-    # Basic conditions
+    # Basic conditions (fully implemented)
     "always",
     "your-turn",
     "opponent-turn",
     "during-turn",
     "turn",
-    # Count conditions
+    # Count conditions (fully implemented)
     "has-character-count",
     "has-item-count",
     "has-location-count",
     "has-location-in-play",
     "has-another-character",
-    # Character property conditions
+    # Character property conditions (fully implemented)
     "has-character-with-keyword",
     "has-character-with-classification",
     "has-character-with-strength",
     "has-named-character",
     "has-named-item",
-    # Status conditions
+    # Status conditions (fully implemented)
     "is-exerted",
     "exerted",
     "has-any-damage",
     "no-damage",
     "self-has-damage",
-    # Resource conditions
+    # Resource conditions (fully implemented)
     "inkwell-count",
     "resource-count",
-    # Advanced conditions
+    # Advanced conditions (fully implemented)
     "target-query",
     "comparison",
     "lore-comparison",
     "card-type-comparison",
-    # Event-based conditions
-    "banished-in-challenge-this-turn",
+    # Event-based conditions (fully implemented)
     "in-challenge",
     "being-challenged",
-    "has-card-under",
-    "at-location",
-    # Context conditions
+    # Context conditions (fully implemented)
     "play-context",
-    "used-shift",
-    # Logical conditions
+    # Logical conditions (fully implemented with error propagation)
     "and",
     "or",
     "not",
     "if",
-    # Additional conditions from real decks
+    # Additional conditions (fully implemented)
     "opponent-has-damaged-character",
     "first-turn-non-otp",
-    "has-granted-ability",
     "is-named",
     "stat-threshold",
+})
+
+# Blocked condition kinds - these cannot be truthfully evaluated at runtime
+# They block trigger projection rather than allowing incorrect execution
+BLOCKED_CONDITION_KINDS = frozenset({
+    # Requires tracking state not currently available
+    "banished-in-challenge-this-turn",
+    "has-card-under",
+    "at-location",
+    "has-granted-ability",
     "target-aggregate-comparison",
     "trigger-subject-had-card-under",
     "put-card-under-any-this-turn",
     "put-card-under-self-this-turn",
+    # Requires card instance tracking
+    "used-shift",
 })
 
 
@@ -634,7 +655,8 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
     
     Returns None if the effect cannot be projected.
     
-    NOTE: CHOSEN_* targets are not projectable because they require player choice prompts.
+    B3: CHOSEN_* targets are now allowed - they will be resolved via pending effect
+    system at runtime, allowing triggers with chosen targets to project.
     """
     kind = ENGINE_EFFECT_MAP.get(effect.kind)
     if not kind:
@@ -648,13 +670,8 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
     if effect.target:
         if effect.target.execution_status != ExecutionStatus.EXECUTABLE:
             return None
-        # B2: Block CHOSEN_* targets - they require player prompts
-        if effect.target.alias and effect.target.alias.startswith("CHOSEN_"):
-            return None
-        # B2: Block selector-based chosen targets
-        if effect.target.selector == "chosen":
-            return None
         # B2: Check against SUPPORTED_TARGET_ALIASES for trigger projection
+        # B3: CHOSEN_* aliases are now supported via pending effect layer
         if effect.target.alias and effect.target.alias not in SUPPORTED_TARGET_ALIASES:
             return None
         target = _project_target(effect.target)
@@ -664,7 +681,7 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
     if effect.condition:
         if effect.condition.execution_status != ExecutionStatus.EXECUTABLE:
             return None
-        condition = _project_condition(effect.condition)
+        condition = _project_trigger_condition(effect.condition)
     
     # Project children
     children: tuple[EffectDef, ...] = ()

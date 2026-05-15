@@ -1,7 +1,7 @@
 """Tests for automation resolve bag functionality.
 
 Validates that:
-- resolveBag candidates are enumerated with correct metadata
+- resolveBag candidates are enumerated from engine.legal_actions()
 - candidates rank before normal play actions (family order 3)
 - optional accept/decline are scored appropriately
 - mandatory triggers always score high
@@ -11,7 +11,7 @@ from __future__ import annotations
 import pytest
 from unittest.mock import MagicMock
 
-from lorcana_bot.automation.candidate_enumerator import enumerate_automated_action_candidates, _pending_effect_candidates
+from lorcana_bot.automation.candidate_enumerator import enumerate_automated_action_candidates
 from lorcana_bot.automation.candidates import AutomatedActionFamily, FAMILY_ORDER
 from lorcana_bot.automation.strategies.lore_race_strategy import score_lore_race
 from lorcana_bot.automation.strategy import StrategyContext
@@ -171,3 +171,46 @@ class TestResolveEffectFamilyOrder:
     def test_resolve_effect_before_play_card(self):
         """RESOLVE_EFFECT (order 2) should rank before PLAY_CARD (order 4)."""
         assert FAMILY_ORDER[AutomatedActionFamily.RESOLVE_EFFECT] < FAMILY_ORDER[AutomatedActionFamily.PLAY_CARD]
+
+
+class TestCandidateEnumerationSourceOfTruth:
+    """Test that candidates are derived from engine.legal_actions()."""
+
+    def test_enumerate_returns_empty_when_no_legal_actions(self):
+        """When no legal actions, enumeration should be empty."""
+        state = MagicMock()
+        engine = MagicMock()
+        engine.legal_actions.return_value = []
+        
+        result = enumerate_automated_action_candidates(state, engine, 0)
+        
+        assert result.candidates == []
+    
+    def test_enumerate_derives_candidates_from_legal_actions(self):
+        """Candidates should be derived from engine.legal_actions()."""
+        from lorcana_bot.actions import Action
+        from lorcana_bot.constants import ACTION_PLAY_CARD
+        
+        state = MagicMock()
+        # Need to provide cards dict with the instance
+        state.cards = {1: MagicMock(card_id="test_card")}
+        state.players = {0: MagicMock(play=[], inkwell=[])}
+        engine = MagicMock()
+        engine.legal_actions.return_value = [
+            Action(ACTION_PLAY_CARD, actor=0, card=1),
+        ]
+        engine.card_def.return_value = MagicMock(
+            id="test_card",
+            full_name="Test Card",
+            card_type="character",
+            lore=1,
+            cost=1,
+            inkable=False,
+            effects=[],
+        )
+        engine.available_ink.return_value = 3
+        
+        result = enumerate_automated_action_candidates(state, engine, 0)
+        
+        assert len(result.candidates) == 1
+        assert result.candidates[0].family == AutomatedActionFamily.PLAY_CARD

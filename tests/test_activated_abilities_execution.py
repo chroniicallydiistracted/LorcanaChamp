@@ -417,6 +417,7 @@ class TestAutomationIntegration:
         candidate = AutomatedActionCandidate(
             family=AutomatedActionFamily.ACTIVATE_ABILITY,
             actor=0,
+            stable_key="test_ability_0",
             source_instance_id=1,
             source_card_id="test_card",
             ability_id="test_ability",

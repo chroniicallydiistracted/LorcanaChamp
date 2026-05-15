@@ -139,12 +139,24 @@ def _validate_discard_cost(
     ability: ActivatedAbility,
     amount: int,
 ) -> tuple[bool, str]:
-    """Validate that the player has enough cards to discard."""
-    player = state.cards[ability.source_instance_id].controller
-    hand_size = len(state.players[player].hand)
-    if hand_size < amount:
-        return False, f"Not enough cards to discard: need {amount}, have {hand_size}"
-    return True, ""
+    """Validate that the player has enough cards to discard.
+    
+    Note: Discard costs require choice prompts (pending effects) for strategic play.
+    Without pending cost-selection support, discard costs are NOT supported.
+    """
+    # Discard costs require player choice - mark as unsupported for now
+    # unless explicitly marked as random in the raw cost data
+    raw = getattr(ability, 'raw', {}) or {}
+    if raw.get('random_discard'):
+        # Only allow random discard if explicitly marked
+        player = state.cards[ability.source_instance_id].controller
+        hand_size = len(state.players[player].hand)
+        if hand_size < amount:
+            return False, f"Not enough cards to discard: need {amount}, have {hand_size}"
+        return True, ""
+    
+    # Non-random discard requires choice prompt / pending cost selection
+    return False, "Discard cost requires choice prompt (not yet supported)"
 
 
 def pay_cost(

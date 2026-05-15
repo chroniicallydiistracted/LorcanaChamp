@@ -12,21 +12,19 @@
   ],
   "ranked_candidates": [
     {
-      "copies_affected": 162,
-      "deck_presence": 12,
+      "copies_affected": 124,
+      "deck_presence": 11,
       "dependencies": [],
       "milestone": "target_choice_prompts",
       "notes": "",
       "representative_blockers": [
         "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_target:CHOSEN_CHARACTER",
-        "unsupported_trigger_target:CHOSEN_OPPOSING_CHARACTER",
-        "unsupported_trigger_resolution_requirement:scry_ordering",
-        "unsupported_trigger_event:banish-in-challenge"
+        "unsupported_trigger_event:banish-in-challenge",
+        "unsupported_trigger_condition:turn-metric"
       ],
       "representative_cards": [],
-      "score": 801,
-      "unique_cards_affected": 25
+      "score": 602,
+      "unique_cards_affected": 20
     },
     {
       "copies_affected": 55,
@@ -52,7 +50,7 @@
       "milestone": "scry_search_reveal",
       "notes": "",
       "representative_blockers": [
-        "unsupported_trigger_resolution_requirement:scry_ordering"
+        "unsupported_trigger_resolution_requirement:amount"
       ],
       "representative_cards": [],
       "score": 141,

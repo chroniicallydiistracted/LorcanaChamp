@@ -468,16 +468,16 @@ def _analyze_target_support(effect: SourceEffectDef) -> str | None:
     if not target:
         return None
     
+    # B3: CHOSEN_* targets are now supported via pending effect layer
     # Check if target alias is supported
     if target.alias:
-        if target.alias.startswith("CHOSEN_"):
-            return f"unsupported_trigger_target:{target.alias}"
         if target.alias not in SUPPORTED_TARGET_ALIASES:
             return f"unsupported_trigger_target:{target.alias}"
     
     # Check if selector is supported (chosen implies target prompt)
+    # B3: Selector-based chosen targets are also supported via pending effects
     if target.selector == "chosen":
-        return "unsupported_trigger_target:CHOSEN_CHARACTER"
+        return None  # Now supported via pending effect layer
     
     # Recursively check children
     for child in effect.effects:
@@ -805,6 +805,58 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "deck_presence": len(cond_decks[ck]),
         })
     
+    # B2: By target kind with per-kind sets
+    by_target_kind = []
+    target_copies = Counter()
+    target_cards = defaultdict(set)
+    target_decks = defaultdict(set)
+    
+    for row in rows:
+        if row["projection_status"] == "projected":
+            continue
+        for tk in row.get("target_kinds", []):
+            copies = row.get("copy_weight", 1)
+            deck_id = row.get("deck_id")
+            card_id = row.get("card_id")
+            target_copies[tk] += copies
+            target_cards[tk].add(card_id)
+            if deck_id:
+                target_decks[tk].add(deck_id)
+    
+    for tk in sorted(target_copies.keys(), key=lambda x: -target_copies[x]):
+        by_target_kind.append({
+            "target_kind": tk,
+            "copies": target_copies[tk],
+            "unique_cards": len(target_cards[tk]),
+            "deck_presence": len(target_decks[tk]),
+        })
+    
+    # B2: By resolution requirement with per-kind sets
+    by_resolution_requirement = []
+    res_copies = Counter()
+    res_cards = defaultdict(set)
+    res_decks = defaultdict(set)
+    
+    for row in rows:
+        if row["projection_status"] == "projected":
+            continue
+        for rr in row.get("resolution_requirements", []):
+            copies = row.get("copy_weight", 1)
+            deck_id = row.get("deck_id")
+            card_id = row.get("card_id")
+            res_copies[rr] += copies
+            res_cards[rr].add(card_id)
+            if deck_id:
+                res_decks[rr].add(deck_id)
+    
+    for rr in sorted(res_copies.keys(), key=lambda x: -res_copies[x]):
+        by_resolution_requirement.append({
+            "resolution_requirement": rr,
+            "copies": res_copies[rr],
+            "unique_cards": len(res_cards[rr]),
+            "deck_presence": len(res_decks[rr]),
+        })
+
     return {
         "summary": {
             "total_decks": len(set(r.get("deck_id", "unknown") for r in rows)),
@@ -819,11 +871,11 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "by_primary_blocker_unique_cards": [],  # Can be derived
         "by_primary_blocker_deck_presence": [],  # Can be derived
         "by_trigger_event": by_trigger_event,
-        "by_trigger_on": [],  # Can be derived
-        "by_effect_kind": [],  # Can be derived
-        "by_target_kind": [],  # Can be derived
-        "by_condition_kind": [],  # Can be derived
-        "by_resolution_requirement": [],  # Can be derived
+        "by_trigger_on": by_trigger_on,
+        "by_effect_kind": by_effect_kind,
+        "by_target_kind": by_target_kind,
+        "by_condition_kind": by_condition_kind,
+        "by_resolution_requirement": by_resolution_requirement,
         "by_recommended_engine_work": by_recommended_engine_work,
         "top_cards_by_blocked_copies": [],  # Can be derived
         "top_decks_by_blocked_copies": [],  # Can be derived

@@ -20,10 +20,6 @@ if TYPE_CHECKING:
     from lorcana_bot.state import GameState
     from lorcana_bot.engine import GameEngine
 
-# Play mode constants
-ACTION_SING_SONG = "SING_SONG"
-ACTION_PLAY_SHIFTED = "PLAY_SHIFTED"
-
 
 @dataclass(frozen=True, slots=True)
 class ShiftTarget:
@@ -227,17 +223,38 @@ def _get_action_subtype(card) -> str | None:
     return None
 
 
-def is_song_card(engine: GameEngine, card_id: int | str) -> bool:
+def is_song_card(engine: GameEngine, card_id: int | str, state: GameState | None = None) -> bool:
     """Check if a card definition represents a song.
     
     Args:
         engine: The game engine (to access card database)
         card_id: Card ID (string) or instance ID (int)
+        state: Optional game state to resolve instance IDs
         
     Returns:
         True if the card is a song action
     """
-    card = engine.db.get(card_id) if isinstance(card_id, str) else engine.db.get(str(card_id))
+    card = None
+    
+    # If we have state and card_id is an instance ID, use engine.card_def
+    if isinstance(card_id, int) and state is not None:
+        if card_id in state.cards:
+            card = engine.card_def(state, card_id)
+        else:
+            # Try to find as card ID in database
+            try:
+                card = engine.db.get(str(card_id))
+            except (KeyError, ValueError):
+                return False
+    elif isinstance(card_id, int):
+        # No state provided - try to find as card ID in database
+        try:
+            card = engine.db.get(str(card_id))
+        except (KeyError, ValueError):
+            return False
+    else:
+        card = engine.db.get(card_id)
+    
     if card is None:
         return False
     if hasattr(card, 'card_type') and card.card_type == "action":

@@ -384,8 +384,8 @@ class TestEventDerivedTargetProjection:
         result = project_triggers(card)
         assert len(result) == 1
 
-    def test_chosen_character_target_blocks_projection(self):
-        """CHOSEN_CHARACTER target should block projection (no fake prompts)."""
+    def test_chosen_character_target_now_projects(self):
+        """CHOSEN_CHARACTER target now projects via pending effect layer (B3)."""
         from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
         
         card = CardDef(
@@ -402,9 +402,11 @@ class TestEventDerivedTargetProjection:
         ability = self._make_trigger_with_target("deal-damage", "CHOSEN_CHARACTER")
         object.__setattr__(card, 'source_abilities', (ability,))
         
-        # CHOSEN_CHARACTER should NOT project because it requires a player choice
+        # B3: CHOSEN_CHARACTER now projects because pending effect layer
+        # handles target prompts at runtime
         result = project_triggers(card)
-        assert len(result) == 0
+        assert len(result) == 1
+        assert result[0].effects[0].target == "chosen_character"
 
 
 class TestQuestTriggerGainLore:

@@ -48,9 +48,18 @@ class EffectResolver:
             player = self._target_player(state, effect, context)
             state.players[player].lore = max(0, state.players[player].lore - self._amount(effect))
         elif kind == "deal_damage":
+            # B8: Use replacement layer for effect damage
+            from .replacement_effects import deal_damage as replacement_deal_damage
             for target in self._target_cards(state, effect, context):
                 target_def = self.engine.card_def(state, target)
-                state.cards[target].damage += self.engine.damage_after_resist(target_def, self._amount(effect))
+                base_amount = self.engine.damage_after_resist(target_def, self._amount(effect))
+                damage_event = replacement_deal_damage(
+                    state,
+                    target_id=target,
+                    source_id=context.source,
+                    amount=base_amount,
+                    is_challenge=False,
+                )
         elif kind == "remove_damage":
             for target in self._target_cards(state, effect, context):
                 state.cards[target].damage = max(0, state.cards[target].damage - self._amount(effect))
@@ -214,19 +223,36 @@ class EffectResolver:
                 return []
             return [context.trigger_source]
         if target == "event_target":
-            if context.event_payload and "event_target_id" in context.event_payload:
-                return [context.event_payload["event_target_id"]]
-            if context.target is None:
-                if require_target:
-                    raise EffectResolutionError(f"Effect {effect.kind} requires event_target")
-                return []
-            return [context.target]
+            # B2: Normalized event target resolution priority
+            # 1. context.target (already normalized from payload)
+            if context.target is not None:
+                return [context.target]
+            # 2. context.current_targets[0]
+            if context.current_targets:
+                return [context.current_targets[0]]
+            # 3. Fall through to event_payload (for legacy/testing)
+            if context.event_payload:
+                event_target_id = (
+                    context.event_payload.get("event_target_id")
+                    or context.event_payload.get("target_id")
+                    or context.event_payload.get("defender_id")
+                )
+                if event_target_id:
+                    return [event_target_id]
+            if require_target:
+                raise EffectResolutionError(f"Effect {effect.kind} requires event_target")
+            return []
         if target == "trigger_subject":
-            if context.trigger_subject is None:
-                if require_target:
-                    raise EffectResolutionError(f"Effect {effect.kind} requires trigger_subject")
-                return []
-            return [context.trigger_subject]
+            # B2: Normalized trigger subject resolution priority
+            # 1. context.trigger_subject
+            if context.trigger_subject is not None:
+                return [context.trigger_subject]
+            # 2. context.event_payload['subject_card_id']
+            if context.event_payload and "subject_card_id" in context.event_payload:
+                return [context.event_payload["subject_card_id"]]
+            if require_target:
+                raise EffectResolutionError(f"Effect {effect.kind} requires trigger_subject")
+            return []
         if target in {"your_characters", "your_other_characters", "opposing_characters", "all_characters", "damaged_characters", "opposing_damaged_characters"}:
             return self._collection(state, target, context)
         raise EffectResolutionError(f"Unsupported card target {target!r} for {effect.kind}")
@@ -290,37 +316,27 @@ class EffectResolver:
         """Handle scry effect - look at top N cards and order them.
         
         Scry requires creating a pending effect that allows the player to:
-        1. Look at the top N cards of their deck
+        1. Look at the top N cards of their deck (private)
         2. Put any number on top in any order
         3. Put the rest on bottom in any order
         
-        This is typically auto-resolved by the engine with pending input handling.
-        For now, we mark it as requiring pending effect resolution.
+        Uses create_scry_pending_effect which stores top N card IDs privately
+        and does NOT move cards until resolve_scry_ordering is called.
         """
-        from .pending_effects import create_pending_effect
-        from .cards import EffectDef
+        from .pending_effects import create_scry_pending_effect
         
         amount = self._amount(effect)
         if amount <= 0:
             return
         
-        # Create a sequence effect for scry ordering
-        # The player will look at top N, then order them
-        scry_effects = (
-            EffectDef(kind="look_at_top", amount=amount),
-            EffectDef(kind="sequence", effects=(
-                EffectDef(kind="put_card_on_top", amount=amount),
-                EffectDef(kind="put_card_on_bottom", amount=amount),
-            )),
-        )
-        
-        create_pending_effect(
+        # Create proper scry pending effect with requirement tracking
+        create_scry_pending_effect(
             state=state,
             controller_id=context.actor,
             chooser_id=context.actor,
             source_id=context.source,
             source_card_id=self.engine.card_def(state, context.source).id if context.source else None,
-            effects=scry_effects,
+            amount=amount,
             origin="scry",
         )
 
@@ -465,9 +481,11 @@ class EffectResolver:
         
         This requires pending player input to select which card to take.
         The filter is specified in effect.value as a card type, keyword, or name.
+        
+        Uses create_search_pending_effect which stores candidate card IDs privately
+        and requires explicit selection before moving.
         """
-        from .pending_effects import create_pending_effect
-        from .cards import EffectDef
+        from .pending_effects import create_search_pending_effect
         
         player = self._target_player(state, effect, context)
         player_deck = state.players[player].deck
@@ -475,19 +493,28 @@ class EffectResolver:
         if not player_deck:
             return
         
-        # Create search pending effect that requires player to choose a card
-        # The engine will filter legal cards based on effect.value
-        search_effects = (
-            EffectDef(kind="put_card_in_hand"),
-        )
+        # Parse filter from effect.value (card_type, keyword, or name)
+        filter_desc = str(effect.value) if effect.value else None
         
-        create_pending_effect(
+        # For now, include all deck cards as candidates (full search)
+        # In a real implementation, this would filter based on effect.value
+        candidate_ids = tuple(player_deck)
+        
+        # Determine destination from effect or default
+        destination = str(effect.value) if effect.value else "hand"
+        
+        # Create proper search pending effect with requirement tracking
+        create_search_pending_effect(
             state=state,
             controller_id=context.actor,
             chooser_id=player,  # Player whose deck is being searched makes the choice
             source_id=context.source,
             source_card_id=self.engine.card_def(state, context.source).id if context.source else None,
-            effects=search_effects,
+            candidate_ids=candidate_ids,
+            destination=destination,
+            shuffle_after=True,  # Most search effects shuffle after
+            filter_desc=filter_desc,
+            max_select=1,
             origin="search_deck",
         )
 

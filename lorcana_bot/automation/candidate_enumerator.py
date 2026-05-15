@@ -45,9 +45,9 @@ def enumerate_automated_action_candidates(
     legal = sorted(engine.legal_actions(state, actor), key=_action_sort_key)
     raw_candidates: list[AutomatedActionCandidate] = []
 
-    # B7: Enumerate pending effects (resolveEffect) - these rank at family order 2
-    raw_candidates.extend(_pending_effect_candidates(state, engine, actor))
-
+    # B7: Use engine.legal_actions() as source of truth for candidate enumeration.
+    # This avoids duplication because the engine already includes RESOLVE_PENDING_EFFECT
+    # and RESOLVE_BAG when those are appropriate for the actor.
     for action in legal:
         candidate = _candidate_from_action(state, engine, action)
         if candidate is not None:
@@ -412,6 +412,54 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
             payment_mode="standard",
             label=f"Play {cdef.full_name}",
             metadata=metadata,
+        )
+    # B10: Alternative play modes - SING_SONG and PLAY_SHIFTED
+    if action.kind == "SING_SONG":
+        song_def = engine.card_def(state, action.card)
+        singer_def = engine.card_def(state, action.source) if action.source else None
+        return AutomatedActionCandidate(
+            family=AutomatedActionFamily.SING_SONG,
+            actor=actor,
+            stable_key=make_stable_key(
+                AutomatedActionFamily.SING_SONG, actor,
+                song=action.card, song_id=song_def.id,
+                singer=action.source, singer_id=singer_def.id if singer_def else None,
+            ),
+            card_instance_id=action.card,
+            source_card_id=song_def.id,
+            source_instance_id=action.source,
+            singer_instance_ids=(action.source,) if action.source else (),
+            payment_mode="sing",
+            label=f"Sing {song_def.full_name} with {singer_def.full_name if singer_def else 'singer'}",
+            metadata={
+                "song_id": song_def.id,
+                "singer_id": singer_def.id if singer_def else None,
+                "payment_mode": "sing",
+            },
+        )
+    if action.kind == "PLAY_SHIFTED":
+        shift_def = engine.card_def(state, action.card)
+        target_def = engine.card_def(state, action.target) if action.target else None
+        return AutomatedActionCandidate(
+            family=AutomatedActionFamily.PLAY_SHIFTED,
+            actor=actor,
+            stable_key=make_stable_key(
+                AutomatedActionFamily.PLAY_SHIFTED, actor,
+                card=action.card, card_id=shift_def.id,
+                target=action.target, target_id=target_def.id if target_def else None,
+            ),
+            card_instance_id=action.card,
+            source_card_id=shift_def.id,
+            target_instance_id=action.target,
+            target_card_id=target_def.id if target_def else None,
+            shift_target_instance_id=action.target,
+            payment_mode="shift",
+            label=f"Shift {shift_def.full_name} onto {target_def.full_name if target_def else 'target'}",
+            metadata={
+                "shift_target_id": action.target,
+                "shift_target_name": target_def.full_name if target_def else None,
+                "payment_mode": "shift",
+            },
         )
     if action.kind == ACTION_QUEST:
         cdef = engine.card_def(state, action.source)

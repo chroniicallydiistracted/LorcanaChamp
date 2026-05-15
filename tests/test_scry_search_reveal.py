@@ -334,6 +334,287 @@ class TestRevealAndRoute:
         assert len(sample_game_state.players[0].hand) == initial_hand_size + 1
 
 
+class TestScryRequirementTruthfulness:
+    """Tests for scry pending requirement truthfulness (MICRO PROMPT 5.1)."""
+
+    def test_scry_creates_pending_without_moving_cards(self, sample_game_state, engine):
+        """Scry should create pending effect without moving any cards."""
+        from lorcana_bot.cards import EffectDef
+        
+        # Get deck before
+        deck_before = list(sample_game_state.players[0].deck)
+        
+        resolver = EffectResolver(engine)
+        context = EffectResolutionContext(actor=0, source=None)
+        
+        # Execute scry effect
+        effect = EffectDef(kind="scry", amount=3)
+        resolver.resolve(sample_game_state, effect, context)
+        
+        # Deck should be unchanged
+        deck_after = list(sample_game_state.players[0].deck)
+        assert deck_after == deck_before
+        
+        # But we should have a pending effect
+        pending = [pe for pe in sample_game_state.pending_effects 
+                   if pe.raw.get("requirement_kind") == "scry_ordering"]
+        assert len(pending) == 1
+
+    def test_scry_pending_effect_has_candidates(self, sample_game_state, engine):
+        """Scry pending effect should store top N card IDs."""
+        from lorcana_bot.cards import EffectDef
+        
+        resolver = EffectResolver(engine)
+        context = EffectResolutionContext(actor=0, source=None)
+        
+        effect = EffectDef(kind="scry", amount=3)
+        resolver.resolve(sample_game_state, effect, context)
+        
+        pending = sample_game_state.pending_effects[-1]
+        scry_req = pending.raw.get("requirement")
+        
+        assert scry_req is not None
+        assert len(scry_req.candidate_ids) == 3
+        assert all(cid in sample_game_state.players[0].deck for cid in scry_req.candidate_ids)
+
+    def test_resolve_scry_ordering_validates_count(self, sample_game_state):
+        """resolve_scry_ordering should reject mismatched counts."""
+        from lorcana_bot.pending_effects import (
+            create_scry_pending_effect, resolve_scry_ordering, get_pending_effect_by_id
+        )
+        
+        # Create scry for 3 cards
+        pe = create_scry_pending_effect(
+            sample_game_state, 0, 0, None, None, 3, origin="test"
+        )
+        
+        # Try to resolve with wrong count
+        with pytest.raises(ValueError, match="count mismatch"):
+            resolve_scry_ordering(
+                sample_game_state, pe.id,
+                top_cards=(1, 2),  # Only 2 cards
+                bottom_cards=()    # Empty - should be 1 bottom card for total of 3
+            )
+
+    def test_resolve_scry_ordering_validates_cards(self, sample_game_state):
+        """resolve_scry_ordering should reject invalid card IDs."""
+        from lorcana_bot.pending_effects import create_scry_pending_effect, resolve_scry_ordering
+        
+        pe = create_scry_pending_effect(
+            sample_game_state, 0, 0, None, None, 3, origin="test"
+        )
+        
+        # Try to resolve with a card not in candidates
+        with pytest.raises(ValueError, match="not a valid scry candidate"):
+            resolve_scry_ordering(
+                sample_game_state, pe.id,
+                top_cards=(1, 2, 999),  # 999 is not in candidates
+                bottom_cards=()
+            )
+
+    def test_resolve_scry_ordering_mutates_deck(self, sample_game_state):
+        """resolve_scry_ordering should correctly reorder deck."""
+        from lorcana_bot.pending_effects import create_scry_pending_effect, resolve_scry_ordering
+        
+        # Get top 3 cards
+        original_cids = sample_game_state.players[0].deck[:3]
+        
+        pe = create_scry_pending_effect(
+            sample_game_state, 0, 0, None, None, 3, origin="test"
+        )
+        
+        # Put card 3 on top, cards 1-2 on bottom
+        resolve_scry_ordering(
+            sample_game_state, pe.id,
+            top_cards=(original_cids[2],),
+            bottom_cards=(original_cids[0], original_cids[1])
+        )
+        
+        # Check new order - top card should be last of top cards
+        # After reorder: [original_cids[2], original_cids[0], original_cids[1], ...rest]
+        new_deck = sample_game_state.players[0].deck
+        assert new_deck[0] == original_cids[2]  # Top card from scry on top
+
+
+class TestSearchRequirementTruthfulness:
+    """Tests for search pending requirement truthfulness (MICRO PROMPT 5.1)."""
+
+    def test_search_creates_pending_with_candidates(self, sample_game_state, engine):
+        """Search should create pending effect with candidates for chooser."""
+        from lorcana_bot.cards import EffectDef
+        
+        resolver = EffectResolver(engine)
+        context = EffectResolutionContext(actor=0, source=None)
+        
+        effect = EffectDef(kind="search_deck")
+        resolver.resolve(sample_game_state, effect, context)
+        
+        pending = sample_game_state.pending_effects[-1]
+        search_req = pending.raw.get("requirement")
+        
+        assert search_req is not None
+        assert len(search_req.candidate_ids) > 0
+        # Search candidates should be in choice_options (private to chooser)
+        assert len(pending.choice_options) > 0
+
+    def test_resolve_search_selection_validates_card(self, sample_game_state):
+        """resolve_search_selection should reject invalid card."""
+        from lorcana_bot.pending_effects import create_search_pending_effect, resolve_search_selection
+        
+        pe = create_search_pending_effect(
+            sample_game_state, 0, 0, None, None,
+            candidate_ids=(1, 2, 3),
+            destination="hand",
+            origin="test"
+        )
+        
+        with pytest.raises(ValueError, match="not a valid search candidate"):
+            resolve_search_selection(sample_game_state, pe.id, selected_card_id=999)
+
+    def test_resolve_search_selection_moves_card(self, sample_game_state):
+        """resolve_search_selection should move card to destination."""
+        from lorcana_bot.pending_effects import create_search_pending_effect, resolve_search_selection
+        
+        # Get a card from deck
+        cid = sample_game_state.players[0].deck[0]
+        
+        pe = create_search_pending_effect(
+            sample_game_state, 0, 0, None, None,
+            candidate_ids=(cid,),
+            destination="hand",
+            origin="test"
+        )
+        
+        initial_hand_size = len(sample_game_state.players[0].hand)
+        
+        resolve_search_selection(sample_game_state, pe.id, selected_card_id=cid)
+        
+        # Card should be in hand
+        assert cid in sample_game_state.players[0].hand
+        assert len(sample_game_state.players[0].hand) == initial_hand_size + 1
+
+    def test_resolve_search_selection_shuffles_if_required(self, sample_game_state):
+        """resolve_search_selection should shuffle if shuffle_after=True."""
+        from lorcana_bot.pending_effects import create_search_pending_effect, resolve_search_selection
+        
+        cid = sample_game_state.players[0].deck[0]
+        
+        pe = create_search_pending_effect(
+            sample_game_state, 0, 0, None, None,
+            candidate_ids=(cid,),
+            destination="hand",
+            shuffle_after=True,
+            origin="test"
+        )
+        
+        resolve_search_selection(sample_game_state, pe.id, selected_card_id=cid)
+        
+        # Deck should still have same cards (just reordered)
+        assert len(sample_game_state.players[0].deck) == 4
+
+
+class TestPrivacyPolicy:
+    """Tests for privacy policy in scry/search/reveal (MICRO PROMPT 5.1)."""
+
+    def test_scry_event_does_not_leak_identities(self, sample_game_state, engine):
+        """SCRY_RESOLVED event should not include card identities in payload."""
+        from lorcana_bot.pending_effects import create_scry_pending_effect, resolve_scry_ordering
+        from lorcana_bot.state import GameEvent
+        
+        pe = create_scry_pending_effect(
+            sample_game_state, 0, 0, None, None, 3, origin="test"
+        )
+        
+        # Get candidate IDs to verify
+        candidates = pe.raw["requirement"].candidate_ids
+        
+        # Resolve scry
+        resolve_scry_ordering(
+            sample_game_state, pe.id,
+            top_cards=(candidates[0],),
+            bottom_cards=(candidates[1], candidates[2])
+        )
+        
+        # Find scry event
+        scry_events = [e for e in sample_game_state.event_log 
+                      if e.event_type == "SCRY_RESOLVED"]
+        assert len(scry_events) == 1
+        
+        event = scry_events[0]
+        assert event.payload.get("private") is True
+        # Verify card identities are NOT in payload
+        assert "card_ids" not in event.payload
+        assert "top_card_ids" not in event.payload
+
+    def test_search_event_does_not_leak_filter(self, sample_game_state):
+        """SEARCH_RESOLVED event should not reveal filter details."""
+        from lorcana_bot.pending_effects import create_search_pending_effect, resolve_search_selection
+        
+        cid = sample_game_state.players[0].deck[0]
+        
+        pe = create_search_pending_effect(
+            sample_game_state, 0, 0, None, None,
+            candidate_ids=(cid,),
+            destination="hand",
+            filter_desc="character",
+            origin="test"
+        )
+        
+        resolve_search_selection(sample_game_state, pe.id, selected_card_id=cid)
+        
+        # Find search event
+        search_events = [e for e in sample_game_state.event_log 
+                        if e.event_type == "SEARCH_RESOLVED"]
+        assert len(search_events) == 1
+        
+        event = search_events[0]
+        assert event.payload.get("private") is True
+
+
+class TestRevealRoutingTruthfulness:
+    """Tests for reveal routing truthfulness (MICRO PROMPT 5.1)."""
+
+    def test_reveal_top_card_marks_public(self, sample_game_state, engine):
+        """Reveal top card should mark card as revealed (public)."""
+        from lorcana_bot.cards import EffectDef
+        
+        deck = sample_game_state.players[0].deck
+        if not deck:
+            pytest.skip("Need cards in deck")
+        
+        cid = deck[0]
+        
+        resolver = EffectResolver(engine)
+        context = EffectResolutionContext(actor=0, source=None)
+        
+        effect = EffectDef(kind="reveal_top_card", amount=1)
+        resolver.resolve(sample_game_state, effect, context)
+        
+        assert sample_game_state.cards[cid].revealed is True
+
+    def test_reveal_and_route_with_fixed_destination(self, sample_game_state, engine):
+        """reveal_and_route with fixed destination should auto-route."""
+        from lorcana_bot.cards import EffectDef
+        
+        deck = sample_game_state.players[0].deck
+        if not deck:
+            pytest.skip("Need cards in deck")
+        
+        cid = deck[0]
+        initial_hand_size = len(sample_game_state.players[0].hand)
+        
+        resolver = EffectResolver(engine)
+        context = EffectResolutionContext(actor=0, source=None)
+        
+        # Fixed destination = hand
+        effect = EffectDef(kind="reveal_and_route", value="hand")
+        resolver.resolve(sample_game_state, effect, context)
+        
+        # Card should be in hand
+        assert cid in sample_game_state.players[0].hand
+        assert len(sample_game_state.players[0].hand) == initial_hand_size + 1
+
+
 class TestTriggerBlockerReportUpdates:
     """Tests that trigger blocker report recognizes new effect kinds."""
 
