@@ -1045,32 +1045,33 @@ class GameEngine:
         if target_def.card_type == CARD_CHARACTER:
             defender_base_damage = self._damage_after_resist(source_def, self.effective_strength(state, action.target))
         
-        # Apply damage through replacement layer for attacker -> target
-        attacker_event = replacement_deal_damage(
+        # Apply damage through the engine-owned damage helper so DAMAGE_DEALT
+        # events are emitted and triggers are buffered. Challenge damage has
+        # already had resist applied above, so apply_resist=False here.
+        attacker_event = self._deal_damage_eventful(
             state,
             target_id=action.target,
             source_id=action.source,
             amount=attacker_base_damage,
+            actor=action.actor,
             is_challenge=True,
+            apply_resist=False,
         )
         attacker_damage_dealt = attacker_event.current_amount
         
-        # Apply damage through replacement layer for target -> attacker (only for characters)
+        # Apply damage through the engine-owned damage helper for defender -> attacker.
         if target_def.card_type == CARD_CHARACTER:
-            defender_event = replacement_deal_damage(
+            defender_event = self._deal_damage_eventful(
                 state,
                 target_id=action.source,
                 source_id=action.target,
                 amount=defender_base_damage,
+                actor=target_inst.controller,
                 is_challenge=True,
+                apply_resist=False,
             )
             defender_damage_dealt = defender_event.current_amount
-            if defender_damage_dealt > 0:
-                source_inst.last_damage_source = action.target
-                source_inst.last_damage_was_challenge = True
         
-        target_inst.last_damage_source = action.source
-        target_inst.last_damage_was_challenge = True
         target_inst.was_challenged_this_turn = True
         
         # Emit challenge event with rich Lorcanito-aligned payload

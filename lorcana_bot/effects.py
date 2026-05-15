@@ -48,17 +48,15 @@ class EffectResolver:
             player = self._target_player(state, effect, context)
             state.players[player].lore = max(0, state.players[player].lore - self._amount(effect))
         elif kind == "deal_damage":
-            # B8: Use replacement layer for effect damage
-            from .replacement_effects import deal_damage as replacement_deal_damage
             for target in self._target_cards(state, effect, context):
-                target_def = self.engine.card_def(state, target)
-                base_amount = self.engine.damage_after_resist(target_def, self._amount(effect))
-                damage_event = replacement_deal_damage(
+                self.engine._deal_damage_eventful(
                     state,
                     target_id=target,
                     source_id=context.source,
-                    amount=base_amount,
+                    amount=self._amount(effect),
+                    actor=context.actor,
                     is_challenge=False,
+                    apply_resist=True,
                 )
         elif kind == "remove_damage":
             for target in self._target_cards(state, effect, context):
