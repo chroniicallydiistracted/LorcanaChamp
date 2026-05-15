@@ -129,20 +129,120 @@ def buffer_trigger_event(
     happened_in_challenge: bool = False,
     event_snapshot: dict[str, Any] | None = None,
 ) -> PendingTriggeredEvent:
-    """Buffer a game event as a PendingTriggeredEvent for later trigger matching."""
+    """Buffer a game event as a PendingTriggeredEvent for later trigger matching.
+
+    Payload values emitted by GameEngine.emit_event() are authoritative. Explicit
+    function arguments remain fallback values for tests and older call sites.
+    """
     canonical = canonical_trigger_event(event)
+    payload: dict[str, Any] = dict(event.payload or {})
+
+    def first_present(*values: Any) -> Any:
+        for value in values:
+            if value is not None:
+                return value
+        return None
+
+    resolved_player_id = first_present(
+        payload.get("player_id"),
+        payload.get("playerId"),
+        event.actor,
+    )
+    resolved_subject_card_id = first_present(
+        payload.get("subject_card_id"),
+        payload.get("subjectCardId"),
+        subject_card_id,
+        event.source,
+    )
+    resolved_trigger_source_card_id = first_present(
+        payload.get("trigger_source_card_id"),
+        payload.get("triggerSourceCardId"),
+        trigger_source_card_id,
+    )
+    resolved_source_card_type = first_present(
+        payload.get("source_card_type"),
+        payload.get("sourceCardType"),
+        payload.get("card_type"),
+        payload.get("cardType"),
+        payload.get("banished_card_type"),
+        payload.get("banishedCardType"),
+        source_card_type,
+    )
+    resolved_attacker_id = first_present(
+        payload.get("attacker_id"),
+        payload.get("attackerId"),
+        attacker_id,
+    )
+    resolved_defender_id = first_present(
+        payload.get("defender_id"),
+        payload.get("defenderId"),
+        defender_id,
+        event.target,
+    )
+    resolved_defender_card_type = first_present(
+        payload.get("defender_card_type"),
+        payload.get("defenderCardType"),
+    )
+    resolved_happened_in_challenge = bool(first_present(
+        payload.get("happened_in_challenge"),
+        payload.get("happenedInChallenge"),
+        happened_in_challenge,
+    ))
+    resolved_from_zone = first_present(
+        payload.get("from_zone"),
+        payload.get("fromZone"),
+    )
+    resolved_to_zone = first_present(
+        payload.get("to_zone"),
+        payload.get("toZone"),
+    )
+    resolved_damage_dealt = first_present(
+        payload.get("damage_dealt"),
+        payload.get("damageDealt"),
+        payload.get("attacker_damage_dealt"),
+        payload.get("attackerDamageDealt"),
+    )
+    resolved_lore_gained = first_present(
+        payload.get("lore_gained"),
+        payload.get("loreGained"),
+        payload.get("lore"),
+    )
+
+    snapshot: dict[str, Any] = dict(payload)
+    if event_snapshot:
+        snapshot.update(event_snapshot)
+
+    snapshot.update({
+        "event": canonical,
+        "player_id": resolved_player_id,
+        "subject_card_id": resolved_subject_card_id,
+        "trigger_source_card_id": resolved_trigger_source_card_id,
+        "source_card_type": resolved_source_card_type,
+        "attacker_id": resolved_attacker_id,
+        "defender_id": resolved_defender_id,
+        "defender_card_type": resolved_defender_card_type,
+        "happened_in_challenge": resolved_happened_in_challenge,
+        "from_zone": resolved_from_zone,
+        "to_zone": resolved_to_zone,
+        "damage_dealt": resolved_damage_dealt,
+        "lore_gained": resolved_lore_gained,
+    })
+
     pending = PendingTriggeredEvent(
         id=state.next_event_id(),
         event=canonical,
-        player_id=event.actor,
-        subject_card_id=subject_card_id or event.source,
-        trigger_source_card_id=trigger_source_card_id,
-        source_card_type=source_card_type,
-        attacker_id=attacker_id,
-        defender_id=defender_id,
-        happened_in_challenge=happened_in_challenge,
-        event_snapshot=event_snapshot or {},
-        payload=dict(event.payload) if event.payload else {},
+        player_id=resolved_player_id,
+        subject_card_id=resolved_subject_card_id,
+        trigger_source_card_id=resolved_trigger_source_card_id,
+        source_card_type=resolved_source_card_type,
+        from_zone=resolved_from_zone,
+        to_zone=resolved_to_zone,
+        attacker_id=resolved_attacker_id,
+        defender_id=resolved_defender_id,
+        defender_card_type=resolved_defender_card_type,
+        happened_in_challenge=resolved_happened_in_challenge,
+        event_snapshot=snapshot,
+        payload=payload,
     )
     state.pending_trigger_events.append(pending)
     return pending
