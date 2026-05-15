@@ -411,7 +411,7 @@ def test_effect_damage_emits_damage_dealt_event(engine):
 
 
 def test_prevented_damage_event_payload_records_prevention(engine):
-    """Damage event payload records prevented amount from replacement effects."""
+    """Partially prevented damage still emits DAMAGE_DEALT with prevention metadata."""
     from lorcana_bot.replacement_effects import ReplacementEffectEntry, ReplacementEffectType, register_replacement_effect
 
     state = GameState(players=[PlayerState(), PlayerState()], cards={})
@@ -447,3 +447,101 @@ def test_prevented_damage_event_payload_records_prevention(engine):
     assert logged[0].payload["original_amount"] == 3
     assert logged[0].payload["prevented_amount"] == 1
     assert logged[0].payload["was_replaced"] is True
+    assert state.pending_trigger_events[-1].event == "deal-damage"
+
+
+def test_fully_prevented_damage_emits_no_damage_dealt_event(engine):
+    """Fully prevented damage is not damage dealt and must not trigger deal-damage."""
+    from lorcana_bot.replacement_effects import ReplacementEffectEntry, ReplacementEffectType, register_replacement_effect
+
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.cards[2] = CardInstance(instance_id=2, card_id="test_char2", owner=1, controller=1, zone=ZONE_PLAY)
+    state.players[0].play = [1]
+    state.players[1].play = [2]
+
+    register_replacement_effect(
+        state,
+        ReplacementEffectEntry(
+            source_id=2,
+            effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+            target_mode="self",
+            amount=3,
+        ),
+    )
+
+    damage_event = engine._deal_damage_eventful(
+        state,
+        target_id=2,
+        source_id=1,
+        amount=3,
+        actor=0,
+        is_challenge=False,
+        apply_resist=False,
+    )
+
+    assert damage_event.current_amount == 0
+    assert state.cards[2].damage == 0
+    logged = [event for event in state.event_log if event.event_type == EVENT_DAMAGE_DEALT]
+    assert logged == []
+    assert [pending.event for pending in state.pending_trigger_events] == []
+
+
+def test_resist_reduced_damage_to_zero_emits_no_damage_dealt_event():
+    """Damage reduced to 0 by Resist is not damage dealt."""
+    # Create an engine with a card that has RESIST keyword
+    cards = [
+        CardDef("test_char", "Test Char", "amber", 2, True, "character", 2, 2, 1),
+        CardDef("resist_char", "Resist Char", "amber", 3, True, "character", 3, 3, 1, keywords=("RESIST",)),
+    ]
+    db = CardDatabase(cards)
+    engine = GameEngine(db)
+    
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.cards[2] = CardInstance(instance_id=2, card_id="resist_char", owner=1, controller=1, zone=ZONE_PLAY)
+    state.players[0].play = [1]
+    state.players[1].play = [2]
+
+    # RESIST 1 reduces 3 damage to 2, so we need higher damage to test zero
+    # Use amount=1 which should be reduced to 0 by RESIST
+    damage_event = engine._deal_damage_eventful(
+        state,
+        target_id=2,
+        source_id=1,
+        amount=1,
+        actor=0,
+        is_challenge=False,
+        apply_resist=True,
+    )
+
+    assert damage_event.current_amount == 0
+    assert state.cards[2].damage == 0
+    logged = [event for event in state.event_log if event.event_type == EVENT_DAMAGE_DEALT]
+    assert logged == []
+    assert [pending.event for pending in state.pending_trigger_events] == []
+
+
+def test_zero_amount_damage_emits_no_damage_dealt_event(engine):
+    """A zero amount damage instruction is not damage dealt."""
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.cards[2] = CardInstance(instance_id=2, card_id="test_char2", owner=1, controller=1, zone=ZONE_PLAY)
+    state.players[0].play = [1]
+    state.players[1].play = [2]
+
+    damage_event = engine._deal_damage_eventful(
+        state,
+        target_id=2,
+        source_id=1,
+        amount=0,
+        actor=0,
+        is_challenge=False,
+        apply_resist=False,
+    )
+
+    assert damage_event.current_amount == 0
+    assert state.cards[2].damage == 0
+    logged = [event for event in state.event_log if event.event_type == EVENT_DAMAGE_DEALT]
+    assert logged == []
+    assert [pending.event for pending in state.pending_trigger_events] == []

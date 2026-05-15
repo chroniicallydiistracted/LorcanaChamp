@@ -822,6 +822,12 @@ class GameEngine:
             is_challenge=is_challenge,
         )
 
+        # Lorcanito parity: if final damage is 0 or less after Resist,
+        # replacement, or prevention, no damage was dealt. Do not emit
+        # DAMAGE_DEALT and do not buffer a deal-damage trigger.
+        if damage_event.current_amount <= 0:
+            return damage_event
+
         source_controller = None
         if source_id is not None and source_id in state.cards:
             source_controller = state.cards[source_id].controller
