@@ -346,7 +346,7 @@
       "full_name": "Madam Mim - Elephant",
       "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
       "recommended_engine_work": [
-        "scry_search_reveal"
+        "other_source_execution"
       ],
       "resolution_requirements": [],
       "source_file": "",
@@ -505,7 +505,6 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_effect:scry",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -837,7 +836,6 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_effect:scry",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -858,36 +856,6 @@
     },
     {
       "ability_index": 1,
-      "card_id": "Mni",
-      "condition_kinds": [
-        "has-card-under"
-      ],
-      "copy_weight": 4,
-      "deck_ids": [
-        "as_steelsong_brian_law_taipei_2026_03_14"
-      ],
-      "effect_kinds": [
-        "optional"
-      ],
-      "failure_reasons": [
-        "unsupported_trigger_condition:has-card-under"
-      ],
-      "full_name": "Ariel - Ethereal Voice",
-      "raw_snippet": "{'event': 'play', 'on': {'cardType': 'song', 'controller': 'you'}, 'restrictions': [{'type': 'during-turn', 'whose': 'your'}, {'type': 'once-per-turn'}], 'timing': 'whenever'}",
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
-      "resolution_requirements": [],
-      "source_file": "",
-      "target_kinds": [],
-      "trigger_event": "play",
-      "trigger_on": {
-        "cardType": "song",
-        "controller": "you"
-      }
-    },
-    {
-      "ability_index": 1,
       "card_id": "Ab7",
       "condition_kinds": [
         "has-card-under"
@@ -900,15 +868,12 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_effect:scry",
-        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
       "full_name": "Bambi - Ethereal Fawn",
       "raw_snippet": "{'event': 'exert', 'on': 'SELF', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
       "recommended_engine_work": [
-        "condition_evaluator_expansion",
         "scry_search_reveal",
         "target_choice_prompts"
       ],
@@ -919,33 +884,6 @@
       "source_file": "",
       "target_kinds": [],
       "trigger_event": "exert",
-      "trigger_on": "SELF"
-    },
-    {
-      "ability_index": 0,
-      "card_id": "7zq",
-      "condition_kinds": [
-        "target-query"
-      ],
-      "copy_weight": 4,
-      "deck_ids": [
-        "as_steelsong_brian_law_taipei_2026_03_14"
-      ],
-      "effect_kinds": [
-        "optional"
-      ],
-      "failure_reasons": [
-        "unsupported_trigger_condition:target-query"
-      ],
-      "full_name": "Stitch - Carefree Snowboarder",
-      "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
-      "resolution_requirements": [],
-      "source_file": "",
-      "target_kinds": [],
-      "trigger_event": "quest",
       "trigger_on": "SELF"
     },
     {
@@ -1045,7 +983,6 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_effect:scry",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -1062,63 +999,6 @@
       "source_file": "",
       "target_kinds": [],
       "trigger_event": "play",
-      "trigger_on": "SELF"
-    },
-    {
-      "ability_index": 1,
-      "card_id": "Mni",
-      "condition_kinds": [
-        "has-card-under"
-      ],
-      "copy_weight": 3,
-      "deck_ids": [
-        "as_value_harlan_2026_04_04"
-      ],
-      "effect_kinds": [
-        "optional"
-      ],
-      "failure_reasons": [
-        "unsupported_trigger_condition:has-card-under"
-      ],
-      "full_name": "Ariel - Ethereal Voice",
-      "raw_snippet": "{'event': 'play', 'on': {'cardType': 'song', 'controller': 'you'}, 'restrictions': [{'type': 'during-turn', 'whose': 'your'}, {'type': 'once-per-turn'}], 'timing': 'whenever'}",
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
-      "resolution_requirements": [],
-      "source_file": "",
-      "target_kinds": [],
-      "trigger_event": "play",
-      "trigger_on": {
-        "cardType": "song",
-        "controller": "you"
-      }
-    },
-    {
-      "ability_index": 0,
-      "card_id": "7zq",
-      "condition_kinds": [
-        "target-query"
-      ],
-      "copy_weight": 4,
-      "deck_ids": [
-        "as_value_harlan_2026_04_04"
-      ],
-      "effect_kinds": [
-        "optional"
-      ],
-      "failure_reasons": [
-        "unsupported_trigger_condition:target-query"
-      ],
-      "full_name": "Stitch - Carefree Snowboarder",
-      "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
-      "resolution_requirements": [],
-      "source_file": "",
-      "target_kinds": [],
-      "trigger_event": "quest",
       "trigger_on": "SELF"
     },
     {
@@ -1270,13 +1150,11 @@
         "gain-lore"
       ],
       "failure_reasons": [
-        "unsupported_trigger_condition:target-query",
         "unsupported_trigger_resolution_requirement:amount"
       ],
       "full_name": "Honeymaren - Northuldra Guide",
       "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
       "recommended_engine_work": [
-        "condition_evaluator_expansion",
         "target_choice_prompts"
       ],
       "resolution_requirements": [
@@ -1351,7 +1229,6 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_effect:scry",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -1439,7 +1316,6 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_effect:scry",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -1648,13 +1524,11 @@
       ],
       "failure_reasons": [
         "unsupported_trigger_target:CHOSEN_CHARACTER",
-        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_resolution_requirement:amount"
       ],
       "full_name": "Robin Hood - Ephemeral Archer",
       "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
       "recommended_engine_work": [
-        "condition_evaluator_expansion",
         "target_choice_prompts"
       ],
       "resolution_requirements": [
@@ -1777,12 +1651,9 @@
   "schema_version": 1,
   "summary": {
     "failure_reason_counts_by_copies": {
-      "unsupported_trigger_condition:has-card-under": 12,
-      "unsupported_trigger_condition:target-query": 12,
       "unsupported_trigger_condition:turn-metric": 8,
       "unsupported_trigger_effect:create-replacement-effect": 8,
       "unsupported_trigger_effect:or": 2,
-      "unsupported_trigger_effect:scry": 22,
       "unsupported_trigger_event:banish-in-challenge": 16,
       "unsupported_trigger_event:draw": 8,
       "unsupported_trigger_event:leave-play": 7,
@@ -1795,13 +1666,12 @@
       "unsupported_trigger_target:CHOSEN_OPPOSING_CHARACTER": 14
     },
     "failure_reason_counts_by_unique_cards": {
-      "1sm": 3,
+      "1sm": 2,
       "5EC": 1,
-      "6Ji": 3,
-      "7Vg": 2,
-      "7zq": 2,
+      "6Ji": 2,
+      "7Vg": 1,
       "8nj": 2,
-      "Ab7": 4,
+      "Ab7": 2,
       "B2Y": 4,
       "D7f": 2,
       "G4S": 1,
@@ -1809,7 +1679,6 @@
       "HVE": 2,
       "J1F": 1,
       "Jj0": 1,
-      "Mni": 2,
       "NLA": 4,
       "PX4": 4,
       "XWF": 1,
@@ -1818,7 +1687,7 @@
       "akT": 4,
       "bN7": 8,
       "c1L": 1,
-      "dBq": 9,
+      "dBq": 6,
       "dQB": 2,
       "e9n": 1,
       "h09": 1,
@@ -1827,165 +1696,10 @@
       "jUU": 1,
       "n4l": 2,
       "o0i": 1,
-      "wLe": 3,
+      "wLe": 2,
       "z2N": 2
     },
     "high_impact_failures": [
-      {
-        "ability_index": 0,
-        "card_id": "dBq",
-        "condition_kinds": [],
-        "copy_weight": 4,
-        "deck_ids": [
-          "ae_aggro_zan_syed_sao_paulo_2026_04_25"
-        ],
-        "effect_kinds": [
-          "scry"
-        ],
-        "failure_reasons": [
-          "unsupported_trigger_effect:scry",
-          "unsupported_trigger_resolution_requirement:scry_ordering",
-          "unsupported_trigger_resolution_requirement:amount"
-        ],
-        "full_name": "Nani - Stage Manager",
-        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
-        "recommended_engine_work": [
-          "scry_search_reveal",
-          "target_choice_prompts"
-        ],
-        "resolution_requirements": [
-          "scry_ordering",
-          "amount"
-        ],
-        "source_file": "",
-        "target_kinds": [],
-        "trigger_event": "play",
-        "trigger_on": "SELF"
-      },
-      {
-        "ability_index": 0,
-        "card_id": "dBq",
-        "condition_kinds": [],
-        "copy_weight": 4,
-        "deck_ids": [
-          "as_steelsong_brian_law_taipei_2026_03_14"
-        ],
-        "effect_kinds": [
-          "scry"
-        ],
-        "failure_reasons": [
-          "unsupported_trigger_effect:scry",
-          "unsupported_trigger_resolution_requirement:scry_ordering",
-          "unsupported_trigger_resolution_requirement:amount"
-        ],
-        "full_name": "Nani - Stage Manager",
-        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
-        "recommended_engine_work": [
-          "scry_search_reveal",
-          "target_choice_prompts"
-        ],
-        "resolution_requirements": [
-          "scry_ordering",
-          "amount"
-        ],
-        "source_file": "",
-        "target_kinds": [],
-        "trigger_event": "play",
-        "trigger_on": "SELF"
-      },
-      {
-        "ability_index": 0,
-        "card_id": "dBq",
-        "condition_kinds": [],
-        "copy_weight": 4,
-        "deck_ids": [
-          "as_value_harlan_2026_04_04"
-        ],
-        "effect_kinds": [
-          "scry"
-        ],
-        "failure_reasons": [
-          "unsupported_trigger_effect:scry",
-          "unsupported_trigger_resolution_requirement:scry_ordering",
-          "unsupported_trigger_resolution_requirement:amount"
-        ],
-        "full_name": "Nani - Stage Manager",
-        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
-        "recommended_engine_work": [
-          "scry_search_reveal",
-          "target_choice_prompts"
-        ],
-        "resolution_requirements": [
-          "scry_ordering",
-          "amount"
-        ],
-        "source_file": "",
-        "target_kinds": [],
-        "trigger_event": "play",
-        "trigger_on": "SELF"
-      },
-      {
-        "ability_index": 0,
-        "card_id": "1sm",
-        "condition_kinds": [],
-        "copy_weight": 4,
-        "deck_ids": [
-          "rs_pawpsicles_maui_fiesta_2025_05_04"
-        ],
-        "effect_kinds": [
-          "scry"
-        ],
-        "failure_reasons": [
-          "unsupported_trigger_effect:scry",
-          "unsupported_trigger_resolution_requirement:scry_ordering",
-          "unsupported_trigger_resolution_requirement:amount"
-        ],
-        "full_name": "Gramma Tala - Keeper of Ancient Stories",
-        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
-        "recommended_engine_work": [
-          "scry_search_reveal",
-          "target_choice_prompts"
-        ],
-        "resolution_requirements": [
-          "scry_ordering",
-          "amount"
-        ],
-        "source_file": "",
-        "target_kinds": [],
-        "trigger_event": "play",
-        "trigger_on": "SELF"
-      },
-      {
-        "ability_index": 0,
-        "card_id": "wLe",
-        "condition_kinds": [],
-        "copy_weight": 4,
-        "deck_ids": [
-          "rs_songs_daniele_2026_04_04"
-        ],
-        "effect_kinds": [
-          "scry"
-        ],
-        "failure_reasons": [
-          "unsupported_trigger_effect:scry",
-          "unsupported_trigger_resolution_requirement:scry_ordering",
-          "unsupported_trigger_resolution_requirement:amount"
-        ],
-        "full_name": "Robin Hood - Sharpshooter",
-        "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
-        "recommended_engine_work": [
-          "scry_search_reveal",
-          "target_choice_prompts"
-        ],
-        "resolution_requirements": [
-          "scry_ordering",
-          "amount"
-        ],
-        "source_file": "",
-        "target_kinds": [],
-        "trigger_event": "quest",
-        "trigger_on": "SELF"
-      },
       {
         "ability_index": 0,
         "card_id": "hQC",
@@ -2027,6 +1741,96 @@
         }
       },
       {
+        "ability_index": 0,
+        "card_id": "dBq",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "ae_aggro_zan_syed_sao_paulo_2026_04_25"
+        ],
+        "effect_kinds": [
+          "scry"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_resolution_requirement:scry_ordering",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Nani - Stage Manager",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "scry_search_reveal",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "scry_ordering",
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "dBq",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "as_steelsong_brian_law_taipei_2026_03_14"
+        ],
+        "effect_kinds": [
+          "scry"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_resolution_requirement:scry_ordering",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Nani - Stage Manager",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "scry_search_reveal",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "scry_ordering",
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "dBq",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "as_value_harlan_2026_04_04"
+        ],
+        "effect_kinds": [
+          "scry"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_resolution_requirement:scry_ordering",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Nani - Stage Manager",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "scry_search_reveal",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "scry_ordering",
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
         "ability_index": 1,
         "card_id": "NLA",
         "condition_kinds": [],
@@ -2057,33 +1861,62 @@
       },
       {
         "ability_index": 0,
-        "card_id": "7Vg",
-        "condition_kinds": [
-          "target-query"
-        ],
+        "card_id": "1sm",
+        "condition_kinds": [],
         "copy_weight": 4,
         "deck_ids": [
-          "ps_burn_matt_w_2026_03_21"
+          "rs_pawpsicles_maui_fiesta_2025_05_04"
         ],
         "effect_kinds": [
-          "gain-lore"
+          "scry"
         ],
         "failure_reasons": [
-          "unsupported_trigger_condition:target-query",
+          "unsupported_trigger_resolution_requirement:scry_ordering",
           "unsupported_trigger_resolution_requirement:amount"
         ],
-        "full_name": "Honeymaren - Northuldra Guide",
+        "full_name": "Gramma Tala - Keeper of Ancient Stories",
         "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
         "recommended_engine_work": [
-          "condition_evaluator_expansion",
+          "scry_search_reveal",
           "target_choice_prompts"
         ],
         "resolution_requirements": [
+          "scry_ordering",
           "amount"
         ],
         "source_file": "",
         "target_kinds": [],
         "trigger_event": "play",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 0,
+        "card_id": "wLe",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "rs_songs_daniele_2026_04_04"
+        ],
+        "effect_kinds": [
+          "scry"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_resolution_requirement:scry_ordering",
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Robin Hood - Sharpshooter",
+        "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
+        "recommended_engine_work": [
+          "scry_search_reveal",
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "scry_ordering",
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [],
+        "trigger_event": "quest",
         "trigger_on": "SELF"
       },
       {
@@ -2416,6 +2249,35 @@
         "source_file": "",
         "target_kinds": [],
         "trigger_event": "put-card-under",
+        "trigger_on": "SELF"
+      },
+      {
+        "ability_index": 1,
+        "card_id": "B2Y",
+        "condition_kinds": [],
+        "copy_weight": 4,
+        "deck_ids": [
+          "aa_lantern_zan_syed_2025_12_06"
+        ],
+        "effect_kinds": [
+          "draw"
+        ],
+        "failure_reasons": [
+          "unsupported_trigger_resolution_requirement:amount"
+        ],
+        "full_name": "Genie - Wish Fulfilled",
+        "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
+        "recommended_engine_work": [
+          "target_choice_prompts"
+        ],
+        "resolution_requirements": [
+          "amount"
+        ],
+        "source_file": "",
+        "target_kinds": [
+          "CONTROLLER"
+        ],
+        "trigger_event": "play",
         "trigger_on": "SELF"
       }
     ]

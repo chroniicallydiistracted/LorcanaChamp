@@ -75,6 +75,7 @@
       "4Ff",
       "4Kj",
       "4Qe",
+      "4Sx",
       "4X3",
       "4eH",
       "4h8",
@@ -112,6 +113,7 @@
       "6iI",
       "6iQ",
       "6ld",
+      "6mh",
       "6w5",
       "6w7",
       "72x",
@@ -166,6 +168,7 @@
       "BEO",
       "BFV",
       "BGp",
+      "BIk",
       "BQt",
       "BXf",
       "Bll",
@@ -320,6 +323,7 @@
       "NhZ",
       "NsD",
       "O7w",
+      "O9N",
       "OM9",
       "OT7",
       "OYJ",
@@ -348,6 +352,7 @@
       "Ql7",
       "Qo1",
       "QuQ",
+      "R9J",
       "RJ7",
       "RK4",
       "RNV",
@@ -1463,6 +1468,7 @@
       "nk1",
       "nnC",
       "nsa",
+      "nxo",
       "o38",
       "o8t",
       "oD3",
@@ -1543,6 +1549,7 @@
       "t3K",
       "t58",
       "t5R",
+      "tEN",
       "tG9",
       "tPQ",
       "tRd",
@@ -2265,7 +2272,6 @@
       "5YN",
       "5p6",
       "5tQ",
-      "6mh",
       "7M2",
       "7jV",
       "8Jv",
@@ -2298,7 +2304,6 @@
       "MoB",
       "Nrd",
       "Nv8",
-      "O9N",
       "OTu",
       "PmL",
       "Q20",
@@ -2341,14 +2346,12 @@
       "mkJ",
       "mkt",
       "nta",
-      "nxo",
       "pK5",
       "pVb",
       "roA",
       "rvD",
       "sfy",
       "t9V",
-      "tEN",
       "uQE",
       "uyQ",
       "vS7",
@@ -2360,7 +2363,6 @@
       "xWf",
       "xZ2",
       "yMt",
-      "yVb",
       "ye2",
       "zU2",
       "zpF"
@@ -2383,7 +2385,6 @@
       "40P",
       "475",
       "4BC",
-      "4Sx",
       "4Zj",
       "52U",
       "530",
@@ -2398,7 +2399,6 @@
       "AJB",
       "B4k",
       "B7K",
-      "BIk",
       "C8T",
       "CLU",
       "CNR",
@@ -2432,7 +2432,6 @@
       "PsS",
       "PvR",
       "QGa",
-      "R9J",
       "RPE",
       "RU5",
       "SPL",
@@ -2483,6 +2482,7 @@
       "xiP",
       "xnF",
       "yHH",
+      "yVb",
       "ysE",
       "z5E",
       "z7M",
@@ -2901,19 +2901,19 @@
     "win-condition-modification": 2
   },
   "errors": [],
-  "executable_cards": 738,
+  "executable_cards": 743,
   "execution_status_counts": {
-    "executable": 3396,
-    "mapped_not_executable": 1298,
+    "executable": 3421,
+    "mapped_not_executable": 1300,
     "unsupported_choice": 124,
     "unsupported_condition": 602,
     "unsupported_cost": 892,
-    "unsupported_engine_mechanic": 541,
-    "unsupported_targeting": 1212,
+    "unsupported_engine_mechanic": 518,
+    "unsupported_targeting": 1208,
     "unsupported_trigger": 1319
   },
   "fully_structured_cards": 2416,
-  "mapped_not_executable_cards": 871,
+  "mapped_not_executable_cards": 873,
   "mapping_status_counts": {
     "structurally_mapped": 9299,
     "unsupported": 85
@@ -3051,15 +3051,15 @@
       "pattern": "effect.type:restriction:unsupported_engine_mechanic"
     },
     {
-      "count": 120,
+      "count": 118,
       "pattern": "effect.type:modify-stat:unsupported_targeting"
     },
     {
-      "count": 110,
+      "count": 111,
       "pattern": "ability.type:static:unsupported_targeting"
     },
     {
-      "count": 103,
+      "count": 102,
       "pattern": "ability.type:static:unsupported_engine_mechanic"
     },
     {
@@ -3071,7 +3071,7 @@
       "pattern": "ability.type:static:mapped_not_executable"
     },
     {
-      "count": 60,
+      "count": 57,
       "pattern": "ability.type:action:unsupported_targeting"
     },
     {
@@ -3079,24 +3079,24 @@
       "pattern": "ability.type:unknown:unsupported_engine_mechanic"
     },
     {
-      "count": 52,
-      "pattern": "effect.type:banish:unsupported_targeting"
-    },
-    {
       "count": 51,
       "pattern": "effect.type:deal-damage:unsupported_targeting"
     },
     {
-      "count": 45,
+      "count": 49,
+      "pattern": "effect.type:banish:unsupported_targeting"
+    },
+    {
+      "count": 47,
       "pattern": "ability.type:activated:mapped_not_executable"
     },
     {
       "count": 42,
-      "pattern": "ability.type:action:unsupported_engine_mechanic"
+      "pattern": "effect.type:conditional:unsupported_condition"
     },
     {
-      "count": 42,
-      "pattern": "effect.type:conditional:unsupported_condition"
+      "count": 40,
+      "pattern": "ability.type:action:unsupported_engine_mechanic"
     }
   ],
   "top_unsupported_patterns": [
@@ -3133,15 +3133,15 @@
       "pattern": "effect.type:restriction:unsupported_engine_mechanic"
     },
     {
-      "count": 120,
+      "count": 118,
       "pattern": "effect.type:modify-stat:unsupported_targeting"
     },
     {
-      "count": 110,
+      "count": 111,
       "pattern": "ability.type:static:unsupported_targeting"
     },
     {
-      "count": 103,
+      "count": 102,
       "pattern": "ability.type:static:unsupported_engine_mechanic"
     },
     {
@@ -3153,7 +3153,7 @@
       "pattern": "ability.type:static:mapped_not_executable"
     },
     {
-      "count": 60,
+      "count": 57,
       "pattern": "ability.type:action:unsupported_targeting"
     },
     {
@@ -3161,24 +3161,24 @@
       "pattern": "ability.type:unknown:unsupported_engine_mechanic"
     },
     {
-      "count": 52,
-      "pattern": "effect.type:banish:unsupported_targeting"
-    },
-    {
       "count": 51,
       "pattern": "effect.type:deal-damage:unsupported_targeting"
     },
     {
-      "count": 45,
+      "count": 49,
+      "pattern": "effect.type:banish:unsupported_targeting"
+    },
+    {
+      "count": 47,
       "pattern": "ability.type:activated:mapped_not_executable"
     },
     {
       "count": 42,
-      "pattern": "ability.type:action:unsupported_engine_mechanic"
+      "pattern": "effect.type:conditional:unsupported_condition"
     },
     {
-      "count": 42,
-      "pattern": "effect.type:conditional:unsupported_condition"
+      "count": 40,
+      "pattern": "ability.type:action:unsupported_engine_mechanic"
     }
   ],
   "total_ability_records": 3445,
@@ -3289,14 +3289,14 @@
     "{'controller': 'you', 'filters': [{'comparison': 'less-or-equal', 'costSource': 'paid', 'type': 'cost-comparison', 'value': 2}]}": 3
   },
   "unsupported_by_reason": {
-    "mapped_not_executable": 670,
+    "mapped_not_executable": 672,
     "unsupported_choice": 124,
     "unsupported_condition": 554,
     "unsupported_cost": 414,
-    "unsupported_engine_mechanic": 541,
-    "unsupported_targeting": 667,
+    "unsupported_engine_mechanic": 518,
+    "unsupported_targeting": 669,
     "unsupported_trigger": 602
   },
-  "unsupported_cards": 1145,
+  "unsupported_cards": 1138,
   "warnings": []
 }

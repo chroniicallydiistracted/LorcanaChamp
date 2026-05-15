@@ -726,7 +726,17 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     for row in rows:
         if row["projection_status"] == "projected":
             continue
-        on_val = row.get("trigger_on") or "unknown"
+        on_val = row.get("trigger_on")
+        # B2: Handle complex trigger_on values (dict/list) that aren't hashable
+        if on_val is None:
+            on_val = "unknown"
+        elif isinstance(on_val, dict):
+            # Convert dict to a stable string representation
+            on_val = f"filter:{json.dumps(on_val, sort_keys=True)}"
+        elif isinstance(on_val, list):
+            on_val = f"list:{len(on_val)}"
+        else:
+            on_val = str(on_val)
         copies = row.get("copy_weight", 1)
         deck_id = row.get("deck_id")
         card_id = row.get("card_id")

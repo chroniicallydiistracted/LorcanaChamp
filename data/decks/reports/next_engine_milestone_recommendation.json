@@ -13,7 +13,7 @@
   "ranked_candidates": [
     {
       "copies_affected": 162,
-      "deck_presence": 3,
+      "deck_presence": 12,
       "dependencies": [],
       "milestone": "target_choice_prompts",
       "notes": "",
@@ -21,16 +21,16 @@
         "unsupported_trigger_resolution_requirement:amount",
         "unsupported_trigger_target:CHOSEN_CHARACTER",
         "unsupported_trigger_target:CHOSEN_OPPOSING_CHARACTER",
-        "unsupported_trigger_effect:scry",
+        "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_event:banish-in-challenge"
       ],
       "representative_cards": [],
-      "score": 661,
-      "unique_cards_affected": 15
+      "score": 801,
+      "unique_cards_affected": 25
     },
     {
       "copies_affected": 55,
-      "deck_presence": 4,
+      "deck_presence": 6,
       "dependencies": [],
       "milestone": "broader_trigger_projection",
       "notes": "",
@@ -42,39 +42,34 @@
         "unsupported_trigger_on:CHARACTERS_HERE"
       ],
       "representative_cards": [],
-      "score": 240,
+      "score": 260,
       "unique_cards_affected": 7
     },
     {
-      "copies_affected": 32,
-      "deck_presence": 1,
-      "dependencies": [],
-      "milestone": "condition_evaluator_expansion",
-      "notes": "",
-      "representative_blockers": [
-        "unsupported_trigger_condition:has-card-under",
-        "unsupported_trigger_effect:scry",
-        "unsupported_trigger_condition:target-query",
-        "unsupported_trigger_condition:turn-metric",
-        "unsupported_trigger_target:CHOSEN_CHARACTER"
-      ],
-      "representative_cards": [],
-      "score": 141,
-      "unique_cards_affected": 7
-    },
-    {
-      "copies_affected": 24,
-      "deck_presence": 2,
+      "copies_affected": 22,
+      "deck_presence": 5,
       "dependencies": [],
       "milestone": "scry_search_reveal",
       "notes": "",
       "representative_blockers": [
-        "unsupported_trigger_effect:or",
-        "unsupported_trigger_effect:scry"
+        "unsupported_trigger_resolution_requirement:scry_ordering"
       ],
       "representative_cards": [],
-      "score": 117,
+      "score": 141,
       "unique_cards_affected": 4
+    },
+    {
+      "copies_affected": 8,
+      "deck_presence": 2,
+      "dependencies": [],
+      "milestone": "condition_evaluator_expansion",
+      "notes": "",
+      "representative_blockers": [
+        "unsupported_trigger_condition:turn-metric"
+      ],
+      "representative_cards": [],
+      "score": 54,
+      "unique_cards_affected": 2
     },
     {
       "copies_affected": 8,
@@ -87,6 +82,19 @@
       ],
       "representative_cards": [],
       "score": 24,
+      "unique_cards_affected": 1
+    },
+    {
+      "copies_affected": 2,
+      "deck_presence": 1,
+      "dependencies": [],
+      "milestone": "other_source_execution",
+      "notes": "",
+      "representative_blockers": [
+        "unsupported_trigger_effect:or"
+      ],
+      "representative_cards": [],
+      "score": 21,
       "unique_cards_affected": 1
     },
     {

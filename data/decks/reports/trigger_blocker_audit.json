@@ -1266,7 +1266,7 @@
         "timing": "when"
       },
       "recommended_engine_work": [
-        "scry_search_reveal"
+        "other_source_execution"
       ],
       "resolution_requirements": [],
       "target_kinds": [],
@@ -2453,9 +2453,8 @@
       "ability_kind": "triggered",
       "ability_name": "THAT'S YOUR CUE",
       "appears_in_deck": true,
-      "blocker_family": "effect_unsupported",
+      "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_effect:scry",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -2477,7 +2476,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Nani - Stage Manager",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_effect:scry",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -4693,9 +4692,8 @@
       "ability_kind": "triggered",
       "ability_name": "THAT'S YOUR CUE",
       "appears_in_deck": true,
-      "blocker_family": "effect_unsupported",
+      "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_effect:scry",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -4717,7 +4715,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Nani - Stage Manager",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_effect:scry",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -4787,10 +4785,8 @@
       "ability_kind": "triggered",
       "ability_name": "COMMAND PERFORMANCE Once",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
-      "blockers": [
-        "unsupported_trigger_condition:has-card-under"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_izM",
       "card_count": 4,
       "card_id": "Mni",
@@ -4808,11 +4804,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Ariel - Ethereal Voice",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_condition:has-card-under",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "condition": {
@@ -4867,9 +4863,7 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
@@ -4888,10 +4882,8 @@
       "ability_kind": "triggered",
       "ability_name": "COME SEE!",
       "appears_in_deck": true,
-      "blocker_family": "effect_unsupported",
+      "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_effect:scry",
-        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -4915,7 +4907,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Bambi - Ethereal Fawn",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_effect:scry",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 1,
@@ -4975,7 +4967,6 @@
         "timing": "whenever"
       },
       "recommended_engine_work": [
-        "condition_evaluator_expansion",
         "scry_search_reveal",
         "target_choice_prompts"
       ],
@@ -4997,10 +4988,8 @@
       "ability_kind": "triggered",
       "ability_name": "BRING YOUR FRIENDS",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
-      "blockers": [
-        "unsupported_trigger_condition:target-query"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_vWQ",
       "card_count": 4,
       "card_id": "7zq",
@@ -5018,11 +5007,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Stitch - Carefree Snowboarder",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_condition:target-query",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "condition": {
@@ -5066,9 +5055,7 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "quest",
@@ -5521,9 +5508,8 @@
       "ability_kind": "triggered",
       "ability_name": "THAT'S YOUR CUE",
       "appears_in_deck": true,
-      "blocker_family": "effect_unsupported",
+      "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_effect:scry",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -5545,7 +5531,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Nani - Stage Manager",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_effect:scry",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -5615,10 +5601,8 @@
       "ability_kind": "triggered",
       "ability_name": "COMMAND PERFORMANCE Once",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
-      "blockers": [
-        "unsupported_trigger_condition:has-card-under"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_izM",
       "card_count": 3,
       "card_id": "Mni",
@@ -5636,11 +5620,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Ariel - Ethereal Voice",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_condition:has-card-under",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "condition": {
@@ -5695,9 +5679,7 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
@@ -5716,10 +5698,8 @@
       "ability_kind": "triggered",
       "ability_name": "BRING YOUR FRIENDS",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
-      "blockers": [
-        "unsupported_trigger_condition:target-query"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_vWQ",
       "card_count": 4,
       "card_id": "7zq",
@@ -5737,11 +5717,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Stitch - Carefree Snowboarder",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_condition:target-query",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "condition": {
@@ -5785,9 +5765,7 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "quest",
@@ -6858,9 +6836,8 @@
       "ability_kind": "triggered",
       "ability_name": "TALE OF THE FIFTH SPIRIT",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
+      "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_condition:target-query",
         "unsupported_trigger_resolution_requirement:amount"
       ],
       "canonical_id": "ci_7Vg",
@@ -6883,7 +6860,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Honeymaren - Northuldra Guide",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_condition:target-query",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -6928,7 +6905,6 @@
         "timing": "when"
       },
       "recommended_engine_work": [
-        "condition_evaluator_expansion",
         "target_choice_prompts"
       ],
       "resolution_requirements": [
@@ -7353,9 +7329,8 @@
       "ability_kind": "triggered",
       "ability_name": "THERE WAS ONLY OCEAN",
       "appears_in_deck": true,
-      "blocker_family": "effect_unsupported",
+      "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_effect:scry",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -7377,7 +7352,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Gramma Tala - Keeper of Ancient Stories",
       "ink": "sapphire",
-      "primary_blocker": "unsupported_trigger_effect:scry",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -7940,9 +7915,8 @@
       "ability_kind": "triggered",
       "ability_name": "MY GREATEST PERFORMANCE",
       "appears_in_deck": true,
-      "blocker_family": "effect_unsupported",
+      "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_effect:scry",
         "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_resolution_requirement:amount"
       ],
@@ -7964,7 +7938,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Robin Hood - Sharpshooter",
       "ink": "ruby",
-      "primary_blocker": "unsupported_trigger_effect:scry",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -8722,7 +8696,6 @@
       "blocker_family": "target_unsupported",
       "blockers": [
         "unsupported_trigger_target:CHOSEN_CHARACTER",
-        "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_resolution_requirement:amount"
       ],
       "canonical_id": "ci_ZXj",
@@ -8786,7 +8759,6 @@
         "timing": "whenever"
       },
       "recommended_engine_work": [
-        "condition_evaluator_expansion",
         "target_choice_prompts"
       ],
       "resolution_requirements": [
@@ -9252,8 +9224,8 @@
     "broad_unsupported_trigger_copies": 0,
     "deck_count": 12,
     "specific_trigger_blocker_copies": 0,
-    "trigger_blocked_card_copies": 230,
-    "trigger_blocked_unique_cards": 34,
+    "trigger_blocked_card_copies": 215,
+    "trigger_blocked_unique_cards": 32,
     "unclassified_trigger_blocker_copies": 0
   }
 }
