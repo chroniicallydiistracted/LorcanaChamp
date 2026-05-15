@@ -781,6 +781,78 @@ class GameEngine:
         
         return event
 
+    def _deal_damage_eventful(
+        self,
+        state: GameState,
+        *,
+        target_id: int,
+        source_id: int | None,
+        amount: int,
+        actor: int | None = None,
+        is_challenge: bool = False,
+        apply_resist: bool = True,
+    ):
+        """Apply damage through replacement/prevention and emit DAMAGE_DEALT.
+
+        `amount` is raw damage unless `apply_resist=False`. Challenge code already
+        calculates challenge damage after resist, so it must pass apply_resist=False.
+        Effect damage should usually pass apply_resist=True.
+        """
+        target_inst = state.cards.get(target_id)
+        if target_inst is None:
+            return replacement_deal_damage(
+                state,
+                target_id=target_id,
+                source_id=source_id,
+                amount=amount,
+                is_challenge=is_challenge,
+            )
+
+        raw_amount = int(amount)
+        final_input_amount = raw_amount
+        if apply_resist:
+            target_def = self.card_def(state, target_id)
+            final_input_amount = self._damage_after_resist(target_def, raw_amount)
+
+        damage_event = replacement_deal_damage(
+            state,
+            target_id=target_id,
+            source_id=source_id,
+            amount=final_input_amount,
+            is_challenge=is_challenge,
+        )
+
+        source_controller = None
+        if source_id is not None and source_id in state.cards:
+            source_controller = state.cards[source_id].controller
+        target_controller = target_inst.controller
+        resolved_actor = actor if actor is not None else source_controller if source_controller is not None else target_controller
+
+        prevented_amount = max(0, damage_event.original_amount - damage_event.current_amount)
+        self.emit_event(
+            state,
+            EVENT_DAMAGE_DEALT,
+            actor=resolved_actor,
+            source=source_id,
+            target=target_id,
+            payload={
+                "player_id": resolved_actor,
+                "source_controller": source_controller,
+                "target_controller": target_controller,
+                "subject_card_id": target_id,
+                "source_card_id": source_id,
+                "target_card_id": target_id,
+                "damage_dealt": damage_event.current_amount,
+                "original_amount": damage_event.original_amount,
+                "raw_amount": raw_amount,
+                "prevented_amount": prevented_amount,
+                "is_challenge": is_challenge,
+                "was_replaced": damage_event.was_replaced,
+                "replacement_description": damage_event.replacement_description,
+            },
+        )
+        return damage_event
+
     def resolve_bag(self, state: GameState) -> None:
         # B2: Bag must be resolved through ACTION_RESOLVE_BAG, not silently cleared
         raise RuntimeError("Bag must be resolved through ACTION_RESOLVE_BAG. Use legal_actions() to get RESOLVE_BAG actions.")
