@@ -11,6 +11,13 @@ class EffectResolutionContext:
     target: int | None = None
     choice: Any | None = None
     optional_choices: dict[str, bool] = field(default_factory=dict)
+    # B2: Trigger context fields for proper effect resolution
+    event: Any | None = None
+    event_payload: dict[str, Any] = field(default_factory=dict)
+    pending_trigger_id: str | None = None
+    trigger_source: int | None = None
+    trigger_subject: int | None = None
+    current_targets: tuple[int, ...] = ()
 
 
 SUPPORTED_EFFECT_KINDS = frozenset(

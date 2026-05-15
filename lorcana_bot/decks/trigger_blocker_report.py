@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -399,9 +399,9 @@ def _extract_resolution_requirements(ability: SourceAbilityDef) -> list[str]:
     if ability.auto_resolve is False:
         requirements.append("optional")
     
-    # Check for opponent choices
+    # Check for opponent choices (guard against mock objects without target attr)
     for effect in ability.effects:
-        if effect.target and effect.target.alias in {"OPPONENT", "CHOSEN_PLAYER"}:
+        if hasattr(effect, 'target') and effect.target and effect.target.alias in {"OPPONENT", "CHOSEN_PLAYER"}:
             requirements.append("opponent_choice")
     
     return list(set(requirements))
@@ -469,7 +469,7 @@ def _get_recommended_work(blockers: list[str]) -> tuple[str, ...]:
             if effect_kind in EFFECT_KIND_ENGINE_WORK:
                 work_set.add(EFFECT_KIND_ENGINE_WORK[effect_kind])
             else:
-                work_set.add("scry_search_reveal")  # default for unknown effect
+                work_set.add("other_source_execution")  # B2: Unknown effect kinds map to other_source_execution
         elif blocker.startswith("unsupported_trigger_target:"):
             work_set.add("target_choice_prompts")
         elif blocker.startswith("unsupported_trigger_condition:"):
@@ -608,7 +608,9 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     for blocker, copies in sorted(blocker_copies.items(), key=lambda x: (-x[1], x[0])):
         unique_cards = len(blocker_cards.get(blocker, set()))
         deck_presence = len(blocker_decks.get(blocker, set()))
-        recommended = _get_recommended_work([blocker])[0] if blocker != "unknown" else "unknown_parser_hardening"
+        # B2: Handle "unknown" blocker specially and guard against empty tuple
+        work_result = _get_recommended_work([blocker]) if blocker != "unknown" else ()
+        recommended = work_result[0] if work_result else "unknown_parser_hardening"
         
         by_primary_blocker_copies.append({
             "blocker": blocker,
@@ -656,11 +658,11 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "blockers": sorted(blockers_for_work),
         })
     
-    # By trigger event
+    # B2: By trigger event with per-event sets for correct aggregation
     by_trigger_event = []
     event_copies = Counter()
-    event_unique = Counter()
-    event_deck = Counter()
+    event_cards = defaultdict(set)  # event -> set of card_ids
+    event_decks = defaultdict(set)  # event -> set of deck_ids
     
     for row in rows:
         if row["projection_status"] == "projected":
@@ -670,21 +672,99 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         deck_id = row.get("deck_id")
         card_id = row.get("card_id")
         event_copies[event] += copies
-        event_unique[card_id] += 1
+        event_cards[event].add(card_id)
         if deck_id:
-            event_deck[event] += 1
+            event_decks[event].add(deck_id)
     
     for event in sorted(event_copies.keys(), key=lambda x: -event_copies[x]):
         by_trigger_event.append({
             "trigger_event": event,
             "copies": event_copies[event],
-            "unique_cards": len(event_unique),
-            "deck_presence": len(event_deck),
+            "unique_cards": len(event_cards[event]),
+            "deck_presence": len(event_decks[event]),
+        })
+    
+    # B2: By trigger on with per-event sets
+    by_trigger_on = []
+    on_copies = Counter()
+    on_cards = defaultdict(set)
+    on_decks = defaultdict(set)
+    
+    for row in rows:
+        if row["projection_status"] == "projected":
+            continue
+        on_val = row.get("trigger_on") or "unknown"
+        copies = row.get("copy_weight", 1)
+        deck_id = row.get("deck_id")
+        card_id = row.get("card_id")
+        on_copies[on_val] += copies
+        on_cards[on_val].add(card_id)
+        if deck_id:
+            on_decks[on_val].add(deck_id)
+    
+    for on_val in sorted(on_copies.keys(), key=lambda x: -on_copies[x]):
+        by_trigger_on.append({
+            "trigger_on": on_val,
+            "copies": on_copies[on_val],
+            "unique_cards": len(on_cards[on_val]),
+            "deck_presence": len(on_decks[on_val]),
+        })
+    
+    # B2: By effect kind with per-kind sets
+    by_effect_kind = []
+    effect_copies = Counter()
+    effect_cards = defaultdict(set)
+    effect_decks = defaultdict(set)
+    
+    for row in rows:
+        if row["projection_status"] == "projected":
+            continue
+        for ek in row.get("effect_kinds", []):
+            copies = row.get("copy_weight", 1)
+            deck_id = row.get("deck_id")
+            card_id = row.get("card_id")
+            effect_copies[ek] += copies
+            effect_cards[ek].add(card_id)
+            if deck_id:
+                effect_decks[ek].add(deck_id)
+    
+    for ek in sorted(effect_copies.keys(), key=lambda x: -effect_copies[x]):
+        by_effect_kind.append({
+            "effect_kind": ek,
+            "copies": effect_copies[ek],
+            "unique_cards": len(effect_cards[ek]),
+            "deck_presence": len(effect_decks[ek]),
+        })
+    
+    # B2: By condition kind with per-kind sets
+    by_condition_kind = []
+    cond_copies = Counter()
+    cond_cards = defaultdict(set)
+    cond_decks = defaultdict(set)
+    
+    for row in rows:
+        if row["projection_status"] == "projected":
+            continue
+        for ck in row.get("condition_kinds", []):
+            copies = row.get("copy_weight", 1)
+            deck_id = row.get("deck_id")
+            card_id = row.get("card_id")
+            cond_copies[ck] += copies
+            cond_cards[ck].add(card_id)
+            if deck_id:
+                cond_decks[ck].add(deck_id)
+    
+    for ck in sorted(cond_copies.keys(), key=lambda x: -cond_copies[x]):
+        by_condition_kind.append({
+            "condition_kind": ck,
+            "copies": cond_copies[ck],
+            "unique_cards": len(cond_cards[ck]),
+            "deck_presence": len(cond_decks[ck]),
         })
     
     return {
         "summary": {
-            "total_decks": len(set(r["deck_id"] for r in rows)),
+            "total_decks": len(set(r.get("deck_id", "unknown") for r in rows)),
             "total_trigger_rows": total_rows,
             "projected_trigger_rows": projected_rows,
             "blocked_trigger_rows": blocked_rows,
@@ -777,10 +857,14 @@ def build_milestone_recommendation(summary: dict[str, Any], rows: list[dict[str,
         "move_damage": {"copies": 0, "unique_cards": 0, "deck_presence": 0, "blockers": []},
         "deck_ordering": {"copies": 0, "unique_cards": 0, "deck_presence": 0, "blockers": []},
         "pending_effect_prompts": {"copies": 0, "unique_cards": 0, "deck_presence": 0, "blockers": []},
+        "other_source_execution": {"copies": 0, "unique_cards": 0, "deck_presence": 0, "blockers": []},
     }
     
-    seen_cards = set()
-    seen_decks = set()
+    # B2: Use per-work sets for unique cards/decks aggregation
+    from collections import defaultdict
+    work_cards = defaultdict(set)
+    work_decks = defaultdict(set)
+    work_copies = defaultdict(int)
     
     for row in rows:
         if row["projection_status"] == "projected":
@@ -791,14 +875,14 @@ def build_milestone_recommendation(summary: dict[str, Any], rows: list[dict[str,
         card_id = row.get("card_id")
         
         for work in row.get("recommended_engine_work", []):
+            work_copies[work] += copies
+            work_cards[work].add(card_id)
+            work_decks[work].add(deck_id)
+            
             if work in candidates:
-                candidates[work]["copies"] += copies
-                if card_id not in seen_cards:
-                    candidates[work]["unique_cards"] += 1
-                    seen_cards.add(card_id)
-                if deck_id not in seen_decks:
-                    candidates[work]["deck_presence"] += 1
-                    seen_decks.add(deck_id)
+                candidates[work]["copies"] = work_copies[work]
+                candidates[work]["unique_cards"] = len(work_cards[work])
+                candidates[work]["deck_presence"] = len(work_decks[work])
                 
                 blocker = row.get("primary_blocker")
                 if blocker and blocker not in candidates[work]["blockers"]:

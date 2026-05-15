@@ -38,6 +38,7 @@ from .constants import (
     EVENT_TRIGGER_EVENT_BUFFERED,
     EVENT_TURN_END,
     EVENT_TURN_START,
+    EVENT_INKED,
     KEYWORD_BODYGUARD,
     KEYWORD_EVASIVE,
     KEYWORD_RECKLESS,
@@ -181,7 +182,7 @@ class GameEngine:
 
     def legal_actions(self, state: GameState, player: int | None = None) -> list[Action]:
         player = state.active_player if player is None else player
-        if state.winner is not None or player != state.active_player:
+        if state.winner is not None:
             return []
 
         if state.phase == PHASE_MULLIGAN:
@@ -190,38 +191,39 @@ class GameEngine:
         if state.phase != PHASE_MAIN:
             return []
 
-        # B2: Bag blocks normal actions
+        # B2: Bag handling - bag resolver acts even when not active player
         if has_pending_bag_items(state):
-            next_resolver = get_next_bag_resolver(state)
-            if next_resolver is not None and player == next_resolver:
-                # Player is the current resolver - only RESOLVE_BAG and CONCEDE are legal
-                resolver_items = [
-                    entry for entry in state.bag
-                    if entry.controller_id == player or entry.chooser_id == player
-                ]
-                actions: list[Action] = []
-                for entry in resolver_items:
-                    is_optional = entry.optional
-                    # Accept is always available
+            resolver = get_next_bag_resolver(state)
+            if player != resolver:
+                return [Action(ACTION_CONCEDE, actor=player)]
+            # Player is the current resolver - only RESOLVE_BAG and CONCEDE are legal
+            resolver_items = [
+                entry for entry in state.bag
+                if entry.controller_id == player or entry.chooser_id == player
+            ]
+            actions: list[Action] = []
+            for entry in resolver_items:
+                is_optional = entry.optional
+                # Accept is always available
+                actions.append(Action(
+                    ACTION_RESOLVE_BAG,
+                    actor=player,
+                    source=entry.source_id,
+                    choice={"bag_id": entry.id, "accept": True}
+                ))
+                # Decline only for optional triggers
+                if is_optional:
                     actions.append(Action(
                         ACTION_RESOLVE_BAG,
                         actor=player,
                         source=entry.source_id,
-                        choice={"bag_id": entry.id, "accept": True}
+                        choice={"bag_id": entry.id, "accept": False}
                     ))
-                    # Decline only for optional triggers
-                    if is_optional:
-                        actions.append(Action(
-                            ACTION_RESOLVE_BAG,
-                            actor=player,
-                            source=entry.source_id,
-                            choice={"bag_id": entry.id, "accept": False}
-                        ))
-                actions.append(Action(ACTION_CONCEDE, actor=player))
-                return actions
-            else:
-                # Not the resolver - no actions allowed (wait for resolver)
-                return [Action(ACTION_CONCEDE, actor=player)]
+            actions.append(Action(ACTION_CONCEDE, actor=player))
+            return actions
+
+        if player != state.active_player:
+            return []
 
         actions = []
         ps = state.players[player]
@@ -553,6 +555,13 @@ class GameEngine:
         state.cards[action.card].added_to_ink_this_turn = True
         state.turn_player_has_inked = True
         state.players[action.actor].turn_flags.played_ink = True
+        self.emit_event(
+            state,
+            EVENT_INKED,
+            actor=action.actor,
+            source=action.card,
+            payload={"card_id": state.cards[action.card].card_id},
+        )
 
     def _apply_play(self, state: GameState, action: Action) -> None:
         assert action.card is not None
@@ -836,11 +845,16 @@ class GameEngine:
                 self.emit_event(state, EVENT_TRIGGER_SKIPPED, actor=action.actor, source=entry.source_id, payload={"bag_id": bag_id, "reason": "unsupported_condition"}, queue_triggers=False)
                 return
         
-        # Resolve the bag entry's effects (not the source card's effects)
+        # B2: Resolve effects as the trigger controller, not the chooser
         context = EffectResolutionContext(
-            actor=action.actor,
+            actor=entry.controller_id,
             source=entry.source_id,
             target=None,
+            event=entry.event,
+            event_payload=entry.event.payload if entry.event else {},
+            pending_trigger_id=entry.id,
+            trigger_source=entry.source_id,
+            trigger_subject=entry.event.subject_card_id if entry.event else None,
         )
         self._resolve_explicit_effects(state, entry.effects, context)
         
@@ -881,7 +895,16 @@ class GameRunner:
     ) -> GameResult:
         actions_taken = 0
         while state.winner is None and actions_taken < self.max_actions:
-            player = state.active_player
+            # B2: Determine the correct player to act - bag resolver takes priority
+            if has_pending_bag_items(state):
+                player = get_next_bag_resolver(state)
+                if player is None:
+                    state.winner = state.opponent(state.active_player)
+                    state.loss_reason = "bag_had_no_resolver"
+                    break
+            else:
+                player = state.active_player
+            
             legal = self.engine.legal_actions(state, player)
             if not legal:
                 state.winner = state.opponent(player)
