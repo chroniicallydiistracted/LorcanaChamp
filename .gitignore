@@ -45,6 +45,8 @@ logs/
 
 # Temporary state and local data
 LorcanaChampB2.1State.zip
+LorcanaChampHopefulFinalFix.zip
+*.zip
 
 # Ignore the extracted/managed external source tree
 lorcanito-full-src-code/
