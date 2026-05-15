@@ -1,10 +1,13 @@
 """Tests for engine trigger pipeline functionality."""
 
 import pytest
+from lorcana_bot.actions import Action
 from lorcana_bot.engine import GameEngine
-from lorcana_bot.cards import CardDatabase, CardDef
-from lorcana_bot.state import GameState, GameEvent
+from lorcana_bot.cards import CardDatabase, CardDef, EffectDef
+from lorcana_bot.effect_types import EffectResolutionContext
+from lorcana_bot.state import GameState, GameEvent, CardInstance, PlayerState
 from lorcana_bot.constants import (
+    ACTION_CHALLENGE,
     EVENT_TURN_START, 
     EVENT_TURN_END,
     EVENT_QUESTED, 
@@ -13,6 +16,8 @@ from lorcana_bot.constants import (
     EVENT_CARD_PLAYED,
     EVENT_CHALLENGE_STARTED,
     EVENT_CHARACTER_BANISHED,
+    EVENT_DAMAGE_DEALT,
+    ZONE_PLAY,
 )
 
 
@@ -321,3 +326,124 @@ def test_card_drawn_private_mode(engine):
     # Verify card_ids ARE in the public event
     assert "card_ids" in event2.payload
     assert event2.payload.get("private") is False
+
+
+def test_engine_deal_damage_eventful_emits_damage_event(engine):
+    """Direct engine damage helper emits DAMAGE_DEALT through emit_event."""
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.cards[2] = CardInstance(instance_id=2, card_id="test_char2", owner=1, controller=1, zone=ZONE_PLAY)
+    state.players[0].play = [1]
+    state.players[1].play = [2]
+
+    damage_event = engine._deal_damage_eventful(
+        state,
+        target_id=2,
+        source_id=1,
+        amount=2,
+        actor=0,
+        is_challenge=False,
+        apply_resist=False,
+    )
+
+    assert damage_event.current_amount == 2
+    assert state.cards[2].damage == 2
+    logged = [event for event in state.event_log if event.event_type == EVENT_DAMAGE_DEALT]
+    assert len(logged) == 1
+    assert logged[0].actor == 0
+    assert logged[0].source == 1
+    assert logged[0].target == 2
+    assert logged[0].payload["damage_dealt"] == 2
+    assert logged[0].payload["original_amount"] == 2
+    assert logged[0].payload["target_card_id"] == 2
+    assert state.pending_trigger_events[-1].event == "deal-damage"
+    assert state.pending_trigger_events[-1].damage_dealt == 2
+
+
+def test_challenge_damage_emits_damage_dealt_events(engine):
+    """Challenge damage emits DAMAGE_DEALT for attacker and defender damage."""
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.cards[2] = CardInstance(instance_id=2, card_id="test_char2", owner=1, controller=1, zone=ZONE_PLAY)
+    state.players[0].play = [1]
+    state.players[1].play = [2]
+
+    engine._apply_challenge(
+        state,
+        Action(kind=ACTION_CHALLENGE, actor=0, source=1, target=2),
+    )
+
+    damage_events = [event for event in state.event_log if event.event_type == EVENT_DAMAGE_DEALT]
+    assert len(damage_events) == 2
+    assert damage_events[0].source == 1
+    assert damage_events[0].target == 2
+    assert damage_events[0].payload["is_challenge"] is True
+    assert damage_events[1].source == 2
+    assert damage_events[1].target == 1
+    assert damage_events[1].payload["is_challenge"] is True
+
+    challenge_events = [event for event in state.event_log if event.event_type == EVENT_CHALLENGE_STARTED]
+    assert len(challenge_events) == 1
+    assert challenge_events[0].payload["attacker_damage_dealt"] == damage_events[0].payload["damage_dealt"]
+    assert challenge_events[0].payload["defender_damage_dealt"] == damage_events[1].payload["damage_dealt"]
+
+
+def test_effect_damage_emits_damage_dealt_event(engine):
+    """EffectResolver deal_damage effects use engine eventful damage path."""
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.cards[2] = CardInstance(instance_id=2, card_id="test_char2", owner=1, controller=1, zone=ZONE_PLAY)
+    state.players[0].play = [1]
+    state.players[1].play = [2]
+
+    effect = EffectDef(kind="deal_damage", amount=2, target="chosen_character")
+    context = EffectResolutionContext(actor=0, source=1, target=2)
+    engine.effect_resolver.resolve(state, effect, context)
+
+    damage_events = [event for event in state.event_log if event.event_type == EVENT_DAMAGE_DEALT]
+    assert len(damage_events) == 1
+    assert damage_events[0].actor == 0
+    assert damage_events[0].source == 1
+    assert damage_events[0].target == 2
+    assert damage_events[0].payload["damage_dealt"] == 2
+    assert damage_events[0].payload["is_challenge"] is False
+    assert state.pending_trigger_events[-1].event == "deal-damage"
+
+
+def test_prevented_damage_event_payload_records_prevention(engine):
+    """Damage event payload records prevented amount from replacement effects."""
+    from lorcana_bot.replacement_effects import ReplacementEffectEntry, ReplacementEffectType, register_replacement_effect
+
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.cards[2] = CardInstance(instance_id=2, card_id="test_char2", owner=1, controller=1, zone=ZONE_PLAY)
+    state.players[0].play = [1]
+    state.players[1].play = [2]
+
+    register_replacement_effect(
+        state,
+        ReplacementEffectEntry(
+            source_id=2,
+            effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+            target_mode="self",
+            amount=1,
+        ),
+    )
+
+    damage_event = engine._deal_damage_eventful(
+        state,
+        target_id=2,
+        source_id=1,
+        amount=3,
+        actor=0,
+        is_challenge=False,
+        apply_resist=False,
+    )
+
+    assert damage_event.current_amount == 2
+    logged = [event for event in state.event_log if event.event_type == EVENT_DAMAGE_DEALT]
+    assert len(logged) == 1
+    assert logged[0].payload["damage_dealt"] == 2
+    assert logged[0].payload["original_amount"] == 3
+    assert logged[0].payload["prevented_amount"] == 1
+    assert logged[0].payload["was_replaced"] is True
