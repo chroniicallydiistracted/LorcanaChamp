@@ -905,8 +905,9 @@ class GameEngine:
             stacked_card_ids.extend(cid for cid in inst.cards_under if cid in state.cards)
 
         if from_zone == ZONE_PLAY and destination != ZONE_PLAY:
-            deregister_static_effects_for_card(state, card_id)
-            deregister_replacement_effects_from_card(state, card_id)
+            for moved_id in stacked_card_ids:
+                deregister_static_effects_for_card(state, moved_id)
+                deregister_replacement_effects_from_card(state, moved_id)
 
         leaving_location_ids: set[int] = set()
         if from_zone == ZONE_PLAY and destination != ZONE_PLAY:

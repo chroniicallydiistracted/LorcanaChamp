@@ -208,3 +208,69 @@ def test_non_engine_modules_do_not_call_state_move_card_directly() -> None:
 
     for path in checked_files:
         assert "state.move_card(" not in path.read_text()
+
+
+def test_include_stack_true_preserves_zone_membership_invariants() -> None:
+    """Test that _move_card_eventful with include_stack=True (default) preserves zone membership invariants.
+    
+    When a stack moves out of play with include_stack=True, all cards in the stack
+    should be properly moved and zone membership should be consistent.
+    """
+    engine, state = _state_with_shift_stack()
+    execute_shift_play(state, engine, shifted_card_id=2, target_character_id=1)
+    
+    # Verify initial stack state
+    assert state.cards[1].zone == ZONE_UNDER
+    assert state.cards[2].zone == ZONE_PLAY
+    assert 1 in state.players[0].under
+    assert 2 in state.players[0].play
+    _assert_zone_membership_is_consistent(state)
+    
+    # Move stack to discard with include_stack=True (default)
+    engine._move_card_eventful(state, 2, ZONE_DISCARD, actor=0, include_stack=True)
+    
+    # Both cards should be in discard
+    assert state.cards[1].zone == ZONE_DISCARD
+    assert state.cards[2].zone == ZONE_DISCARD
+    assert 1 in state.players[0].discard
+    assert 2 in state.players[0].discard
+    assert 1 not in state.players[0].under
+    assert 2 not in state.players[0].play
+    _assert_zone_membership_is_consistent(state)
+
+
+def test_include_stack_false_preserves_existing_cards_under() -> None:
+    """Test that _move_card_eventful with include_stack=False does NOT move cards_under.
+    
+    When include_stack=False, a card leaving play should NOT pull its cards_under through
+    a second movement path. This ensures that attach operations don't inadvertently move
+    stacks that should remain together.
+    """
+    engine, state = _state_with_shift_stack()
+    
+    # Add a third card under base (card 1)
+    state.cards[3] = CardInstance(3, "ink", owner=0, controller=0, zone=ZONE_PLAY)
+    state.players[0].play.append(3)
+    
+    # Set up: card 1 has card 3 under it
+    state.cards[1].cards_under.append(3)
+    state.cards[3].stack_parent_id = 1
+    _assert_zone_membership_is_consistent(state)
+    
+    # Verify initial state
+    assert state.cards[1].zone == ZONE_PLAY
+    assert 3 in state.cards[1].cards_under
+    
+    # When card 1 leaves play with include_stack=False, card 3 should NOT be pulled
+    # through the movement (card 3 should stay in play unless explicitly moved)
+    engine._move_card_eventful(state, 1, ZONE_DISCARD, actor=0, include_stack=False)
+    
+    # Card 1 should be in discard
+    assert state.cards[1].zone == ZONE_DISCARD
+    
+    # Card 3 should stay in play since it wasn't part of the movement
+    # This is the key assertion: include_stack=False means cards_under don't move
+    assert state.cards[3].zone == ZONE_PLAY
+    assert 3 in state.players[0].play  # Card 3 stays in play
+    
+    _assert_zone_membership_is_consistent(state)

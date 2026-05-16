@@ -17,6 +17,7 @@ from lorcana_bot.static_effects import (
     deregister_static_effects_for_card,
     get_static_modifier,
 )
+from lorcana_bot.constants import ZONE_HAND
 from lorcana_bot.cards import CardDef, CardDatabase
 from lorcana_bot.card_logic.abilities import SourceAbilityDef
 from lorcana_bot.card_logic.effects import SourceEffectDef
@@ -538,6 +539,130 @@ class TestStaticEffectRegistryClear:
         # Clear all effects
         state.static_effect_registry.clear()
         
+        assert len(state.static_effect_registry.effects) == 0
+
+
+class TestStaticEffectDeregistrationOnLeavePlay:
+    """Tests for static effect deregistration when cards leave play with their stack."""
+
+    def test_banish_eventful_deregisters_static_effects_from_top_card_and_stack(self, make_state):
+        """Test that _banish_eventful deregisters static effects from top card and all stacked cards.
+        
+        When a card with cards_under leaves play, all cards in the stack should have their
+        static effects deregistered.
+        """
+        from lorcana_bot.engine import GameEngine
+        from lorcana_bot.cards import CardDatabase, CardDef
+        from lorcana_bot.constants import ZONE_PLAY, ZONE_UNDER
+        
+        # Set up a game engine with cards
+        engine = GameEngine(CardDatabase([
+            CardDef("base", "Base", "amber", 2, True, "character", 2, 2, 1),
+            CardDef("shifted", "Shifted", "amber", 5, True, "character", 3, 4, 1),
+        ]))
+        
+        state = make_state()
+        # Create shift stack manually: base card under shifted card
+        state.cards[1] = CardInstance(instance_id=1, card_id="base", owner=0, controller=0, zone=ZONE_UNDER)
+        state.cards[2] = CardInstance(instance_id=2, card_id="shifted", owner=0, controller=0, zone=ZONE_PLAY)
+        state.cards[1].stack_parent_id = 2  # base is under shifted
+        state.cards[2].cards_under = [1]  # shifted has base under it
+        state.players[0].play.append(2)
+        state.players[0].under.append(1)
+        
+        # Register static effects on both cards
+        entry_top = create_modify_stat_effect(source_id=2, stat="strength", amount=3, target_mode="your_characters")
+        entry_stack = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
+        state.static_effect_registry.register_effect(entry_top)
+        state.static_effect_registry.register_effect(entry_stack)
+        
+        # Both cards should have effects registered
+        assert len(state.static_effect_registry.effects) == 2
+        
+        # Banish the stack - should deregister effects from both cards
+        engine._banish_eventful(state, 2, actor=0, reason="test")
+        
+        # All effects should be deregistered
+        assert len(state.static_effect_registry.effects) == 0
+
+    def test_return_to_hand_eventful_deregisters_static_effects_from_top_card_and_stack(self, make_state):
+        """Test that _return_to_hand_eventful deregisters static effects from top card and all stacked cards.
+        
+        When a card with cards_under returns to hand, all cards in the stack should have their
+        static effects deregistered.
+        """
+        from lorcana_bot.engine import GameEngine
+        from lorcana_bot.cards import CardDatabase, CardDef
+        from lorcana_bot.constants import ZONE_PLAY, ZONE_UNDER, ZONE_HAND
+        
+        # Set up a game engine with cards
+        engine = GameEngine(CardDatabase([
+            CardDef("base", "Base", "amber", 2, True, "character", 2, 2, 1),
+            CardDef("shifted", "Shifted", "amber", 5, True, "character", 3, 4, 1),
+        ]))
+        
+        state = make_state()
+        # Create shift stack manually: base card under shifted card
+        state.cards[1] = CardInstance(instance_id=1, card_id="base", owner=0, controller=0, zone=ZONE_UNDER)
+        state.cards[2] = CardInstance(instance_id=2, card_id="shifted", owner=0, controller=0, zone=ZONE_PLAY)
+        state.cards[1].stack_parent_id = 2  # base is under shifted
+        state.cards[2].cards_under = [1]  # shifted has base under it
+        state.players[0].play.append(2)
+        state.players[0].under.append(1)
+        
+        # Register static effects on both cards
+        entry_top = create_modify_stat_effect(source_id=2, stat="strength", amount=3, target_mode="your_characters")
+        entry_stack = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
+        state.static_effect_registry.register_effect(entry_top)
+        state.static_effect_registry.register_effect(entry_stack)
+        
+        # Both cards should have effects registered
+        assert len(state.static_effect_registry.effects) == 2
+        
+        # Return to hand - should deregister effects from both cards
+        engine._return_to_hand_eventful(state, 2, actor=0)
+        
+        # All effects should be deregistered
+        assert len(state.static_effect_registry.effects) == 0
+
+    def test_move_card_eventful_include_stack_deregisters_all_static_effects(self, make_state):
+        """Test that _move_card_eventful with include_stack=True deregisters effects from all stack cards.
+        
+        Moving a stack out of play via _move_card_eventful should deregister effects
+        from the top card and all cards_under.
+        """
+        from lorcana_bot.engine import GameEngine
+        from lorcana_bot.cards import CardDatabase, CardDef
+        from lorcana_bot.constants import ZONE_PLAY, ZONE_UNDER, ZONE_DISCARD
+        
+        # Set up a game engine with cards
+        engine = GameEngine(CardDatabase([
+            CardDef("base", "Base", "amber", 2, True, "character", 2, 2, 1),
+            CardDef("shifted", "Shifted", "amber", 5, True, "character", 3, 4, 1),
+        ]))
+        
+        state = make_state()
+        # Create shift stack manually: base card under shifted card
+        state.cards[1] = CardInstance(instance_id=1, card_id="base", owner=0, controller=0, zone=ZONE_UNDER)
+        state.cards[2] = CardInstance(instance_id=2, card_id="shifted", owner=0, controller=0, zone=ZONE_PLAY)
+        state.cards[1].stack_parent_id = 2  # base is under shifted
+        state.cards[2].cards_under = [1]  # shifted has base under it
+        state.players[0].play.append(2)
+        state.players[0].under.append(1)
+        
+        # Register static effects on both cards
+        entry_top = create_modify_stat_effect(source_id=2, stat="strength", amount=3, target_mode="your_characters")
+        entry_stack = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
+        state.static_effect_registry.register_effect(entry_top)
+        state.static_effect_registry.register_effect(entry_stack)
+        
+        # Both cards should have effects registered
+        assert len(state.static_effect_registry.effects) == 2
+        
+        # Move the stack to discard with include_stack=True (default)
+        engine._move_card_eventful(state, 2, ZONE_DISCARD, actor=0)
+        
+        # All effects should be deregistered
         assert len(state.static_effect_registry.effects) == 0
 
 
