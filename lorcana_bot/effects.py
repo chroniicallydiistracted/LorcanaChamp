@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .cards import EffectDef
-from .constants import CARD_CHARACTER, ZONE_DISCARD, ZONE_HAND
+from .constants import CARD_CHARACTER, ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_PLAY
 from .effect_types import EffectResolutionContext, SUPPORTED_EFFECT_KINDS
 from .state import GameState
 
@@ -43,10 +43,19 @@ class EffectResolver:
         elif kind == "draw":
             self.engine.draw_cards(state, self._target_player(state, effect, context), self._amount(effect))
         elif kind == "gain_lore":
-            state.players[self._target_player(state, effect, context)].lore += self._amount(effect)
+            self.engine._gain_lore_eventful(
+                state,
+                self._target_player(state, effect, context),
+                self._amount(effect),
+                source_id=context.source,
+            )
         elif kind == "lose_lore":
-            player = self._target_player(state, effect, context)
-            state.players[player].lore = max(0, state.players[player].lore - self._amount(effect))
+            self.engine._lose_lore_eventful(
+                state,
+                self._target_player(state, effect, context),
+                self._amount(effect),
+                source_id=context.source,
+            )
         elif kind == "deal_damage":
             for target in self._target_cards(state, effect, context):
                 self.engine._deal_damage_eventful(
@@ -60,21 +69,49 @@ class EffectResolver:
                 )
         elif kind == "remove_damage":
             for target in self._target_cards(state, effect, context):
-                state.cards[target].damage = max(0, state.cards[target].damage - self._amount(effect))
+                self.engine._remove_damage_eventful(
+                    state,
+                    target,
+                    self._amount(effect),
+                    actor=context.actor,
+                    source_id=context.source,
+                )
         elif kind == "banish":
             for target in self._target_cards(state, effect, context):
-                state.move_card(target, ZONE_DISCARD)
+                self.engine._banish_eventful(
+                    state,
+                    target,
+                    actor=context.actor,
+                    source_id=context.source,
+                    reason="effect",
+                )
         elif kind == "discard":
             self._discard(state, effect, context)
         elif kind == "return_to_hand":
             for target in self._target_cards(state, effect, context):
-                state.move_card(target, ZONE_HAND)
+                self.engine._return_to_hand_eventful(
+                    state,
+                    target,
+                    actor=context.actor,
+                    source_id=context.source,
+                )
         elif kind == "ready":
             for target in self._target_cards(state, effect, context):
-                state.cards[target].exerted = False
+                self.engine._ready_eventful(
+                    state,
+                    target,
+                    actor=context.actor,
+                    source_id=context.source,
+                )
         elif kind == "exert":
             for target in self._target_cards(state, effect, context):
-                state.cards[target].exerted = True
+                self.engine._exert_eventful(
+                    state,
+                    target,
+                    actor=context.actor,
+                    source_id=context.source,
+                    reason="effect",
+                )
         elif kind == "cost_reduction":
             state.players[context.actor].cost_reductions.append(
                 {
@@ -177,12 +214,24 @@ class EffectResolver:
             for target in targets:
                 if state.cards[target].zone != ZONE_HAND:
                     raise EffectResolutionError("Discard target must be in hand")
-                state.move_card(target, ZONE_DISCARD)
+                self.engine._discard_eventful(
+                    state,
+                    target,
+                    actor=state.cards[target].controller,
+                    source_id=context.source,
+                    reason="effect",
+                )
             return
 
         player = self._target_player(state, effect, context)
         for _ in range(min(self._amount(effect), len(state.players[player].hand))):
-            state.move_card(state.players[player].hand[0], ZONE_DISCARD)
+            self.engine._discard_eventful(
+                state,
+                state.players[player].hand[0],
+                actor=player,
+                source_id=context.source,
+                reason="effect",
+            )
 
     def _temporary_modifier(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         if not isinstance(effect.value, dict):
@@ -370,8 +419,6 @@ class EffectResolver:
         
         The card identity becomes public and is routed according to effect.value.
         """
-        from .constants import ZONE_DECK, ZONE_HAND
-        
         amount = self._amount(effect)
         if amount <= 0:
             amount = 1
@@ -411,14 +458,14 @@ class EffectResolver:
             destination = str(effect.value)
             for cid in revealed_cards:
                 if destination == "hand":
-                    state.move_card(cid, ZONE_HAND)
+                    self.engine._move_card_eventful(state, cid, ZONE_HAND, actor=player, source_id=context.source)
                 elif destination == "discard":
-                    state.move_card(cid, ZONE_DISCARD)
+                    self.engine._move_card_eventful(state, cid, ZONE_DISCARD, actor=player, source_id=context.source)
                 elif destination == "play":
                     # Only characters can go to play
                     cdef = self.engine.card_def(state, cid)
                     if cdef.card_type == "character":
-                        state.move_card(cid, "play")
+                        self.engine._move_card_eventful(state, cid, ZONE_PLAY, actor=player, source_id=context.source)
                 # put_on_top and put_on_bottom handled separately
 
     def _resolve_reveal_hand(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
@@ -426,8 +473,6 @@ class EffectResolver:
         
         The card identities become public and are routed according to effect.value.
         """
-        from .constants import ZONE_HAND
-        
         player = self._target_player(state, effect, context)
         hand = state.players[player].hand
         
@@ -521,8 +566,6 @@ class EffectResolver:
         
         The card to move is determined by context.choice or the pending effect selection.
         """
-        from .constants import ZONE_HAND
-        
         # The card to move should be specified in context.choice (card instance id)
         card_id = context.choice
         if card_id is None:
@@ -530,18 +573,15 @@ class EffectResolver:
             return
         
         if card_id in state.cards:
-            state.move_card(card_id, ZONE_HAND)
-            
-            # Emit event
-            self.engine.emit_event(
+            self.engine._move_card_eventful(
                 state,
-                "CARD_MOVED_TO_HAND",
+                card_id,
+                ZONE_HAND,
                 actor=context.actor,
-                source=card_id,
-                payload={
-                    "card_id": card_id,
-                    "player": state.cards[card_id].controller,
-                },
+                source_id=context.source,
+                controller=state.cards[card_id].owner,
+                event_type="CARD_MOVED_TO_HAND",
+                payload={"player": state.cards[card_id].owner},
             )
 
     def _resolve_put_card_on_top(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
@@ -549,71 +589,60 @@ class EffectResolver:
         
         The card to move is determined by context.choice or the pending effect selection.
         """
-        from .constants import ZONE_DECK
-        
         # The card to move should be specified in context.choice
         card_id = context.choice
         if card_id is None:
             return
         
         if card_id in state.cards:
-            card = state.cards[card_id]
-            player = card.controller
-            
-            # Remove from current zone
-            current_zone = card.zone
-            if current_zone == ZONE_HAND:
-                state.players[player].hand.remove(card_id)
-            elif current_zone == ZONE_DISCARD:
-                state.players[player].discard.remove(card_id)
-            
-            # Put on top of deck
-            state.players[player].deck.insert(0, card_id)
-            card.zone = ZONE_DECK
-            card.revealed = False
+            self.engine._move_card_eventful(
+                state,
+                card_id,
+                ZONE_DECK,
+                actor=context.actor,
+                source_id=context.source,
+                controller=state.cards[card_id].owner,
+                index=0,
+            )
 
     def _resolve_put_card_on_bottom(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle put_card_on_bottom effect - move card to bottom of deck.
         
         The card to move is determined by context.choice or the pending effect selection.
         """
-        from .constants import ZONE_DECK
-        
         # The card to move should be specified in context.choice
         card_id = context.choice
         if card_id is None:
             return
         
         if card_id in state.cards:
-            card = state.cards[card_id]
-            player = card.controller
-            
-            # Remove from current zone
-            current_zone = card.zone
-            if current_zone == ZONE_HAND:
-                state.players[player].hand.remove(card_id)
-            elif current_zone == ZONE_DISCARD:
-                state.players[player].discard.remove(card_id)
-            
-            # Put on bottom of deck
-            state.players[player].deck.append(card_id)
-            card.zone = ZONE_DECK
-            card.revealed = False
+            self.engine._move_card_eventful(
+                state,
+                card_id,
+                ZONE_DECK,
+                actor=context.actor,
+                source_id=context.source,
+                controller=state.cards[card_id].owner,
+            )
 
     def _resolve_put_card_in_discard(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle put_card_in_discard effect - move card to discard.
         
         The card to move is determined by context.choice or the pending effect selection.
         """
-        from .constants import ZONE_DISCARD
-        
         # The card to move should be specified in context.choice
         card_id = context.choice
         if card_id is None:
             return
         
         if card_id in state.cards:
-            state.move_card(card_id, ZONE_DISCARD)
+            self.engine._move_card_eventful(
+                state,
+                card_id,
+                ZONE_DISCARD,
+                actor=context.actor,
+                source_id=context.source,
+            )
 
     def _resolve_shuffle_deck(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle shuffle_deck effect - shuffle the deck.
@@ -632,25 +661,20 @@ class EffectResolver:
         This requires pending player input to choose the card name.
         The named card is then used for comparison or routing.
         """
-        from .pending_effects import create_pending_effect
-        from .cards import EffectDef
-        
         # Create a pending effect that requires player to name a card
-        # For now, this is informational - the named card ID is stored in context.choice
         named_card_id = context.choice
         if named_card_id is None:
-            # Need pending effect for card naming
-            name_effects = (
-                EffectDef(kind="sequence", effects=()),  # Placeholder for name resolution
-            )
-            
-            create_pending_effect(
+            from .pending_effects import create_named_card_pending_effect
+
+            raw_valid_ids = effect.raw.get("valid_card_def_ids") or effect.raw.get("validCardDefIds") or ()
+            valid_card_def_ids = tuple(str(card_id) for card_id in raw_valid_ids)
+            create_named_card_pending_effect(
                 state=state,
                 controller_id=context.actor,
                 chooser_id=context.actor,
                 source_id=context.source,
                 source_card_id=self.engine.card_def(state, context.source).id if context.source else None,
-                effects=name_effects,
+                valid_card_def_ids=valid_card_def_ids,
                 origin="name_a_card",
             )
 
@@ -659,8 +683,6 @@ class EffectResolver:
         
         This combines reveal and routing in one effect.
         """
-        from .constants import ZONE_DECK, ZONE_HAND
-        
         # Get destination from effect.value
         destination = str(effect.value) if effect.value else "hand"
         
@@ -691,10 +713,10 @@ class EffectResolver:
         
         # Route to destination
         if destination == "hand":
-            state.move_card(cid, ZONE_HAND)
+            self.engine._move_card_eventful(state, cid, ZONE_HAND, actor=player, source_id=context.source)
         elif destination == "discard":
-            state.move_card(cid, ZONE_DISCARD)
+            self.engine._move_card_eventful(state, cid, ZONE_DISCARD, actor=player, source_id=context.source)
         elif destination == "play":
             cdef = self.engine.card_def(state, cid)
             if cdef.card_type == "character":
-                state.move_card(cid, "play")
+                self.engine._move_card_eventful(state, cid, ZONE_PLAY, actor=player, source_id=context.source)

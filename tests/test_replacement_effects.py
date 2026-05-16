@@ -259,16 +259,24 @@ class TestBanishCard:
     """Test banish_card with replacement effects."""
 
     def test_banish_card_no_effects(self, simple_state):
-        """Test basic banish without replacement effects."""
+        """Test basic banish without replacement effects.
+        
+        Note: banish_card() is now a query function that returns what destination
+        should be used. The caller is responsible for performing the actual move.
+        """
         event = banish_card(simple_state, 1, 2)
         
         assert event.original_destination == "discard"
         assert event.actual_destination == "discard"
         assert event.was_replaced is False
-        assert simple_state.cards[1].zone == ZONE_DISCARD
+        # Card stays in play zone - caller must perform the move
+        assert simple_state.cards[1].zone == ZONE_PLAY
 
     def test_banish_replace_with_return_to_hand(self, simple_state):
-        """Test banish replacement to hand."""
+        """Test banish replacement to hand.
+        
+        Note: banish_card() is now a query function - caller must perform the move.
+        """
         registry = get_registry(simple_state)
         effect = ReplacementEffectEntry(
             source_id=3,
@@ -282,7 +290,8 @@ class TestBanishCard:
         
         assert event.was_replaced is True
         assert event.actual_destination == "hand"
-        assert simple_state.cards[1].zone == ZONE_HAND
+        # Card stays in play zone - caller must perform the move
+        assert simple_state.cards[1].zone == ZONE_PLAY
 
     def test_banish_replace_with_discard(self, simple_state):
         """Test banish replacement to discard (instead of banish to inkwell).
@@ -292,6 +301,8 @@ class TestBanishCard:
         there's no actual change. This represents replacing banish-to-inkwell
         with banish-to-discard, which has no visible difference when default
         is already discard.
+        
+        Note: banish_card() is now a query function - caller must perform the move.
         """
         registry = get_registry(simple_state)
         effect = ReplacementEffectEntry(
@@ -306,7 +317,8 @@ class TestBanishCard:
         
         # Card goes to discard as expected
         assert event.actual_destination == "discard"
-        assert simple_state.cards[1].zone == ZONE_DISCARD
+        # Card stays in play zone - caller must perform the move
+        assert simple_state.cards[1].zone == ZONE_PLAY
         # Note: was_replaced is False because discard == discard
 
 
@@ -582,7 +594,10 @@ class TestIntegration:
         assert simple_state.cards[1].damage == 2
 
     def test_replace_banish_once_per_turn(self, simple_state):
-        """Test once-per-turn banish replacement."""
+        """Test once-per-turn banish replacement.
+        
+        Note: banish_card() is now a query function - caller must perform the move.
+        """
         registry = get_registry(simple_state)
         effect = ReplacementEffectEntry(
             source_id=3,
@@ -596,7 +611,9 @@ class TestIntegration:
         # First banish
         event1 = banish_card(simple_state, 1, 2)
         assert event1.was_replaced is True
-        assert simple_state.cards[1].zone == ZONE_HAND
+        assert event1.actual_destination == "hand"
+        # Card stays in play - caller must perform move
+        assert simple_state.cards[1].zone == ZONE_PLAY
         
         # Reset to play for second test
         simple_state.cards[1].zone = ZONE_PLAY
@@ -604,10 +621,14 @@ class TestIntegration:
         # Second banish same turn - effect exhausted, goes to discard
         event2 = banish_card(simple_state, 1, 2)
         assert event2.was_replaced is False
-        assert simple_state.cards[1].zone == ZONE_DISCARD
+        # Card stays in play - caller must perform move
+        assert simple_state.cards[1].zone == ZONE_PLAY
 
     def test_mixed_effect_types(self, simple_state):
-        """Test multiple effect types on same target."""
+        """Test multiple effect types on same target.
+        
+        Note: banish_card() is now a query function - caller must perform the move.
+        """
         registry = get_registry(simple_state)
         
         # Prevent damage effect
@@ -636,7 +657,9 @@ class TestIntegration:
         # Banish should be replaced
         banish_event = banish_card(simple_state, 1, 2)
         assert banish_event.was_replaced is True
-        assert simple_state.cards[1].zone == ZONE_HAND
+        assert banish_event.actual_destination == "hand"
+        # Card stays in play - caller must perform move
+        assert simple_state.cards[1].zone == ZONE_PLAY
 
 
 class TestEdgeCases:

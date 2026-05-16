@@ -7,7 +7,15 @@ from lorcana_bot.state import GameState, PlayerState, CardInstance
 from lorcana_bot.cards import CardDef
 from lorcana_bot.engine import GameEngine
 from lorcana_bot.cards import CardDatabase
-from lorcana_bot.constants import ZONE_PLAY, ZONE_INKWELL, ZONE_HAND, ZONE_DISCARD
+from lorcana_bot.constants import (
+    EVENT_CARD_DISCARDED,
+    EVENT_CARD_EXERTED,
+    EVENT_CHARACTER_BANISHED,
+    ZONE_PLAY,
+    ZONE_INKWELL,
+    ZONE_HAND,
+    ZONE_DISCARD,
+)
 
 from lorcana_bot.card_logic import SourceAbilityDef, SourceTriggerDef, SourceCostDef, SourceEffectDef
 from lorcana_bot.abilities import (
@@ -31,6 +39,18 @@ def _make_card_def(card_id: str, abilities: list[SourceAbilityDef] | None = None
     mock.card_type = "character"
     mock.source_abilities = abilities or []
     return mock
+
+
+def _eventful_cost_engine() -> GameEngine:
+    return GameEngine(
+        CardDatabase(
+            [
+                CardDef("test", "Test Card test", "amber", 1, True, "character", 1, 1, 1),
+                CardDef("hand1", "Hand One", "amber", 1, True, "action"),
+                CardDef("hand2", "Hand Two", "amber", 1, True, "action"),
+            ]
+        )
+    )
 
 
 def _make_source_cost(kind: str, amount: int = 1) -> SourceCostDef:
@@ -138,7 +158,7 @@ class TestExertSourceCost:
         state.cards[1].zone = ZONE_PLAY
         state.cards[1].exerted = False
         
-        engine = MagicMock(spec=GameEngine)
+        engine = _eventful_cost_engine()
         
         ability = ActivatedAbility(
             source_instance_id=1,
@@ -154,6 +174,9 @@ class TestExertSourceCost:
         pay_cost(state, engine, ability, ability.costs[0])
         
         assert state.cards[1].exerted is True
+        event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_CARD_EXERTED)
+        assert event.payload["subject_card_id"] == 1
+        assert event.payload["reason"] == "ability_cost"
 
 
 class TestInkCost:
@@ -179,6 +202,9 @@ class TestInkCost:
         
         engine = MagicMock(spec=GameEngine)
         engine.available_ink.return_value = 2
+        engine._exert_eventful.side_effect = (
+            lambda state_arg, card_id, **kwargs: setattr(state_arg.cards[card_id], "exerted", True)
+        )
         
         ability = ActivatedAbility(
             source_instance_id=3,
@@ -239,6 +265,9 @@ class TestInkCost:
         
         engine = MagicMock(spec=GameEngine)
         engine.available_ink.return_value = 2
+        engine._exert_eventful.side_effect = (
+            lambda state_arg, card_id, **kwargs: setattr(state_arg.cards[card_id], "exerted", True)
+        )
         
         ability = ActivatedAbility(
             source_instance_id=3,
@@ -317,7 +346,7 @@ class TestBanishSelfCost:
         state.cards[1].zone = ZONE_PLAY
         state.players[0].play = [1]
         
-        engine = MagicMock(spec=GameEngine)
+        engine = _eventful_cost_engine()
         
         ability = ActivatedAbility(
             source_instance_id=1,
@@ -334,6 +363,11 @@ class TestBanishSelfCost:
         
         assert state.cards[1].zone == ZONE_DISCARD
         assert 1 not in state.players[0].play
+        event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_CHARACTER_BANISHED)
+        assert event.payload["subject_card_id"] == 1
+        assert event.payload["from_zone"] == ZONE_PLAY
+        assert event.payload["to_zone"] == ZONE_DISCARD
+        assert event.payload["reason"] == "ability_cost"
 
 
 class TestDiscardCost:
@@ -407,6 +441,44 @@ class TestDiscardCost:
         
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
         assert can_pay is True
+
+    def test_random_discard_cost_payment_emits_discard_event(self, monkeypatch):
+        """Random discard cost should discard through the engine event helper."""
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={
+                1: CardInstance(instance_id=1, card_id="hand1", owner=0, controller=0),
+                2: CardInstance(instance_id=2, card_id="hand2", owner=0, controller=0),
+                3: CardInstance(instance_id=3, card_id="test", owner=0, controller=0),
+            },
+        )
+        state.players[0].hand = [1, 2]
+        state.cards[1].zone = ZONE_HAND
+        state.cards[2].zone = ZONE_HAND
+        state.cards[3].zone = ZONE_PLAY
+        state.players[0].play = [3]
+
+        engine = _eventful_cost_engine()
+        ability = ActivatedAbility(
+            source_instance_id=3,
+            source_card_id="test",
+            ability_id="discard_ability",
+            ability_index=0,
+            name="Discard",
+            costs=(_make_source_cost("discard", 1),),
+            effects=(),
+            condition=None,
+            raw={"random_discard": True},
+        )
+
+        monkeypatch.setattr("lorcana_bot.costs.random.randrange", lambda _: 0)
+        pay_cost(state, engine, ability, ability.costs[0])
+
+        assert 1 in state.players[0].discard
+        event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_CARD_DISCARDED)
+        assert event.payload["subject_card_id"] == 1
+        assert event.payload["source_card_id"] == 3
+        assert event.payload["reason"] == "ability_cost"
     
     def test_discard_cost_not_payable_with_insufficient_cards(self):
         """Discard cost should NOT be payable when player lacks cards."""

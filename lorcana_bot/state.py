@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from .constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_INKWELL, ZONE_PLAY
+from .constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_INKWELL, ZONE_LIMBO, ZONE_PLAY
 from .actions import Action
 from .pending_effects import PendingEffect
 from .static_effects import StaticEffectRegistry
@@ -75,6 +75,7 @@ class PlayerState:
     play: list[int] = field(default_factory=list)
     discard: list[int] = field(default_factory=list)
     inkwell: list[int] = field(default_factory=list)
+    limbo: list[int] = field(default_factory=list)
     has_kept_opening_hand: bool = False
     has_mulliganed: bool = False
     mulliganed_card_ids: list[int] = field(default_factory=list)
@@ -256,6 +257,8 @@ class GameState:
             return ps.discard
         if zone == ZONE_INKWELL:
             return ps.inkwell
+        if zone == ZONE_LIMBO:
+            return ps.limbo
         raise ValueError(f"Unknown zone {zone}")
 
     def next_event_id(self) -> str:
@@ -269,7 +272,14 @@ class GameState:
         self.bag_next_seq += 1
         return bag_id
 
-    def move_card(self, card_instance_id: int, destination: str, controller: int | None = None) -> None:
+    def move_card(
+        self,
+        card_instance_id: int,
+        destination: str,
+        controller: int | None = None,
+        *,
+        index: int | None = None,
+    ) -> None:
         card = self.cards[card_instance_id]
         source_owner = card.controller
         source_zone = card.zone
@@ -281,7 +291,10 @@ class GameState:
             card.controller = controller
         dest_owner = card.controller
         dest_list = self.find_zone_list(dest_owner, destination)
-        dest_list.append(card_instance_id)
+        if index is None:
+            dest_list.append(card_instance_id)
+        else:
+            dest_list.insert(index, card_instance_id)
         card.zone = destination
 
         if destination not in {ZONE_PLAY, ZONE_INKWELL}:

@@ -16,6 +16,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+from lorcana_bot.constants import ZONE_LIMBO, ZONE_PLAY
+
 if TYPE_CHECKING:
     from lorcana_bot.state import GameState
     from lorcana_bot.engine import GameEngine
@@ -434,13 +436,14 @@ def execute_sing_song(
     player = state.cards[singer_id].controller
     
     # B11: Singer exerts — NO ink payment for singing
-    state.cards[singer_id].exerted = True
-    
+    # Use engine helper for exert to enable proper trigger buffering
+    engine._exert_eventful(state, singer_id, actor=player, source_id=singer_id, emit_event=False)
+
     # Store pre-move state for event
     from_zone = state.cards[song_card_id].zone
-    
-    # Move song to discard
-    state.move_card(song_card_id, "discard")
+
+    # Move song to discard via engine helper
+    engine._move_card_eventful(state, song_card_id, "discard", actor=player)
     
     # Resolve song effects
     engine._resolve_effects(state, player, song_card_id, None)
@@ -509,13 +512,14 @@ def execute_shift_play(
     from_zone = state.cards[shifted_card_id].zone
     target_def = engine.card_def(state, target_character_id)
     
-    # B12: Move shifted card to play
-    state.move_card(shifted_card_id, "play")
+    # B12: Move shifted card to play via engine helper
+    engine._move_card_eventful(state, shifted_card_id, ZONE_PLAY, actor=player)
     
     # Set conservative state for shifted card
     inst = state.cards[shifted_card_id]
-    inst.exerted = False
-    inst.damage = 0
+    engine._ready_eventful(state, shifted_card_id, actor=player, source_id=shifted_card_id, emit_event=False)
+    if inst.damage:
+        engine._remove_damage_eventful(state, shifted_card_id, inst.damage, actor=player, source_id=shifted_card_id)
     inst.drying = False
     inst.just_played = True
     inst.location_instance_id = None
@@ -526,26 +530,31 @@ def execute_shift_play(
     # B12: Attach target UNDER shifted card — NOT to discard
     target_inst = state.cards[target_character_id]
     
-    # Remove target from play zone list
-    if target_character_id in state.players[player].play:
-        state.players[player].play.remove(target_character_id)
-    
     # Preserve any existing cards_under chain from target
     existing_under = list(target_inst.cards_under)
+
+    # Shift targets leave the public play area while remaining associated under the new top.
+    engine._move_card_eventful(
+        state,
+        target_character_id,
+        ZONE_LIMBO,
+        actor=player,
+        controller=player,
+        queue_triggers=False,
+        include_stack=False,
+    )
     
-    # Link target into shifted card's cards_under (target on bottom)
+    # Link target and any existing stack into shifted card's cards_under.
     inst.cards_under = [target_character_id] + existing_under
     
-    # Link each card in the existing chain to this target
-    for under_id in existing_under:
+    # Link each card in the stack to the new top card.
+    for under_id in inst.cards_under:
         if under_id in state.cards:
-            state.cards[under_id].stack_parent_id = target_character_id
+            state.cards[under_id].stack_parent_id = shifted_card_id
+            state.cards[under_id].cards_under.clear()
     
     # Mark target's stack_parent
     target_inst.stack_parent_id = shifted_card_id
-    
-    # Target zone stays "play" conceptually but it's hidden under shifted card
-    target_inst.zone = "play"
     
     # Emit CARD_PLAYED with used_shift=True
     engine.emit_event(
@@ -579,20 +588,15 @@ def get_stacked_card_ids(state: GameState, top_id: int) -> list[int]:
     Returns:
         List of all card IDs in the stack (top first, then cards_under chain)
     """
-    result = [top_id]
-    current_id = top_id
-    while True:
-        inst = state.cards.get(current_id)
-        if inst is None or not inst.cards_under:
-            break
-        next_id = inst.cards_under[0]  # Bottom of the chain
-        result.append(next_id)
-        current_id = next_id
-    return result
+    inst = state.cards.get(top_id)
+    if inst is None:
+        return []
+    return [top_id, *[cid for cid in inst.cards_under if cid in state.cards]]
 
 
 def move_card_out_of_play_with_stack(
     state: GameState,
+    engine: GameEngine,
     top_id: int,
     destination: str,
     controller: int | None = None,
@@ -611,4 +615,17 @@ def move_card_out_of_play_with_stack(
     stack_ids = get_stacked_card_ids(state, top_id)
     
     for cid in stack_ids:
-        state.move_card(cid, destination, controller=controller)
+        engine._move_card_eventful(
+            state,
+            cid,
+            destination,
+            controller=controller,
+            include_stack=False,
+            queue_triggers=False,
+        )
+    for cid in stack_ids:
+        if cid in state.cards:
+            state.cards[cid].cards_under.clear()
+            state.cards[cid].stack_parent_id = None
+            state.cards[cid].played_via_shift = False
+            state.cards[cid].played_cost_type = None

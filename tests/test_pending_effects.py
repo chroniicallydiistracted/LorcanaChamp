@@ -3,11 +3,18 @@
 import pytest
 
 from lorcana_bot.engine import GameEngine
-from lorcana_bot.cards import CardDatabase
+from lorcana_bot.cards import CardDatabase, CardDef, EffectDef
+from lorcana_bot.effect_types import EffectResolutionContext
+from lorcana_bot.automation.actor_resolution import resolve_current_actor
+from lorcana_bot.state import Action, CardInstance, GameState, PlayerState
 from lorcana_bot.pending_effects import (
     PendingEffect,
     TargetRequirement,
+    NamedCardRequirement,
     create_pending_effect,
+    create_scry_pending_effect,
+    create_search_pending_effect,
+    create_reveal_routing_pending_effect,
     get_current_pending_effect,
     get_pending_effects_for_chooser,
     get_valid_targets_for_requirement,
@@ -18,6 +25,8 @@ from lorcana_bot.pending_effects import (
 )
 from lorcana_bot.constants import (
     ACTION_RESOLVE_PENDING_EFFECT,
+    ZONE_DECK,
+    ZONE_HAND,
     ZONE_PLAY,
 )
 
@@ -550,3 +559,237 @@ def engine():
     
     db = load_demo_database()
     return GameEngine(db)
+
+
+class TestSpecialPendingRequirementEngineRouting:
+    """Engine-path tests for special pending requirement_kind dispatch."""
+
+    def _engine(self) -> GameEngine:
+        cards = [
+            CardDef("a", "A", "amber", 1, True, "character", 1, 1, 1),
+            CardDef("b", "B", "amber", 1, True, "character", 1, 1, 1),
+            CardDef("c", "C", "amber", 1, True, "character", 1, 1, 1),
+        ]
+        return GameEngine(CardDatabase(cards))
+
+    def _state_with_deck(self) -> GameState:
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        state.cards[1] = CardInstance(instance_id=1, card_id="a", owner=0, controller=0, zone=ZONE_DECK)
+        state.cards[2] = CardInstance(instance_id=2, card_id="b", owner=0, controller=0, zone=ZONE_DECK)
+        state.cards[3] = CardInstance(instance_id=3, card_id="c", owner=0, controller=0, zone=ZONE_DECK)
+        state.players[0].deck = [1, 2, 3]
+        state.active_player = 0
+        return state
+
+    def test_scry_pending_requirement_resolves_through_engine_action(self):
+        engine = self._engine()
+        state = self._state_with_deck()
+
+        pe = create_scry_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            amount=2,
+        )
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            choice={
+                "pending_effect_id": pe.id,
+                "top_cards": (2,),
+                "bottom_cards": (1,),
+            },
+        )
+        assert action in resolve_actions
+
+        next_state = engine.apply_action(state, action)
+
+        assert next_state.players[0].deck == [2, 3, 1]
+        assert next_state.pending_effects == []
+
+    def test_search_pending_requirement_resolves_through_engine_action(self):
+        engine = self._engine()
+        state = self._state_with_deck()
+
+        pe = create_search_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            candidate_ids=(1, 2),
+            destination=ZONE_HAND,
+            shuffle_after=False,
+        )
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            choice={"pending_effect_id": pe.id, "selected_card_id": 2},
+        )
+        assert action in resolve_actions
+
+        next_state = engine.apply_action(state, action)
+
+        assert 2 in next_state.players[0].hand
+        assert 2 not in next_state.players[0].deck
+        assert next_state.pending_effects == []
+
+    def test_reveal_routing_pending_requirement_resolves_through_engine_action(self):
+        engine = self._engine()
+        state = self._state_with_deck()
+
+        pe = create_reveal_routing_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            card_ids=(1,),
+            destination=None,
+            destination_options=(ZONE_HAND, ZONE_DECK),
+        )
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            choice={"pending_effect_id": pe.id, "destination": ZONE_HAND},
+        )
+        assert action in resolve_actions
+
+        next_state = engine.apply_action(state, action)
+
+        assert next_state.cards[1].revealed is True
+        assert 1 in next_state.players[0].hand
+        assert 1 not in next_state.players[0].deck
+        assert next_state.pending_effects == []
+
+    def test_named_card_pending_requirement_resolves_through_engine_action(self):
+        engine = self._engine()
+        state = self._state_with_deck()
+
+        pending = PendingEffect(
+            id="pe_named",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            choice_options=("a", "b"),
+            raw={
+                "requirement_kind": "named_card",
+                "requirement": NamedCardRequirement(valid_card_def_ids=("a", "b"), chooser_id=0),
+            },
+        )
+        state.pending_effects.append(pending)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            choice={"pending_effect_id": pending.id, "named_card": "b"},
+        )
+        assert action in resolve_actions
+
+        next_state = engine.apply_action(state, action)
+
+        assert any(
+            event.event_type == "NAMED_CARD_CHOSEN"
+            and event.payload.get("named_card") == "b"
+            for event in next_state.event_log
+        )
+        assert next_state.pending_effects == []
+
+    def test_destination_pending_requirement_resolves_through_engine_action(self):
+        engine = self._engine()
+        state = self._state_with_deck()
+
+        pending = PendingEffect(
+            id="pe_destination",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            choice_options=(ZONE_HAND, ZONE_DECK),
+            raw={
+                "requirement_kind": "destination",
+                "destination_options": (ZONE_HAND, ZONE_DECK),
+            },
+        )
+        state.pending_effects.append(pending)
+
+        action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            choice={"pending_effect_id": pending.id, "destination": ZONE_HAND},
+        )
+        assert action in engine.legal_actions(state, 0)
+
+        next_state = engine.apply_action(state, action)
+
+        assert any(
+            event.event_type == "DESTINATION_CHOSEN"
+            and event.payload.get("destination") == ZONE_HAND
+            for event in next_state.event_log
+        )
+        assert next_state.pending_effects == []
+
+    def test_name_a_card_effect_creates_named_card_pending_requirement(self):
+        engine = self._engine()
+        state = self._state_with_deck()
+        state.cards[4] = CardInstance(instance_id=4, card_id="a", owner=0, controller=0, zone=ZONE_PLAY)
+        state.players[0].play.append(4)
+
+        engine.effect_resolver.resolve(
+            state,
+            EffectDef(kind="name_a_card"),
+            EffectResolutionContext(actor=0, source=4),
+        )
+
+        pending = state.pending_effects[-1]
+        assert pending.raw.get("requirement_kind") == "named_card"
+        assert pending.effects == ()
+
+        action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            source=4,
+            choice={"pending_effect_id": pending.id, "named_card": "b"},
+        )
+        assert action in engine.legal_actions(state, 0)
+
+        next_state = engine.apply_action(state, action)
+
+        assert any(
+            event.event_type == "NAMED_CARD_CHOSEN"
+            and event.payload.get("named_card") == "b"
+            for event in next_state.event_log
+        )
+        assert next_state.pending_effects == []
+
+    def test_special_pending_requirement_counts_for_actor_resolution(self):
+        state = self._state_with_deck()
+        create_scry_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=1,
+            source_id=None,
+            source_card_id=None,
+            amount=2,
+        )
+
+        resolution = resolve_current_actor(state, self._engine())
+
+        assert resolution.actor == 1
+        assert resolution.reason == "pending_effect_chooser"

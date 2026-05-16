@@ -38,6 +38,8 @@ from .constants import (
     EVENT_INKED,
     EVENT_KEPT_HAND,
     EVENT_LOCATION_LORE_GAINED,
+    EVENT_LORE_GAINED,
+    EVENT_LORE_LOST,
     EVENT_MOVED_TO_LOCATION,
     EVENT_MULLIGANED,
     EVENT_QUESTED,
@@ -62,6 +64,7 @@ from .constants import (
     ZONE_DISCARD,
     ZONE_HAND,
     ZONE_INKWELL,
+    ZONE_LIMBO,
     ZONE_PLAY,
 )
 from .state import ActionLogEntry, BagEffectEntry, CardInstance, GameEvent, GameState, PlayerState
@@ -75,6 +78,11 @@ from .pending_effects import (
     resolve_pending_effect_target,
     resolve_pending_effect_choice,
     resolve_pending_effect_optional,
+    resolve_scry_ordering,
+    resolve_search_selection,
+    resolve_reveal_routing,
+    resolve_named_card,
+    resolve_destination_choice,
     advance_pending_effect,
     complete_pending_effect,
     get_next_pending_effect_chooser,
@@ -251,6 +259,9 @@ class GameEngine:
                 actions: list[Action] = []
                 requirement = pe.current_requirement
                 
+                requirement_kind = (pe.raw or {}).get("requirement_kind")
+                raw_requirement = (pe.raw or {}).get("requirement")
+
                 if pe.optional and pe.accepted is None:
                     # Optional effect - can accept or decline
                     actions.append(Action(
@@ -265,6 +276,87 @@ class GameEngine:
                         source=pe.source_id,
                         choice={"pending_effect_id": pe.id, "accept": False}
                     ))
+                elif requirement_kind == "scry_ordering":
+                    candidate_ids = tuple(getattr(raw_requirement, "candidate_ids", ()))
+                    for ordered_cards in itertools.permutations(candidate_ids):
+                        for top_count in range(len(candidate_ids) + 1):
+                            actions.append(Action(
+                                ACTION_RESOLVE_PENDING_EFFECT,
+                                actor=player,
+                                source=pe.source_id,
+                                choice={
+                                    "pending_effect_id": pe.id,
+                                    "top_cards": ordered_cards[:top_count],
+                                    "bottom_cards": ordered_cards[top_count:],
+                                }
+                            ))
+                elif requirement_kind == "search_selection":
+                    candidate_ids = tuple(getattr(raw_requirement, "candidate_ids", ()) or pe.choice_options)
+                    for selected_card_id in candidate_ids:
+                        actions.append(Action(
+                            ACTION_RESOLVE_PENDING_EFFECT,
+                            actor=player,
+                            source=pe.source_id,
+                            choice={
+                                "pending_effect_id": pe.id,
+                                "selected_card_id": selected_card_id,
+                            }
+                        ))
+                elif requirement_kind == "reveal_routing":
+                    fixed_destination = getattr(raw_requirement, "destination", None)
+                    destination_options = tuple(getattr(raw_requirement, "destination_options", ()) or pe.choice_options)
+                    if fixed_destination:
+                        actions.append(Action(
+                            ACTION_RESOLVE_PENDING_EFFECT,
+                            actor=player,
+                            source=pe.source_id,
+                            choice={
+                                "pending_effect_id": pe.id,
+                                "destination": fixed_destination,
+                            }
+                        ))
+                    else:
+                        for destination in destination_options:
+                            actions.append(Action(
+                                ACTION_RESOLVE_PENDING_EFFECT,
+                                actor=player,
+                                source=pe.source_id,
+                                choice={
+                                    "pending_effect_id": pe.id,
+                                    "destination": destination,
+                                }
+                            ))
+                elif requirement_kind == "named_card":
+                    valid_names = tuple(getattr(raw_requirement, "valid_card_def_ids", ()) or pe.choice_options)
+                    if not valid_names:
+                        valid_names = tuple(card.id for card in sorted(self.db.all_cards(), key=lambda card: card.id))
+                    for named_card in valid_names:
+                        actions.append(Action(
+                            ACTION_RESOLVE_PENDING_EFFECT,
+                            actor=player,
+                            source=pe.source_id,
+                            choice={
+                                "pending_effect_id": pe.id,
+                                "named_card": named_card,
+                            }
+                        ))
+                elif requirement_kind == "destination":
+                    destination_options = tuple(
+                        (pe.raw or {}).get("destination_options")
+                        or getattr(raw_requirement, "destination_options", ())
+                        or getattr(raw_requirement, "options", ())
+                        or pe.choice_options
+                    )
+                    for destination in destination_options:
+                        actions.append(Action(
+                            ACTION_RESOLVE_PENDING_EFFECT,
+                            actor=player,
+                            source=pe.source_id,
+                            choice={
+                                "pending_effect_id": pe.id,
+                                "destination": destination,
+                            }
+                        ))
                 elif pe.requires_target_input and requirement is not None:
                     # Target selection required
                     valid_targets = get_valid_targets_for_requirement(state, requirement, player, self)
@@ -781,6 +873,417 @@ class GameEngine:
         
         return event
 
+    def _move_card_eventful(
+        self,
+        state: GameState,
+        card_id: int,
+        destination: str,
+        *,
+        actor: int | None = None,
+        source_id: int | None = None,
+        controller: int | None = None,
+        event_type: str | None = None,
+        payload: dict[str, Any] | None = None,
+        queue_triggers: bool = True,
+        index: int | None = None,
+        include_stack: bool = True,
+    ) -> tuple[str, str]:
+        """Move one card through the engine event boundary."""
+        if card_id not in state.cards:
+            raise IllegalActionError(f"Unknown card instance {card_id}")
+        if destination not in {ZONE_DECK, ZONE_HAND, ZONE_PLAY, ZONE_DISCARD, ZONE_INKWELL, ZONE_LIMBO}:
+            raise IllegalActionError(f"Unknown destination zone {destination}")
+
+        inst = state.cards[card_id]
+        from_zone = inst.zone
+        owner = inst.owner
+        from_controller = inst.controller
+        resolved_actor = actor if actor is not None else from_controller
+        stacked_card_ids = [card_id]
+        if include_stack and from_zone == ZONE_PLAY and destination != ZONE_PLAY and inst.cards_under:
+            stacked_card_ids.extend(cid for cid in inst.cards_under if cid in state.cards)
+
+        if from_zone == ZONE_PLAY and destination != ZONE_PLAY:
+            deregister_static_effects_for_card(state, card_id)
+            deregister_replacement_effects_from_card(state, card_id)
+
+        state.move_card(card_id, destination, controller=controller, index=index)
+        for stacked_id in stacked_card_ids[1:]:
+            stacked_controller = controller if controller is not None else state.cards[stacked_id].controller
+            state.move_card(stacked_id, destination, controller=stacked_controller)
+        if len(stacked_card_ids) > 1:
+            for stacked_id in stacked_card_ids:
+                stacked = state.cards[stacked_id]
+                stacked.cards_under.clear()
+                stacked.stack_parent_id = None
+                stacked.played_via_shift = False
+                stacked.played_cost_type = None
+        to_controller = state.cards[card_id].controller
+
+        if event_type is not None:
+            event_payload = {
+                "player_id": resolved_actor,
+                "card_id": card_id,
+                "subject_card_id": card_id,
+                "owner_id": owner,
+                "from_controller": from_controller,
+                "controller_id": to_controller,
+                "from_zone": from_zone,
+                "to_zone": destination,
+                "moved_card_ids": list(stacked_card_ids),
+            }
+            if source_id is not None:
+                event_payload["source_card_id"] = source_id
+                event_payload["trigger_source_card_id"] = source_id
+            if payload:
+                event_payload.update(payload)
+            self.emit_event(
+                state,
+                event_type,
+                actor=resolved_actor,
+                source=source_id if source_id is not None else card_id,
+                target=card_id if source_id is not None else None,
+                payload=event_payload,
+                queue_triggers=queue_triggers,
+            )
+
+        return from_zone, destination
+
+    def _discard_eventful(
+        self,
+        state: GameState,
+        card_id: int,
+        *,
+        actor: int | None = None,
+        source_id: int | None = None,
+        reason: str | None = None,
+        queue_triggers: bool = True,
+    ) -> None:
+        """Discard one card and emit CARD_DISCARDED."""
+        if card_id not in state.cards:
+            raise IllegalActionError(f"Unknown card instance {card_id}")
+        if state.cards[card_id].zone != ZONE_HAND:
+            raise IllegalActionError("Discard target must be in hand")
+        payload = {"reason": reason} if reason else None
+        self._move_card_eventful(
+            state,
+            card_id,
+            ZONE_DISCARD,
+            actor=actor,
+            source_id=source_id,
+            event_type=EVENT_CARD_DISCARDED,
+            payload=payload,
+            queue_triggers=queue_triggers,
+        )
+
+    def _return_to_hand_eventful(
+        self,
+        state: GameState,
+        card_id: int,
+        *,
+        actor: int | None = None,
+        source_id: int | None = None,
+        queue_triggers: bool = True,
+    ) -> None:
+        """Return one card to its owner's hand and emit CARD_RETURNED_TO_HAND."""
+        if card_id not in state.cards:
+            raise IllegalActionError(f"Unknown card instance {card_id}")
+        owner = state.cards[card_id].owner
+        self._move_card_eventful(
+            state,
+            card_id,
+            ZONE_HAND,
+            actor=actor if actor is not None else owner,
+            source_id=source_id,
+            controller=owner,
+            event_type=EVENT_CARD_RETURNED_TO_HAND,
+            payload={"owner_id": owner},
+            queue_triggers=queue_triggers,
+        )
+
+    def _banish_eventful(
+        self,
+        state: GameState,
+        card_id: int,
+        *,
+        actor: int | None = None,
+        source_id: int | None = None,
+        reason: str | None = None,
+        happened_in_challenge: bool = False,
+        queue_triggers: bool = True,
+    ) -> None:
+        """Banish one card through replacement handling and emit CHARACTER_BANISHED.
+        
+        This is the authoritative banish helper. It:
+        1. Evaluates replacement effects (via banish_card)
+        2. Deregisters static/replacement effects if leaving play
+        3. Performs the actual card move
+        4. Emits the banish event
+        """
+        if card_id not in state.cards:
+            raise IllegalActionError(f"Unknown card instance {card_id}")
+        inst = state.cards[card_id]
+        controller = inst.controller
+        from_zone = inst.zone
+        card_type = self.card_def(state, card_id).card_type
+        resolved_actor = actor if actor is not None else controller
+
+        # Evaluate replacement effects - this does NOT move the card
+        banish_event = replacement_banish_card(
+            state,
+            target_id=card_id,
+            source_id=source_id,
+            default_destination=ZONE_DISCARD,
+        )
+        
+        # Perform the actual move through the engine-owned zone boundary.
+        self._move_card_eventful(
+            state,
+            card_id,
+            banish_event.actual_destination,
+            actor=resolved_actor,
+            controller=controller,
+            queue_triggers=False,
+        )
+        
+        self.emit_event(
+            state,
+            EVENT_CHARACTER_BANISHED,
+            actor=resolved_actor,
+            source=source_id if source_id is not None else card_id,
+            target=card_id if source_id is not None else None,
+            payload={
+                "player_id": resolved_actor,
+                "card_id": card_id,
+                "subject_card_id": card_id,
+                "source_card_id": source_id,
+                "trigger_source_card_id": source_id if source_id is not None else card_id,
+                "owner_id": inst.owner,
+                "controller_id": controller,
+                "from_zone": from_zone,
+                "to_zone": banish_event.actual_destination,
+                "happened_in_challenge": happened_in_challenge,
+                "banished_card_type": card_type,
+                "reason": reason,
+                "was_replaced": banish_event.was_replaced,
+                "replacement_description": banish_event.replacement_description,
+            },
+            queue_triggers=queue_triggers,
+        )
+
+    def _put_into_inkwell_eventful(
+        self,
+        state: GameState,
+        card_id: int,
+        *,
+        actor: int,
+        source_id: int | None = None,
+        queue_triggers: bool = True,
+    ) -> None:
+        """Put one card into its controller's inkwell and emit INKED."""
+        self._move_card_eventful(
+            state,
+            card_id,
+            ZONE_INKWELL,
+            actor=actor,
+            source_id=source_id,
+            controller=actor,
+            event_type=EVENT_INKED,
+            payload={"card_def_id": state.cards[card_id].card_id},
+            queue_triggers=queue_triggers,
+        )
+        state.cards[card_id].exerted = False
+        state.cards[card_id].added_to_ink_this_turn = True
+
+    def _ready_eventful(
+        self,
+        state: GameState,
+        card_id: int,
+        *,
+        actor: int | None = None,
+        source_id: int | None = None,
+        emit_event: bool = True,
+        queue_triggers: bool = True,
+    ) -> None:
+        """Ready one card and optionally emit CARD_READIED.
+        
+        Set emit_event=False when readying is part of a compound action
+        (end turn readying) where a single event covers all readyings.
+        """
+        if card_id not in state.cards:
+            raise IllegalActionError(f"Unknown card instance {card_id}")
+        inst = state.cards[card_id]
+        inst.exerted = False
+        if not emit_event:
+            return
+        resolved_actor = actor if actor is not None else inst.controller
+        self.emit_event(
+            state,
+            EVENT_CARD_READIED,
+            actor=resolved_actor,
+            source=source_id if source_id is not None else card_id,
+            target=card_id if source_id is not None else None,
+            payload={
+                "player_id": resolved_actor,
+                "card_id": card_id,
+                "subject_card_id": card_id,
+                "source_card_id": source_id,
+                "trigger_source_card_id": source_id if source_id is not None else card_id,
+                "owner_id": inst.owner,
+                "controller_id": inst.controller,
+            },
+            queue_triggers=queue_triggers,
+        )
+
+    def _exert_eventful(
+        self,
+        state: GameState,
+        card_id: int,
+        *,
+        actor: int | None = None,
+        source_id: int | None = None,
+        reason: str | None = None,
+        emit_event: bool = True,
+        queue_triggers: bool = True,
+    ) -> None:
+        """Exert one card and optionally emit CARD_EXERTED.
+        
+        Set emit_event=False when exerting is part of a compound action
+        (quest, challenge, sing) where the parent action emits the event.
+        """
+        if card_id not in state.cards:
+            raise IllegalActionError(f"Unknown card instance {card_id}")
+        inst = state.cards[card_id]
+        inst.exerted = True
+        if not emit_event:
+            return
+        resolved_actor = actor if actor is not None else inst.controller
+        self.emit_event(
+            state,
+            EVENT_CARD_EXERTED,
+            actor=resolved_actor,
+            source=source_id if source_id is not None else card_id,
+            target=card_id if source_id is not None else None,
+            payload={
+                "player_id": resolved_actor,
+                "card_id": card_id,
+                "subject_card_id": card_id,
+                "source_card_id": source_id,
+                "trigger_source_card_id": source_id if source_id is not None else card_id,
+                "owner_id": inst.owner,
+                "controller_id": inst.controller,
+                "reason": reason,
+            },
+            queue_triggers=queue_triggers,
+        )
+
+    def _gain_lore_eventful(
+        self,
+        state: GameState,
+        player: int,
+        amount: int,
+        *,
+        source_id: int | None = None,
+        emit_event: bool = True,
+        queue_triggers: bool = True,
+    ) -> None:
+        """Gain lore and emit a gain-lore trigger payload.
+        
+        Set emit_event=False when gaining lore is part of a compound action
+        (quest, location lore) where the parent action emits a more specific event.
+        """
+        amount = int(amount)
+        if amount <= 0:
+            return
+        state.players[player].lore += amount
+        if not emit_event:
+            return
+        self.emit_event(
+            state,
+            EVENT_LORE_GAINED,
+            actor=player,
+            source=source_id,
+            payload={
+                "player_id": player,
+                "source_card_id": source_id,
+                "trigger_source_card_id": source_id,
+                "lore": amount,
+                "lore_gained": amount,
+            },
+            queue_triggers=queue_triggers,
+        )
+
+    def _lose_lore_eventful(
+        self,
+        state: GameState,
+        player: int,
+        amount: int,
+        *,
+        source_id: int | None = None,
+        queue_triggers: bool = True,
+    ) -> None:
+        """Lose lore, floored at zero, and emit a lore-lost payload."""
+        amount = int(amount)
+        if amount <= 0:
+            return
+        before = state.players[player].lore
+        lost = min(before, amount)
+        state.players[player].lore = before - lost
+        if lost <= 0:
+            return
+        self.emit_event(
+            state,
+            EVENT_LORE_LOST,
+            actor=player,
+            source=source_id,
+            payload={
+                "player_id": player,
+                "source_card_id": source_id,
+                "trigger_source_card_id": source_id,
+                "lore": lost,
+                "lore_lost": lost,
+            },
+            queue_triggers=queue_triggers,
+        )
+
+    def _remove_damage_eventful(
+        self,
+        state: GameState,
+        card_id: int,
+        amount: int,
+        *,
+        actor: int | None = None,
+        source_id: int | None = None,
+    ) -> int:
+        """Remove damage from one card and record a non-triggering diagnostic event."""
+        if card_id not in state.cards:
+            raise IllegalActionError(f"Unknown card instance {card_id}")
+        amount = int(amount)
+        if amount <= 0:
+            return 0
+        inst = state.cards[card_id]
+        removed = min(inst.damage, amount)
+        if removed <= 0:
+            return 0
+        inst.damage -= removed
+        resolved_actor = actor if actor is not None else inst.controller
+        self.emit_event(
+            state,
+            "DAMAGE_REMOVED",
+            actor=resolved_actor,
+            source=source_id,
+            target=card_id,
+            payload={
+                "player_id": resolved_actor,
+                "card_id": card_id,
+                "subject_card_id": card_id,
+                "source_card_id": source_id,
+                "damage_removed": removed,
+            },
+            queue_triggers=False,
+        )
+        return removed
+
     def _deal_damage_eventful(
         self,
         state: GameState,
@@ -866,8 +1369,7 @@ class GameEngine:
     def resolve_banishes(self, state: GameState) -> None:
         """Resolve banishes with rich Lorcanito-aligned payloads including challenge context.
         
-        B8: Uses banish_card() from replacement_effects to allow replacement effects
-        to redirect the banish destination (e.g., return to hand instead of discard).
+        B8: Routes through _banish_eventful() to use replacement-aware banish handling.
         """
         banished: list[tuple[int, str]] = []  # (cid, card_type)
         for cid, inst in list(state.cards.items()):
@@ -880,43 +1382,23 @@ class GameEngine:
         for cid, card_type in banished:
             card = state.cards[cid]
             controller = card.controller
-            from_zone = card.zone  # Store before move
+            # last_damage_source can be int or str (card name), cast to int for the API
             last_damage_source = card.last_damage_source
+            source_for_banish: int | None = int(last_damage_source) if isinstance(last_damage_source, (int, str)) and last_damage_source else None
             happened_in_challenge = card.last_damage_was_challenge
             
-            # B7.1: Deregister static effects before moving card from play
-            deregister_static_effects_for_card(state, cid)
-            # B8: Deregister replacement effects before moving card from play
-            deregister_replacement_effects_from_card(state, cid)
-            
-            # B8: Use replacement-aware banish_card
-            # last_damage_source can be int or str (card name), cast to int for the API
-            source_for_banish: int | None = int(last_damage_source) if isinstance(last_damage_source, (int, str)) and last_damage_source else None
-            banish_event = replacement_banish_card(
+            # B8: Route through _banish_eventful which handles:
+            # 1. Deregistering static/replacement effects
+            # 2. Evaluating replacement effects via banish_card
+            # 3. Performing the card move
+            # 4. Emitting the banish event with rich payload
+            self._banish_eventful(
                 state,
-                target_id=cid,
-                source_id=source_for_banish,
-                default_destination=ZONE_DISCARD,
-            )
-            
-            # Emit banish event with rich Lorcanito-aligned payload
-            # Use actual_destination from replacement event
-            self.emit_event(
-                state,
-                EVENT_CHARACTER_BANISHED,
+                cid,
                 actor=controller,
-                source=cid,
-                payload={
-                    "player_id": controller,
-                    "subject_card_id": cid,
-                    "from_zone": from_zone,
-                    "to_zone": banish_event.actual_destination,
-                    "happened_in_challenge": happened_in_challenge,
-                    "last_damage_source": last_damage_source,
-                    "banished_card_type": card_type,
-                    "was_replaced": banish_event.was_replaced,
-                    "replacement_description": banish_event.replacement_description,
-                },
+                source_id=source_for_banish,
+                reason="lethal_damage",
+                happened_in_challenge=happened_in_challenge,
             )
 
     def resolve_win_loss(self, state: GameState) -> None:
@@ -937,28 +1419,9 @@ class GameEngine:
     def _apply_ink(self, state: GameState, action: Action) -> None:
         """Apply ink action with rich event payload."""
         assert action.card is not None
-        card = state.cards[action.card]
-        from_zone = card.zone  # Store before move
-        state.move_card(action.card, ZONE_INKWELL)
-        state.cards[action.card].exerted = False
-        state.cards[action.card].added_to_ink_this_turn = True
+        self._put_into_inkwell_eventful(state, action.card, actor=action.actor)
         state.turn_player_has_inked = True
         state.players[action.actor].turn_flags.played_ink = True
-        
-        # Emit ink event with rich Lorcanito-aligned payload
-        self.emit_event(
-            state,
-            EVENT_INKED,
-            actor=action.actor,
-            source=action.card,
-            payload={
-                "player_id": action.actor,
-                "subject_card_id": action.card,
-                "from_zone": from_zone,
-                "to_zone": ZONE_INKWELL,
-                "card_id": state.cards[action.card].card_id,
-            },
-        )
 
     def _apply_play(self, state: GameState, action: Action) -> None:
         """Apply play card action with rich event payload."""
@@ -971,11 +1434,11 @@ class GameEngine:
         self._consume_cost_reductions(state, player, card.card_type, card.cost - cost)
         
         if card.card_type == CARD_ACTION:
-            state.move_card(action.card, ZONE_DISCARD)
+            self._move_card_eventful(state, action.card, ZONE_DISCARD, actor=player)
             self._resolve_effects(state, player, action.card, action.target)
             to_zone = ZONE_DISCARD
         else:
-            state.move_card(action.card, ZONE_PLAY)
+            self._move_card_eventful(state, action.card, ZONE_PLAY, actor=player)
             inst = state.cards[action.card]
             inst.exerted = False
             inst.damage = 0
@@ -1018,9 +1481,10 @@ class GameEngine:
         from .static_effects import get_static_modifier
         lore_modifier = get_static_modifier(state, source, "lore")
         lore = base_lore + lore_modifier
-        state.cards[source].exerted = True
+        # Use eventful helpers - exert and gain lore without emitting their individual events
+        self._exert_eventful(state, source, actor=action.actor, source_id=source, emit_event=False)
         state.cards[source].has_quested_this_turn = True
-        state.players[action.actor].lore += lore
+        self._gain_lore_eventful(state, action.actor, lore, source_id=source, emit_event=False)
         
         # Emit quest event with rich Lorcanito-aligned payload
         self.emit_event(
@@ -1042,7 +1506,8 @@ class GameEngine:
         target_def = self.card_def(state, action.target)
         source_inst = state.cards[action.source]
         target_inst = state.cards[action.target]
-        source_inst.exerted = True
+        # Use eventful exert - emit_event=False since challenge event covers it
+        self._exert_eventful(state, action.source, actor=action.actor, source_id=action.source, emit_event=False)
 
         # Calculate base damage with resist (before replacement)
         attacker_base_damage = self._damage_after_resist(target_def, self.effective_strength(state, action.source))
@@ -1157,7 +1622,7 @@ class GameEngine:
                 amount += int(cdef.lore or 0)
                 count += 1
         if amount > 0:
-            state.players[player].lore += amount
+            self._gain_lore_eventful(state, player, amount, emit_event=False)
             self.emit_event(state, EVENT_LOCATION_LORE_GAINED, actor=player, payload={"lore": amount, "locations": count})
 
     def _apply_keep_hand(self, state: GameState, action: Action) -> None:
@@ -1175,7 +1640,7 @@ class GameEngine:
             raise IllegalActionError("Mulligan choices must be in the player's hand")
 
         for cid in selected:
-            state.move_card(cid, ZONE_DECK, controller=action.actor)
+            self._move_card_eventful(state, cid, ZONE_DECK, actor=action.actor, controller=action.actor, queue_triggers=False)
         self.draw_cards(state, action.actor, len(selected))
         self._shuffle_deck(state, action.actor, salt="mulligan")
         ps.has_mulliganed = True
@@ -1243,7 +1708,7 @@ class GameEngine:
         if len(ready_ink) < amount:
             raise IllegalActionError("Insufficient ink")
         for cid in ready_ink[:amount]:
-            state.cards[cid].exerted = True
+            self._exert_eventful(state, cid, actor=player, source_id=cid, emit_event=False)
 
     def _effect_targets_for_card(self, state: GameState, player: int, source: int) -> list[int]:
         card = self.card_def(state, source)
@@ -1512,6 +1977,65 @@ class GameEngine:
             # Optional effect requires explicit accept/decline
             raise IllegalActionError("Optional pending effect requires explicit accept/decline")
         
+        raw = pe.raw or {}
+        requirement_kind = raw.get("requirement_kind")
+
+        if requirement_kind in {
+            "scry_ordering",
+            "search_selection",
+            "reveal_routing",
+            "named_card",
+            "destination",
+        }:
+            try:
+                if requirement_kind == "scry_ordering":
+                    top_cards = tuple(action.choice.get("top_cards", ()))
+                    bottom_cards = tuple(action.choice.get("bottom_cards", ()))
+                    resolve_scry_ordering(state, pending_id, top_cards, bottom_cards, engine=self)
+
+                elif requirement_kind == "search_selection":
+                    selected_card_id = action.choice.get("selected_card_id")
+                    if selected_card_id is None and choice_index is not None:
+                        try:
+                            selected_card_id = pe.choice_options[choice_index]
+                        except IndexError as exc:
+                            raise IllegalActionError(f"Invalid search choice index {choice_index}") from exc
+                    if selected_card_id is None:
+                        raise IllegalActionError("search_selection requires selected_card_id")
+                    resolve_search_selection(state, pending_id, selected_card_id, engine=self)
+
+                elif requirement_kind == "reveal_routing":
+                    destination = action.choice.get("destination")
+                    resolve_reveal_routing(state, pending_id, destination, engine=self)
+
+                elif requirement_kind == "named_card":
+                    named_card = action.choice.get("named_card")
+                    if named_card is None and choice_index is not None:
+                        try:
+                            named_card = pe.choice_options[choice_index]
+                        except IndexError as exc:
+                            raise IllegalActionError(f"Invalid named-card choice index {choice_index}") from exc
+                    if not named_card:
+                        raise IllegalActionError("named_card requirement requires named_card")
+                    resolve_named_card(state, pending_id, str(named_card), engine=self)
+
+                elif requirement_kind == "destination":
+                    destination = action.choice.get("destination")
+                    if destination is None and choice_index is not None:
+                        try:
+                            destination = pe.choice_options[choice_index]
+                        except IndexError as exc:
+                            raise IllegalActionError(f"Invalid destination choice index {choice_index}") from exc
+                    if not destination:
+                        raise IllegalActionError("destination requirement requires destination")
+                    resolve_destination_choice(state, pending_id, str(destination), engine=self)
+
+            except ValueError as exc:
+                raise IllegalActionError(str(exc)) from exc
+
+            complete_pending_effect(state, pending_id)
+            return
+
         # Check if target input is required but not provided
         requirement = pe.current_requirement
         if pe.requires_target_input and requirement is not None:

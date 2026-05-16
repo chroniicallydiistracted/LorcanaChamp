@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from lorcana_bot.constants import PHASE_MULLIGAN
 from lorcana_bot.engine import GameEngine
+from lorcana_bot.pending_effects import is_pending_effect_resolvable
 from lorcana_bot.state import GameState
 
 
@@ -29,7 +30,9 @@ def resolve_current_actor(state: GameState, engine: GameEngine) -> ActorResoluti
     pending_effects = getattr(state, "pending_effects", None)
     if pending_effects:
         for pe in pending_effects:
-            if not getattr(pe, "is_complete", False) and getattr(pe, "accepted", None) is None:
+            if getattr(pe, "accepted", None) is None and (
+                is_pending_effect_resolvable(pe) or not getattr(pe, "is_complete", False)
+            ):
                 chooser_id = getattr(pe, "chooser_id", None)
                 if chooser_id is not None:
                     return ActorResolution(

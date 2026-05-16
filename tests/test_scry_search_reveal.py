@@ -471,7 +471,7 @@ class TestSearchRequirementTruthfulness:
         with pytest.raises(ValueError, match="not a valid search candidate"):
             resolve_search_selection(sample_game_state, pe.id, selected_card_id=999)
 
-    def test_resolve_search_selection_moves_card(self, sample_game_state):
+    def test_resolve_search_selection_moves_card(self, sample_game_state, engine):
         """resolve_search_selection should move card to destination."""
         from lorcana_bot.pending_effects import create_search_pending_effect, resolve_search_selection
         
@@ -487,13 +487,13 @@ class TestSearchRequirementTruthfulness:
         
         initial_hand_size = len(sample_game_state.players[0].hand)
         
-        resolve_search_selection(sample_game_state, pe.id, selected_card_id=cid)
+        resolve_search_selection(sample_game_state, pe.id, selected_card_id=cid, engine=engine)
         
         # Card should be in hand
         assert cid in sample_game_state.players[0].hand
         assert len(sample_game_state.players[0].hand) == initial_hand_size + 1
 
-    def test_resolve_search_selection_shuffles_if_required(self, sample_game_state):
+    def test_resolve_search_selection_shuffles_if_required(self, sample_game_state, engine):
         """resolve_search_selection should shuffle if shuffle_after=True."""
         from lorcana_bot.pending_effects import create_search_pending_effect, resolve_search_selection
         
@@ -507,7 +507,7 @@ class TestSearchRequirementTruthfulness:
             origin="test"
         )
         
-        resolve_search_selection(sample_game_state, pe.id, selected_card_id=cid)
+        resolve_search_selection(sample_game_state, pe.id, selected_card_id=cid, engine=engine)
         
         # Deck should still have same cards (just reordered)
         assert len(sample_game_state.players[0].deck) == 4
@@ -546,7 +546,7 @@ class TestPrivacyPolicy:
         assert "card_ids" not in event.payload
         assert "top_card_ids" not in event.payload
 
-    def test_search_event_does_not_leak_filter(self, sample_game_state):
+    def test_search_event_does_not_leak_filter(self, sample_game_state, engine):
         """SEARCH_RESOLVED event should not reveal filter details."""
         from lorcana_bot.pending_effects import create_search_pending_effect, resolve_search_selection
         
@@ -560,7 +560,7 @@ class TestPrivacyPolicy:
             origin="test"
         )
         
-        resolve_search_selection(sample_game_state, pe.id, selected_card_id=cid)
+        resolve_search_selection(sample_game_state, pe.id, selected_card_id=cid, engine=engine)
         
         # Find search event
         search_events = [e for e in sample_game_state.event_log 

@@ -5,12 +5,8 @@ It intercepts state-changing operations before mutation, allowing replacement ef
 to modify the outcome.
 
 Architecture:
-- All state-changing operations pass through eventful helpers:
-  - deal_damage(...)
-  - banish_card(...)
-  - move_card(...)
-  - discard_card(...)
-- The replacement layer inspects the event before mutation
+- Replacement helpers evaluate the event before the engine mutates state.
+- The engine-owned eventful helpers perform movement, damage, and event emission.
 - Replacement effects can:
   - Prevent damage (partial or full)
   - Replace banish with return to hand/discard
@@ -426,9 +422,13 @@ def banish_card(
     *,
     default_destination: str = "discard",
 ) -> BanishEvent:
-    """Banish a card, intercepting with replacement effects.
+    """Evaluate banish replacement effects and return the resolved destination.
     
-    Returns a BanishEvent describing what happened.
+    IMPORTANT: This function does NOT perform the actual card move.
+    The caller (typically GameEngine._banish_eventful) is responsible for
+    moving the card after calling this function.
+    
+    Returns a BanishEvent describing what destination was resolved.
     """
     from .constants import ZONE_DISCARD, ZONE_HAND
     
@@ -440,7 +440,7 @@ def banish_card(
         actual_destination=default_destination,
     )
     
-    # Check for replacement
+    # Check for replacement - only evaluate, do not mutate state
     inst = state.cards.get(target_id)
     if inst is None:
         return event
@@ -453,55 +453,10 @@ def banish_card(
         event.was_replaced = True
         event.replacement_description = description
     
-    # Perform the move
-    if target_id in state.cards:
-        state.move_card(target_id, event.actual_destination)
+    # Do NOT perform the move here. Caller handles the actual card movement
+    # through GameEngine._move_card_eventful or _banish_eventful.
     
     return event
-
-
-def move_card_eventful(
-    state: GameState,
-    card_instance_id: int,
-    destination: str,
-    controller: int | None = None,
-) -> None:
-    """Move a card with full event emission and replacement checking.
-    
-    This is the recommended way to move cards as it supports replacement effects.
-    """
-    inst = state.cards.get(card_instance_id)
-    if inst is None:
-        return
-    
-    # Track source info for events
-    from_zone = inst.zone
-    source_controller = inst.controller
-    
-    # Move the card using state method
-    state.move_card(card_instance_id, destination, controller)
-
-
-def discard_card(
-    state: GameState,
-    card_instance_id: int,
-    source_id: int | None = None,
-) -> bool:
-    """Discard a card from hand.
-    
-    Returns True if the card was discarded, False if it couldn't be (not in hand).
-    """
-    from .constants import ZONE_DISCARD, ZONE_HAND
-    
-    inst = state.cards.get(card_instance_id)
-    if inst is None:
-        return False
-    
-    if inst.zone != ZONE_HAND:
-        return False
-    
-    state.move_card(card_instance_id, ZONE_DISCARD)
-    return True
 
 
 # Helper to create replacement effects from card abilities

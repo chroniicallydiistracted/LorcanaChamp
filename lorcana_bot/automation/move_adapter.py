@@ -94,6 +94,13 @@ def candidate_to_action(candidate: AutomatedActionCandidate) -> Action:
         # Handle choice index
         if candidate.choice_index is not None:
             choice["choice_index"] = candidate.choice_index
+
+        if candidate.named_card is not None:
+            choice["named_card"] = candidate.named_card
+
+        for key in ("selected_card_id", "top_cards", "bottom_cards", "destination"):
+            if candidate.metadata and key in candidate.metadata:
+                choice[key] = candidate.metadata[key]
         
         return Action(
             ACTION_RESOLVE_PENDING_EFFECT,

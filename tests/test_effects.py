@@ -2,9 +2,23 @@ from __future__ import annotations
 
 from lorcana_bot.actions import Action
 from lorcana_bot.cards import CardDatabase, CardDef, EffectDef
-from lorcana_bot.constants import ACTION_CHALLENGE, ACTION_PLAY_CARD, ZONE_HAND, ZONE_PLAY
+from lorcana_bot.constants import (
+    ACTION_CHALLENGE,
+    ACTION_PLAY_CARD,
+    EVENT_CARD_DISCARDED,
+    EVENT_CARD_EXERTED,
+    EVENT_CARD_READIED,
+    EVENT_CARD_RETURNED_TO_HAND,
+    EVENT_CHARACTER_BANISHED,
+    EVENT_LORE_GAINED,
+    EVENT_LORE_LOST,
+    ZONE_HAND,
+    ZONE_PLAY,
+)
 from lorcana_bot.effect_types import EffectResolutionContext
 from lorcana_bot.engine import GameEngine
+from lorcana_bot.replacement_effects import ReplacementEffectEntry, ReplacementEffectType
+from lorcana_bot.static_effects import create_keyword_grant_effect
 from tests.conftest import add_ready_ink, put_card
 
 
@@ -78,12 +92,18 @@ def test_sequence_draw_gain_lore_and_lose_lore_resolve_through_engine():
 
     assert len(state.players[0].hand) == hand_before + 1
     assert state.players[0].lore == 2
+    gain_event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_LORE_GAINED)
+    assert gain_event.payload["player_id"] == 0
+    assert gain_event.payload["lore_gained"] == 2
 
     state.players[1].lore = 5
     lore_loss = put_card(state, engine, 0, "Lore Loss", ZONE_HAND)
     state = engine.apply_action(state, find_action(engine.legal_actions(state), ACTION_PLAY_CARD, card=lore_loss))
 
     assert state.players[1].lore == 3
+    loss_event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_LORE_LOST)
+    assert loss_event.payload["player_id"] == 1
+    assert loss_event.payload["lore_lost"] == 2
 
 
 def test_damage_remove_damage_banish_and_return_to_hand_effects():
@@ -101,11 +121,30 @@ def test_damage_remove_damage_banish_and_return_to_hand_effects():
     return_it = put_card(state, engine, 0, "Return It", ZONE_HAND)
     state = engine.apply_action(state, find_action(engine.legal_actions(state), ACTION_PLAY_CARD, card=return_it, target=target))
     assert target in state.players[1].hand
+    return_event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_CARD_RETURNED_TO_HAND)
+    assert return_event.payload["subject_card_id"] == target
+    assert return_event.payload["from_zone"] == ZONE_PLAY
+    assert return_event.payload["to_zone"] == ZONE_HAND
 
     target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+    state.static_effect_registry.register_effect(create_keyword_grant_effect(source_id=target, keyword="bodyguard"))
+    state.replacement_effect_registry.register_effect(
+        ReplacementEffectEntry(
+            source_id=target,
+            effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+            target_mode="self",
+            amount=1,
+        )
+    )
     banish = put_card(state, engine, 0, "Banish It", ZONE_HAND)
     state = engine.apply_action(state, find_action(engine.legal_actions(state), ACTION_PLAY_CARD, card=banish, target=target))
     assert target in state.players[1].discard
+    assert state.static_effect_registry.effects == []
+    assert state.replacement_effect_registry.effects == []
+    banish_event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_CHARACTER_BANISHED)
+    assert banish_event.payload["subject_card_id"] == target
+    assert banish_event.payload["from_zone"] == ZONE_PLAY
+    assert banish_event.payload["to_zone"] == "discard"
 
 
 def test_ready_exert_discard_and_for_each_effects():
@@ -116,15 +155,23 @@ def test_ready_exert_discard_and_for_each_effects():
     exert = put_card(state, engine, 0, "Exert It", ZONE_HAND)
     state = engine.apply_action(state, find_action(engine.legal_actions(state), ACTION_PLAY_CARD, card=exert, target=ally))
     assert state.cards[ally].exerted is True
+    exert_event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_CARD_EXERTED)
+    assert exert_event.payload["subject_card_id"] == ally
 
     ready = put_card(state, engine, 0, "Ready It", ZONE_HAND)
     state = engine.apply_action(state, find_action(engine.legal_actions(state), ACTION_PLAY_CARD, card=ready, target=ally))
     assert state.cards[ally].exerted is False
+    ready_event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_CARD_READIED)
+    assert ready_event.payload["subject_card_id"] == ally
 
     opponent_hand_before = len(state.players[1].hand)
     discard = put_card(state, engine, 0, "Discard One", ZONE_HAND)
     state = engine.apply_action(state, find_action(engine.legal_actions(state), ACTION_PLAY_CARD, card=discard))
     assert len(state.players[1].hand) == opponent_hand_before - 1
+    discard_event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_CARD_DISCARDED)
+    assert discard_event.payload["player_id"] == 1
+    assert discard_event.payload["from_zone"] == ZONE_HAND
+    assert discard_event.payload["to_zone"] == "discard"
 
     state.cards[ally].exerted = True
     foreach = put_card(state, engine, 0, "For Each", ZONE_HAND)

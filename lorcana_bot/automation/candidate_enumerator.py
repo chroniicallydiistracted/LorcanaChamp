@@ -513,6 +513,67 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
             stable_key=make_stable_key(AutomatedActionFamily.CONCEDE, actor),
             label="Concede",
         )
+    if action.kind == ACTION_RESOLVE_PENDING_EFFECT:
+        choice = action.choice or {}
+        pending_effect_id = choice.get("pending_effect_id")
+        accept = choice.get("accept") if "accept" in choice else None
+        choice_index = choice.get("choice_index")
+        named_card = choice.get("named_card")
+        destination = choice.get("destination")
+
+        source_card_id = None
+        if action.source is not None and action.source in state.cards:
+            source_card_id = state.cards[action.source].card_id
+
+        metadata = {
+            "pending_effect_id": pending_effect_id,
+            "accept": accept,
+            "choice_index": choice_index,
+            "selected_card_id": choice.get("selected_card_id"),
+            "top_cards": tuple(choice.get("top_cards", ())),
+            "bottom_cards": tuple(choice.get("bottom_cards", ())),
+            "named_card": named_card,
+            "destination": destination,
+        }
+        metadata = {key: value for key, value in metadata.items() if value is not None and value != ()}
+
+        label = "Resolve pending effect"
+        if named_card is not None:
+            label = f"Name {named_card}"
+        elif destination is not None:
+            label = f"Choose {destination}"
+        elif choice.get("selected_card_id") is not None:
+            label = f"Select card {choice['selected_card_id']}"
+        elif "top_cards" in choice or "bottom_cards" in choice:
+            label = "Choose scry ordering"
+
+        return AutomatedActionCandidate(
+            family=AutomatedActionFamily.RESOLVE_EFFECT,
+            actor=actor,
+            stable_key=make_stable_key(
+                AutomatedActionFamily.RESOLVE_EFFECT,
+                actor,
+                pending_effect_id=pending_effect_id,
+                accept=accept,
+                choice_index=choice_index,
+                target=action.target,
+                selected_card_id=choice.get("selected_card_id"),
+                top_cards=tuple(choice.get("top_cards", ())),
+                bottom_cards=tuple(choice.get("bottom_cards", ())),
+                named_card=named_card,
+                destination=destination,
+            ),
+            source_instance_id=action.source,
+            source_card_id=source_card_id,
+            target_instance_id=action.target,
+            pending_effect_id=str(pending_effect_id) if pending_effect_id is not None else None,
+            choice_index=choice_index,
+            resolve_optional=accept,
+            named_card=named_card,
+            destinations={str(destination): ()} if destination is not None else {},
+            label=label,
+            metadata=metadata,
+        )
     if action.kind == ACTION_RESOLVE_BAG:
         bag_id = action.choice.get("bag_id") if action.choice else None
         accept = action.choice.get("accept", True) if action.choice else True

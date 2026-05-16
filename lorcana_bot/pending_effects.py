@@ -19,7 +19,64 @@ from typing import TYPE_CHECKING, Any
 from lorcana_bot.cards import EffectDef
 
 if TYPE_CHECKING:
+    from lorcana_bot.engine import GameEngine
     from lorcana_bot.state import GameState
+
+
+def _emit_pending_event(
+    state: GameState,
+    engine: GameEngine | None,
+    event_type: str,
+    *,
+    actor: int | None = None,
+    source: int | None = None,
+    target: int | None = None,
+    payload: dict[str, Any] | None = None,
+) -> None:
+    """Emit a pending-system diagnostic event without buffering gameplay triggers."""
+    if engine is not None:
+        engine.emit_event(
+            state,
+            event_type,
+            actor=actor,
+            source=source,
+            target=target,
+            payload=payload or {},
+            queue_triggers=False,
+        )
+        return
+
+    from lorcana_bot.state import GameEvent
+
+    state.event_log.append(GameEvent(
+        event_type=event_type,
+        actor=actor,
+        source=source,
+        target=target,
+        payload=payload or {},
+    ))
+
+
+def _move_pending_card(
+    state: GameState,
+    engine: GameEngine | None,
+    card_id: int,
+    destination: str,
+    *,
+    actor: int | None = None,
+    source_id: int | None = None,
+) -> None:
+    """Move a card chosen by a pending requirement through the engine when available."""
+    if engine is None:
+        raise ValueError("Pending card movement requires a GameEngine")
+    engine._move_card_eventful(
+        state,
+        card_id,
+        destination,
+        actor=actor,
+        source_id=source_id,
+        queue_triggers=False,
+    )
 
 
 @dataclass(slots=True)
@@ -51,6 +108,14 @@ PENDING_REQUIREMENT_KINDS = frozenset({
     "reveal_routing",  # Reveal and route to destination
     "search_selection",  # Search deck and select card
     "deck_ordering",  # General deck ordering
+})
+
+SPECIAL_PENDING_REQUIREMENT_KINDS = frozenset({
+    "scry_ordering",
+    "search_selection",
+    "reveal_routing",
+    "named_card",
+    "destination",
 })
 
 
@@ -359,7 +424,12 @@ def get_current_pending_effect(state: GameState, chooser_id: int) -> PendingEffe
         return None
     # Return the first one that needs input or is incomplete
     for pe in effects:
-        if pe.accepted is None and not pe.is_complete:
+        if pe.accepted is not None:
+            continue  # Already resolved/declined
+        if is_pending_effect_resolvable(pe):
+            return pe
+        # Normal case: needs resolution if not complete
+        if not pe.is_complete:
             return pe
     return None
 
@@ -518,14 +588,30 @@ def get_next_pending_effect_chooser(state: GameState) -> int | None:
     or None if there are no pending effects.
     """
     for pe in state.pending_effects:
-        if not pe.is_complete:
+        if pe.accepted is not None:
+            continue
+        if is_pending_effect_resolvable(pe) or not pe.is_complete:
             return pe.chooser_id
     return None
 
 
 def get_incomplete_pending_effects(state: GameState) -> list[PendingEffect]:
     """Get all incomplete pending effects."""
-    return [pe for pe in state.pending_effects if not pe.is_complete]
+    return [
+        pe
+        for pe in state.pending_effects
+        if pe.accepted is None and (is_pending_effect_resolvable(pe) or not pe.is_complete)
+    ]
+
+
+def is_pending_effect_resolvable(pe: PendingEffect) -> bool:
+    """Return whether a pending effect has a special resolver path.
+
+    Special pending requirement effects carry their behavior in raw metadata and
+    typically have no EffectDef entries, so PendingEffect.is_complete is not a
+    reliable signal for them.
+    """
+    return (pe.raw or {}).get("requirement_kind") in SPECIAL_PENDING_REQUIREMENT_KINDS
 
 
 # B5.1: Create functions for scry/search/reveal pending requirements
@@ -736,11 +822,53 @@ def create_reveal_routing_pending_effect(
     return pending
 
 
+def create_named_card_pending_effect(
+    state: GameState,
+    controller_id: int,
+    chooser_id: int,
+    source_id: int | None,
+    source_card_id: str | None,
+    valid_card_def_ids: tuple[str, ...] = (),
+    *,
+    origin: str = "name_a_card",
+) -> PendingEffect:
+    """Create a name-a-card pending effect with explicit requirement tracking."""
+    named_req = NamedCardRequirement(
+        kind="named_card",
+        valid_card_def_ids=valid_card_def_ids,
+        chooser_id=chooser_id,
+    )
+
+    pending_id = f"pe_{state.next_bag_id()}"
+    pending = PendingEffect(
+        id=pending_id,
+        controller_id=controller_id,
+        chooser_id=chooser_id,
+        source_id=source_id,
+        source_card_id=source_card_id,
+        effects=(),
+        required_targets=(),
+        choice_options=valid_card_def_ids,
+        optional=False,
+        origin=origin,
+        origin_id=None,
+        raw={
+            "requirement": named_req,
+            "requirement_kind": "named_card",
+        },
+    )
+
+    state.pending_effects.append(pending)
+    return pending
+
+
 def resolve_scry_ordering(
     state: GameState,
     pending_id: str,
     top_cards: tuple[int, ...],
     bottom_cards: tuple[int, ...],
+    *,
+    engine: GameEngine | None = None,
 ) -> None:
     """Resolve a scry pending effect with ordering.
     
@@ -761,18 +889,23 @@ def resolve_scry_ordering(
     if not isinstance(req, ScryRequirement):
         raise ValueError(f"Pending effect {pending_id} is not a scry")
     
-    # Validate: top + bottom must equal amount
-    if len(top_cards) + len(bottom_cards) != req.amount:
+    # Validate: top + bottom must equal the number of cards actually seen
+    expected_count = len(req.candidate_ids)
+    if len(top_cards) + len(bottom_cards) != expected_count:
         raise ValueError(
-            f"Scry ordering count mismatch: expected {req.amount}, "
+            f"Scry ordering count mismatch: expected {expected_count}, "
             f"got {len(top_cards)} top + {len(bottom_cards)} bottom"
         )
     
-    # Validate all cards are valid candidates
+    # Validate all cards are valid candidates and each candidate appears once
     all_ordered = top_cards + bottom_cards
     for cid in all_ordered:
         if cid not in req.candidate_ids:
             raise ValueError(f"Card {cid} is not a valid scry candidate")
+    if len(set(all_ordered)) != len(all_ordered):
+        raise ValueError("Scry ordering cannot include duplicate cards")
+    if set(all_ordered) != set(req.candidate_ids):
+        raise ValueError("Scry ordering must include each scry candidate exactly once")
     
     # Apply ordering: rebuild deck with new order
     player_deck = state.players[req.deck_owner].deck
@@ -788,10 +921,11 @@ def resolve_scry_ordering(
     # Put bottom cards on bottom (in order)
     player_deck.extend(list(bottom_cards))
     
-    # Emit private scry event (no identity leak) - uses GameEvent from state
-    from lorcana_bot.state import GameEvent
-    state.event_log.append(GameEvent(
-        event_type="SCRY_RESOLVED",
+    # Emit private scry event with no identity leak.
+    _emit_pending_event(
+        state,
+        engine,
+        "SCRY_RESOLVED",
         actor=req.chooser_id,
         source=req.deck_owner,
         target=None,
@@ -801,13 +935,15 @@ def resolve_scry_ordering(
             "bottom_count": len(bottom_cards),
             "private": True,  # Card identities not in public log
         },
-    ))
+    )
 
 
 def resolve_search_selection(
     state: GameState,
     pending_id: str,
     selected_card_id: int,
+    *,
+    engine: GameEngine | None = None,
 ) -> None:
     """Resolve a search pending effect with card selection.
     
@@ -831,8 +967,15 @@ def resolve_search_selection(
     if selected_card_id not in req.candidate_ids:
         raise ValueError(f"Card {selected_card_id} is not a valid search candidate")
     
-    # Move card to destination
-    state.move_card(selected_card_id, req.destination)
+    # Move card to destination through the engine event boundary when available.
+    _move_pending_card(
+        state,
+        engine,
+        selected_card_id,
+        req.destination,
+        actor=req.chooser_id,
+        source_id=pe.source_id,
+    )
     
     # Shuffle if required
     if req.shuffle_after:
@@ -841,10 +984,11 @@ def resolve_search_selection(
         rng = random.Random(f"{state.seed}:search_shuffle:{req.deck_owner}:{state.shuffle_counter}")
         rng.shuffle(state.players[req.deck_owner].deck)
     
-    # Emit private search event - use engine pattern for consistency
-    from lorcana_bot.state import GameEvent
-    state.event_log.append(GameEvent(
-        event_type="SEARCH_RESOLVED",
+    # Emit private search event without leaking hidden filter details.
+    _emit_pending_event(
+        state,
+        engine,
+        "SEARCH_RESOLVED",
         actor=req.chooser_id,
         source=selected_card_id,
         target=None,
@@ -853,13 +997,15 @@ def resolve_search_selection(
             "shuffled": req.shuffle_after,
             "private": True,  # Filter not revealed to opponent
         },
-    ))
+    )
 
 
 def resolve_reveal_routing(
     state: GameState,
     pending_id: str,
     destination: str | None = None,
+    *,
+    engine: GameEngine | None = None,
 ) -> None:
     """Resolve a reveal routing pending effect.
     
@@ -883,16 +1029,21 @@ def resolve_reveal_routing(
     final_dest = destination if destination else req.destination
     if final_dest is None:
         raise ValueError("Destination required but not provided")
+    if req.destination is not None and final_dest != req.destination:
+        raise ValueError(f"Destination {final_dest!r} does not match fixed destination {req.destination!r}")
+    if req.destination is None and req.destination_options and final_dest not in req.destination_options:
+        raise ValueError(f"Destination {final_dest!r} is not valid for pending effect {pending_id}")
     
     # Reveal and move cards
     for cid in req.card_ids:
         # Mark as revealed
         state.cards[cid].revealed = True
         
-        # Emit reveal event - use GameEvent for consistency
-        from lorcana_bot.state import GameEvent
-        state.event_log.append(GameEvent(
-            event_type="CARD_REVEALED",
+        # Emit reveal event through the engine diagnostic boundary when available.
+        _emit_pending_event(
+            state,
+            engine,
+            "CARD_REVEALED",
             actor=req.chooser_id,
             source=cid,
             target=None,
@@ -901,7 +1052,98 @@ def resolve_reveal_routing(
                 "card_def_id": state.cards[cid].card_id,
                 "reveal_policy": req.reveal_policy,
             },
-        ))
+        )
         
         # Move to destination
-        state.move_card(cid, final_dest)
+        _move_pending_card(
+            state,
+            engine,
+            cid,
+            final_dest,
+            actor=req.chooser_id,
+            source_id=pe.source_id,
+        )
+
+
+def resolve_named_card(
+    state: GameState,
+    pending_id: str,
+    named_card: str,
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a pending name-a-card requirement."""
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    requirement_kind = pe.raw.get("requirement_kind")
+    req = pe.raw.get("requirement")
+    if requirement_kind != "named_card" and not isinstance(req, NamedCardRequirement):
+        raise ValueError(f"Pending effect {pending_id} is not a named-card requirement")
+
+    if isinstance(req, NamedCardRequirement) and req.valid_card_def_ids:
+        if named_card not in req.valid_card_def_ids:
+            raise ValueError(f"Named card {named_card!r} is not valid for pending effect {pending_id}")
+
+    pe.raw["named_card"] = named_card
+    pe.raw.setdefault("resolution_input", {})["named_card"] = named_card
+    _emit_pending_event(
+        state,
+        engine,
+        "NAMED_CARD_CHOSEN",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=None,
+        payload={
+            "pending_effect_id": pending_id,
+            "named_card": named_card,
+        },
+    )
+
+
+def resolve_destination_choice(
+    state: GameState,
+    pending_id: str,
+    destination: str,
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a generic destination-choice pending requirement.
+
+    This records the chosen destination. Movement is performed by the effect
+    that consumes the pending resolution input unless a more specific helper
+    such as resolve_reveal_routing handles movement directly.
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    requirement_kind = pe.raw.get("requirement_kind")
+    req = pe.raw.get("requirement")
+    if requirement_kind != "destination":
+        raise ValueError(f"Pending effect {pending_id} is not a destination requirement")
+
+    options = (
+        pe.raw.get("destination_options")
+        or getattr(req, "destination_options", None)
+        or getattr(req, "options", None)
+        or ()
+    )
+    if options and destination not in tuple(options):
+        raise ValueError(f"Destination {destination!r} is not valid for pending effect {pending_id}")
+
+    pe.raw["destination"] = destination
+    pe.raw.setdefault("resolution_input", {})["destination"] = destination
+    _emit_pending_event(
+        state,
+        engine,
+        "DESTINATION_CHOSEN",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=None,
+        payload={
+            "pending_effect_id": pending_id,
+            "destination": destination,
+        },
+    )

@@ -197,18 +197,12 @@ def pay_cost(
 def _pay_exert_source(state: GameState, source_id: int, engine: GameEngine) -> None:
     """Pay exert-source cost by exerting the source card."""
     card = state.cards[source_id]
-    card.exerted = True
-    
-    engine.emit_event(
+    engine._exert_eventful(
         state,
-        "ABILITY_COST_EXERT",
+        source_id,
         actor=card.controller,
-        source=source_id,
-        payload={
-            "cost_type": "exert",
-            "source_id": source_id,
-        },
-        queue_triggers=False,  # Cost payments don't trigger abilities
+        source_id=source_id,
+        reason="ability_cost",
     )
 
 
@@ -227,7 +221,14 @@ def _pay_ink_cost(
     
     # Exert the ink cards
     for cid in ready_ink[:amount]:
-        state.cards[cid].exerted = True
+        engine._exert_eventful(
+            state,
+            cid,
+            actor=player,
+            source_id=ability.source_instance_id,
+            reason="ability_ink_cost",
+            emit_event=False,
+        )
     
     engine.emit_event(
         state,
@@ -246,22 +247,13 @@ def _pay_ink_cost(
 def _pay_banish_self(state: GameState, source_id: int, engine: GameEngine) -> None:
     """Pay banish-self cost by moving source to discard."""
     card = state.cards[source_id]
-    controller = card.controller
-    
-    engine.emit_event(
+    engine._banish_eventful(
         state,
-        "ABILITY_COST_BANISH_SELF",
-        actor=controller,
-        source=source_id,
-        payload={
-            "cost_type": "banish_self",
-            "source_id": source_id,
-        },
-        queue_triggers=False,
+        source_id,
+        actor=card.controller,
+        source_id=source_id,
+        reason="ability_cost",
     )
-    
-    # Move the card to discard
-    state.move_card(source_id, "discard")
 
 
 def _pay_discard_cost(
@@ -284,19 +276,12 @@ def _pay_discard_cost(
         idx = random.randrange(len(hand_copy))
         cid = hand_copy.pop(idx)
         discarded.append(cid)
-        state.move_card(cid, "discard")
-        
-        engine.emit_event(
+        engine._discard_eventful(
             state,
-            "ABILITY_COST_DISCARD",
+            cid,
             actor=player,
-            source=ability.source_instance_id,
-            payload={
-                "cost_type": "discard",
-                "amount": amount,
-                "discarded_id": cid,
-            },
-            queue_triggers=False,
+            source_id=ability.source_instance_id,
+            reason="ability_cost",
         )
 
 
