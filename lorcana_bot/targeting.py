@@ -1032,6 +1032,16 @@ def _apply_filter(
 # ---------------------------------------------------------------------------
 
 
+def requires_explicit_target_selection(selector: str) -> bool:
+    """Return True when *selector* requires a player target choice.
+
+    Lorcanito represents these prompts as selector="chosen".  The Python
+    migration still carries a small set of legacy singleton aliases; keep that
+    mapping centralized so engine and protection behavior do not drift.
+    """
+    return selector.startswith("chosen") or selector == "opposing_character"
+
+
 @dataclass(frozen=True, slots=True)
 class TargetSelectionAvailability:
     """Lorcanito-aligned availability analysis for a target selection.
@@ -1079,7 +1089,7 @@ def analyze_target_selection_availability(
 
     # Chosen selectors require explicit player selection even when they are
     # "up to" selections with min_count=0.
-    requires_explicit = descriptor.selector.startswith("chosen")
+    requires_explicit = requires_explicit_target_selection(descriptor.selector)
     allows_empty = requires_explicit and min_sel == 0
 
     # Can satisfy: either no explicit selection is needed, no minimum is
@@ -1183,10 +1193,9 @@ def apply_target_protections(
         if descriptor.zones and inst.zone not in descriptor.zones:
             continue
 
-        # Ward protection: opposing Ward cards cannot be chosen by
-        # opponent effects.  Ward only blocks "chosen" selectors.
+        # Ward protection applies when the opponent is choosing a card target.
         if (
-            descriptor.selector.startswith("chosen")
+            requires_explicit_target_selection(descriptor.selector)
             and engine is not None
             and inst.controller != actor
             and engine.has_keyword(state, cid, "WARD")

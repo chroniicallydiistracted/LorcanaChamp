@@ -34,6 +34,7 @@ class TargetDescriptor:
     exclude_self: bool = False
     exclude_trigger_subject: bool = False
     allow_players: bool = False
+    allow_duplicate_targets: bool = False
 
 
 @dataclass(frozen=True, slots=True)

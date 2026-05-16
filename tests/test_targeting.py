@@ -1259,8 +1259,8 @@ class TestApplyTargetProtections:
         assert len(result) == 1
         assert result[0].id == own
 
-    def test_ward_does_not_block_non_chosen_selectors(self, engine, state):
-        """Ward only blocks 'chosen' selectors, not 'all' or 'your' selectors."""
+    def test_ward_does_not_block_non_explicit_collection_selectors(self, engine, state):
+        """Ward blocks chosen target selection, not automatic collection effects."""
         opp = put_card(state, engine, 1, "Ruby Charger", ZONE_PLAY)
         state.cards[opp].temporary_keywords = ["WARD"]
 
@@ -1271,6 +1271,15 @@ class TestApplyTargetProtections:
         result = apply_target_protections(state, engine, candidates, desc, ctx)
         assert len(result) == 1
         assert result[0].id == opp
+
+    def test_ward_does_not_block_player_selectors(self, engine, state):
+        """Ward does not block player selectors (allow_players=True)."""
+        candidates = (TargetCandidate(kind="player", id=0),)
+        desc = normalize_target_descriptor("you")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert len(result) == 1
 
     def test_cannot_be_targeted_replacement_effect_blocks_candidate(self, engine, state):
         from lorcana_bot.replacement_effects import (
@@ -1432,3 +1441,298 @@ class TestApplyTargetProtections:
         protected = apply_target_protections(state, engine, candidates, desc, ctx)
 
         assert protected == ()
+
+
+# ---------------------------------------------------------------------------
+# Brief 4: Engine-path action-card target tests
+# ---------------------------------------------------------------------------
+
+
+from lorcana_bot.cards import CardDef, CardDatabase, EffectDef, load_demo_database, make_demo_deck
+from lorcana_bot.constants import ACTION_PLAY_CARD
+from lorcana_bot.engine import GameEngine
+from tests.conftest import add_ready_ink
+
+
+class TestEngineActionCardTargets:
+    """Tests for engine legal_actions integration with targeting service."""
+
+    def _engine_with_extra_cards(self, extra_cards):
+        db = CardDatabase(list(load_demo_database()._cards_by_id.values()) + list(extra_cards))
+        return GameEngine(db)
+
+    def _find_play_card_action(self, actions, card_id, *, target=None):
+        """Find a PLAY_CARD action for a specific card."""
+        for a in actions:
+            if a.kind == ACTION_PLAY_CARD and a.card == card_id:
+                if target is not None and a.target != target:
+                    continue
+                return a
+        return None
+
+    def test_chosen_character_excludes_opposing_ward(self, engine, state):
+        """Ward cards should not be legal action targets for opposing_character."""
+        cannon = put_card(state, engine, 0, "Steel Cannon", ZONE_HAND)
+        add_ready_ink(state, engine, 0, 2, exclude=frozenset({cannon}))
+        # Opposing character with Ward
+        opp_ward = put_card(state, engine, 1, "Amber Guard", ZONE_PLAY)
+        state.cards[opp_ward].temporary_keywords = ["WARD"]
+        # Opposing character without Ward
+        opp_no_ward = put_card(state, engine, 1, "Ruby Charger", ZONE_PLAY, exclude=frozenset({opp_ward}))
+
+        actions = engine.legal_actions(state, 0)
+        # Ward card should not appear as a target
+        ward_targets = [
+            a for a in actions
+            if a.kind == ACTION_PLAY_CARD and a.card == cannon and a.target == opp_ward
+        ]
+        assert len(ward_targets) == 0
+
+        # Non-Ward opposing card should still be a target
+        ok_targets = [
+            a for a in actions
+            if a.kind == ACTION_PLAY_CARD and a.card == cannon and a.target == opp_no_ward
+        ]
+        assert len(ok_targets) == 1
+
+    def test_zone_under_card_not_legal_action_target(self, engine, state):
+        """ZONE_UNDER cards must not appear as legal action targets."""
+        cannon = put_card(state, engine, 0, "Steel Cannon", ZONE_HAND)
+        add_ready_ink(state, engine, 0, 2, exclude=frozenset({cannon}))
+        play = put_card(state, engine, 1, "Amber Recruit", ZONE_PLAY)
+        under = put_card(state, engine, 1, "Amber Guard", ZONE_UNDER, exclude=frozenset({play}))
+
+        actions = engine.legal_actions(state, 0)
+        under_targets = [
+            a for a in actions
+            if a.kind == ACTION_PLAY_CARD and a.card == cannon and a.target == under
+        ]
+        assert len(under_targets) == 0
+
+    def test_mandatory_target_no_candidates_emits_no_no_target_action(self, engine, state):
+        """Action card with mandatory chosen_character target but zero candidates
+        must not emit a no-target PLAY_CARD action."""
+        cannon = put_card(state, engine, 0, "Steel Cannon", ZONE_HAND)
+        add_ready_ink(state, engine, 0, 2, exclude=frozenset({cannon}))
+        # No opposing characters (target=opponent_controller=1)
+
+        actions = engine.legal_actions(state, 0)
+        # Steel Cannon targets opposing_character, so no targets = no action
+        cannon_actions = [a for a in actions if a.kind == ACTION_PLAY_CARD and a.card == cannon]
+        assert len(cannon_actions) == 0
+
+    def test_unsupported_target_descriptor_emits_no_broad_fallback(self, engine, state):
+        """Action card with an unknown/unsupported target descriptor must not
+        emit broad fallback targets."""
+        from lorcana_bot.cards import CardDef, CardDatabase
+
+        # Create an action card with an unknown target descriptor
+        unknown_target_card = CardDef(
+            "test_unknown_target",
+            "Mystery Action",
+            "amber",
+            1,
+            True,
+            "action",
+            effects=[{"kind": "draw", "amount": 1, "target": "totally_unknown_selector_xyz"}],
+        )
+        db2 = CardDatabase(list(engine.db._cards_by_id.values()) + [unknown_target_card])
+        engine2 = GameEngine(db2)
+        state2 = engine2.setup_game(
+            [make_demo_deck(["Mystery Action"], 50), make_demo_deck(["Amber Recruit"], 50)],
+            seed=42,
+        )
+        mystery = find_card(state2, engine2, 0, "Mystery Action")
+        add_ready_ink(state2, engine2, 0, 1, exclude=frozenset({mystery}))
+
+        actions = engine2.legal_actions(state2, 0)
+        mystery_actions = [a for a in actions if a.kind == ACTION_PLAY_CARD and a.card == mystery]
+        # Unknown selector should not produce any target actions
+        assert len(mystery_actions) == 0
+
+    def test_effect_targets_for_card_backward_compat_returns_list_int(self, engine, state):
+        """_effect_targets_for_card returns sorted list[int] for backward compatibility."""
+        cannon = put_card(state, engine, 0, "Steel Cannon", ZONE_HAND)
+        opp = put_card(state, engine, 1, "Amber Recruit", ZONE_PLAY)
+
+        result = engine._effect_targets_for_card(state, 0, cannon)
+        assert isinstance(result, list)
+        assert all(isinstance(x, int) for x in result)
+        assert opp in result
+
+    def test_effect_target_candidates_for_card_returns_target_candidates(self, engine, state):
+        """_effect_target_candidates_for_card returns TargetCandidate objects."""
+        from lorcana_bot.targeting import TargetCandidate
+        cannon = put_card(state, engine, 0, "Steel Cannon", ZONE_HAND)
+        opp = put_card(state, engine, 1, "Amber Recruit", ZONE_PLAY)
+
+        result = engine._effect_target_candidates_for_card(state, 0, cannon)
+        assert isinstance(result, tuple)
+        assert all(isinstance(c, TargetCandidate) for c in result)
+        card_ids = [c.id for c in result if c.kind == "card"]
+        assert opp in card_ids
+
+    def test_effect_target_descriptors_for_card_returns_descriptors(self, engine, state):
+        """_effect_target_descriptors_for_card returns TargetDescriptor objects."""
+        from lorcana_bot.targeting import TargetDescriptor
+        cannon = put_card(state, engine, 0, "Steel Cannon", ZONE_HAND)
+
+        result = engine._effect_target_descriptors_for_card(state, cannon)
+        assert isinstance(result, tuple)
+        assert len(result) >= 1
+        assert all(isinstance(d, TargetDescriptor) for d in result)
+
+    def test_chosen_item_action_can_target_items(self):
+        engine = self._engine_with_extra_cards([
+            CardDef("test_item", "Test Item", "amber", 1, True, CARD_ITEM),
+            CardDef(
+                "target_item_action",
+                "Target Item Action",
+                "amber",
+                1,
+                True,
+                "action",
+                effects=(EffectDef("return_to_hand", target="chosen_item"),),
+            ),
+        ])
+        state = engine.setup_game(
+            [make_demo_deck(["Target Item Action", "Test Item"], 50), make_demo_deck(["Amber Recruit"], 50)],
+            seed=101,
+        )
+        action_card = put_card(state, engine, 0, "Target Item Action", ZONE_HAND)
+        item = put_card(state, engine, 0, "Test Item", ZONE_PLAY, exclude=frozenset({action_card}))
+        add_ready_ink(state, engine, 0, 1, exclude=frozenset({action_card, item}))
+
+        actions = engine.legal_actions(state, 0)
+        assert any(a.kind == ACTION_PLAY_CARD and a.card == action_card and a.target == item for a in actions)
+
+    def test_chosen_location_action_can_target_locations(self):
+        engine = self._engine_with_extra_cards([
+            CardDef("test_location", "Test Location", "amber", 1, True, CARD_LOCATION, move_cost=1, lore=1),
+            CardDef(
+                "target_location_action",
+                "Target Location Action",
+                "amber",
+                1,
+                True,
+                "action",
+                effects=(EffectDef("return_to_hand", target="chosen_location"),),
+            ),
+        ])
+        state = engine.setup_game(
+            [make_demo_deck(["Target Location Action", "Test Location"], 50), make_demo_deck(["Amber Recruit"], 50)],
+            seed=102,
+        )
+        action_card = put_card(state, engine, 0, "Target Location Action", ZONE_HAND)
+        location = put_card(state, engine, 0, "Test Location", ZONE_PLAY, exclude=frozenset({action_card}))
+        add_ready_ink(state, engine, 0, 1, exclude=frozenset({action_card, location}))
+
+        actions = engine.legal_actions(state, 0)
+        assert any(a.kind == ACTION_PLAY_CARD and a.card == action_card and a.target == location for a in actions)
+
+    def test_chosen_player_action_uses_choice_and_resolves_player_choice(self):
+        engine = self._engine_with_extra_cards([
+            CardDef(
+                "target_player_action",
+                "Target Player Action",
+                "amber",
+                1,
+                True,
+                "action",
+                effects=(EffectDef("gain_lore", 2, "chosen_player"),),
+            ),
+        ])
+        state = engine.setup_game(
+            [make_demo_deck(["Target Player Action"], 50), make_demo_deck(["Amber Recruit"], 50)],
+            seed=103,
+        )
+        action_card = put_card(state, engine, 0, "Target Player Action", ZONE_HAND)
+        add_ready_ink(state, engine, 0, 1, exclude=frozenset({action_card}))
+
+        actions = engine.legal_actions(state, 0)
+        player_actions = [
+            a for a in actions
+            if a.kind == ACTION_PLAY_CARD and a.card == action_card and isinstance(a.choice, dict)
+        ]
+        assert {(a.target, a.choice["target_kind"], a.choice["player"]) for a in player_actions} == {
+            (None, "player", 0),
+            (None, "player", 1),
+        }
+
+        chosen = next(a for a in player_actions if a.choice["player"] == 1)
+        state = engine.apply_action(state, chosen)
+        assert state.players[1].lore == 2
+        assert state.players[0].lore == 0
+
+    def test_chosen_damaged_character_only_emits_damaged_characters(self):
+        engine = self._engine_with_extra_cards([
+            CardDef(
+                "target_damaged_action",
+                "Target Damaged Action",
+                "amber",
+                1,
+                True,
+                "action",
+                effects=(EffectDef("remove_damage", 1, "chosen_damaged_character"),),
+            ),
+        ])
+        state = engine.setup_game(
+            [make_demo_deck(["Target Damaged Action"], 50), make_demo_deck(["Amber Recruit", "Amber Guard"], 50)],
+            seed=104,
+        )
+        action_card = put_card(state, engine, 0, "Target Damaged Action", ZONE_HAND)
+        healthy = put_card(state, engine, 1, "Amber Recruit", ZONE_PLAY)
+        damaged = put_card(state, engine, 1, "Amber Guard", ZONE_PLAY, exclude=frozenset({healthy}), damage=1)
+        add_ready_ink(state, engine, 0, 1, exclude=frozenset({action_card}))
+
+        actions = engine.legal_actions(state, 0)
+        action_targets = {
+            a.target for a in actions
+            if a.kind == ACTION_PLAY_CARD and a.card == action_card
+        }
+        assert damaged in action_targets
+        assert healthy not in action_targets
+
+    def test_fixed_opponent_player_target_does_not_require_choice_action(self):
+        engine = self._engine_with_extra_cards([
+            CardDef(
+                "fixed_opponent_action",
+                "Fixed Opponent Action",
+                "amber",
+                0,
+                True,
+                "action",
+                effects=(EffectDef("lose_lore", 1, "opponent"),),
+            ),
+        ])
+        state = engine.setup_game(
+            [make_demo_deck(["Fixed Opponent Action"], 50), make_demo_deck(["Amber Recruit"], 50)],
+            seed=105,
+        )
+        lore_loss = put_card(state, engine, 0, "Fixed Opponent Action", ZONE_HAND)
+
+        actions = [a for a in engine.legal_actions(state, 0) if a.kind == ACTION_PLAY_CARD and a.card == lore_loss]
+        assert actions == [a for a in actions if a.target is None and a.choice is None]
+
+    def test_unsupported_target_descriptor_does_not_fallback_to_play_cards(self, engine):
+        unknown_target_card = CardDef(
+            "test_unknown_target_with_board",
+            "Mystery Board Action",
+            "amber",
+            1,
+            True,
+            "action",
+            effects=(EffectDef("draw", 1, "totally_unknown_selector_xyz"),),
+        )
+        db2 = CardDatabase(list(engine.db._cards_by_id.values()) + [unknown_target_card])
+        engine2 = GameEngine(db2)
+        state = engine2.setup_game(
+            [make_demo_deck(["Mystery Board Action"], 50), make_demo_deck(["Amber Recruit"], 50)],
+            seed=106,
+        )
+        mystery = put_card(state, engine2, 0, "Mystery Board Action", ZONE_HAND)
+        put_card(state, engine2, 1, "Amber Recruit", ZONE_PLAY)
+        add_ready_ink(state, engine2, 0, 1, exclude=frozenset({mystery}))
+
+        actions = engine2.legal_actions(state, 0)
+        assert not any(a.kind == ACTION_PLAY_CARD and a.card == mystery for a in actions)

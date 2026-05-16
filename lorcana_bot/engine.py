@@ -135,6 +135,34 @@ _DIAGNOSTIC_EVENTS = frozenset({
     EVENT_TRIGGER_EVENT_BUFFERED,
 })
 
+_SUPPORTED_EFFECT_TARGET_KINDS = frozenset({
+    "chosen_character",
+    "chosen_card",
+    "chosen_item",
+    "chosen_location",
+    "chosen_opposing_character",
+    "chosen_damaged_character",
+    "opposing_character",
+    "self",
+    "event_source",
+    "event_target",
+    "trigger_subject",
+    "your_characters",
+    "your_other_characters",
+    "opposing_characters",
+    "all_characters",
+    "damaged_characters",
+    "opposing_damaged_characters",
+    "chosen_player",
+    "you",
+    "opponent",
+    "each_player",
+    "controller",
+    "actor",
+    "opposing_player",
+    "target",
+})
+
 
 class IllegalActionError(ValueError):
     pass
@@ -631,10 +659,19 @@ class GameEngine:
         for cid in ps.hand:
             card = self.card_def(state, cid)
             if self.play_cost(state, player, cid) <= self.available_ink(state, player):
+                if card.card_type == CARD_ACTION and self._effect_has_unsupported_target(card.effects):
+                    continue
                 if card.card_type == CARD_ACTION and any(self._effect_requires_target(e) for e in card.effects):
-                    targets = self._effect_targets_for_card(state, player, cid)
-                    for target in targets:
-                        actions.append(Action(ACTION_PLAY_CARD, actor=player, card=cid, target=target))
+                    candidates = self._effect_target_candidates_for_card(state, player, cid)
+                    card_targets = [c for c in candidates if c.kind == "card"]
+                    player_targets = [c for c in candidates if c.kind == "player"]
+                    for ct in card_targets:
+                        actions.append(Action(ACTION_PLAY_CARD, actor=player, card=cid, target=ct.id))
+                    for pt in player_targets:
+                        actions.append(Action(
+                            ACTION_PLAY_CARD, actor=player, card=cid,
+                            choice={"target_kind": "player", "player": pt.id},
+                        ))
                 else:
                     actions.append(Action(ACTION_PLAY_CARD, actor=player, card=cid))
 
@@ -1674,7 +1711,11 @@ class GameEngine:
 
         if card.card_type == CARD_ACTION:
             self._move_card_eventful(state, action.card, ZONE_DISCARD, actor=player)
-            self._resolve_effects(state, player, action.card, action.target)
+            # Extract player target from Action.choice for chosen_player actions
+            player_target = None
+            if action.choice and isinstance(action.choice, dict):
+                player_target = action.choice.get("player")
+            self._resolve_effects(state, player, action.card, action.target, choice=player_target)
             to_zone = ZONE_DISCARD
         else:
             self._move_card_eventful(state, action.card, ZONE_PLAY, actor=player)
@@ -1946,44 +1987,104 @@ class GameEngine:
         for cid in ready_ink[:amount]:
             self._exert_eventful(state, cid, actor=player, source_id=cid, emit_event=False)
 
-    def _effect_targets_for_card(self, state: GameState, player: int, source: int) -> list[int]:
+    def _effect_target_descriptors_for_card(
+        self, state: GameState, source: int,
+    ) -> tuple["TargetDescriptor", ...]:
+        """Return explicit target-selection descriptors for an action card.
+
+        Fixed targets such as "you", "opponent", "self", and collection targets
+        such as "all_characters" are resolved by EffectResolver and do not need
+        legal-action target choices. Unknown/unsupported target strings produce
+        no descriptor (conservative: no broad fallback targets).
+        """
+        from .targeting import normalize_target_descriptor, requires_explicit_target_selection
         card = self.card_def(state, source)
-        targets: set[int] = set()
-        for target_kind in self._effect_target_kinds(card.effects):
-            if target_kind == "opposing_character":
-                for cid in state.players[state.opponent(player)].play:
-                    cdef = self.card_def(state, cid)
-                    if cdef.card_type == CARD_CHARACTER and not self.has_keyword(state, cid, KEYWORD_WARD):
-                        targets.add(cid)
-            elif target_kind == "chosen_character":
-                for who in (player, state.opponent(player)):
-                    for cid in state.players[who].play:
-                        cdef = self.card_def(state, cid)
-                        if cdef.card_type != CARD_CHARACTER:
-                            continue
-                        if who != player and self.has_keyword(state, cid, KEYWORD_WARD):
-                            continue
-                        # B8: Check cannot-be-targeted restriction
-                        if check_cannot_be_targeted(state, cid, source):
-                            continue
-                        targets.add(cid)
-        return sorted(targets)
+        descriptors = []
+        for raw_target in sorted(self._effect_target_kinds(card.effects)):
+            desc = normalize_target_descriptor(raw_target)
+            if desc is None:
+                continue
+            if not requires_explicit_target_selection(desc.selector):
+                continue
+            descriptors.append(desc)
+        return tuple(descriptors)
+
+    def _effect_target_candidates_for_card(
+        self,
+        state: GameState,
+        player: int,
+        source: int,
+    ) -> tuple["TargetCandidate", ...]:
+        """Resolve and protect target candidates for an action card.
+
+        Returns TargetCandidate objects for all legal targets (both card and
+        player).  Candidates are resolved through the targeting service and
+        filtered through protection rules (Ward, cannot-be-targeted,
+        ZONE_UNDER, stack_parent_id).
+        """
+        from .targeting import (
+            TargetQueryContext,
+            analyze_target_selection_availability,
+            apply_target_protections,
+            resolve_candidate_targets,
+        )
+        descriptors = self._effect_target_descriptors_for_card(state, source)
+        context = TargetQueryContext(actor=player, source_id=source)
+        all_candidates: list["TargetCandidate"] = []
+        for desc in descriptors:
+            raw = resolve_candidate_targets(state, self, desc, context)
+            protected = apply_target_protections(state, self, raw, desc, context)
+            availability = analyze_target_selection_availability(desc, protected)
+            if not availability.requires_explicit_target_selection:
+                continue
+            if not availability.can_satisfy_required_selection:
+                continue
+            all_candidates.extend(protected)
+        return tuple(all_candidates)
+
+    def _effect_targets_for_card(self, state: GameState, player: int, source: int) -> list[int]:
+        """Backward-compatible card-only wrapper.
+
+        Returns sorted card instance IDs from the targeting service.
+        Excludes player candidates.
+        """
+        candidates = self._effect_target_candidates_for_card(state, player, source)
+        return sorted(c.id for c in candidates if c.kind == "card")
 
     def _effect_requires_target(self, effect) -> bool:
-        return any(kind in {"opposing_character", "chosen_character"} for kind in self._effect_target_kinds((effect,)))
+        from .targeting import normalize_target_descriptor, requires_explicit_target_selection
+        for kind in self._effect_target_kinds((effect,)):
+            desc = normalize_target_descriptor(kind)
+            if desc is not None and requires_explicit_target_selection(desc.selector):
+                return True
+        return False
+
+    def _effect_has_unsupported_target(self, effects) -> bool:
+        for target_kind in self._effect_target_kinds(effects):
+            if target_kind not in _SUPPORTED_EFFECT_TARGET_KINDS:
+                return True
+        return False
 
     def _effect_target_kinds(self, effects) -> set[str]:
         targets: set[str] = set()
         for effect in effects:
-            if effect.target:
-                targets.add(effect.target)
-            if effect.effects:
-                targets.update(self._effect_target_kinds(effect.effects))
+            if isinstance(effect, dict):
+                t = effect.get("target")
+                if t:
+                    targets.add(t)
+                sub = effect.get("effects")
+                if sub:
+                    targets.update(self._effect_target_kinds(sub))
+            else:
+                if effect.target:
+                    targets.add(effect.target)
+                if effect.effects:
+                    targets.update(self._effect_target_kinds(effect.effects))
         return targets
 
-    def _resolve_effects(self, state: GameState, player: int, source: int, target: int | None) -> None:
+    def _resolve_effects(self, state: GameState, player: int, source: int, target: int | None, *, choice: Any = None) -> None:
         card = self.card_def(state, source)
-        self.effect_resolver.resolve_many(state, card.effects, EffectResolutionContext(actor=player, source=source, target=target))
+        self.effect_resolver.resolve_many(state, card.effects, EffectResolutionContext(actor=player, source=source, target=target, choice=choice))
 
     def _resolve_explicit_effects(self, state: GameState, effects: tuple, context: EffectResolutionContext) -> None:
         """Resolve a specific set of effects (used for trigger effects from the bag)."""
