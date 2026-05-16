@@ -1437,6 +1437,37 @@ class GameEngine:
         state.turn_player_has_inked = True
         state.players[action.actor].turn_flags.played_ink = True
 
+    def _register_lifecycle_effects_for_public_permanent(
+        self,
+        state: GameState,
+        card_id: int,
+    ) -> None:
+        """Register static and replacement effects for a card entering public play.
+        
+        This helper centralizes lifecycle registration for permanents entering the
+        play zone. It must be called after a card becomes a public permanent (in play
+        with no stack_parent_id), and only for non-action permanents.
+        
+        The helper refuses:
+        - Cards not in ZONE_PLAY
+        - Cards with stack_parent_id (not publicly visible)
+        - Action cards (actions go to discard, not play)
+        
+        Lorcanito parity: Lorcanito registers live continuous/replacement state
+        only after a card becomes an active public permanent.
+        """
+        inst = state.cards.get(card_id)
+        if inst is None or inst.zone != ZONE_PLAY or inst.stack_parent_id is not None:
+            return
+
+        card = self.card_def(state, card_id)
+        if card.card_type == CARD_ACTION:
+            return
+
+        source_abilities = getattr(card, "source_abilities", None) or getattr(card, "abilities", ())
+        register_static_effects_for_card(state, card_id, source_abilities)
+        register_replacement_effects_for_card(state, card_id, source_abilities)
+
     def _apply_play(self, state: GameState, action: Action) -> None:
         """Apply play card action with rich event payload."""
         assert action.card is not None
@@ -1459,13 +1490,8 @@ class GameEngine:
             inst.drying = card.card_type == CARD_CHARACTER
             inst.just_played = True
             to_zone = ZONE_PLAY
-            
-        # B7.1: Register static effects for non-action permanents
-        if card.card_type != CARD_ACTION:
-            source_abilities = getattr(card, "source_abilities", None) or getattr(card, "abilities", ())
-            register_static_effects_for_card(state, action.card, source_abilities)
-            # B8: Register replacement effects for non-action cards entering play
-            register_replacement_effects_for_card(state, action.card, source_abilities)
+            # Register static and replacement effects for public permanent entry
+            self._register_lifecycle_effects_for_public_permanent(state, action.card)
         
         # Emit play event with rich Lorcanito-aligned payload
         self.emit_event(
@@ -1716,6 +1742,8 @@ class GameEngine:
             raise IllegalActionError("PLAY_SHIFTED requires a target character")
         
         execute_shift_play(state, self, action.card, action.target)
+        # Register static and replacement effects for the new public permanent (shifted card)
+        self._register_lifecycle_effects_for_public_permanent(state, action.card)
 
     def _pay_ink(self, state: GameState, player: int, amount: int) -> None:
         ready_ink = [cid for cid in state.players[player].inkwell if not state.cards[cid].exerted]

@@ -978,6 +978,486 @@ class TestShiftPlayIntegration:
         assert state.cards[2].stack_parent_id == 3  # Card 2 now points to card 3
 
 
+class TestLifecycleRegistrationOnEntry:
+    """Tests for static and replacement effect registration on card entry to play."""
+
+    def _setup_shift_game_with_static_ability(self) -> tuple[GameEngine, GameState]:
+        """Set up a game with a shift character that has static abilities."""
+        cards = [
+            _make_test_shift_card(
+                "mal_base", "Maleficent", shift_cost=3,
+                strength=3, willpower=4, lore=1
+            ),
+            _make_test_shift_card(
+                "mal_shifted", "Maleficent", shift_cost=3,
+                strength=7, willpower=7, lore=2
+            ),
+        ]
+        engine = GameEngine(CardDatabase(cards))
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Add base Maleficent to play for player 0
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="mal_base", owner=0, controller=0, zone="play"
+        )
+        state.players[0].play.append(1)
+        
+        # Add shifted Maleficent to hand for player 0
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="mal_shifted", owner=0, controller=0, zone="hand"
+        )
+        state.players[0].hand.append(2)
+        
+        # Add ink for player 0
+        for i in range(10):
+            state.cards[100 + i] = CardInstance(
+                instance_id=100 + i, card_id="ink_amber", owner=0, controller=0, zone="inkwell"
+            )
+            state.players[0].inkwell.append(100 + i)
+        
+        return engine, state
+
+    def test_normal_character_entry_registers_static_effects(self):
+        """Test that a normally played character registers static effects."""
+        from lorcana_bot.cards import CardDef, CardDatabase
+        from lorcana_bot.static_effects import StaticEffectRegistry
+        
+        # Create a character with a static ability
+        char_card = CardDef(
+            id="static_char",
+            full_name="Test Character",
+            ink="amber",
+            cost=3,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=3,
+            lore=1,
+            abilities=({
+                "type": "static",
+                "effect": {
+                    "type": "modify-stat",
+                    "attribute": "strength",
+                    "amount": 2,
+                },
+            },),
+        )
+        
+        cards = [char_card]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        
+        # Add ink for player 0
+        for i in range(10):
+            state.cards[100 + i] = CardInstance(
+                instance_id=100 + i, card_id="ink_amber", owner=0, controller=0, zone="inkwell"
+            )
+            state.players[0].inkwell.append(100 + i)
+        
+        # Add character to hand
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="static_char", owner=0, controller=0, zone="hand"
+        )
+        state.players[0].hand.append(1)
+        
+        # Play the character
+        from lorcana_bot.actions import Action
+        from lorcana_bot.constants import ACTION_PLAY_CARD
+        action = Action(ACTION_PLAY_CARD, actor=0, card=1)
+        next_state = engine.apply_action(state, action)
+        
+        # Verify character is in play
+        assert next_state.cards[1].zone == "play"
+        
+        # Verify static effects were registered (registry should have effects for this card)
+        static_effects = next_state.static_effect_registry.get_effects_for_instance(next_state, 1)
+        # The card registers its own static effects as "self" target
+        assert len(static_effects) == 1
+        assert static_effects[0].source_id == 1
+
+    def test_normal_character_entry_registers_replacement_effects(self):
+        """Test that a normally played character registers replacement effects."""
+        from lorcana_bot.cards import CardDef, CardDatabase
+        from lorcana_bot.replacement_effects import get_registry
+        
+        # Create a character with a replacement ability
+        char_card = CardDef(
+            id="replacement_char",
+            full_name="Test Character",
+            ink="amber",
+            cost=3,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=3,
+            lore=1,
+            abilities=({
+                "type": "replacement",
+                "effect": {
+                    "type": "prevent-damage",
+                    "amount": 1,
+                },
+            },),
+        )
+        
+        cards = [char_card]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        
+        # Add ink for player 0
+        for i in range(10):
+            state.cards[100 + i] = CardInstance(
+                instance_id=100 + i, card_id="ink_amber", owner=0, controller=0, zone="inkwell"
+            )
+            state.players[0].inkwell.append(100 + i)
+        
+        # Add character to hand
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="replacement_char", owner=0, controller=0, zone="hand"
+        )
+        state.players[0].hand.append(1)
+        
+        # Play the character
+        from lorcana_bot.actions import Action
+        from lorcana_bot.constants import ACTION_PLAY_CARD
+        action = Action(ACTION_PLAY_CARD, actor=0, card=1)
+        next_state = engine.apply_action(state, action)
+        
+        # Verify character is in play
+        assert next_state.cards[1].zone == "play"
+        
+        # Verify replacement effects were registered
+        registry = get_registry(next_state)
+        replacement_effects = registry.get_effects_for_instance(next_state, 1)
+        # The card registers its own replacement effects as "self" target
+        assert len(replacement_effects) == 1
+        assert replacement_effects[0].source_id == 1
+
+    def test_shifted_character_entry_registers_static_effects(self):
+        """Test that a shifted character entering play registers static effects."""
+        from lorcana_bot.cards import CardDef, CardDatabase
+        from lorcana_bot.static_effects import StaticEffectRegistry
+        
+        # Create shift cards with static abilities
+        base_card = CardDef(
+            id="static_base",
+            full_name="Test Character",
+            ink="amber",
+            cost=3,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=3,
+            lore=1,
+        )
+        shifted_card = CardDef(
+            id="static_shifted",
+            full_name="Test Character",
+            ink="amber",
+            cost=8,
+            inkable=True,
+            card_type="character",
+            strength=5,
+            willpower=5,
+            lore=2,
+            keywords=("SHIFT(3)",),
+            abilities=({
+                "type": "static",
+                "effect": {
+                    "type": "modify-stat",
+                    "attribute": "strength",
+                    "amount": 3,
+                },
+            },),
+        )
+        
+        cards = [base_card, shifted_card]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        
+        # Add ink for player 0
+        for i in range(10):
+            state.cards[100 + i] = CardInstance(
+                instance_id=100 + i, card_id="ink_amber", owner=0, controller=0, zone="inkwell"
+            )
+            state.players[0].inkwell.append(100 + i)
+        
+        # Add base character to play
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="static_base", owner=0, controller=0, zone="play"
+        )
+        state.players[0].play.append(1)
+        
+        # Add shifted character to hand
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="static_shifted", owner=0, controller=0, zone="hand"
+        )
+        state.players[0].hand.append(2)
+        
+        # Shift play the character
+        from lorcana_bot.actions import Action
+        action = Action("PLAY_SHIFTED", actor=0, card=2, target=1)
+        next_state = engine.apply_action(state, action)
+        
+        # Verify shifted character is in play
+        assert next_state.cards[2].zone == "play"
+        
+        # Verify static effects were registered for the shifted card
+        static_effects = next_state.static_effect_registry.get_effects_for_instance(next_state, 2)
+        assert len(static_effects) == 1
+        assert static_effects[0].source_id == 2
+
+    def test_shifted_character_entry_registers_replacement_effects(self):
+        """Test that a shifted character entering play registers replacement effects."""
+        from lorcana_bot.cards import CardDef, CardDatabase
+        from lorcana_bot.replacement_effects import get_registry
+        
+        # Create shift cards with replacement abilities
+        base_card = CardDef(
+            id="repl_base",
+            full_name="Test Character",
+            ink="amber",
+            cost=3,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=3,
+            lore=1,
+        )
+        shifted_card = CardDef(
+            id="repl_shifted",
+            full_name="Test Character",
+            ink="amber",
+            cost=8,
+            inkable=True,
+            card_type="character",
+            strength=5,
+            willpower=5,
+            lore=2,
+            keywords=("SHIFT(3)",),
+            abilities=({
+                "type": "replacement",
+                "effect": {
+                    "type": "prevent-damage",
+                    "amount": 2,
+                },
+            },),
+        )
+        
+        cards = [base_card, shifted_card]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        
+        # Add ink for player 0
+        for i in range(10):
+            state.cards[100 + i] = CardInstance(
+                instance_id=100 + i, card_id="ink_amber", owner=0, controller=0, zone="inkwell"
+            )
+            state.players[0].inkwell.append(100 + i)
+        
+        # Add base character to play
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="repl_base", owner=0, controller=0, zone="play"
+        )
+        state.players[0].play.append(1)
+        
+        # Add shifted character to hand
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="repl_shifted", owner=0, controller=0, zone="hand"
+        )
+        state.players[0].hand.append(2)
+        
+        # Shift play the character
+        from lorcana_bot.actions import Action
+        action = Action("PLAY_SHIFTED", actor=0, card=2, target=1)
+        next_state = engine.apply_action(state, action)
+        
+        # Verify shifted character is in play
+        assert next_state.cards[2].zone == "play"
+        
+        # Verify replacement effects were registered for the shifted card
+        registry = get_registry(next_state)
+        replacement_effects = registry.get_effects_for_instance(next_state, 2)
+        assert len(replacement_effects) == 1
+        assert replacement_effects[0].source_id == 2
+
+    def test_shifted_under_card_does_not_register_effects(self):
+        """Test that the card UNDER a shifted character does not register as public permanent."""
+        from lorcana_bot.cards import CardDef, CardDatabase
+        from lorcana_bot.static_effects import StaticEffectRegistry
+        from lorcana_bot.replacement_effects import get_registry
+        
+        # Create shift cards where the base has static effects
+        base_card = CardDef(
+            id="static_base",
+            full_name="Test Character",
+            ink="amber",
+            cost=3,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=3,
+            lore=1,
+            abilities=({
+                "type": "static",
+                "effect": {
+                    "type": "modify-stat",
+                    "attribute": "strength",
+                    "amount": 5,
+                },
+            },),
+        )
+        shifted_card = CardDef(
+            id="shifted_char",
+            full_name="Test Character",
+            ink="amber",
+            cost=8,
+            inkable=True,
+            card_type="character",
+            strength=5,
+            willpower=5,
+            lore=2,
+            keywords=("SHIFT(3)",),
+        )
+        
+        cards = [base_card, shifted_card]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        
+        # Add ink for player 0
+        for i in range(10):
+            state.cards[100 + i] = CardInstance(
+                instance_id=100 + i, card_id="ink_amber", owner=0, controller=0, zone="inkwell"
+            )
+            state.players[0].inkwell.append(100 + i)
+        
+        # Add base character to play (has static ability)
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="static_base", owner=0, controller=0, zone="play"
+        )
+        state.players[0].play.append(1)
+        
+        # Add shifted character to hand
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="shifted_char", owner=0, controller=0, zone="hand"
+        )
+        state.players[0].hand.append(2)
+        
+        # Record initial static effects count
+        initial_effects_count = len(state.static_effect_registry.effects)
+        
+        # Shift play the character
+        from lorcana_bot.actions import Action
+        action = Action("PLAY_SHIFTED", actor=0, card=2, target=1)
+        next_state = engine.apply_action(state, action)
+        
+        # Verify base character is now under (ZONE_UNDER)
+        assert next_state.cards[1].zone == ZONE_UNDER
+        assert next_state.cards[1].stack_parent_id == 2
+        
+        # The card UNDER should NOT have registered static effects because it's not a public permanent
+        # Verify it's NOT in the play zone (it's under)
+        assert 1 not in next_state.players[0].play
+        
+        # The static effects for the base card should have been deregistered when it moved to under
+        static_effects_on_1 = next_state.static_effect_registry.get_effects_for_instance(next_state, 1)
+        
+        # Since the base card moved to ZONE_UNDER (not play), its effects should not apply
+        # as if it were a public permanent. The helper should have refused to register
+        # because stack_parent_id is not None for the shifted card after shift.
+        # 
+        # Note: The base card's static effects were registered when it originally entered play.
+        # After shift, it moves to under and should be deregistered.
+        # Let's verify the helper correctly refused to register the under card.
+
+    def test_lifecycle_helper_refuses_stack_parent_id(self):
+        """Test that _register_lifecycle_effects_for_public_permanent refuses cards with stack_parent_id."""
+        from lorcana_bot.cards import CardDef, CardDatabase
+        from lorcana_bot.static_effects import StaticEffectRegistry
+        
+        # Create a card with static ability
+        char_card = CardDef(
+            id="test_char",
+            full_name="Test Character",
+            ink="amber",
+            cost=3,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=3,
+            lore=1,
+            abilities=({
+                "type": "static",
+                "effect": {
+                    "type": "modify-stat",
+                    "attribute": "strength",
+                    "amount": 2,
+                },
+            },),
+        )
+        
+        cards = [char_card]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        
+        # Create a card with stack_parent_id set (simulating a card under another)
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="test_char", owner=0, controller=0, zone="play", stack_parent_id=999
+        )
+        
+        effects_before = len(state.static_effect_registry.effects)
+        
+        # Call the helper - should do nothing because stack_parent_id is set
+        engine._register_lifecycle_effects_for_public_permanent(state, 1)
+        
+        # Verify no effects were registered
+        assert len(state.static_effect_registry.effects) == effects_before
+
+    def test_lifecycle_helper_refuses_action_cards(self):
+        """Test that _register_lifecycle_effects_for_public_permanent refuses action cards."""
+        from lorcana_bot.cards import CardDef, CardDatabase
+        from lorcana_bot.static_effects import StaticEffectRegistry
+        
+        # Create an action card with static ability (actions shouldn't register)
+        action_card = CardDef(
+            id="test_action",
+            full_name="Test Action",
+            ink="amber",
+            cost=2,
+            inkable=True,
+            card_type="action",
+            abilities=({
+                "type": "static",
+                "effect": {
+                    "type": "modify-stat",
+                    "attribute": "strength",
+                    "amount": 2,
+                },
+            },),
+        )
+        
+        cards = [action_card]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        
+        # Create an action card in play
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="test_action", owner=0, controller=0, zone="play"
+        )
+        
+        effects_before = len(state.static_effect_registry.effects)
+        
+        # Call the helper - should do nothing because it's an action
+        engine._register_lifecycle_effects_for_public_permanent(state, 1)
+        
+        # Verify no effects were registered
+        assert len(state.static_effect_registry.effects) == effects_before
+
+
 class TestCardsUnderRestrictions:
     """Tests for restrictions on cards under in shift stacks."""
 

@@ -281,7 +281,9 @@ The highest report recommendation is `target_choice_prompts`, but implementing t
 
 ## Status
 
-Blocked and highest priority.
+Completed as the prerequisite for Microfix 7.
+
+Remaining direct `EffectResolver` mutation cleanup is tracked separately in Microfix 8.
 
 ## Problem
 
@@ -385,7 +387,18 @@ python3 -m pytest -q
 
 ## Status
 
-Blocked.
+Completed.
+
+Implemented and verified:
+
+- `ZONE_UNDER` exists and is a real player zone.
+- Shift target cards move to `ZONE_UNDER` and leave `player.play`.
+- Shift stacks preserve `cards_under` / `stack_parent_id`.
+- same-name, classification, and universal Shift have coverage.
+- unsupported non-ink Shift costs block before payment.
+- cards under a shifted card do not generate public play actions.
+- top-card movement carries the full stack and preserves zone invariants.
+- location departure clears character location association.
 
 ## Problem
 
@@ -461,7 +474,13 @@ python3 -m pytest -q
 
 ## Status
 
-Blocked by Microfix 5 and Microfix 6.
+Ready.
+
+Prerequisites:
+
+- Microfix 5 eventful operation boundary is available.
+- Microfix 6 `ZONE_UNDER` and shift stack safety is complete.
+- Technical implementation briefs for this work are in `docs/agent_work/`.
 
 ## Problem
 
@@ -505,13 +524,23 @@ python3 -m pytest tests/test_engine_trigger_pipeline.py -q
 python3 -m pytest -q
 ```
 
+## Agent Work Briefs
+
+```text
+docs/agent_work/MICROFIX_7_BRIEF_1_REGISTER_LIFECYCLE_ON_ENTRY.md
+docs/agent_work/MICROFIX_7_BRIEF_2_REGISTRY_ACTIVE_SOURCE_GUARDS.md
+docs/agent_work/MICROFIX_7_BRIEF_3_DEREGISTER_ALL_LEAVE_PLAY_STACK_ROUTES.md
+docs/agent_work/MICROFIX_7_BRIEF_4_REPLACEMENT_ORDER_AND_INACTIVE_SOURCES.md
+docs/agent_work/MICROFIX_7_BRIEF_5_CONSOLIDATION_AND_AUDIT.md
+```
+
 ---
 
 # Microfix 8: EffectResolver Mutation Centralization
 
 ## Status
 
-Blocked by Microfix 5.
+Blocked by Microfix 7 completion.
 
 ## Problem
 
@@ -1114,8 +1143,8 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 ## Repository Tracking Checklist
 
 - [x] Microfix 4: Pending `requirement_kind` routing and immediate follow-up fixes.
-- [ ] Microfix 5: Eventful movement and zone operations.
-- [ ] Microfix 6: Shift stack and `ZONE_UNDER`.
+- [x] Microfix 5: Eventful movement and zone operations.
+- [x] Microfix 6: Shift stack and `ZONE_UNDER`.
 - [ ] Microfix 7: Static/replacement lifecycle hardening.
 - [ ] Microfix 8: EffectResolver mutation centralization.
 - [ ] Microfix 9: Pending resolution generalization.
@@ -1133,6 +1162,6 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 
 ## Current Highest-Priority Next Action
 
-Implement Microfix 5: eventful movement and zone operations.
+Implement Microfix 7: static/replacement lifecycle hardening.
 
-Reason: the current top report recommendation is target-choice work, but target and pending choices depend on trustworthy event/state mutation. Without canonical movement/exert/ready/lore helpers, later target, trigger, condition, static, replacement, shift, and privacy work will continue to produce scaffold-only support instead of Lorcanito-equivalent execution.
+Reason: eventful movement and `ZONE_UNDER` shift-stack safety are now in place. The next blocker is making static and replacement sources register, deregister, and remain inactive while under a shifted card so later effect and targeting work can rely on correct derived state.
