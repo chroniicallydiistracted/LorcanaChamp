@@ -120,7 +120,58 @@ chosen_player/you/opponent/each_player: allow_players=True
 
 ---
 
-## 3. Sequencing Rules
+## 3. Completed Brief 2 Baseline
+
+Brief 2 is already implemented. Do not recreate candidate resolution or rewrite it wholesale.
+
+Current candidate-resolution API:
+```python
+def resolve_candidate_targets(
+    state: GameState,
+    engine: Any,
+    descriptor: TargetDescriptor,
+    context: TargetQueryContext,
+) -> tuple[TargetCandidate, ...]: ...
+
+def resolve_candidate_card_ids(
+    state: GameState,
+    engine: Any,
+    descriptor: TargetDescriptor,
+    context: TargetQueryContext,
+) -> tuple[int, ...]: ...
+
+def resolve_candidate_player_ids(
+    state: GameState,
+    descriptor: TargetDescriptor,
+    context: TargetQueryContext,
+) -> tuple[int, ...]: ...
+```
+
+Important Brief 2 behavior:
+```text
+self, event_source, event_target, trigger_subject, current_targets, and context_targets are validated through the same candidate checks as normal card selectors.
+Context-derived card IDs must not be returned raw.
+event_source supports source, source_id, source_card_id, and trigger_source_card_id payload keys.
+event_target supports target, target_id, target_card_id, event_target_id, defender_id, and subject_card_id payload keys.
+trigger_subject supports subject, trigger_subject, subject_id, subject_card_id, defender_id, and target_id payload keys.
+exclude_trigger_subject is wired into generic candidate resolution through the current context subject.
+Unknown selectors with allow_players=True return no players instead of defaulting to both players.
+Cards in ZONE_UNDER or with stack_parent_id remain excluded from public candidate resolution.
+```
+
+Current Brief 2 regression tests include:
+```text
+self selector respects descriptor zone
+event target respects card type filters
+trigger subject supports subject_card_id payload key
+exclude_trigger_subject uses context subject
+current_targets are validated against zone and under-stack rules
+unknown allow_players selector returns no players
+```
+
+---
+
+## 4. Sequencing Rules
 
 Keep implementation boundaries strict:
 ```text
@@ -137,7 +188,7 @@ When a brief depends on earlier helpers, extend those helpers instead of duplica
 
 ---
 
-## 4. Lorcanito Source Authority
+## 5. Lorcanito Source Authority
 
 Use these source files as the authority for Microfix 10:
 ```text
@@ -158,7 +209,7 @@ SlottedTargetInput preserves structured multi-slot choices and can be flattened 
 
 ---
 
-## 5. Testing Rules
+## 6. Testing Rules
 
 Every brief must run:
 ```bash

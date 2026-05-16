@@ -8,6 +8,17 @@ Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making cha
 
 This brief depends on Briefs 1-2.
 Do not integrate into `engine.py` yet except importing helpers in tests if needed.
+Do not rewrite or bypass the Brief 2 candidate-resolution helpers.
+
+Corrected Brief 2 baseline that must remain true:
+```text
+resolve_candidate_targets(), resolve_candidate_card_ids(), and resolve_candidate_player_ids() already exist.
+self, event_source, event_target, trigger_subject, current_targets, and context_targets already route through validated card-candidate checks.
+Context-derived card IDs must not be returned raw.
+exclude_trigger_subject is already wired into generic candidate resolution through the current context subject.
+Unknown allow_players=True selectors return no players, not both players.
+Existing tests/test_targeting.py currently passes with 89 tests before Brief 3 work begins.
+```
 
 ---
 
@@ -19,7 +30,8 @@ Do not integrate into `engine.py` yet except importing helpers in tests if neede
 ```text
 No central TargetSelectionAvailability equivalent exists.
 Ward/cannot-be-targeted checks are split between engine and pending_effects.
-Brief 1 already excludes cards with stack_parent_id in is_card_target_candidate(); this brief must preserve that behavior and ensure availability/protection filtering also excludes non-public shifted-stack cards.
+Briefs 1-2 already exclude cards with stack_parent_id and ZONE_UNDER through candidate validation; this brief must preserve that behavior and ensure protection filtering never reintroduces non-public shifted-stack cards.
+Brief 2 already validates context selectors; this brief adds protection and availability analysis on top of those candidates instead of adding new raw context-target paths.
 ```
 
 Current scattered checks:
@@ -55,6 +67,8 @@ def apply_target_protections(
     candidates: tuple[TargetCandidate, ...],
     descriptor: TargetDescriptor,
     context: TargetQueryContext,
+    *,
+    source_id: int | None = None,
 ) -> tuple[TargetCandidate, ...]: ...
 ```
 
@@ -67,6 +81,8 @@ Cards in ZONE_UNDER or with stack_parent_id are not public play candidates.
 Cards not in allowed zones are excluded.
 Duplicate target IDs are rejected unless descriptor explicitly allows duplicates.
 min_count/max_count drive availability; max_count=None means all/unbounded candidates.
+Protections preserve TargetCandidate kind/id/controller/zone values for candidates that remain legal.
+Protection filtering must operate on candidate tuples returned by Brief 2 helpers; do not re-resolve context selectors by reading raw IDs directly.
 ```
 
 ### 3. Fixes Needed
@@ -74,7 +90,7 @@ min_count/max_count drive availability; max_count=None means all/unbounded candi
 * **Action:** `EXPAND`
 * **Delta Description:** Add availability dataclass and analysis function.
 * **Delta Description:** Add protection filtering to candidate resolution.
-* **Delta Description:** Add tests for Ward, cannot-be-targeted, `ZONE_UNDER`, min/max, empty required selections, and duplicate rejection.
+* **Delta Description:** Add tests for Ward, cannot-be-targeted, `ZONE_UNDER`, min/max, empty required selections, duplicate rejection, and context-derived candidates staying validated after protection filtering.
 * **Delta Description:** Do not move legal-action integration into this brief; engine usage starts in Brief 4.
 
 ### 4. Lorcanito Source Reference (The Authority)
@@ -98,14 +114,18 @@ export type TargetSelectionAvailability = {
 
 Run:
 ```bash
+python3 -m py_compile lorcana_bot/targeting.py
 python3 -m pytest tests/test_targeting.py -q
 python3 -m pytest tests/test_state_invariants.py -q
 python3 -m pytest -q
+git diff --check
 ```
 
 Expected:
 - Ward and cannot-be-targeted protections are centralized.
 - Cards under shifted stacks are not candidates.
+- Context selectors remain validated and do not bypass protections.
+- Unknown `allow_players=True` selectors still return no players.
 - Availability tests pass.
 - Existing Brief 1 and Brief 2 targeting tests still pass without weakening assertions.
 
