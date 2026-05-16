@@ -189,7 +189,40 @@ When a brief depends on earlier helpers, extend those helpers instead of duplica
 
 ---
 
-## 5. Lorcanito Source Authority
+## 5. Completed Brief 4 Baseline
+
+Brief 4 is already implemented and audited. Do not recreate action-card legal-action targeting.
+
+Current engine integration API:
+```python
+def _effect_target_descriptors_for_card(self, state: GameState, source: int) -> tuple[TargetDescriptor, ...]: ...
+def _effect_target_candidates_for_card(self, state: GameState, player: int, source: int) -> tuple[TargetCandidate, ...]: ...
+def _effect_targets_for_card(self, state: GameState, player: int, source: int) -> list[int]: ...
+def _effect_requires_target(self, effect) -> bool: ...
+def _effect_has_unsupported_target(self, effects) -> bool: ...
+```
+
+Current Brief 4 behavior:
+```text
+Only explicit target-selection descriptors create legal-action target choices.
+Fixed player targets such as opponent/you/controller and collection targets such as all_characters are resolved by EffectResolver, not by legal-action target prompts.
+Card targets use Action.target.
+Player targets use Action.choice={"target_kind": "player", "player": player_id}; do not put player IDs in Action.target.
+_resolve_effects(..., choice=player_id) passes chosen-player action targets into EffectResolutionContext.choice.
+Unsupported action target descriptors fail closed and do not create broad fallback play actions.
+```
+
+The shared explicit-selection predicate is:
+```python
+def requires_explicit_target_selection(selector: str) -> bool:
+    return selector.startswith("chosen") or selector == "opposing_character"
+```
+
+Do not widen Ward to automatic collection effects. Ward applies to explicit opponent target choices, not to collection effects that are resolved without a player selecting a target.
+
+---
+
+## 6. Lorcanito Source Authority
 
 Use these source files as the authority for Microfix 10:
 ```text
@@ -212,7 +245,7 @@ SlottedTargetInput preserves structured multi-slot choices and can be flattened 
 
 ---
 
-## 6. Testing Rules
+## 7. Testing Rules
 
 Every brief must run:
 ```bash
