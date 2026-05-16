@@ -1,8 +1,8 @@
 # LorcanaChamp Engine Parity Roadmap
 
-**Audit date:** 2026-05-16  
-**Audit target:** current LorcanaChamp workspace after Microfix 4 follow-up fixes  
-**Reference authority:** `lorcanito-full-src-code/packages/lorcana` and `references/lorcana-simulator`  
+**Audit date:** 2026-05-16
+**Audit target:** current LorcanaChamp workspace after Microfix 7 lifecycle hardening
+**Reference authority:** `lorcanito-full-src-code/packages/lorcana` and `references/lorcana-simulator`
 **Goal:** migrate Lorcanito's rules, card logic, game state, and automation behavior into Python with enough 1:1 fidelity to support teacher-bot creation and LorcanaChamp ML training.
 
 This document is the implementation roadmap. It intentionally distinguishes:
@@ -28,7 +28,7 @@ python3 scripts/report_real_deck_mapping_coverage.py --resolved-deck-dir data/de
 python3 scripts/report_lorcanito_source_mapping.py --source-json data/lorcanito_extracted/cards.normalized.json --out /tmp/lorcanito_mapping_coverage.json --print-summary
 ```
 
-Observed test state:
+Observed baseline test state from the original roadmap audit:
 
 - `516 tests collected`
 - Full pytest suite passes.
@@ -231,21 +231,22 @@ Key Lorcanito concepts to preserve:
 - Normal `name_a_card` effects now create `named_card` pending effects.
 - Special empty-effect pending requirements are visible to actor resolution.
 - Automation candidate conversion now preserves special pending inputs.
+- Microfix 5 eventful engine operation helpers exist for movement, banish, discard, return-to-hand, ink, ready, exert, lore, damage, and damage removal.
+- Microfix 6 Shift stack and `ZONE_UNDER` behavior is implemented with stack-aware movement and public-play exclusions.
+- Microfix 7 static/replacement lifecycle hardening is implemented for public permanent entry, leave-play deregistration, inactive under-stack sources, and replacement/prevention ordering on hardened routes.
+- Microfix 8 `EffectResolver` mutation centralization is implemented with draw privacy hardening, core helper regression tests, zone-routing regression tests, and a direct-mutation audit guard.
 
 ### Partial Or Scaffolded
 
 - `pending_effects.py` supports some scry/search/reveal helpers, but privacy, destination structure, continuation, eventfulness, and search filters are not Lorcanito-equivalent.
-- `EffectResolver` supports many effect kinds, but many direct mutations bypass eventful helpers.
 - `condition_evaluator.py` has many condition handlers, but report-critical conditions still fail or depend on missing turn metrics/cards-under state.
 - `triggers.py` can buffer and match common triggers, but runtime trigger support is narrower than Lorcanito's trigger subject/filter model.
 - `abilities.py` and `costs.py` can enumerate some activated abilities and costs, but ink/discard/banish costs still block many real cards.
-- `play_modes.py` supports singing and shift paths, but Shift stack representation is not safe enough for 1:1 parity.
+- `play_modes.py` supports singing and Shift stack behavior, including `ZONE_UNDER`, but full play-mode parity still needs later cost/mode work.
 - `decks/*` reports useful blockers, but executable/scaffold classification still needs to be stricter.
 
 ### Blocked For 1:1 Migration
 
-- No canonical eventful zone operation layer for all moves and effects.
-- No safe `ZONE_UNDER` / stack zone invariant.
 - No complete target selection service equivalent to Lorcanito targeting runtime.
 - No amount-choice pending requirement.
 - No discard-choice pending requirement.
@@ -285,11 +286,11 @@ Completed as the prerequisite for Microfix 7.
 
 Remaining direct `EffectResolver` mutation cleanup is tracked separately in Microfix 8.
 
-## Problem
+## Original Problem
 
-Many rule-significant paths still call `state.move_card()` or mutate zone lists/state fields directly. This bypasses canonical events, trigger buffering, static/replacement invalidation, shift-stack movement, and zone consistency checks.
+Many rule-significant paths called `state.move_card()` or mutated zone lists/state fields directly. This bypassed canonical events, trigger buffering, static/replacement invalidation, shift-stack movement, and zone consistency checks.
 
-Observed direct mutation examples:
+Original direct mutation examples:
 
 ```text
 lorcana_bot/effects.py: state.move_card(...), direct lore/damage/exerted mutation
@@ -400,9 +401,9 @@ Implemented and verified:
 - top-card movement carries the full stack and preserves zone invariants.
 - location departure clears character location association.
 
-## Problem
+## Original Problem
 
-Python shift currently stores cards under the shifted card but can leave the old card's `zone` as play while removing it from `player.play`. Lorcanito moves the old top out of public play and stores stack relationships in metadata.
+Python shift stored cards under the shifted card but could leave the old card's `zone` as play while removing it from `player.play`. Lorcanito moves the old top out of public play and stores stack relationships in metadata.
 
 ## Target
 
@@ -474,17 +475,23 @@ python3 -m pytest -q
 
 ## Status
 
-Ready.
+Completed.
 
-Prerequisites:
+Verified state:
 
 - Microfix 5 eventful operation boundary is available.
 - Microfix 6 `ZONE_UNDER` and shift stack safety is complete.
-- Technical implementation briefs for this work are in `docs/agent_work/`.
+- lifecycle registration exists for public permanents entering play.
+- actions do not register lifecycle effects.
+- `ZONE_UNDER` / stacked cards are excluded as active static and replacement sources.
+- leave-play routes deregister static and replacement sources through engine-owned movement helpers.
+- shifted stack movement deregisters all stack sources.
+- replacement/prevention effects are evaluated before final mutation on hardened routes.
+- technical implementation briefs for this work are in `docs/agent_work/`.
 
-## Problem
+## Original Problem
 
-Static and replacement parsers now preserve more source data, but lifecycle correctness depends on eventful zone movement and safe under-stack semantics.
+Static and replacement parsers preserved more source data, but lifecycle correctness depended on eventful zone movement and safe under-stack semantics.
 
 ## Target
 
@@ -540,17 +547,30 @@ docs/agent_work/MICROFIX_7_BRIEF_5_CONSOLIDATION_AND_AUDIT.md
 
 ## Status
 
-Blocked by Microfix 7 completion.
+**Completed 2026-05-16.**
+
+Verified state after audit:
+
+- `rg` audit confirms no direct gameplay mutation in `lorcana_bot/effects.py` for: `state.move_card(`, `.lore +=`, `.lore -=`, `.damage +=`, `.damage -=`, `.exerted = True`, `.exerted = False`, `state.event_log.append(`, `GameEvent(`.
+- Effect draw privacy is hardened: effect-driven draw uses `GameEngine.draw_cards(..., private=True)`.
+- Core effect gameplay mutation routes through engine helper methods for: draw, gain_lore, lose_lore, deal_damage, remove_damage, banish, discard, return_to_hand, ready, exert, put_card_in_hand, put_card_on_top, put_card_on_bottom, put_card_in_discard.
+- Deck/zone routing effects use `GameEngine._move_card_eventful` for every move.
+- EffectResolver does not call `state.move_card` directly.
+- EffectResolver does not directly mutate lore, damage, exerted state, or event_log.
+- All targeted tests pass: `test_effects.py`, `test_engine_trigger_pipeline.py`, `test_shift.py`, `test_state_invariants.py`.
+- Full pytest suite passes.
+- Agent work briefs completed: BRIEFS 1-4 established the mutation guards, draw privacy, core helper regression, and zone routing regression coverage. This brief (BRIEF 5) is the consolidation audit.
 
 ## Problem
 
-`EffectResolver` still performs direct gameplay mutation. This creates false positives in tests and false negatives in trigger/replacement behavior.
+`EffectResolver` must not be allowed to silently reintroduce direct gameplay mutation. Direct resolver mutation creates false positives in unit tests and false negatives in trigger, replacement, lifecycle, and private-information behavior.
 
 ## Target
 
-Replace direct effect mutations with eventful helpers:
+Keep or replace effect gameplay mutations with engine-owned helpers:
 
 ```python
+self.engine.draw_cards(..., private=True)
 self.engine._gain_lore_eventful(...)
 self.engine._lose_lore_eventful(...)
 self.engine._remove_damage_eventful(...)
@@ -561,6 +581,8 @@ self.engine._ready_eventful(...)
 self.engine._exert_eventful(...)
 self.engine._move_card_eventful(...)
 ```
+
+Allowed resolver-local mutations must stay narrowly scoped to non-zone/non-lifecycle temporary state such as cost reductions, temporary keywords/modifiers, reveal flags, and deterministic shuffle metadata.
 
 ## Files
 
@@ -586,6 +608,16 @@ packages/lorcana/lorcana-engine/src/operations/zones.ts
 python3 -m pytest tests/test_effects.py -q
 python3 -m pytest tests/test_engine_trigger_pipeline.py -q
 python3 -m pytest -q
+```
+
+## Agent Work Briefs
+
+```text
+docs/agent_work/MICROFIX_8_BRIEF_1_EFFECT_RESOLVER_MUTATION_AUDIT_GUARD.md
+docs/agent_work/MICROFIX_8_BRIEF_2_EFFECT_DRAW_PRIVACY_AND_EVENT_BOUNDARY.md
+docs/agent_work/MICROFIX_8_BRIEF_3_CORE_EFFECT_HELPER_REGRESSION.md
+docs/agent_work/MICROFIX_8_BRIEF_4_ZONE_ROUTING_EFFECT_REGRESSION.md
+docs/agent_work/MICROFIX_8_BRIEF_5_CONSOLIDATION_AND_AUDIT.md
 ```
 
 ---
@@ -1145,8 +1177,8 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 - [x] Microfix 4: Pending `requirement_kind` routing and immediate follow-up fixes.
 - [x] Microfix 5: Eventful movement and zone operations.
 - [x] Microfix 6: Shift stack and `ZONE_UNDER`.
-- [ ] Microfix 7: Static/replacement lifecycle hardening.
-- [ ] Microfix 8: EffectResolver mutation centralization.
+- [x] Microfix 7: Static/replacement lifecycle hardening.
+- [x] Microfix 8: EffectResolver mutation centralization.
 - [ ] Microfix 9: Pending resolution generalization.
 - [ ] Microfix 10: Targeting service parity.
 - [ ] Microfix 11: Trigger event expansion and bag/pending interaction.
@@ -1162,6 +1194,6 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 
 ## Current Highest-Priority Next Action
 
-Implement Microfix 7: static/replacement lifecycle hardening.
+Implement Microfix 9: Pending resolution generalization.
 
-Reason: eventful movement and `ZONE_UNDER` shift-stack safety are now in place. The next blocker is making static and replacement sources register, deregister, and remain inactive while under a shifted card so later effect and targeting work can rely on correct derived state.
+Reason: Microfix 8 is now complete with `EffectResolver` locked behind engine event boundaries. The highest trigger blocker report is `unsupported_trigger_resolution_requirement:amount`. Microfix 9 implements general Lorcanito pending resolution (amount, target, discard_choice, choice, optional, opponent_choice) so triggers blocked on those requirements can be unblocked in subsequent work.

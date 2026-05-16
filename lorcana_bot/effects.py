@@ -41,7 +41,12 @@ class EffectResolver:
         elif kind == "for_each":
             self._resolve_for_each(state, effect, context)
         elif kind == "draw":
-            self.engine.draw_cards(state, self._target_player(state, effect, context), self._amount(effect))
+            self.engine.draw_cards(
+                state,
+                self._target_player(state, effect, context),
+                self._amount(effect),
+                private=True,
+            )
         elif kind == "gain_lore":
             self.engine._gain_lore_eventful(
                 state,

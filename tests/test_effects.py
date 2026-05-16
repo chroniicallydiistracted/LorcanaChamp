@@ -12,6 +12,8 @@ from lorcana_bot.constants import (
     EVENT_CHARACTER_BANISHED,
     EVENT_LORE_GAINED,
     EVENT_LORE_LOST,
+    ZONE_DECK,
+    ZONE_DISCARD,
     ZONE_HAND,
     ZONE_PLAY,
 )
@@ -231,11 +233,11 @@ class TestEventContextTargets:
         engine, state = setup_effect_game()
         ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
         state.cards[ally].damage = 3
-        
+
         # Use deal_damage with self target - should damage the source
         effect = EffectDef("deal_damage", 2, "self")
         engine.effect_resolver.resolve(
-            state, effect, 
+            state, effect,
             EffectResolutionContext(actor=0, source=ally)
         )
         assert state.cards[ally].damage == 5
@@ -245,11 +247,11 @@ class TestEventContextTargets:
         engine, state = setup_effect_game()
         ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
         target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
-        
+
         # Use deal_damage with trigger_subject target
         effect = EffectDef("deal_damage", 2, "trigger_subject")
         engine.effect_resolver.resolve(
-            state, effect, 
+            state, effect,
             EffectResolutionContext(actor=0, source=ally, trigger_subject=target)
         )
         assert state.cards[target].damage == 2
@@ -259,14 +261,14 @@ class TestEventContextTargets:
         engine, state = setup_effect_game()
         ally1 = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
         ally2 = put_card(state, engine, 0, "Filler", ZONE_PLAY, exerted=False, drying=False)
-        
+
         # Use for_each with your_other_characters
         effect = EffectDef("for_each", value="your_other_characters", effects=(EffectDef("exert", target="target"),))
         context = EffectResolutionContext(actor=0, source=ally1)
-        
+
         before_exerted = {cid: state.cards[cid].exerted for cid in [ally1, ally2]}
         engine.effect_resolver.resolve(state, effect, context)
-        
+
         # ally1 (source) should NOT be exerted
         assert state.cards[ally1].exerted == before_exerted[ally1]
         # ally2 (other) SHOULD be exerted
@@ -277,11 +279,11 @@ class TestEventContextTargets:
         engine, state = setup_effect_game()
         ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
         target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
-        
+
         # Use deal_damage with opposing_characters
         effect = EffectDef("deal_damage", 1, "opposing_characters")
         engine.effect_resolver.resolve(
-            state, effect, 
+            state, effect,
             EffectResolutionContext(actor=0, source=ally)
         )
         # Target (opponent character) should have damage
@@ -294,11 +296,11 @@ class TestEventContextTargets:
         engine, state = setup_effect_game()
         ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
         target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
-        
+
         # Use deal_damage with all_characters
         effect = EffectDef("deal_damage", 1, "all_characters")
         engine.effect_resolver.resolve(
-            state, effect, 
+            state, effect,
             EffectResolutionContext(actor=0, source=ally)
         )
         # Both should have damage
@@ -314,17 +316,17 @@ class TestEventPayloadTargets:
         engine, state = setup_effect_game()
         ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
         target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
-        
+
         # Use deal_damage with event_target that has payload
         effect = EffectDef("deal_damage", 2, "event_target")
         context = EffectResolutionContext(
-            actor=0, 
-            source=ally, 
+            actor=0,
+            source=ally,
             target=None,  # No direct target
             event_payload={"event_target_id": target}  # Payload has target
         )
         engine.effect_resolver.resolve(state, effect, context)
-        
+
         assert state.cards[target].damage == 2
 
     def test_trigger_source_target(self):
@@ -332,16 +334,16 @@ class TestEventPayloadTargets:
         engine, state = setup_effect_game()
         ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
         target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
-        
+
         # Use deal_damage with trigger_source (self, essentially)
         effect = EffectDef("deal_damage", 3, "event_source")
         context = EffectResolutionContext(
-            actor=0, 
+            actor=0,
             source=ally,
             trigger_source=ally  # Explicit trigger source
         )
         engine.effect_resolver.resolve(state, effect, context)
-        
+
         assert state.cards[ally].damage == 3
 
 
@@ -352,11 +354,11 @@ class TestPlayerTargets:
         """controller target should resolve to context.actor."""
         engine, state = setup_effect_game()
         initial_lore = state.players[0].lore
-        
+
         # Use gain_lore with controller target
         effect = EffectDef("gain_lore", 3, "controller")
         engine.effect_resolver.resolve(
-            state, effect, 
+            state, effect,
             EffectResolutionContext(actor=0)
         )
         assert state.players[0].lore == initial_lore + 3
@@ -366,11 +368,11 @@ class TestPlayerTargets:
         engine, state = setup_effect_game()
         state.players[1].lore = 5
         initial_lore = state.players[1].lore
-        
+
         # Use lose_lore with opponent target
         effect = EffectDef("lose_lore", 2, "opponent")
         engine.effect_resolver.resolve(
-            state, effect, 
+            state, effect,
             EffectResolutionContext(actor=0)
         )
         assert state.players[1].lore == initial_lore - 2
@@ -379,12 +381,695 @@ class TestPlayerTargets:
         """you target should resolve to context.actor."""
         engine, state = setup_effect_game()
         initial_lore = state.players[0].lore
-        
+
         # Use draw with you target (draws for you)
         effect = EffectDef("draw", 2, "you")
         hand_before = len(state.players[0].hand)
         engine.effect_resolver.resolve(
-            state, effect, 
+            state, effect,
             EffectResolutionContext(actor=0)
         )
         assert len(state.players[0].hand) == hand_before + 2
+
+
+class TestEffectHelperRouting:
+    """Regression tests verifying core effect kinds route through engine-owned helpers.
+
+    These tests spy on the _*_eventful helper methods to prove the effect resolver
+    delegates to the engine boundary rather than mutating state directly.
+    """
+
+    def test_gain_lore_routes_through_engine_helper(self):
+        """gain_lore effect must call _gain_lore_eventful with correct parameters."""
+        engine, state = setup_effect_game()
+        original = engine._gain_lore_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._gain_lore_eventful = spy
+
+        effect = EffectDef("gain_lore", 2, "you")
+        engine.effect_resolver.resolve(state, effect, EffectResolutionContext(actor=0, source=1))
+
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert args[0] is state  # state
+        assert args[1] == 0     # player
+        assert args[2] == 2      # amount
+        assert kwargs.get("source_id") == 1
+
+    def test_lose_lore_routes_through_engine_helper(self):
+        """lose_lore effect must call _lose_lore_eventful with correct parameters."""
+        engine, state = setup_effect_game()
+        state.players[1].lore = 5
+        original = engine._lose_lore_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._lose_lore_eventful = spy
+
+        effect = EffectDef("lose_lore", 2, "opponent")
+        engine.effect_resolver.resolve(state, effect, EffectResolutionContext(actor=0, source=2))
+
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert args[0] is state
+        assert args[1] == 1     # opponent
+        assert args[2] == 2      # amount
+        assert kwargs.get("source_id") == 2
+
+    def test_deal_damage_routes_through_engine_helper(self):
+        """deal_damage effect must call _deal_damage_eventful with is_challenge=False, apply_resist=True."""
+        engine, state = setup_effect_game()
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+
+        original = engine._deal_damage_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._deal_damage_eventful = spy
+
+        effect = EffectDef("deal_damage", 3, "chosen_character")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=5, target=target)
+        )
+
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert args[0] is state
+        assert kwargs.get("target_id") == target
+        assert kwargs.get("source_id") == 5
+        assert kwargs.get("amount") == 3
+        assert kwargs.get("is_challenge") is False
+        assert kwargs.get("apply_resist") is True
+        assert kwargs.get("actor") == 0
+
+    def test_remove_damage_routes_through_engine_helper(self):
+        """remove_damage effect must call _remove_damage_eventful with correct parameters."""
+        engine, state = setup_effect_game()
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False, damage=5)
+
+        original = engine._remove_damage_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._remove_damage_eventful = spy
+
+        effect = EffectDef("remove_damage", 2, "chosen_character")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=6, target=target)
+        )
+
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert args[0] is state  # state
+        assert args[1] == target  # card_id
+        assert args[2] == 2       # amount
+        assert kwargs.get("actor") == 0
+        assert kwargs.get("source_id") == 6
+
+    def test_banish_routes_through_engine_helper(self):
+        """banish effect must call _banish_eventful with reason='effect'."""
+        engine, state = setup_effect_game()
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+
+        original = engine._banish_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._banish_eventful = spy
+
+        effect = EffectDef("banish", target="chosen_character")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=7, target=target)
+        )
+
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert args[0] is state
+        assert args[1] == target  # card_id
+        assert kwargs.get("actor") == 0
+        assert kwargs.get("source_id") == 7
+        assert kwargs.get("reason") == "effect"
+
+    def test_discard_routes_through_engine_helper(self):
+        """discard effect must call _discard_eventful with reason='effect'."""
+        engine, state = setup_effect_game()
+        # Put target card in opponent's hand
+        target = put_card(state, engine, 1, "Target", ZONE_HAND)
+        opponent_hand_before = set(state.players[1].hand)
+
+        original = engine._discard_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._discard_eventful = spy
+
+        # Discard from opponent's hand (random card since "opponent" target)
+        effect = EffectDef("discard", 1, "opponent")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=8)
+        )
+
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert args[0] is state
+        # Verify the discarded card was from opponent's hand before the call
+        discarded_card = args[1]
+        assert discarded_card in opponent_hand_before
+        assert kwargs.get("reason") == "effect"
+
+    def test_discard_random_routes_through_engine_helper(self):
+        """discard effect with no specific target must call _discard_eventful for random cards."""
+        engine, state = setup_effect_game()
+        initial_hand_size = len(state.players[1].hand)
+
+        original = engine._discard_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._discard_eventful = spy
+
+        # Discard 2 random cards from opponent
+        effect = EffectDef("discard", 2, "opponent")
+        engine.effect_resolver.resolve(state, effect, EffectResolutionContext(actor=0, source=9))
+
+        # Should have called _discard_eventful twice for random selection
+        assert len(calls) == 2
+        for args, kwargs in calls:
+            assert args[0] is state
+            assert kwargs.get("reason") == "effect"
+
+    def test_return_to_hand_routes_through_engine_helper(self):
+        """return_to_hand effect must call _return_to_hand_eventful with correct parameters."""
+        engine, state = setup_effect_game()
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+
+        original = engine._return_to_hand_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._return_to_hand_eventful = spy
+
+        effect = EffectDef("return_to_hand", target="chosen_character")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=10, target=target)
+        )
+
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert args[0] is state
+        assert args[1] == target  # card_id
+        assert kwargs.get("actor") == 0
+        assert kwargs.get("source_id") == 10
+
+    def test_ready_routes_through_engine_helper(self):
+        """ready effect must call _ready_eventful with correct parameters."""
+        engine, state = setup_effect_game()
+        target = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=True, drying=False)
+
+        original = engine._ready_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._ready_eventful = spy
+
+        effect = EffectDef("ready", target="chosen_character")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=11, target=target)
+        )
+
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert args[0] is state
+        assert args[1] == target  # card_id
+        assert kwargs.get("actor") == 0
+        assert kwargs.get("source_id") == 11
+
+    def test_exert_routes_through_engine_helper(self):
+        """exert effect must call _exert_eventful with reason='effect'."""
+        engine, state = setup_effect_game()
+        target = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+
+        original = engine._exert_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._exert_eventful = spy
+
+        effect = EffectDef("exert", target="chosen_character")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=12, target=target)
+        )
+
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert args[0] is state
+        assert args[1] == target  # card_id
+        assert kwargs.get("actor") == 0
+        assert kwargs.get("source_id") == 12
+        assert kwargs.get("reason") == "effect"
+
+
+class TestEffectDrawPrivacy:
+    """Tests for effect-driven draw privacy boundaries."""
+
+    def test_effect_draw_emits_private_event_without_card_ids(self):
+        """
+        Effect-driven draws must emit private CARD_DRAWN events.
+
+        This test proves that draw effects do not leak drawn card identities
+        to opponents. The event payload should contain count/private metadata
+        but must NOT include card_ids.
+        """
+        from lorcana_bot.constants import EVENT_CARD_DRAWN
+
+        engine, state = setup_effect_game()
+
+        # Use draw effect (2 cards)
+        effect = EffectDef("draw", 2, "you")
+        hand_before = len(state.players[0].hand)
+
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0)
+        )
+
+        # Cards should be in hand
+        assert len(state.players[0].hand) == hand_before + 2
+
+        # Find the CARD_DRAWN event
+        draw_events = [e for e in state.event_log if e.event_type == EVENT_CARD_DRAWN]
+        assert len(draw_events) >= 1
+        draw_event = draw_events[-1]  # Most recent draw event
+
+        # The event should be private
+        assert draw_event.payload.get("private") is True
+
+        # The event should have count
+        assert draw_event.payload.get("count") == 2
+
+        # The event must NOT have card_ids (privacy boundary)
+        assert "card_ids" not in draw_event.payload
+
+    def test_engine_draw_with_private_false_includes_card_ids(self):
+        """
+        Direct engine draw_cards with private=False should include card_ids.
+
+        This test preserves the existing behavior that explicit non-private
+        draws (like turn-start draws) still include card IDs.
+        """
+        from lorcana_bot.constants import EVENT_CARD_DRAWN
+
+        engine, state = setup_effect_game()
+
+        hand_before = len(state.players[0].hand)
+
+        # Call engine directly with private=False (default)
+        drawn_ids = engine.draw_cards(state, player=0, count=2, private=False)
+
+        # Cards should be in hand
+        assert len(state.players[0].hand) == hand_before + 2
+
+        # Find the CARD_DRAWN event
+        draw_events = [e for e in state.event_log if e.event_type == EVENT_CARD_DRAWN]
+        assert len(draw_events) >= 1
+        draw_event = draw_events[-1]
+
+        # The event should NOT be private
+        assert draw_event.payload.get("private") is False
+
+        # The event should have count
+        assert draw_event.payload.get("count") == 2
+
+        # The event must have card_ids for non-private draws
+        assert "card_ids" in draw_event.payload
+        assert len(draw_event.payload["card_ids"]) == 2
+        assert drawn_ids == draw_event.payload["card_ids"]
+
+
+class TestZoneRoutingEffectRegression:
+    """Regression tests proving zone-routing effect helpers call GameEngine._move_card_eventful.
+
+    These tests verify that every zone-routing effect helper in EffectResolver delegates
+    to the engine's _move_card_eventful boundary rather than mutating state directly.
+    """
+
+    def _spy_move_card(self, engine):
+        """Install spy on _move_card_eventful and return call tracker."""
+        original = engine._move_card_eventful
+        calls = []
+
+        def spy(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+
+        engine._move_card_eventful = spy
+        return calls
+
+    def _find_top_card(self, state, player):
+        """Find the top card of player's deck (index 0)."""
+        if state.players[player].deck:
+            return state.players[player].deck[0]
+        return None
+
+    def test_reveal_top_card_routes_to_hand_via_engine(self):
+        """reveal_top_card effect with destination='hand' must call _move_card_eventful."""
+        engine, state = setup_effect_game()
+
+        # Get the actual top card of deck (don't move it, just reference)
+        top_card_id = self._find_top_card(state, 0)
+        assert top_card_id is not None
+
+        calls = self._spy_move_card(engine)
+
+        # Reveal top card and route to hand
+        effect = EffectDef("reveal_top_card", amount=1, value="hand")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=1)
+        )
+
+        # Must have called _move_card_eventful at least once
+        assert len(calls) >= 1
+        # Check first call - should be moving top card to hand
+        first_call = calls[0]
+        args, kwargs = first_call
+        assert args[0] is state
+        assert args[1] == top_card_id           # card_id
+        assert args[2] == ZONE_HAND               # destination zone
+        assert kwargs.get("actor") == 0            # resolving player
+        assert kwargs.get("source_id") == 1       # source preserved
+
+    def test_reveal_top_card_routes_to_discard_via_engine(self):
+        """reveal_top_card effect with destination='discard' must call _move_card_eventful."""
+        engine, state = setup_effect_game()
+
+        top_card_id = self._find_top_card(state, 0)
+        assert top_card_id is not None
+
+        calls = self._spy_move_card(engine)
+
+        effect = EffectDef("reveal_top_card", amount=1, value="discard")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=2)
+        )
+
+        assert len(calls) >= 1
+        first_call = calls[0]
+        args, kwargs = first_call
+        assert args[1] == top_card_id
+        assert args[2] == ZONE_DISCARD
+        assert kwargs.get("actor") == 0
+        assert kwargs.get("source_id") == 2
+
+    def test_reveal_top_card_character_routes_to_play_via_engine(self):
+        """reveal_top_card effect with destination='play' must call _move_card_eventful for characters."""
+        engine, state = setup_effect_game()
+
+        # Find a character in the deck to be the top card
+        for cid in state.players[0].deck:
+            if engine.card_def(state, cid).card_type == "character":
+                # Move it to the top
+                state.players[0].deck.remove(cid)
+                state.players[0].deck.insert(0, cid)
+                top_card_id = cid
+                break
+        else:
+            top_card_id = self._find_top_card(state, 0)
+
+        calls = self._spy_move_card(engine)
+
+        effect = EffectDef("reveal_top_card", amount=1, value="play")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=3)
+        )
+
+        assert len(calls) >= 1
+        first_call = calls[0]
+        args, kwargs = first_call
+        assert args[1] == top_card_id
+        assert args[2] == ZONE_PLAY
+        assert kwargs.get("actor") == 0
+
+    def test_put_card_in_hand_routes_via_engine(self):
+        """put_card_in_hand effect must call _move_card_eventful with controller=owner."""
+        engine, state = setup_effect_game()
+
+        card_id = put_card(state, engine, 0, "Filler", "discard")
+
+        calls = self._spy_move_card(engine)
+
+        effect = EffectDef("put_card_in_hand")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=4, choice=card_id)
+        )
+
+        assert len(calls) >= 1
+        first_call = calls[0]
+        args, kwargs = first_call
+        assert args[1] == card_id
+        assert args[2] == ZONE_HAND
+        assert kwargs.get("actor") == 0
+        assert kwargs.get("source_id") == 4
+        assert kwargs.get("controller") == state.cards[card_id].owner
+
+    def test_put_card_on_top_routes_via_engine_with_index_0(self):
+        """put_card_on_top effect must call _move_card_eventful with index=0."""
+        engine, state = setup_effect_game()
+
+        card_id = put_card(state, engine, 0, "Filler", "discard")
+
+        calls = self._spy_move_card(engine)
+
+        effect = EffectDef("put_card_on_top")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=5, choice=card_id)
+        )
+
+        assert len(calls) >= 1
+        first_call = calls[0]
+        args, kwargs = first_call
+        assert args[1] == card_id
+        assert args[2] == ZONE_DECK
+        assert kwargs.get("index") == 0  # Top of deck routing
+        assert kwargs.get("actor") == 0
+        assert kwargs.get("source_id") == 5
+
+    def test_put_card_on_bottom_routes_via_engine(self):
+        """put_card_on_bottom effect must call _move_card_eventful."""
+        engine, state = setup_effect_game()
+
+        card_id = put_card(state, engine, 0, "Filler", "hand")
+
+        calls = self._spy_move_card(engine)
+
+        effect = EffectDef("put_card_on_bottom")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=6, choice=card_id)
+        )
+
+        assert len(calls) >= 1
+        first_call = calls[0]
+        args, kwargs = first_call
+        assert args[1] == card_id
+        assert args[2] == ZONE_DECK
+        # No index specified means bottom (default)
+        assert kwargs.get("actor") == 0
+
+    def test_put_card_in_discard_routes_via_engine(self):
+        """put_card_in_discard effect must call _move_card_eventful."""
+        engine, state = setup_effect_game()
+
+        card_id = put_card(state, engine, 0, "Filler", "hand")
+
+        calls = self._spy_move_card(engine)
+
+        effect = EffectDef("put_card_in_discard")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=7, choice=card_id)
+        )
+
+        assert len(calls) >= 1
+        first_call = calls[0]
+        args, kwargs = first_call
+        assert args[1] == card_id
+        assert args[2] == ZONE_DISCARD
+        assert kwargs.get("actor") == 0
+
+    def test_reveal_and_route_hand_via_engine(self):
+        """reveal_and_route effect with destination='hand' must call _move_card_eventful."""
+        engine, state = setup_effect_game()
+
+        top_card_id = self._find_top_card(state, 0)
+        assert top_card_id is not None
+
+        calls = self._spy_move_card(engine)
+
+        effect = EffectDef("reveal_and_route", value="hand")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=8)
+        )
+
+        assert len(calls) >= 1
+        first_call = calls[0]
+        args, kwargs = first_call
+        assert args[1] == top_card_id
+        assert args[2] == ZONE_HAND
+        assert kwargs.get("actor") == 0
+        assert kwargs.get("source_id") == 8
+
+    def test_reveal_and_route_discard_via_engine(self):
+        """reveal_and_route effect with destination='discard' must call _move_card_eventful."""
+        engine, state = setup_effect_game()
+
+        top_card_id = self._find_top_card(state, 0)
+        assert top_card_id is not None
+
+        calls = self._spy_move_card(engine)
+
+        effect = EffectDef("reveal_and_route", value="discard")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=9)
+        )
+
+        assert len(calls) >= 1
+        first_call = calls[0]
+        args, kwargs = first_call
+        assert args[1] == top_card_id
+        assert args[2] == ZONE_DISCARD
+
+    def test_reveal_and_route_play_via_engine_character_only(self):
+        """reveal_and_route effect with destination='play' calls _move_card_eventful for characters."""
+        engine, state = setup_effect_game()
+
+        # Find a character in the deck to be the top card
+        for cid in state.players[0].deck:
+            if engine.card_def(state, cid).card_type == "character":
+                state.players[0].deck.remove(cid)
+                state.players[0].deck.insert(0, cid)
+                top_card_id = cid
+                break
+        else:
+            top_card_id = self._find_top_card(state, 0)
+
+        calls = self._spy_move_card(engine)
+
+        effect = EffectDef("reveal_and_route", value="play")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=10)
+        )
+
+        assert len(calls) >= 1
+        first_call = calls[0]
+        args, kwargs = first_call
+        assert args[1] == top_card_id
+        assert args[2] == ZONE_PLAY
+
+    def test_reveal_top_card_preserves_revealed_flag_before_route(self):
+        """reveal_top_card must mark card as revealed before calling _move_card_eventful."""
+        engine, state = setup_effect_game()
+
+        top_card_id = self._find_top_card(state, 0)
+        assert top_card_id is not None
+        assert state.cards[top_card_id].revealed is False
+
+        calls = self._spy_move_card(engine)
+
+        # Capture the card's revealed state at time of first call
+        revealed_at_call = [False]
+        original_move = engine._move_card_eventful
+
+        def capture_reveal(*args, **kwargs):
+            if revealed_at_call[0] is False:
+                revealed_at_call[0] = state.cards[args[1]].revealed
+            return original_move(*args, **kwargs)
+
+        engine._move_card_eventful = capture_reveal
+
+        effect = EffectDef("reveal_top_card", amount=1, value="hand")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=11)
+        )
+
+        # Card must be marked revealed at time of first _move_card_eventful call
+        assert revealed_at_call[0] is True
+        assert len(calls) >= 1
+
+    def test_reveal_and_route_preserves_revealed_flag_before_route(self):
+        """reveal_and_route must mark card as revealed before calling _move_card_eventful."""
+        engine, state = setup_effect_game()
+
+        top_card_id = self._find_top_card(state, 0)
+        assert top_card_id is not None
+        assert state.cards[top_card_id].revealed is False
+
+        calls = self._spy_move_card(engine)
+
+        # Capture the card's revealed state at time of first call
+        revealed_at_call = [False]
+        original_move = engine._move_card_eventful
+
+        def capture_reveal(*args, **kwargs):
+            if revealed_at_call[0] is False:
+                revealed_at_call[0] = state.cards[args[1]].revealed
+            return original_move(*args, **kwargs)
+
+        engine._move_card_eventful = capture_reveal
+
+        effect = EffectDef("reveal_and_route", value="hand")
+        engine.effect_resolver.resolve(
+            state, effect,
+            EffectResolutionContext(actor=0, source=12)
+        )
+
+        # Card must be marked revealed at time of first _move_card_eventful call
+        assert revealed_at_call[0] is True
+        assert len(calls) >= 1
