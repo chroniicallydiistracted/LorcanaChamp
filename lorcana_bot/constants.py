@@ -14,6 +14,8 @@ ZONE_PLAY = "play"
 ZONE_DISCARD = "discard"
 ZONE_INKWELL = "inkwell"
 ZONE_LIMBO = "limbo"
+# B12: Shift stack zone - cards placed under a shifted character
+ZONE_UNDER = "under"
 
 ACTION_END_TURN = "END_TURN"
 ACTION_INK_CARD = "INK_CARD"

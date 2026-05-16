@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from .constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_INKWELL, ZONE_LIMBO, ZONE_PLAY
+from .constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_INKWELL, ZONE_LIMBO, ZONE_PLAY, ZONE_UNDER
 from .actions import Action
 from .pending_effects import PendingEffect
 from .static_effects import StaticEffectRegistry
@@ -76,6 +76,7 @@ class PlayerState:
     discard: list[int] = field(default_factory=list)
     inkwell: list[int] = field(default_factory=list)
     limbo: list[int] = field(default_factory=list)
+    under: list[int] = field(default_factory=list)
     has_kept_opening_hand: bool = False
     has_mulliganed: bool = False
     mulliganed_card_ids: list[int] = field(default_factory=list)
@@ -259,6 +260,8 @@ class GameState:
             return ps.inkwell
         if zone == ZONE_LIMBO:
             return ps.limbo
+        if zone == ZONE_UNDER:
+            return ps.under
         raise ValueError(f"Unknown zone {zone}")
 
     def next_event_id(self) -> str:

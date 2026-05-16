@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from lorcana_bot.cards import CardDatabase, CardDef
-from lorcana_bot.constants import ZONE_DISCARD, ZONE_HAND, ZONE_LIMBO, ZONE_PLAY
+from lorcana_bot.constants import ZONE_DISCARD, ZONE_HAND, ZONE_PLAY, ZONE_UNDER
 from lorcana_bot.engine import GameEngine
 from lorcana_bot.pending_effects import create_search_pending_effect
 from lorcana_bot.play_modes import execute_shift_play
@@ -65,6 +65,7 @@ def _assert_zone_membership_is_consistent(state: GameState) -> None:
             "discard": state.players[0].discard,
             "inkwell": state.players[0].inkwell,
             "limbo": state.players[0].limbo,
+            "under": state.players[0].under,
         },
         1: {
             "deck": state.players[1].deck,
@@ -73,6 +74,7 @@ def _assert_zone_membership_is_consistent(state: GameState) -> None:
             "discard": state.players[1].discard,
             "inkwell": state.players[1].inkwell,
             "limbo": state.players[1].limbo,
+            "under": state.players[1].under,
         },
     }
     seen: dict[int, tuple[int, str]] = {}
@@ -87,13 +89,13 @@ def _assert_zone_membership_is_consistent(state: GameState) -> None:
     assert set(seen) == set(state.cards)
 
 
-def test_shift_target_moves_to_limbo_and_stack_leaves_play_together() -> None:
+def test_shift_target_moves_to_under_and_stack_leaves_play_together() -> None:
     engine, state = _state_with_shift_stack()
 
     execute_shift_play(state, engine, shifted_card_id=2, target_character_id=1)
 
-    assert state.cards[1].zone == ZONE_LIMBO
-    assert 1 in state.players[0].limbo
+    assert state.cards[1].zone == ZONE_UNDER
+    assert 1 in state.players[0].under
     assert 1 not in state.players[0].play
     assert state.cards[2].cards_under == [1]
     assert state.cards[1].stack_parent_id == 2
@@ -122,6 +124,42 @@ def test_banish_shift_stack_moves_every_card_to_resolved_destination() -> None:
     assert 1 in state.players[0].discard
     assert state.cards[2].cards_under == []
     assert state.cards[1].stack_parent_id is None
+    _assert_zone_membership_is_consistent(state)
+
+
+def test_location_leaving_play_clears_character_location_association() -> None:
+    engine = GameEngine(CardDatabase([
+        CardDef(
+            id="location",
+            full_name="Test Location",
+            ink="amber",
+            cost=2,
+            inkable=True,
+            card_type="location",
+            move_cost=1,
+            willpower=5,
+            lore=1,
+        ),
+        _character("character", "Character"),
+    ]))
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(1, "location", owner=0, controller=0, zone=ZONE_PLAY)
+    state.players[0].play.append(1)
+    state.cards[2] = CardInstance(
+        2,
+        "character",
+        owner=0,
+        controller=0,
+        zone=ZONE_PLAY,
+        location_instance_id=1,
+    )
+    state.players[0].play.append(2)
+
+    engine._move_card_eventful(state, 1, ZONE_DISCARD, actor=0)
+
+    assert state.cards[1].zone == ZONE_DISCARD
+    assert state.cards[2].zone == ZONE_PLAY
+    assert state.cards[2].location_instance_id is None
     _assert_zone_membership_is_consistent(state)
 
 

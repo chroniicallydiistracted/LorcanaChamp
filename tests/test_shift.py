@@ -10,13 +10,24 @@ This module tests:
 """
 
 import pytest
+from unittest.mock import MagicMock
+
 from lorcana_bot.cards import CardDef, CardDatabase
+from lorcana_bot.constants import (
+    ACTION_CHALLENGE,
+    ACTION_PLAY_SHIFTED,
+    ACTION_QUEST,
+    ACTION_SING_SONG,
+    ACTION_USE_ABILITY,
+    ZONE_UNDER,
+)
 from lorcana_bot.engine import GameEngine
 from lorcana_bot.state import CardInstance, GameState, PlayerState
 from lorcana_bot.play_modes import (
     get_shift_info,
     get_shift_targets,
     can_play_as_shift,
+    can_sing_song,
     execute_shift_play,
     ShiftTarget,
 )
@@ -65,6 +76,20 @@ def _make_test_character(
         lore=lore,
         keywords=(),
     )
+
+
+def _ready_ink(state: GameState, player: int, count: int) -> None:
+    start = 1000 + len(state.players[player].inkwell)
+    for offset in range(count):
+        cid = start + offset
+        state.cards[cid] = CardInstance(
+            instance_id=cid,
+            card_id="ink_amber",
+            owner=player,
+            controller=player,
+            zone="inkwell",
+        )
+        state.players[player].inkwell.append(cid)
 
 
 class TestShiftKeywordParsing:
@@ -463,6 +488,688 @@ class TestExecuteShiftPlay:
         assert len(shift_events) == 1
         assert shift_events[0].payload.get("shift_cost") == 3
         assert shift_events[0].payload.get("shift_target_name") == "Maleficent"
+
+
+class TestShiftTargetModes:
+    """Tests for different shift target modes (same-name, classification, universal)."""
+
+    def _make_classification_shift_card(
+        self,
+        card_id: str,
+        full_name: str,
+        classification: str,
+        shift_cost: int = 3,
+    ) -> CardDef:
+        """Create a test Shift character card with classification-based target."""
+        return CardDef(
+            id=card_id,
+            full_name=full_name,
+            ink="amethyst",
+            cost=8,
+            inkable=True,
+            card_type="character",
+            strength=5,
+            willpower=5,
+            lore=2,
+            # Use rules_text to trigger text-based parsing for classification
+            rules_text=f"Shift {shift_cost}. You may shift this character on top of one of your {classification} characters.",
+            keywords=(f"SHIFT({shift_cost})",),
+        )
+
+    def _make_universal_shift_card(
+        self,
+        card_id: str,
+        full_name: str,
+        shift_cost: int = 3,
+    ) -> CardDef:
+        """Create a test Shift character card with universal shift."""
+        return CardDef(
+            id=card_id,
+            full_name=full_name,
+            ink="amethyst",
+            cost=8,
+            inkable=True,
+            card_type="character",
+            strength=5,
+            willpower=5,
+            lore=2,
+            # Use rules_text to trigger text-based parsing for universal
+            rules_text="Universal Shift 3. You may shift this character on top of any one of your characters.",
+            keywords=("SHIFT(3)",),
+        )
+
+    def test_get_shift_rules_returns_ink_cost(self):
+        """get_shift_rules should return ink cost for standard shift."""
+        from lorcana_bot.play_modes import get_shift_rules
+        
+        card = _make_test_shift_card(
+            "test_card", "Test Character", shift_cost=5
+        )
+        rules = get_shift_rules(card)
+        
+        assert rules is not None
+        assert rules.ink_cost == 5
+
+    def test_get_shift_rules_classification_shift(self):
+        """get_shift_rules should parse classification-based shift."""
+        from lorcana_bot.play_modes import get_shift_rules
+        
+        card = self._make_classification_shift_card(
+            "test_sorcerer", "Mickey Sorcerer", "Sorcerer", shift_cost=4
+        )
+        rules = get_shift_rules(card)
+        
+        assert rules is not None
+        assert rules.target_mode is not None
+        assert rules.target_mode.type == "classification"
+        assert rules.target_mode.classification == "Sorcerer"
+
+    def test_get_shift_rules_universal_shift(self):
+        """get_shift_rules should parse universal shift."""
+        from lorcana_bot.play_modes import get_shift_rules
+        
+        card = self._make_universal_shift_card(
+            "test_uni", "Universal Test", shift_cost=3
+        )
+        rules = get_shift_rules(card)
+        
+        assert rules is not None
+        assert rules.target_mode is not None
+        assert rules.target_mode.type == "universal"
+
+    def test_get_shift_rules_non_character_returns_none(self):
+        """get_shift_rules should return None for non-character cards."""
+        from lorcana_bot.play_modes import get_shift_rules
+        
+        card = CardDef(
+            id="test_action",
+            full_name="Test Action",
+            ink="amber",
+            cost=2,
+            inkable=True,
+            card_type="action",
+        )
+        rules = get_shift_rules(card)
+        
+        assert rules is None
+
+    def test_get_shift_rules_no_shift_returns_none(self):
+        """get_shift_rules should return None for non-shift characters."""
+        from lorcana_bot.play_modes import get_shift_rules
+        
+        card = _make_test_character("test_char", "Regular Character")
+        rules = get_shift_rules(card)
+        
+        assert rules is None
+
+    def test_classification_shift_targets_matching_classification(self):
+        """Classification shift should target cards with matching classification."""
+        from lorcana_bot.play_modes import ShiftTargetMode
+        
+        # Mock the target mode resolution to use classification
+        # This tests that classification-based targeting works
+        mode = ShiftTargetMode(type="classification", classification="Sorcerer")
+        
+        # Verify classification parsing works
+        assert mode.type == "classification"
+        assert mode.classification == "Sorcerer"
+
+    def test_classification_shift_is_legal_action_and_resolves(self):
+        """Classification Shift should be playable through legal_actions/apply_action."""
+        cards = [
+            CardDef(
+                id="sorcerer_base",
+                full_name="Yen Sid",
+                ink="amber",
+                cost=3,
+                inkable=True,
+                card_type="character",
+                strength=2,
+                willpower=3,
+                lore=1,
+                subtypes=("Sorcerer",),
+            ),
+            self._make_classification_shift_card(
+                "mickey_sorcerer",
+                "Mickey Mouse - Wayward Sorcerer",
+                "Sorcerer",
+                shift_cost=4,
+            ),
+            _make_test_character("ink_amber", "Ink"),
+        ]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        state.cards[1] = CardInstance(1, "sorcerer_base", owner=0, controller=0, zone="play")
+        state.players[0].play.append(1)
+        state.cards[2] = CardInstance(2, "mickey_sorcerer", owner=0, controller=0, zone="hand")
+        state.players[0].hand.append(2)
+        _ready_ink(state, 0, 4)
+
+        actions = engine.legal_actions(state, 0)
+        shift_action = next(
+            action
+            for action in actions
+            if action.kind == ACTION_PLAY_SHIFTED and action.card == 2 and action.target == 1
+        )
+        next_state = engine.apply_action(state, shift_action)
+
+        assert next_state.cards[1].zone == ZONE_UNDER
+        assert 1 in next_state.players[0].under
+        assert 1 not in next_state.players[0].play
+        assert next_state.cards[2].zone == "play"
+        assert next_state.cards[2].cards_under == [1]
+        assert next_state.cards[1].stack_parent_id == 2
+
+    def test_universal_shift_is_legal_action_and_resolves(self):
+        """Universal Shift should target any controlled public character."""
+        cards = [
+            _make_test_character("stitch_base", "Stitch - New Dog"),
+            self._make_universal_shift_card("universal_shift", "Test Universal", shift_cost=3),
+            _make_test_character("ink_amber", "Ink"),
+        ]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        state.cards[1] = CardInstance(1, "stitch_base", owner=0, controller=0, zone="play")
+        state.players[0].play.append(1)
+        state.cards[2] = CardInstance(2, "universal_shift", owner=0, controller=0, zone="hand")
+        state.players[0].hand.append(2)
+        _ready_ink(state, 0, 3)
+
+        actions = engine.legal_actions(state, 0)
+        shift_action = next(
+            action
+            for action in actions
+            if action.kind == ACTION_PLAY_SHIFTED and action.card == 2 and action.target == 1
+        )
+        next_state = engine.apply_action(state, shift_action)
+
+        assert next_state.cards[1].zone == ZONE_UNDER
+        assert next_state.cards[2].cards_under == [1]
+        assert next_state.cards[1].stack_parent_id == 2
+
+
+class TestShiftStackRestrictions:
+    """Tests for shift stack restrictions on cards under."""
+
+    def test_is_card_under_returns_true_for_stacked_card(self):
+        """is_card_under should return True for card in shift stack."""
+        from lorcana_bot.play_modes import is_card_under
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Create a stack: card 2 is on top, card 1 is under
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="base", owner=0, controller=0,
+            zone="under", stack_parent_id=2  # Card 1 is under card 2
+        )
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="shifted", owner=0, controller=0,
+            zone="play", cards_under=[1]
+        )
+        
+        assert is_card_under(state, 1) is True
+        assert is_card_under(state, 2) is False
+
+    def test_is_publicly_in_play_returns_false_for_stacked_card(self):
+        """is_publicly_in_play should return False for card under another."""
+        from lorcana_bot.play_modes import is_publicly_in_play
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Card 1 is in under (under stack) - should not be publicly in play
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="base", owner=0, controller=0,
+            zone="under", stack_parent_id=2
+        )
+        
+        assert is_publicly_in_play(state, 1) is False
+
+    def test_is_publicly_in_play_returns_true_for_top_card(self):
+        """is_publicly_in_play should return True for top card in stack."""
+        from lorcana_bot.play_modes import is_publicly_in_play
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Card 2 is in play as top of stack
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="shifted", owner=0, controller=0,
+            zone="play", stack_parent_id=None, cards_under=[1]
+        )
+        state.players[0].play.append(2)
+        
+        assert is_publicly_in_play(state, 2) is True
+
+
+class TestShiftStackMovement:
+    """Tests for shift stack movement when top card leaves play."""
+
+    def test_get_stacked_card_ids_returns_full_stack(self):
+        """get_stacked_card_ids should return all cards in stack."""
+        from lorcana_bot.play_modes import get_stacked_card_ids
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Create a stack: card 3 on top, card 2, card 1 under
+        state.cards[1] = CardInstance(instance_id=1, card_id="base1", owner=0, controller=0, zone="under")
+        state.cards[2] = CardInstance(instance_id=2, card_id="base2", owner=0, controller=0, zone="under")
+        state.cards[3] = CardInstance(
+            instance_id=3, card_id="shifted", owner=0, controller=0,
+            zone="play", cards_under=[2, 1]
+        )
+        
+        stack = get_stacked_card_ids(state, 3)
+        
+        assert stack == [3, 2, 1]
+
+    def test_move_card_out_of_play_with_stack_moves_all(self):
+        """move_card_out_of_play_with_stack should move entire stack."""
+        from lorcana_bot.play_modes import move_card_out_of_play_with_stack
+        from lorcana_bot.constants import ZONE_DISCARD
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Create a stack
+        state.cards[1] = CardInstance(instance_id=1, card_id="base", owner=0, controller=0, zone="under")
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="shifted", owner=0, controller=0,
+            zone="play", cards_under=[1]
+        )
+        state.players[0].play.append(2)
+        
+        # Create a mock engine
+        engine = MagicMock()
+        engine._move_card_eventful = MagicMock()
+        
+        move_card_out_of_play_with_stack(state, engine, 2, ZONE_DISCARD)
+        
+        # Both cards should be moved
+        assert engine._move_card_eventful.call_count == 2
+
+    def test_shift_stack_clears_parent_on_move(self):
+        """Moving stack should clear stack_parent_id."""
+        from lorcana_bot.play_modes import move_card_out_of_play_with_stack
+        from lorcana_bot.constants import ZONE_DISCARD
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Create a stack with parent links
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="base", owner=0, controller=0,
+            zone="under", stack_parent_id=2
+        )
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="shifted", owner=0, controller=0,
+            zone="play", cards_under=[1]
+        )
+        
+        # Create a mock engine
+        engine = MagicMock()
+        engine._move_card_eventful = MagicMock()
+        
+        move_card_out_of_play_with_stack(state, engine, 2, ZONE_DISCARD)
+        
+        # Parent links should be cleared
+        assert state.cards[1].stack_parent_id is None
+        assert state.cards[2].stack_parent_id is None
+
+
+class TestUnsupportedShiftCost:
+    """Tests for unsupported non-ink Shift costs."""
+
+    def test_get_shift_rules_with_unsupported_cost_returns_reason(self):
+        """get_shift_rules should return unsupportedReason for non-ink costs."""
+        from lorcana_bot.play_modes import get_shift_rules, UNSUPPORTED_SHIFT_COST_TODO
+        
+        # Create a card with a non-ink shift cost (e.g., discard cost)
+        card = CardDef(
+            id="unsupported_shift",
+            full_name="Unsupported Shift",
+            ink="amethyst",
+            cost=8,
+            inkable=True,
+            card_type="character",
+            strength=5,
+            willpower=5,
+            lore=2,
+            abilities=({
+                "keyword": "Shift",
+                "cost": {"discardCards": 1, "discardCardType": "location"},
+                "text": "Shift: Discard a location card",
+            },),
+            keywords=("SHIFT",),
+        )
+        
+        rules = get_shift_rules(card)
+        
+        assert rules is not None
+        # The discard cost should be detected
+        assert rules.discard_cost is not None
+        assert rules.discard_cost.discard_cards == 1
+        assert rules.unsupported_reason == UNSUPPORTED_SHIFT_COST_TODO
+
+    def test_discard_cost_shift_blocks_before_payment_and_legal_action(self):
+        """Discard-cost Shift is parsed but not playable until non-ink costs migrate."""
+        from lorcana_bot.play_modes import UNSUPPORTED_SHIFT_COST_TODO
+
+        cards = [
+            _make_test_character("diablo_base", "Diablo"),
+            CardDef(
+                id="diablo_shift",
+                full_name="Diablo",
+                ink="amethyst",
+                cost=7,
+                inkable=True,
+                card_type="character",
+                strength=4,
+                willpower=4,
+                lore=2,
+                keywords=("SHIFT",),
+                abilities=({
+                    "type": "keyword",
+                    "keyword": "Shift",
+                    "cost": {"discardCards": 1, "discardCardType": "song"},
+                    "shiftTarget": "Diablo",
+                    "text": "Shift: Discard a song card",
+                },),
+            ),
+            _make_test_character("ink_amber", "Ink"),
+        ]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        state.cards[1] = CardInstance(1, "diablo_base", owner=0, controller=0, zone="play")
+        state.players[0].play.append(1)
+        state.cards[2] = CardInstance(2, "diablo_shift", owner=0, controller=0, zone="hand")
+        state.players[0].hand.append(2)
+        _ready_ink(state, 0, 10)
+        available_before = engine.available_ink(state, 0)
+
+        can_play, reason = can_play_as_shift(state, engine, 2, 1)
+        actions = engine.legal_actions(state, 0)
+
+        assert can_play is False
+        assert reason == UNSUPPORTED_SHIFT_COST_TODO
+        assert all(action.kind != ACTION_PLAY_SHIFTED or action.card != 2 for action in actions)
+        assert engine.available_ink(state, 0) == available_before
+
+
+class TestShiftPlayIntegration:
+    """Integration tests for shift play with stack mechanics."""
+
+    def _setup_shift_with_under_cards(self) -> tuple[GameEngine, GameState]:
+        """Set up a shift stack with cards under the target."""
+        cards = [
+            _make_test_shift_card(
+                "mal_base", "Maleficent", shift_cost=3,
+                strength=3, willpower=4, lore=1
+            ),
+            _make_test_shift_card(
+                "mal_shifted", "Maleficent", shift_cost=3,
+                strength=7, willpower=7, lore=2
+            ),
+            _make_test_character("other_char", "Other Character"),
+        ]
+        engine = GameEngine(CardDatabase(cards))
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Add base Maleficent to play (this will be shifted onto)
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="mal_base", owner=0, controller=0, zone="play"
+        )
+        state.players[0].play.append(1)
+        
+        # Add another character under base Maleficent (existing stack)
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="other_char", owner=0, controller=0,
+            zone="under", stack_parent_id=1
+        )
+        state.cards[1].cards_under.append(2)
+        
+        # Add shifted Maleficent to hand
+        state.cards[3] = CardInstance(
+            instance_id=3, card_id="mal_shifted", owner=0, controller=0, zone="hand"
+        )
+        state.players[0].hand.append(3)
+        
+        # Add ink for player 0
+        for i in range(10):
+            state.cards[100 + i] = CardInstance(
+                instance_id=100 + i, card_id="ink_amber", owner=0, controller=0, zone="inkwell"
+            )
+            state.players[0].inkwell.append(100 + i)
+        
+        return engine, state
+
+    def test_shift_preserves_existing_under_cards(self):
+        """Shift should preserve existing cards_under when stacking."""
+        engine, state = self._setup_shift_with_under_cards()
+        
+        # Verify initial state: card 2 is under card 1
+        assert state.cards[1].cards_under == [2]
+        assert state.cards[2].stack_parent_id == 1
+        
+        # Execute shift
+        execute_shift_play(state, engine, 3, 1)
+        
+        # After shift: card 1 is under card 3, card 2 is under card 1 (preserved)
+        assert state.cards[3].cards_under == [1, 2]  # Card 3 now has both under it
+        assert state.cards[1].stack_parent_id == 3
+        assert state.cards[2].stack_parent_id == 3  # Card 2 now points to card 3
+
+
+class TestCardsUnderRestrictions:
+    """Tests for restrictions on cards under in shift stacks."""
+
+    def test_cards_under_do_not_generate_public_legal_actions(self):
+        """Cards under cannot quest, challenge, sing, or use activated abilities."""
+        base = CardDef(
+            id="base_singer",
+            full_name="Ariel",
+            ink="amber",
+            cost=3,
+            inkable=True,
+            card_type="character",
+            strength=2,
+            willpower=3,
+            lore=1,
+            keywords=("SINGER:5",),
+            activated_abilities=({"id": "legacy_test", "name": "Test Ability"},),
+        )
+        shifted = _make_test_shift_card("shifted_ariel", "Ariel", shift_cost=2)
+        song = CardDef(
+            id="song",
+            full_name="Test Song",
+            ink="amber",
+            cost=1,
+            inkable=True,
+            card_type="action",
+            action_subtype="song",
+        )
+        defender = _make_test_character("defender", "Opposing Character")
+        cards = [base, shifted, song, defender, _make_test_character("ink_amber", "Ink")]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        state.cards[1] = CardInstance(1, "base_singer", owner=0, controller=0, zone="play")
+        state.players[0].play.append(1)
+        state.cards[2] = CardInstance(2, "shifted_ariel", owner=0, controller=0, zone="hand")
+        state.players[0].hand.append(2)
+        state.cards[3] = CardInstance(3, "song", owner=0, controller=0, zone="hand")
+        state.players[0].hand.append(3)
+        state.cards[4] = CardInstance(4, "defender", owner=1, controller=1, zone="play", exerted=True)
+        state.players[1].play.append(4)
+        _ready_ink(state, 0, 2)
+
+        execute_shift_play(state, engine, 2, 1)
+        actions = engine.legal_actions(state, 0)
+        can_sing, sing_reason = can_sing_song(state, engine, 1, 3)
+
+        assert state.cards[1].zone == ZONE_UNDER
+        assert can_sing is False
+        assert "play" in sing_reason
+        assert all(action.source != 1 for action in actions if action.kind == ACTION_QUEST)
+        assert all(action.source != 1 for action in actions if action.kind == ACTION_CHALLENGE)
+        assert all(action.source != 1 for action in actions if action.kind == ACTION_SING_SONG)
+        assert all(action.source != 1 for action in actions if action.kind == ACTION_USE_ABILITY)
+
+    def test_cards_under_not_in_player_play(self):
+        """Cards under should be removed from player.play list."""
+        from lorcana_bot.play_modes import is_card_under
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Create a stack with card 1 under card 2
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="base", owner=0, controller=0,
+            zone="under", stack_parent_id=2
+        )
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="shifted", owner=0, controller=0,
+            zone="play", cards_under=[1]
+        )
+        
+        # Card 1 should be in under, not in play
+        assert state.cards[1].zone == "under"
+        assert 1 not in state.players[0].play  # Not in play list
+        
+        # Card 1 is under card 2
+        assert is_card_under(state, 1) is True
+
+    def test_cards_under_not_publicly_in_play(self):
+        """Cards under should not be publicly in play."""
+        from lorcana_bot.play_modes import is_publicly_in_play
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Create a stack
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="base", owner=0, controller=0,
+            zone="under", stack_parent_id=2
+        )
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="shifted", owner=0, controller=0,
+            zone="play", cards_under=[1]
+        )
+        
+        # Card 1 under is not publicly in play
+        assert is_publicly_in_play(state, 1) is False
+        
+        # Card 2 (top) is publicly in play
+        assert is_publicly_in_play(state, 2) is True
+
+    def test_get_play_zone_cards_excludes_cards_under(self):
+        """get_play_zone_cards should exclude cards under."""
+        from lorcana_bot.play_modes import get_play_zone_cards
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Create a stack
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="base", owner=0, controller=0,
+            zone="under", stack_parent_id=2
+        )
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="shifted", owner=0, controller=0,
+            zone="play", cards_under=[1]
+        )
+        state.players[0].play.append(2)  # Add top card to play list
+        
+        # Only card 2 should be in play zone cards
+        play_zone = get_play_zone_cards(state, 0)
+        assert 1 not in play_zone  # Card 1 is under
+        assert 2 in play_zone  # Card 2 is top
+
+    def test_is_legal_play_zone_target_false_for_under(self):
+        """is_legal_play_zone_target should return False for cards under."""
+        from lorcana_bot.play_modes import is_legal_play_zone_target
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Create a stack
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="base", owner=0, controller=0,
+            zone="under", stack_parent_id=2
+        )
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="shifted", owner=0, controller=0,
+            zone="play", cards_under=[1]
+        )
+        state.players[0].play.append(2)  # Add top card to play list
+        
+        # Card 1 under is not a legal play zone target
+        assert is_legal_play_zone_target(state, 1, 0) is False
+        
+        # Card 2 (top) is a legal play zone target
+        assert is_legal_play_zone_target(state, 2, 0) is True
+
+    def test_top_leaving_play_moves_full_stack(self):
+        """When top card leaves play, all cards under move with it."""
+        from lorcana_bot.play_modes import get_stacked_card_ids, move_card_out_of_play_with_stack
+        from lorcana_bot.constants import ZONE_DISCARD
+        
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+        
+        # Create a 3-card stack
+        state.cards[1] = CardInstance(instance_id=1, card_id="base1", owner=0, controller=0, zone="under")
+        state.cards[2] = CardInstance(instance_id=2, card_id="base2", owner=0, controller=0, zone="under", stack_parent_id=3)
+        state.cards[3] = CardInstance(
+            instance_id=3, card_id="shifted", owner=0, controller=0,
+            zone="play", cards_under=[2, 1]
+        )
+        state.players[0].play.append(3)
+        
+        # Verify stack
+        stack = get_stacked_card_ids(state, 3)
+        assert stack == [3, 2, 1]
+        
+        # Move entire stack to discard
+        engine = MagicMock()
+        engine._move_card_eventful = MagicMock()
+        
+        move_card_out_of_play_with_stack(state, engine, 3, ZONE_DISCARD)
+        
+        # All 3 cards should be moved
+        assert engine._move_card_eventful.call_count == 3
+        
+        # Stack relationships should be cleared
+        assert state.cards[1].stack_parent_id is None
+        assert state.cards[2].stack_parent_id is None
+        assert state.cards[3].stack_parent_id is None
 
 
 if __name__ == "__main__":

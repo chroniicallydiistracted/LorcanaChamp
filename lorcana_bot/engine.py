@@ -66,6 +66,7 @@ from .constants import (
     ZONE_INKWELL,
     ZONE_LIMBO,
     ZONE_PLAY,
+    ZONE_UNDER,
 )
 from .state import ActionLogEntry, BagEffectEntry, CardInstance, GameEvent, GameState, PlayerState
 from .effect_types import EffectResolutionContext
@@ -891,7 +892,7 @@ class GameEngine:
         """Move one card through the engine event boundary."""
         if card_id not in state.cards:
             raise IllegalActionError(f"Unknown card instance {card_id}")
-        if destination not in {ZONE_DECK, ZONE_HAND, ZONE_PLAY, ZONE_DISCARD, ZONE_INKWELL, ZONE_LIMBO}:
+        if destination not in {ZONE_DECK, ZONE_HAND, ZONE_PLAY, ZONE_DISCARD, ZONE_INKWELL, ZONE_LIMBO, ZONE_UNDER}:
             raise IllegalActionError(f"Unknown destination zone {destination}")
 
         inst = state.cards[card_id]
@@ -906,6 +907,19 @@ class GameEngine:
         if from_zone == ZONE_PLAY and destination != ZONE_PLAY:
             deregister_static_effects_for_card(state, card_id)
             deregister_replacement_effects_from_card(state, card_id)
+
+        leaving_location_ids: set[int] = set()
+        if from_zone == ZONE_PLAY and destination != ZONE_PLAY:
+            for moved_id in stacked_card_ids:
+                try:
+                    if self.card_def(state, moved_id).card_type == CARD_LOCATION:
+                        leaving_location_ids.add(moved_id)
+                except KeyError:
+                    continue
+        if leaving_location_ids:
+            for other in state.cards.values():
+                if other.location_instance_id in leaving_location_ids:
+                    other.location_instance_id = None
 
         state.move_card(card_id, destination, controller=controller, index=index)
         for stacked_id in stacked_card_ids[1:]:
