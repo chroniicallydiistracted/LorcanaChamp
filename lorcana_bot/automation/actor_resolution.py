@@ -18,12 +18,12 @@ class ActorResolution:
 
 def resolve_current_actor(state: GameState, engine: GameEngine) -> ActorResolution:
     """Resolve the current actor for automation decisions.
-    
+
     Priority (mirrors GameRunner.play()):
     1. Pending effect chooser
-    2. Bag resolver  
+    2. Bag resolver
     3. Active player
-    
+
     This ordering ensures resolution happens before normal gameplay.
     """
     # 1. Check for pending effects - the chooser acts even when not active player

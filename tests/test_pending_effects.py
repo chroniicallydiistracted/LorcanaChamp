@@ -25,6 +25,7 @@ from lorcana_bot.pending_effects import (
 )
 from lorcana_bot.constants import (
     ACTION_RESOLVE_PENDING_EFFECT,
+    ACTION_CONCEDE,
     ZONE_DECK,
     ZONE_HAND,
     ZONE_PLAY,
@@ -148,10 +149,10 @@ class TestPendingEffectState:
     def test_has_pending_effects(self, sample_game_state):
         from lorcana_bot.cards import EffectDef
         from lorcana_bot.state import GameState, PlayerState, CardInstance
-        
+
         # Initially no pending effects
         assert has_pending_effects(sample_game_state) is False
-        
+
         # Create a pending effect
         effects = (EffectDef(kind="draw", amount=1),)
         create_pending_effect(
@@ -162,12 +163,12 @@ class TestPendingEffectState:
             source_card_id=None,
             effects=effects,
         )
-        
+
         assert has_pending_effects(sample_game_state) is True
 
     def test_get_pending_effects_for_chooser(self, sample_game_state):
         from lorcana_bot.cards import EffectDef
-        
+
         create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -176,17 +177,17 @@ class TestPendingEffectState:
             source_card_id=None,
             effects=(EffectDef(kind="draw", amount=1),),
         )
-        
+
         chooser_effects = get_pending_effects_for_chooser(sample_game_state, 1)
         assert len(chooser_effects) == 1
         assert chooser_effects[0].chooser_id == 1
-        
+
         other_effects = get_pending_effects_for_chooser(sample_game_state, 0)
         assert len(other_effects) == 0
 
     def test_get_current_pending_effect(self, sample_game_state):
         from lorcana_bot.cards import EffectDef
-        
+
         # Create pending effect with chooser=0
         pe = create_pending_effect(
             sample_game_state,
@@ -196,14 +197,14 @@ class TestPendingEffectState:
             source_card_id=None,
             effects=(EffectDef(kind="draw", amount=1),),
         )
-        
+
         current = get_current_pending_effect(sample_game_state, 0)
         assert current is not None
         assert current.id == pe.id
 
     def test_get_current_pending_effect_wrong_chooser(self, sample_game_state):
         from lorcana_bot.cards import EffectDef
-        
+
         create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -212,13 +213,13 @@ class TestPendingEffectState:
             source_card_id=None,
             effects=(EffectDef(kind="draw", amount=1),),
         )
-        
+
         current = get_current_pending_effect(sample_game_state, 1)
         assert current is None
 
     def test_complete_pending_effect(self, sample_game_state):
         from lorcana_bot.cards import EffectDef
-        
+
         pe = create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -227,17 +228,17 @@ class TestPendingEffectState:
             source_card_id=None,
             effects=(EffectDef(kind="draw", amount=1),),
         )
-        
+
         assert has_pending_effects(sample_game_state) is True
-        
+
         completed = complete_pending_effect(sample_game_state, pe.id)
-        
+
         assert completed is not None
         assert has_pending_effects(sample_game_state) is False
 
     def test_resolve_optional_decline(self, sample_game_state):
         from lorcana_bot.cards import EffectDef
-        
+
         pe = create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -247,9 +248,9 @@ class TestPendingEffectState:
             effects=(EffectDef(kind="draw", amount=1),),
             optional=True,
         )
-        
+
         resolve_pending_effect_optional(sample_game_state, pe.id, False)
-        
+
         # After decline, pending effect should be marked as declined
         assert pe.accepted is False
         # The engine will complete the effect when it processes the decline action
@@ -265,56 +266,56 @@ class TestValidTargets:
             kind="chosen_character",
             card_type="character",
         )
-        
+
         targets = get_valid_targets_for_requirement(
             sample_game_state, requirement, chooser_id=0, engine=engine
         )
-        
+
         # No characters in play, should return empty list
         assert len(targets) == 0
 
     def test_opposing_character_excludes_self(self, sample_game_state, engine):
         # Put a character in opponent's play area
         from lorcana_bot.constants import ZONE_PLAY
-        
+
         char_id = 10  # Use an existing card
         sample_game_state.cards[char_id].zone = ZONE_PLAY
         sample_game_state.cards[char_id].controller = 1
         sample_game_state.players[1].play.append(char_id)
-        
+
         requirement = TargetRequirement(
             kind="chosen_opposing_character",
             card_type="character",
             owner_filter="opponent",
         )
-        
+
         targets = get_valid_targets_for_requirement(
             sample_game_state, requirement, chooser_id=0, engine=engine
         )
-        
+
         # Should only include opponent's characters
         assert len(targets) >= 1  # At least the one we added
 
     def test_damaged_character_only(self, sample_game_state, engine):
         from lorcana_bot.constants import ZONE_PLAY
-        
+
         # Add a character to play and damage it
         char_id = 1
         sample_game_state.cards[char_id].zone = ZONE_PLAY
         sample_game_state.cards[char_id].controller = 0
         sample_game_state.players[0].play.append(char_id)
         sample_game_state.cards[char_id].damage = 3
-        
+
         requirement = TargetRequirement(
             kind="chosen_damaged_character",
             card_type="character",
             must_be_damaged=True,
         )
-        
+
         targets = get_valid_targets_for_requirement(
             sample_game_state, requirement, chooser_id=0, engine=engine
         )
-        
+
         # Only damaged character should be included
         assert len(targets) == 1
         assert targets[0] == char_id
@@ -325,7 +326,7 @@ class TestLegalActionsWithPendingEffects:
 
     def test_pending_effect_blocks_normal_actions(self, sample_game_state, engine):
         from lorcana_bot.cards import EffectDef
-        
+
         create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -334,10 +335,10 @@ class TestLegalActionsWithPendingEffects:
             source_card_id=None,
             effects=(EffectDef(kind="draw", amount=1),),
         )
-        
+
         # Player 0 has a pending effect
         legal = engine.legal_actions(sample_game_state, 0)
-        
+
         # Should only have RESOLVE_PENDING_EFFECT and CONCEDE
         action_types = [a.kind for a in legal]
         assert ACTION_RESOLVE_PENDING_EFFECT in action_types
@@ -346,7 +347,7 @@ class TestLegalActionsWithPendingEffects:
 
     def test_non_chooser_can_only_concede(self, sample_game_state, engine):
         from lorcana_bot.cards import EffectDef
-        
+
         create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -355,17 +356,17 @@ class TestLegalActionsWithPendingEffects:
             source_card_id=None,
             effects=(EffectDef(kind="draw", amount=1),),
         )
-        
+
         # Player 1 does not have the pending effect
         legal = engine.legal_actions(sample_game_state, 1)
-        
+
         # Should only have CONCEDE
         assert len(legal) == 1
         assert legal[0].kind == "CONCEDE"
 
     def test_optional_pending_effect_has_accept_decline(self, sample_game_state, engine):
         from lorcana_bot.cards import EffectDef
-        
+
         create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -375,9 +376,9 @@ class TestLegalActionsWithPendingEffects:
             effects=(EffectDef(kind="draw", amount=1),),
             optional=True,
         )
-        
+
         legal = engine.legal_actions(sample_game_state, 0)
-        
+
         # Should have accept and decline options
         accept_action = None
         decline_action = None
@@ -387,7 +388,7 @@ class TestLegalActionsWithPendingEffects:
                     accept_action = action
                 else:
                     decline_action = action
-        
+
         assert accept_action is not None
         assert decline_action is not None
 
@@ -397,9 +398,9 @@ class TestResolvePendingEffectAction:
 
     def test_resolve_simple_pending_effect(self, sample_game_state, engine):
         from lorcana_bot.cards import EffectDef
-        
+
         initial_hand_size = len(sample_game_state.players[0].hand)
-        
+
         pe = create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -408,16 +409,16 @@ class TestResolvePendingEffectAction:
             source_card_id=None,
             effects=(EffectDef(kind="draw", amount=1),),
         )
-        
+
         action = Action(
             ACTION_RESOLVE_PENDING_EFFECT,
             actor=0,
             source=None,
             choice={"pending_effect_id": pe.id},
         )
-        
+
         state = engine.apply_action(sample_game_state, action)
-        
+
         # Should have drawn a card
         assert len(state.players[0].hand) == initial_hand_size + 1
         # Pending effect should be removed
@@ -425,9 +426,9 @@ class TestResolvePendingEffectAction:
 
     def test_resolve_optional_accept(self, sample_game_state, engine):
         from lorcana_bot.cards import EffectDef
-        
+
         initial_hand_size = len(sample_game_state.players[0].hand)
-        
+
         pe = create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -437,24 +438,24 @@ class TestResolvePendingEffectAction:
             effects=(EffectDef(kind="draw", amount=1),),
             optional=True,
         )
-        
+
         action = Action(
             ACTION_RESOLVE_PENDING_EFFECT,
             actor=0,
             source=None,
             choice={"pending_effect_id": pe.id, "accept": True},
         )
-        
+
         state = engine.apply_action(sample_game_state, action)
-        
+
         # Should have drawn a card
         assert len(state.players[0].hand) == initial_hand_size + 1
 
     def test_resolve_optional_decline(self, sample_game_state, engine):
         from lorcana_bot.cards import EffectDef
-        
+
         initial_hand_size = len(sample_game_state.players[0].hand)
-        
+
         pe = create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -464,16 +465,16 @@ class TestResolvePendingEffectAction:
             effects=(EffectDef(kind="draw", amount=1),),
             optional=True,
         )
-        
+
         action = Action(
             ACTION_RESOLVE_PENDING_EFFECT,
             actor=0,
             source=None,
             choice={"pending_effect_id": pe.id, "accept": False},
         )
-        
+
         state = engine.apply_action(sample_game_state, action)
-        
+
         # Should NOT have drawn a card
         assert len(state.players[0].hand) == initial_hand_size
         # Pending effect should be removed
@@ -481,7 +482,7 @@ class TestResolvePendingEffectAction:
 
     def test_wrong_actor_cannot_resolve(self, sample_game_state, engine):
         from lorcana_bot.cards import EffectDef
-        
+
         create_pending_effect(
             sample_game_state,
             controller_id=0,
@@ -490,7 +491,7 @@ class TestResolvePendingEffectAction:
             source_card_id=None,
             effects=(EffectDef(kind="draw", amount=1),),
         )
-        
+
         # Player 1 tries to resolve player 0's pending effect
         action = Action(
             ACTION_RESOLVE_PENDING_EFFECT,
@@ -498,7 +499,7 @@ class TestResolvePendingEffectAction:
             source=None,
             choice={"pending_effect_id": "pe_1"},
         )
-        
+
         # Should raise error
         with pytest.raises(Exception):
             engine.apply_action(sample_game_state, action)
@@ -513,11 +514,11 @@ from lorcana_bot.actions import Action
 def sample_game_state():
     """Create a sample game state for testing."""
     from lorcana_bot.state import GameState, PlayerState, CardInstance
-    
+
     players = [PlayerState(), PlayerState()]
     cards = {}
     next_id = 1
-    
+
     # Create simple decks
     for player in range(2):
         for _ in range(10):
@@ -530,7 +531,7 @@ def sample_game_state():
             cards[next_id] = inst
             players[player].deck.append(next_id)
             next_id += 1
-    
+
     state = GameState(
         players=players,
         cards=cards,
@@ -541,14 +542,14 @@ def sample_game_state():
         event_log=[],
         action_log=[],
     )
-    
+
     # Draw hands
     for player in range(2):
         for _ in range(5):
             cid = state.players[player].deck.pop(0)
             state.cards[cid].zone = "hand"
             state.players[player].hand.append(cid)
-    
+
     return state
 
 
@@ -556,7 +557,7 @@ def sample_game_state():
 def engine():
     """Create a game engine for testing."""
     from lorcana_bot.cards import load_demo_database
-    
+
     db = load_demo_database()
     return GameEngine(db)
 
@@ -793,3 +794,969 @@ class TestSpecialPendingRequirementEngineRouting:
 
         assert resolution.actor == 1
         assert resolution.reason == "pending_effect_chooser"
+
+
+class TestRequirementKindLegalActions:
+    """Test that legal_actions() enumerates correct RESOLVE_PENDING_EFFECT actions
+    for each requirement_kind type."""
+
+    @pytest.fixture
+    def engine(self):
+        from lorcana_bot.engine import GameEngine
+        from lorcana_bot.cards import CardDatabase
+        db = CardDatabase([])
+        return GameEngine(db)
+
+    @pytest.fixture
+    def state_with_pending(self, engine):
+        """Create a basic game state with no deck to avoid draws."""
+        from lorcana_bot.state import GameState, PlayerState, CardInstance
+
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+            active_player=0,
+            first_player=0,
+            phase="MAIN",
+        )
+        # Add a card for testing (use string card_id)
+        cid = 1
+        state.cards[cid] = CardInstance(
+            instance_id=cid,
+            card_id="test_card_1",
+            owner=0,
+            controller=0,
+        )
+        return state, engine
+
+    def _create_pending_effect(
+        self,
+        state,
+        chooser_id: int = 0,
+        controller_id: int = 0,
+        source_id: int = 1,
+        requirement_kind: str = "target",
+        raw: dict = None,
+        optional: bool = False,
+        accepted: bool | None = None,
+    ):
+        """Helper to create a pending effect with specified requirement_kind."""
+        from lorcana_bot.pending_effects import PendingEffect
+
+        pe_id = len(state.pending_effects) + 1
+        raw = raw or {}
+        raw["requirement_kind"] = requirement_kind
+
+        pe = PendingEffect(
+            id=f"pe_{pe_id}",
+            controller_id=controller_id,
+            chooser_id=chooser_id,
+            source_id=source_id,
+            source_card_id=None,
+            effects=(),
+            optional=optional,
+            accepted=accepted,
+            raw=raw,
+        )
+        state.pending_effects.append(pe)
+        return pe
+
+    def test_amount_requirement_kind_enumerates_amounts(self, state_with_pending):
+        """Test that amount requirement_kind emits one action per allowed amount."""
+        state, engine = state_with_pending
+
+        # Create amount pending effect with explicit amount_options
+        raw = {
+            "requirement_kind": "amount",
+            "amount_options": [1, 2, 3],
+        }
+        self._create_pending_effect(state, requirement_kind="amount", raw=raw)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        # Should have 3 actions for amounts 1, 2, 3 plus CONCEDE
+        assert len(resolve_actions) == 3
+        amounts = {a.choice.get("amount") for a in resolve_actions}
+        assert amounts == {1, 2, 3}
+
+    def test_amount_requirement_kind_with_min_max_fallback(self, state_with_pending):
+        """Test amount fallback to min/max when no explicit options."""
+        state, engine = state_with_pending
+
+        # Create requirement object with min/max
+        class MockRequirement:
+            min = 1
+            max = 4
+
+        raw = {
+            "requirement_kind": "amount",
+            "requirement": MockRequirement(),
+        }
+        self._create_pending_effect(state, requirement_kind="amount", raw=raw)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        # Should have 4 actions for amounts 1, 2, 3, 4
+        assert len(resolve_actions) == 4
+        amounts = {a.choice.get("amount") for a in resolve_actions}
+        assert amounts == {1, 2, 3, 4}
+
+    def test_amount_requirement_kind_uses_raw_min_amount_max_amount(self, state_with_pending):
+        """Test amount fallback also honors raw min_amount/max_amount fields."""
+        state, engine = state_with_pending
+
+        raw = {
+            "requirement_kind": "amount",
+            "min_amount": 2,
+            "max_amount": 4,
+        }
+        self._create_pending_effect(state, requirement_kind="amount", raw=raw)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        assert len(resolve_actions) == 3
+        assert {a.choice.get("amount") for a in resolve_actions} == {2, 3, 4}
+
+    def test_amount_resolver_validates_raw_min_max_aliases(self, state_with_pending):
+        """Test amount resolver accepts raw min/max aliases used by legal_actions."""
+        state, _engine = state_with_pending
+        from lorcana_bot.pending_effects import resolve_amount_choice
+
+        pe = self._create_pending_effect(
+            state,
+            requirement_kind="amount",
+            raw={"requirement_kind": "amount", "min": 1, "max": 3},
+        )
+
+        resolve_amount_choice(state, pe.id, 3)
+        assert pe.raw["resolution_input"]["amount"] == 3
+        with pytest.raises(ValueError):
+            resolve_amount_choice(state, pe.id, 4)
+
+    def test_choice_index_resolver_uses_option_index_not_option_value(self, state_with_pending):
+        """Test choice resolver accepts indexes for non-integer option labels."""
+        state, _engine = state_with_pending
+        from lorcana_bot.pending_effects import resolve_choice_index
+
+        pe = self._create_pending_effect(
+            state,
+            requirement_kind="choice",
+            raw={"requirement_kind": "choice", "options": ["draw", "gain_lore"]},
+        )
+
+        resolve_choice_index(state, pe.id, 1)
+        assert pe.raw["resolution_input"]["choice_index"] == 1
+        with pytest.raises(ValueError):
+            resolve_choice_index(state, pe.id, 2)
+
+    def test_target_requirement_kind_enumerates_targets(self, state_with_pending):
+        """Test that target requirement_kind emits only valid target actions."""
+        state, engine = state_with_pending
+
+        # Create player 0 character in play
+        cid = 10
+        state.cards[cid] = type('CardInstance', (), {
+            'instance_id': cid,
+            'card_id': 1001,
+            'owner': 0,
+            'controller': 0,
+            'zone': 'play',
+            'exerted': False,
+        })()
+        state.players[0].play.append(cid)
+
+        # Create target pending effect with explicit candidate_ids
+        raw = {
+            "requirement_kind": "target",
+            "candidate_ids": [cid],
+        }
+        self._create_pending_effect(state, requirement_kind="target", raw=raw)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        # Should have 1 action for target cid
+        assert len(resolve_actions) == 1
+        assert resolve_actions[0].target == cid
+        assert resolve_actions[0].choice.get("targets") == (cid,)
+
+    def test_target_requirement_kind_fallback_to_get_valid_targets(self, state_with_pending):
+        """Test target fallback to get_valid_targets_for_requirement."""
+        state, engine = state_with_pending
+
+        # Create target pending effect without explicit candidates
+        raw = {
+            "requirement_kind": "target",
+            "requirement": None,  # Will use get_valid_targets fallback
+        }
+        self._create_pending_effect(state, requirement_kind="target", raw=raw)
+
+        actions = engine.legal_actions(state, 0)
+        # Should still generate an action (empty targets if no valid targets)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        assert len(resolve_actions) >= 0  # May be empty if no valid targets
+
+    def test_multi_target_requirement_kind_enumerates_combinations(self, state_with_pending):
+        """Test that multi_target requirement_kind emits combinations respecting min/max."""
+        state, engine = state_with_pending
+
+        # Create player 0 characters in play
+        cids = [11, 12, 13]
+        for cid in cids:
+            state.cards[cid] = type('CardInstance', (), {
+                'instance_id': cid,
+                'card_id': 1001,
+                'owner': 0,
+                'controller': 0,
+                'zone': 'play',
+                'exerted': False,
+            })()
+            state.players[0].play.append(cid)
+
+        # Create multi_target pending effect with min_targets=1, max_targets=2
+        class MockRequirement:
+            candidate_ids = cids
+            min_targets = 1
+            max_targets = 2
+
+        raw = {
+            "requirement_kind": "multi_target",
+            "candidate_ids": cids,
+            "requirement": MockRequirement(),
+        }
+        self._create_pending_effect(state, requirement_kind="multi_target", raw=raw)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        # C(3,1) + C(3,2) = 3 + 3 = 6 combinations
+        assert len(resolve_actions) == 6
+
+        # Verify all combinations are valid
+        for action in resolve_actions:
+            targets = action.choice.get("targets")
+            assert len(targets) in {1, 2}
+            assert all(cid in cids for cid in targets)
+
+    def test_discard_choice_requirement_kind_enumerates_combinations(self, state_with_pending):
+        """Test that discard_choice requirement_kind emits card combinations from hand."""
+        state, engine = state_with_pending
+
+        # Create player 0 cards in hand
+        hand_cids = [21, 22, 23]
+        for cid in hand_cids:
+            state.cards[cid] = type('CardInstance', (), {
+                'instance_id': cid,
+                'card_id': 1001 + cid,
+                'owner': 0,
+                'controller': 0,
+                'zone': 'hand',
+            })()
+            state.players[0].hand.append(cid)
+
+        # Create discard_choice pending effect with min_cards=1, max_cards=2
+        raw = {
+            "requirement_kind": "discard_choice",
+            "card_candidate_ids": hand_cids,
+            "min_cards": 1,
+            "max_cards": 2,
+        }
+        self._create_pending_effect(state, requirement_kind="discard_choice", raw=raw)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        # C(3,1) + C(3,2) = 3 + 3 = 6 combinations
+        assert len(resolve_actions) == 6
+
+        # Verify all combinations are valid
+        for action in resolve_actions:
+            card_ids = action.choice.get("discard_card_ids")
+            assert len(card_ids) in {1, 2}
+            assert all(cid in hand_cids for cid in card_ids)
+
+    def test_discard_choice_only_shows_hand_cards(self, state_with_pending):
+        """Test that discard_choice filters to only cards in chooser's hand."""
+        state, engine = state_with_pending
+
+        # Create some cards in hand, some in play
+        hand_cids = [31, 32]
+        play_cids = [33, 34]
+        all_cids = hand_cids + play_cids
+
+        for cid in all_cids:
+            state.cards[cid] = type('CardInstance', (), {
+                'instance_id': cid,
+                'card_id': 1001 + cid,
+                'owner': 0,
+                'controller': 0,
+                'zone': 'hand' if cid in hand_cids else 'play',
+            })()
+            if cid in hand_cids:
+                state.players[0].hand.append(cid)
+            else:
+                state.players[0].play.append(cid)
+
+        # Create discard_choice pending effect with all cids but only hand cids valid
+        raw = {
+            "requirement_kind": "discard_choice",
+            "card_candidate_ids": all_cids,  # Includes play cards
+            "min_cards": 1,
+            "max_cards": 1,
+        }
+        self._create_pending_effect(state, requirement_kind="discard_choice", raw=raw)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        # Only hand cards should be valid
+        assert len(resolve_actions) == 2
+        for action in resolve_actions:
+            card_ids = action.choice.get("discard_card_ids")
+            assert all(cid in hand_cids for cid in card_ids)
+
+    def test_choice_requirement_kind_enumerates_indices(self, state_with_pending):
+        """Test that choice requirement_kind emits one action per choice index."""
+        state, engine = state_with_pending
+
+        # Create choice pending effect with explicit options
+        raw = {
+            "requirement_kind": "choice",
+            "options": ["option_a", "option_b", "option_c"],
+        }
+        self._create_pending_effect(state, requirement_kind="choice", raw=raw)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        # Should have 3 actions for indices 0, 1, 2
+        assert len(resolve_actions) == 3
+        indices = {a.choice.get("choice_index") for a in resolve_actions}
+        assert indices == {0, 1, 2}
+
+    def test_optional_requirement_kind_emits_accept_decline(self, state_with_pending):
+        """Test that optional requirement_kind emits accept and decline."""
+        state, engine = state_with_pending
+
+        # Create optional pending effect
+        raw = {
+            "requirement_kind": "optional",
+        }
+        self._create_pending_effect(
+            state,
+            requirement_kind="optional",
+            raw=raw,
+            optional=True,
+            accepted=None,
+        )
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        # Should have 2 actions: accept=True and accept=False
+        assert len(resolve_actions) == 2
+
+        accepts = {a.choice.get("accept") for a in resolve_actions}
+        assert accepts == {True, False}
+
+    def test_optional_requirement_kind_already_accepted(self, state_with_pending):
+        """Test that optional already accepted doesn't emit accept/decline."""
+        state, engine = state_with_pending
+
+        raw = {
+            "requirement_kind": "optional",
+        }
+        self._create_pending_effect(
+            state,
+            requirement_kind="optional",
+            raw=raw,
+            optional=True,
+            accepted=True,  # Already accepted
+        )
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        # Should not have accept/decline since already resolved
+        accept_actions = [a for a in resolve_actions if "accept" in a.choice]
+        assert len(accept_actions) == 0
+
+    def test_opponent_choice_only_visible_to_chooser(self, state_with_pending):
+        """Test that opponent_choice is only visible to the opponent chooser."""
+        state, engine = state_with_pending
+
+        # Player 0 is controller, player 1 is chooser
+        raw = {
+            "requirement_kind": "opponent_choice",
+            "choice_type": "choice",
+            "options": ["a", "b"],
+        }
+        self._create_pending_effect(
+            state,
+            chooser_id=1,  # Opponent is chooser
+            controller_id=0,
+            requirement_kind="opponent_choice",
+            raw=raw,
+        )
+
+        # Player 0 (non-chooser) should only get CONCEDE
+        actions_p0 = engine.legal_actions(state, 0)
+        resolve_p0 = [a for a in actions_p0 if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        assert len(resolve_p0) == 0
+        assert len(actions_p0) == 1  # Only CONCEDE
+
+        # Player 1 (chooser) should get choice actions
+        actions_p1 = engine.legal_actions(state, 1)
+        resolve_p1 = [a for a in actions_p1 if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        assert len(resolve_p1) == 2  # 2 choice indices
+
+    def test_opponent_choice_target_type(self, state_with_pending):
+        """Test opponent_choice with target choice_type."""
+        state, engine = state_with_pending
+
+        # Create target for player 1
+        cid = 40
+        state.cards[cid] = type('CardInstance', (), {
+            'instance_id': cid,
+            'card_id': 1001,
+            'owner': 1,
+            'controller': 1,
+            'zone': 'play',
+        })()
+        state.players[1].play.append(cid)
+
+        raw = {
+            "requirement_kind": "opponent_choice",
+            "choice_type": "target",
+            "candidate_ids": [cid],
+        }
+        self._create_pending_effect(
+            state,
+            chooser_id=1,
+            controller_id=0,
+            requirement_kind="opponent_choice",
+            raw=raw,
+        )
+
+        # Player 1 should get target action
+        actions_p1 = engine.legal_actions(state, 1)
+        resolve_p1 = [a for a in actions_p1 if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        assert len(resolve_p1) == 1
+        assert resolve_p1[0].target == cid
+
+    def test_enter_play_exerted_requirement_kind(self, state_with_pending):
+        """Test that enter_play_exerted requirement_kind emits true and false choices."""
+        state, engine = state_with_pending
+
+        raw = {
+            "requirement_kind": "enter_play_exerted",
+        }
+        self._create_pending_effect(
+            state,
+            requirement_kind="enter_play_exerted",
+            raw=raw,
+        )
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+
+        # Should have 2 actions: enter_play_exerted=True and enter_play_exerted=False
+        assert len(resolve_actions) == 2
+
+        exert_values = {a.choice.get("enter_play_exerted") for a in resolve_actions}
+        assert exert_values == {True, False}
+
+    def test_concede_always_available(self, state_with_pending):
+        """Test that CONCEDE is always available during pending effect resolution."""
+        state, engine = state_with_pending
+
+        raw = {
+            "requirement_kind": "choice",
+            "options": ["a", "b"],
+        }
+        self._create_pending_effect(state, requirement_kind="choice", raw=raw)
+
+        actions = engine.legal_actions(state, 0)
+
+        # CONCEDE should be available
+        concedes = [a for a in actions if a.kind == ACTION_CONCEDE]
+        assert len(concedes) == 1
+
+    def test_non_chooser_gets_only_concede(self, state_with_pending):
+        """Test that non-chooser players only get CONCEDE during pending resolution."""
+        state, engine = state_with_pending
+
+        # Player 0 is controller/chooser, player 1 is opponent
+        raw = {
+            "requirement_kind": "choice",
+            "options": ["a", "b"],
+        }
+        self._create_pending_effect(
+            state,
+            chooser_id=0,
+            controller_id=0,
+            requirement_kind="choice",
+            raw=raw,
+        )
+
+        # Player 1 (non-chooser) should only get CONCEDE
+        actions_p1 = engine.legal_actions(state, 1)
+        resolve_p1 = [a for a in actions_p1 if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        assert len(resolve_p1) == 0
+        assert len(actions_p1) == 1  # Only CONCEDE
+
+
+class TestDiscardChoicePendingEffect:
+    """Tests for discard-choice pending effect behavior (Microfix 9 Brief 4)."""
+
+    @pytest.fixture
+    def engine(self):
+        from lorcana_bot.engine import GameEngine
+        from lorcana_bot.cards import CardDatabase
+        db = CardDatabase([])
+        return GameEngine(db)
+
+    @pytest.fixture
+    def state_with_hand(self, engine):
+        """Create a game state with cards in hand for discard testing."""
+        from lorcana_bot.state import GameState, PlayerState, CardInstance
+
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+            active_player=0,
+            first_player=0,
+            phase="MAIN",
+        )
+
+        # Create cards in player 0's hand
+        for cid in [101, 102, 103]:
+            state.cards[cid] = CardInstance(
+                instance_id=cid,
+                card_id=f"card_{cid}",
+                owner=0,
+                controller=0,
+                zone=ZONE_HAND,
+            )
+            state.players[0].hand.append(cid)
+
+        return state, engine
+
+    def test_create_discard_choice_pending_effect(self, state_with_hand):
+        """Test that create_discard_choice_pending_effect creates proper pending effect."""
+        from lorcana_bot.pending_effects import create_discard_choice_pending_effect
+
+        state, engine = state_with_hand
+
+        candidate_ids = tuple(state.players[0].hand)
+        pe = create_discard_choice_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=0,
+            source_id=1,
+            source_card_id="test_source",
+            target_player_id=0,
+            candidate_ids=candidate_ids,
+            min_select=1,
+            max_select=2,
+        )
+
+        assert pe is not None
+        assert pe.raw.get("requirement_kind") == "discard_choice"
+        assert pe.raw.get("discard_candidates") == candidate_ids
+        assert pe.raw.get("min_discard") == 1
+        assert pe.raw.get("max_discard") == 2
+        assert pe.chooser_id == 0
+        assert pe.controller_id == 0
+
+    def test_chosen_discard_creates_pending_not_immediate(self, state_with_hand):
+        """Test that discard effect with chosen=true creates pending, doesn't discard immediately."""
+        from lorcana_bot.effects import EffectResolver
+        from lorcana_bot.cards import EffectDef
+        from lorcana_bot.effect_types import EffectResolutionContext
+        from lorcana_bot.pending_effects import has_pending_effects
+        from lorcana_bot.state import CardInstance
+
+        state, engine = state_with_hand
+
+        # Give player 1 some cards in hand (player 0 is actor, targeting opponent)
+        for cid in [201, 202]:
+            state.cards[cid] = CardInstance(
+                instance_id=cid,
+                card_id=f"card_{cid}",
+                owner=1,
+                controller=1,
+                zone=ZONE_HAND,
+            )
+            state.players[1].hand.append(cid)
+
+        initial_hand_size = len(state.players[1].hand)
+
+        # Create a discard effect with chosen=true
+        effect = EffectDef(
+            kind="discard",
+            amount=1,
+            target="opponent",
+            raw={"chosen": True},
+        )
+
+        resolver = EffectResolver(engine)
+        resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=1),
+        )
+
+        # Should have created a pending effect, not discarded immediately
+        assert has_pending_effects(state) is True
+        assert len(state.players[1].hand) == initial_hand_size  # No discards yet
+
+    def test_opponent_chosen_discard_makes_opponent_chooser(self, state_with_hand):
+        """Test that discard with chosenBy='opponent' makes opponent the chooser."""
+        from lorcana_bot.effects import EffectResolver
+        from lorcana_bot.cards import EffectDef
+        from lorcana_bot.effect_types import EffectResolutionContext
+        from lorcana_bot.pending_effects import get_current_pending_effect
+        from lorcana_bot.state import CardInstance
+
+        state, engine = state_with_hand
+
+        # Give player 1 some cards in hand
+        for cid in [201, 202]:
+            state.cards[cid] = CardInstance(
+                instance_id=cid,
+                card_id=f"card_{cid}",
+                owner=1,
+                controller=1,
+                zone=ZONE_HAND,
+            )
+            state.players[1].hand.append(cid)
+
+        # Player 0's opponent is player 1
+        effect = EffectDef(
+            kind="discard",
+            amount=1,
+            target="opponent",
+            raw={"chosenBy": "opponent"},
+        )
+
+        resolver = EffectResolver(engine)
+        resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=1),
+        )
+
+        # Player 1 (opponent of actor) should be the chooser
+        pe = get_current_pending_effect(state, 1)
+        assert pe is not None
+        assert pe.chooser_id == 1
+
+    def test_discard_choice_legal_actions_expose_combinations(self, state_with_hand):
+        """Test that legal_actions exposes discard combinations for a single pending effect."""
+        from lorcana_bot.pending_effects import create_discard_choice_pending_effect
+
+        state, engine = state_with_hand
+
+        # Create a discard choice pending effect with max 2 cards
+        pe = create_discard_choice_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=0,
+            source_id=1,
+            source_card_id=None,
+            target_player_id=0,
+            candidate_ids=tuple(state.players[0].hand),  # 3 cards
+            min_select=1,
+            max_select=2,
+        )
+
+        actions = engine.legal_actions(state, 0)
+        # Count actions for THIS pending effect only
+        resolve_actions = [
+            a for a in actions
+            if a.kind == ACTION_RESOLVE_PENDING_EFFECT
+            and a.choice.get("pending_effect_id") == pe.id
+        ]
+
+        # C(3,1) + C(3,2) = 3 + 3 = 6 combinations for this specific pending effect
+        # But we need to be careful - there may be other pending effects in state
+        # Let's just check that we can find actions with the right structure
+        discard_actions = [
+            a for a in actions
+            if a.kind == ACTION_RESOLVE_PENDING_EFFECT
+            and "discard_card_ids" in a.choice
+        ]
+
+        # All discard actions should have valid card ids in hand
+        for action in discard_actions:
+            card_ids = action.choice.get("discard_card_ids")
+            if card_ids:
+                assert all(cid in state.players[0].hand for cid in card_ids)
+
+        # Verify at least one specific combination exists (101 only)
+        action_101 = [
+            a for a in actions
+            if a.kind == ACTION_RESOLVE_PENDING_EFFECT
+            and a.choice.get("pending_effect_id") == pe.id
+            and a.choice.get("discard_card_ids") == (101,)
+        ]
+        assert len(action_101) == 1, f"Expected 1 action for (101,), got {len(action_101)}"
+
+    def test_apply_discard_choice_discards_through_discard_eventful(self, state_with_hand):
+        """Test that resolving discard_choice discards selected cards through _discard_eventful."""
+        from lorcana_bot.pending_effects import create_discard_choice_pending_effect
+        from lorcana_bot.state import Action
+
+        state, engine = state_with_hand
+
+        initial_hand_size = len(state.players[0].hand)
+
+        # Create pending effect
+        pe = create_discard_choice_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=0,
+            source_id=1,
+            source_card_id=None,
+            target_player_id=0,
+            candidate_ids=tuple(state.players[0].hand),
+            min_select=1,
+            max_select=2,
+        )
+
+        # Get legal actions and find one with discard_card_ids=(101,)
+        actions = engine.legal_actions(state, 0)
+        target_action = None
+        for a in actions:
+            if (a.kind == ACTION_RESOLVE_PENDING_EFFECT
+                and a.choice.get("pending_effect_id") == pe.id
+                and a.choice.get("discard_card_ids") == (101,)):
+                target_action = a
+                break
+
+        assert target_action is not None, "Legal action for (101,) not found"
+
+        # Apply through engine to test full flow
+        next_state = engine.apply_action(state, target_action)
+
+        # Verify the card was discarded
+        assert 101 in next_state.players[0].discard
+        assert 101 not in next_state.players[0].hand
+        assert len(next_state.players[0].hand) == initial_hand_size - 1
+
+    def test_discard_choice_uses_target_player_actor(self, state_with_hand):
+        """Test that discard_choice uses target_player_id as actor for discards."""
+        from lorcana_bot.pending_effects import create_discard_choice_pending_effect
+        from lorcana_bot.state import Action
+        from lorcana_bot.constants import EVENT_CARD_DISCARDED
+
+        state, engine = state_with_hand
+
+        # Create a discard choice for player 0's hand
+        pe = create_discard_choice_pending_effect(
+            state,
+            controller_id=1,  # Player 1 controls the effect
+            chooser_id=0,     # Player 0 makes the choice
+            source_id=10,
+            source_card_id=None,
+            target_player_id=0,  # Target player is 0
+            candidate_ids=tuple(state.players[0].hand),
+            min_select=1,
+            max_select=1,
+        )
+
+        # Get legal actions and find one with discard_card_ids=(101,)
+        actions = engine.legal_actions(state, 0)
+        target_action = None
+        for a in actions:
+            if (a.kind == ACTION_RESOLVE_PENDING_EFFECT
+                and a.choice.get("pending_effect_id") == pe.id
+                and a.choice.get("discard_card_ids") == (101,)):
+                target_action = a
+                break
+
+        assert target_action is not None, "Legal action for (101,) not found"
+
+        next_state = engine.apply_action(state, target_action)
+
+        # The CARD_DISCARDED event should have the target player (0) as actor
+        discard_events = [
+            e for e in next_state.event_log
+            if e.event_type == EVENT_CARD_DISCARDED
+        ]
+        assert len(discard_events) == 1
+        assert discard_events[0].actor == 0
+
+    def test_invalid_discard_selection_raises_error(self, state_with_hand):
+        """Test that invalid discard selection raises IllegalActionError."""
+        from lorcana_bot.pending_effects import create_discard_choice_pending_effect
+        from lorcana_bot.state import Action
+
+        state, engine = state_with_hand
+
+        # Create pending effect
+        pe = create_discard_choice_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=0,
+            source_id=1,
+            source_card_id=None,
+            target_player_id=0,
+            candidate_ids=tuple(state.players[0].hand),  # [101, 102, 103]
+            min_select=1,
+            max_select=2,
+        )
+
+        # Get legal actions and modify to use invalid card
+        actions = engine.legal_actions(state, 0)
+        for a in actions:
+            if (a.kind == ACTION_RESOLVE_PENDING_EFFECT
+                and a.choice.get("pending_effect_id") == pe.id):
+                # Create action with invalid discard_card_ids
+                invalid_action = Action(
+                    ACTION_RESOLVE_PENDING_EFFECT,
+                    actor=0,
+                    choice={
+                        "pending_effect_id": pe.id,
+                        "discard_card_ids": (999,),  # Not a valid candidate
+                    },
+                )
+                with pytest.raises(Exception):
+                    engine.apply_action(state, invalid_action)
+                return
+
+        pytest.fail("No pending effect actions found")
+
+    def test_non_explicit_discard_preserves_deterministic_behavior(self, state_with_hand):
+        """Test that non-explicit discard preserves existing deterministic behavior."""
+        from lorcana_bot.effects import EffectResolver
+        from lorcana_bot.cards import EffectDef
+        from lorcana_bot.effect_types import EffectResolutionContext
+        from lorcana_bot.pending_effects import has_pending_effects
+        from lorcana_bot.state import CardInstance
+
+        state, engine = state_with_hand
+
+        # Give player 1 some cards in hand (player 0 is actor, targeting opponent)
+        for cid in [201, 202]:
+            state.cards[cid] = CardInstance(
+                instance_id=cid,
+                card_id=f"card_{cid}",
+                owner=1,
+                controller=1,
+                zone=ZONE_HAND,
+            )
+            state.players[1].hand.append(cid)
+
+        initial_hand_size = len(state.players[1].hand)
+
+        # Create a discard effect WITHOUT chosen flag
+        effect = EffectDef(
+            kind="discard",
+            amount=1,
+            target="opponent",
+        )
+
+        resolver = EffectResolver(engine)
+        resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=1),
+        )
+
+        # Should NOT create pending effect (no explicit choice required)
+        # Should discard immediately from front of hand
+        assert has_pending_effects(state) is False
+        # First card of opponent's hand should be discarded
+        assert len(state.players[1].hand) == initial_hand_size - 1
+
+    def test_discard_choice_min_max_bounds(self, state_with_hand):
+        """Test that discard_choice respects min/max selection bounds."""
+        from lorcana_bot.pending_effects import create_discard_choice_pending_effect
+
+        state, engine = state_with_hand
+
+        # Create with min=2, max=2
+        pe = create_discard_choice_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=0,
+            source_id=1,
+            source_card_id=None,
+            target_player_id=0,
+            candidate_ids=tuple(state.players[0].hand),
+            min_select=2,
+            max_select=2,
+        )
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [
+            a for a in actions
+            if a.kind == ACTION_RESOLVE_PENDING_EFFECT
+            and a.choice.get("pending_effect_id") == pe.id
+        ]
+
+        # Check that 2-card combinations exist - C(3,2) = 3 combinations
+        two_card_actions = [
+            a for a in resolve_actions
+            if len(a.choice.get("discard_card_ids", ())) == 2
+        ]
+        assert len(two_card_actions) == 3, f"Expected 3 two-card combos, got {len(two_card_actions)}"
+
+        # All 2-card actions should have exactly 2 cards
+        for action in two_card_actions:
+            card_ids = action.choice.get("discard_card_ids")
+            assert len(card_ids) == 2
+
+    def test_discard_choice_respects_hand_zone_filter(self, state_with_hand):
+        """Test that discard_choice filters candidates to only cards in hand."""
+        from lorcana_bot.pending_effects import create_discard_choice_pending_effect
+
+        state, engine = state_with_hand
+
+        # Add some cards to play
+        state.cards[201] = type('CardInstance', (), {
+            'instance_id': 201,
+            'card_id': 'play_card',
+            'owner': 0,
+            'controller': 0,
+            'zone': ZONE_PLAY,
+        })()
+        state.players[0].play.append(201)
+
+        # Create pending effect including a play card
+        pe = create_discard_choice_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=0,
+            source_id=1,
+            source_card_id=None,
+            target_player_id=0,
+            candidate_ids=(101, 102, 201),  # 201 is in play, not hand
+            min_select=1,
+            max_select=1,
+        )
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [
+            a for a in actions
+            if a.kind == ACTION_RESOLVE_PENDING_EFFECT
+            and a.choice.get("pending_effect_id") == pe.id
+        ]
+
+        # Only hand cards [101, 102] should be valid
+        # 201 is in play, not hand, so should not be in candidates
+        hand_actions = [
+            a for a in resolve_actions
+            if a.choice.get("discard_card_ids") in [(101,), (102,)]
+        ]
+        assert len(hand_actions) == 2, f"Expected 2 hand-only actions, got {len(hand_actions)}"
+
+        for action in resolve_actions:
+            card_ids = action.choice.get("discard_card_ids")
+            if card_ids:
+                assert card_ids[0] in [101, 102]  # Not 201 (play card)

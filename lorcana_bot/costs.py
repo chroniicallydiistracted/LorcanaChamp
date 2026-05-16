@@ -59,26 +59,26 @@ def validate_cost_payable(
     cost: SourceCostDef,
 ) -> tuple[bool, str]:
     """Validate whether a single cost can be paid.
-    
+
     Args:
         state: The game state
         engine: The game engine
         ability: The activated ability
         cost: The cost to validate
-        
+
     Returns:
         Tuple of (can_pay, reason_if_not)
     """
     cost_kind = cost.kind.lower().replace("-", "_").replace(" ", "_")
     source_id = ability.source_instance_id
-    
+
     # Check if cost kind is supported
     if cost_kind not in SUPPORTED_COST_KINDS:
         return False, f"Unsupported cost kind: {cost.kind}"
-    
+
     # Get amount (default to 1 if not specified)
     amount = int(cost.amount) if cost.amount else 1
-    
+
     # Handle each cost type
     if cost_kind in {"exert_source", "exert"}:
         return _validate_exert_source(state, source_id)
@@ -93,7 +93,7 @@ def validate_cost_payable(
         return _validate_exert_source(state, source_id)
     else:
         return False, f"Cost kind {cost_kind} not implemented"
-    
+
 
 def _validate_exert_source(state: GameState, source_id: int) -> tuple[bool, str]:
     """Validate that the source card can be exerted."""
@@ -140,7 +140,7 @@ def _validate_discard_cost(
     amount: int,
 ) -> tuple[bool, str]:
     """Validate that the player has enough cards to discard.
-    
+
     Note: Discard costs require choice prompts (pending effects) for strategic play.
     Without pending cost-selection support, discard costs are NOT supported.
     """
@@ -154,7 +154,7 @@ def _validate_discard_cost(
         if hand_size < amount:
             return False, f"Not enough cards to discard: need {amount}, have {hand_size}"
         return True, ""
-    
+
     # Non-random discard requires choice prompt / pending cost selection
     return False, "Discard cost requires choice prompt (not yet supported)"
 
@@ -166,20 +166,20 @@ def pay_cost(
     cost: SourceCostDef,
 ) -> None:
     """Pay a single cost, updating game state.
-    
+
     Args:
         state: The game state
-        engine: The game engine  
+        engine: The game engine
         ability: The activated ability
         cost: The cost to pay
-        
+
     Raises:
         CostPaymentError: If the cost cannot be paid
     """
     cost_kind = cost.kind.lower().replace("-", "_").replace(" ", "_")
     source_id = ability.source_instance_id
     amount = int(cost.amount) if cost.amount else 1
-    
+
     if cost_kind in {"exert_source", "exert"}:
         _pay_exert_source(state, source_id, engine)
     elif cost_kind in {"ink", "spend_ink"}:
@@ -215,10 +215,10 @@ def _pay_ink_cost(
     """Pay ink cost by exerting ink cards."""
     player = state.cards[ability.source_instance_id].controller
     ready_ink = [cid for cid in state.players[player].inkwell if not state.cards[cid].exerted]
-    
+
     if len(ready_ink) < amount:
         raise CostPaymentError("Insufficient ink available")
-    
+
     # Exert the ink cards
     for cid in ready_ink[:amount]:
         engine._exert_eventful(
@@ -229,7 +229,7 @@ def _pay_ink_cost(
             reason="ability_ink_cost",
             emit_event=False,
         )
-    
+
     engine.emit_event(
         state,
         "ABILITY_COST_INK",
@@ -265,10 +265,10 @@ def _pay_discard_cost(
     """Pay discard cost by randomly discarding cards from hand."""
     player = state.cards[ability.source_instance_id].controller
     hand = state.players[player].hand
-    
+
     if len(hand) < amount:
         raise CostPaymentError(f"Not enough cards to discard: need {amount}, have {len(hand)}")
-    
+
     # Randomly select cards to discard (for MVP without choice prompts)
     discarded: list[int] = []
     hand_copy = list(hand)
@@ -291,22 +291,22 @@ def validate_ability_cost_collection(
     ability: ActivatedAbility,
 ) -> tuple[bool, list[str]]:
     """Validate all costs for an ability.
-    
+
     Args:
         state: The game state
         engine: The game engine
         ability: The activated ability to validate
-        
+
     Returns:
         Tuple of (all_payable, list_of_failures)
     """
     failures: list[str] = []
-    
+
     for cost in ability.costs:
         can_pay, reason = validate_cost_payable(state, engine, ability, cost)
         if not can_pay:
             failures.append(f"{cost.kind}: {reason}")
-    
+
     return len(failures) == 0, failures
 
 
@@ -316,18 +316,18 @@ def pay_all_costs(
     ability: ActivatedAbility,
 ) -> tuple[str, ...]:
     """Pay all costs for an ability atomically.
-    
+
     This function collects all costs first, validates them, and only then
     applies the payments. If any cost cannot be paid, no state changes occur.
-    
+
     Args:
         state: The game state
         engine: The game engine
         ability: The activated ability whose costs to pay
-        
+
     Returns:
         Tuple of cost kinds that were paid
-        
+
     Raises:
         CostPaymentError: If any cost cannot be paid (no partial state changes)
     """
@@ -335,14 +335,14 @@ def pay_all_costs(
     can_pay, failures = validate_ability_cost_collection(state, engine, ability)
     if not can_pay:
         raise CostPaymentError(f"Cannot pay costs: {', '.join(failures)}")
-    
+
     # Collect costs to pay before modifying state (for atomic payment)
     costs_to_pay: list[SourceCostDef] = list(ability.costs)
-    
+
     # Pay all costs
     paid: list[str] = []
     for cost in costs_to_pay:
         pay_cost(state, engine, ability, cost)
         paid.append(cost.kind)
-    
+
     return tuple(paid)

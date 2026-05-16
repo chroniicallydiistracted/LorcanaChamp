@@ -60,7 +60,7 @@ class ActivatedAbility:
     effects: tuple[Any, ...]  # SourceEffectDef
     condition: Any | None
     raw: dict[str, Any] = field(default_factory=dict)
-    
+
     @property
     def unique_use_key(self) -> str:
         """Key for tracking once-per-turn limitation."""
@@ -74,7 +74,7 @@ class AbilityUseResult:
     costs_paid: tuple[str, ...] = ()
     effects_resolved: bool = False
     error_message: str | None = None
-    
+
 
 def get_activated_abilities_for_card(
     state: GameState,
@@ -82,17 +82,17 @@ def get_activated_abilities_for_card(
     card_def: Any,
 ) -> list[ActivatedAbility]:
     """Get all activated abilities on a card.
-    
+
     Args:
         state: The game state
         card_instance_id: The card instance ID
         card_def: The card definition
-        
+
     Returns:
         List of ActivatedAbility objects for this card
     """
     abilities: list[ActivatedAbility] = []
-    
+
     # Get source abilities (from Lorcanito extraction)
     for idx, src_ability in enumerate(getattr(card_def, 'source_abilities', []) or []):
         if src_ability.kind == "activated":
@@ -108,13 +108,13 @@ def get_activated_abilities_for_card(
                 raw=dict(src_ability.raw),
             )
             abilities.append(ability)
-    
+
     # Also check legacy activated_abilities attribute
     for idx, legacy in enumerate(getattr(card_def, 'activated_abilities', []) or []):
         # Skip if already added from source_abilities
         if any(a.ability_index == idx and a.source_card_id == card_def.id for a in abilities):
             continue
-        
+
         ability = ActivatedAbility(
             source_instance_id=card_instance_id,
             source_card_id=card_def.id,
@@ -127,24 +127,24 @@ def get_activated_abilities_for_card(
             raw=dict(legacy),
         )
         abilities.append(ability)
-    
+
     return abilities
 
 
 def can_use_ability_this_turn(state: GameState, ability: ActivatedAbility) -> bool:
     """Check if the ability has been used this turn (once-per-turn tracking).
-    
+
     Args:
         state: The game state
         ability: The activated ability to check
-        
+
     Returns:
         True if the ability can be used this turn
     """
     card = state.cards.get(ability.source_instance_id)
     if card is None:
         return False
-    
+
     use_key = ability.unique_use_key
     return use_key not in card.used_abilities_this_turn
 
@@ -155,31 +155,31 @@ def get_available_abilities_for_player(
     player: int,
 ) -> list[ActivatedAbility]:
     """Get all activated abilities available to a player on cards they control.
-    
+
     Args:
         state: The game state
         engine: The game engine
         player: The player ID
-        
+
     Returns:
         List of ActivatedAbility objects that can potentially be used
     """
     abilities: list[ActivatedAbility] = []
-    
+
     for cid in state.players[player].play:
         card = state.cards.get(cid)
         if card is None or card.zone != "play":
             continue
-        
+
         card_def = engine.card_def(state, cid)
         card_abilities = get_activated_abilities_for_card(state, cid, card_def)
-        
+
         for ability in card_abilities:
             # Check once-per-turn restriction
             if not can_use_ability_this_turn(state, ability):
                 continue
             abilities.append(ability)
-    
+
     return abilities
 
 
@@ -189,17 +189,17 @@ def validate_ability_costs(
     ability: ActivatedAbility,
 ) -> tuple[bool, list[str]]:
     """Validate that all costs of an ability can be paid.
-    
+
     Args:
         state: The game state
         engine: The game engine
         ability: The activated ability to validate
-        
+
     Returns:
         Tuple of (can_pay, list_of_payable_costs)
     """
     from lorcana_bot.costs import validate_cost_payable
-    
+
     payable: list[str] = []
     for cost in ability.costs:
         is_payable, reason = validate_cost_payable(state, engine, ability, cost)
@@ -208,7 +208,7 @@ def validate_ability_costs(
         else:
             # Early exit - if any cost is not payable, ability cannot be used
             return False, []
-    
+
     return True, payable
 
 
@@ -218,30 +218,30 @@ def pay_ability_costs(
     ability: ActivatedAbility,
 ) -> tuple[str, ...]:
     """Pay all costs for an activated ability atomically.
-    
+
     Args:
         state: The game state
         engine: The game engine
         ability: The activated ability whose costs to pay
-        
+
     Returns:
         Tuple of cost kinds that were paid
-        
+
     Raises:
         AbilityCostError: If costs cannot be paid
     """
     from lorcana_bot.costs import pay_cost
-    
+
     paid_costs: list[str] = []
-    
+
     for cost in ability.costs:
         pay_cost(state, engine, ability, cost)
         paid_costs.append(cost.kind)
-    
+
     # Mark ability as used this turn
     card = state.cards[ability.source_instance_id]
     card.used_abilities_this_turn.append(ability.unique_use_key)
-    
+
     return tuple(paid_costs)
 
 
@@ -251,7 +251,7 @@ def execute_ability_effects(
     ability: ActivatedAbility,
 ) -> None:
     """Execute the effects of an activated ability.
-    
+
     Args:
         state: The game state
         engine: The game engine
@@ -260,10 +260,10 @@ def execute_ability_effects(
     from lorcana_bot.effect_types import EffectResolutionContext
     from lorcana_bot.effects import EffectResolver
     from lorcana_bot.cards import EffectDef
-    
+
     if not ability.effects:
         return
-    
+
     context = EffectResolutionContext(
         actor=state.cards[ability.source_instance_id].controller,
         source=ability.source_instance_id,
@@ -277,27 +277,27 @@ def execute_ability_effects(
         trigger_subject=None,
         current_targets=(),  # Empty tuple for activated abilities
     )
-    
+
     # Convert source effects to EffectDef if needed
     effect_defs = _convert_source_effects(ability.effects)
-    
+
     resolver = EffectResolver(engine)
     resolver.resolve_many(state, effect_defs, context)
 
 
 def _convert_source_effects(source_effects: tuple[Any, ...]) -> tuple["EffectDef", ...]:
     """Convert SourceEffectDef objects to EffectDef objects.
-    
+
     Args:
         source_effects: Tuple of SourceEffectDef objects
-        
+
     Returns:
         Tuple of EffectDef objects
     """
     from lorcana_bot.cards import EffectDef
-    
+
     effect_defs: list[EffectDef] = []
-    
+
     for src_effect in source_effects:
         if isinstance(src_effect, EffectDef):
             effect_defs.append(src_effect)
@@ -310,7 +310,7 @@ def _convert_source_effects(source_effects: tuple[Any, ...]) -> tuple["EffectDef
                     target_selector = TARGET_ALIAS_MAP.get(src_effect.target.alias, src_effect.target.alias)
                 elif src_effect.target.selector:
                     target_selector = src_effect.target.selector
-            
+
             effect_def = EffectDef(
                 kind=src_effect.kind,
                 target=target_selector,
@@ -324,7 +324,7 @@ def _convert_source_effects(source_effects: tuple[Any, ...]) -> tuple["EffectDef
                 duration=src_effect.duration if hasattr(src_effect, 'duration') else None,
             )
             effect_defs.append(effect_def)
-    
+
     return tuple(effect_defs)
 
 
@@ -350,7 +350,7 @@ TARGET_ALIAS_MAP = {
 # Unsupported target aliases that require choice prompts
 UNSUPPORTED_TARGET_ALIASES = frozenset({
     "CHOSEN_CHARACTER",
-    "CHOSEN_OPPOSING_CHARACTER", 
+    "CHOSEN_OPPOSING_CHARACTER",
     "CHOSEN_PLAYER",
     "CHOSEN_ITEM",
     "CHOSEN_LOCATION",
@@ -359,21 +359,21 @@ UNSUPPORTED_TARGET_ALIASES = frozenset({
 
 def validate_effects_supported(ability: ActivatedAbility) -> tuple[bool, str]:
     """Validate that all effects of an ability can be resolved.
-    
+
     Args:
         ability: The activated ability to validate
-        
+
     Returns:
         Tuple of (is_supported, reason_if_not)
     """
     if not ability.effects:
         return True, ""
-    
+
     for effect in ability.effects:
         # Check effect kind is supported
         if not _is_effect_kind_supported(effect.kind):
             return False, f"Unsupported effect kind: {effect.kind}"
-        
+
         # Check target is supported (no choice prompts required)
         if effect.target:
             alias = effect.target.alias
@@ -384,7 +384,7 @@ def validate_effects_supported(ability: ActivatedAbility) -> tuple[bool, str]:
                 selector = effect.target.selector
                 if selector and selector not in {"self", "controller", "opponent", "each_opponent"}:
                     return False, f"Unsupported target: {alias or selector}"
-        
+
         # Recursively check child effects
         if effect.effects:
             for child in effect.effects:
@@ -402,13 +402,13 @@ def validate_effects_supported(ability: ActivatedAbility) -> tuple[bool, str]:
                 )
                 if not supported:
                     return False, reason
-    
+
     return True, ""
 
 
 def _is_effect_kind_supported(kind: str) -> bool:
     """Check if an effect kind is supported for activated abilities.
-    
+
     Supported kinds for activated abilities include basic effects that
     don't require special targeting.
     """
@@ -445,17 +445,17 @@ def use_ability(
     ability: ActivatedAbility,
 ) -> AbilityUseResult:
     """Execute an activated ability: validate costs, pay costs, resolve effects.
-    
+
     Args:
         state: The game state
         engine: The game engine
         ability: The activated ability to use
-        
+
     Returns:
         AbilityUseResult indicating success or failure
     """
     from lorcana_bot.costs import validate_cost_payable
-    
+
     # Validate costs are payable
     for cost in ability.costs:
         can_pay, reason = validate_cost_payable(state, engine, ability, cost)
@@ -464,14 +464,14 @@ def use_ability(
                 success=False,
                 error_message=f"Cannot pay cost {cost.kind}: {reason}",
             )
-    
+
     # Check once-per-turn
     if not can_use_ability_this_turn(state, ability):
         return AbilityUseResult(
             success=False,
             error_message="Ability has already been used this turn",
         )
-    
+
     # Pay costs atomically
     try:
         paid_costs = pay_ability_costs(state, engine, ability)
@@ -480,7 +480,7 @@ def use_ability(
             success=False,
             error_message=str(e),
         )
-    
+
     # Execute effects
     try:
         execute_ability_effects(state, engine, ability)

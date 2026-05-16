@@ -22,14 +22,14 @@ def main() -> None:
     parser.add_argument("--out", default="data/decks/reports/real_deck_suite_mapping_coverage.json")
     parser.add_argument("--print-summary", action="store_true")
     args = parser.parse_args()
-    
+
     # Load card definitions
     source_path = Path(args.source_json)
     card_defs = {}
     if source_path.exists():
         db, _ = import_lorcanito_source_cards(source_path)
         card_defs = {card.id: card for card in db.all_cards()}
-    
+
     report = build_suite_mapping_report(load_resolved_deck_dir(args.resolved_deck_dir), card_defs)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

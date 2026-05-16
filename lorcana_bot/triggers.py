@@ -91,7 +91,7 @@ class TriggerCandidate:
 
 def canonical_trigger_event(event: GameEvent | str) -> str:
     """Map a legacy event name or GameEvent to canonical trigger event name.
-    
+
     Uses LEGACY_EVENT_MAP from constants.py (which has been expanded to cover
     all gameplay events including INKED, CARD_DRAWN, DAMAGE_DEALT, etc.).
     """
@@ -99,13 +99,13 @@ def canonical_trigger_event(event: GameEvent | str) -> str:
         event_type = event.event_type
     else:
         event_type = str(event)
-    
+
     return LEGACY_EVENT_MAP.get(event_type, event_type)
 
 
 def expand_trigger_event(event: str) -> tuple[str, ...]:
     """Expand a canonical event into the full set of trigger event names to check.
-    
+
     lorcanito-style leave-play expansion: when a card leaves play, it can trigger
     on banish, banish-in-challenge, return-to-hand, or ink events.
     """
@@ -258,14 +258,14 @@ def collect_printed_trigger_candidates(
 ) -> list[TriggerCandidate]:
     """Collect all trigger candidates from cards currently in play."""
     candidates: list[TriggerCandidate] = []
-    
+
     for player in (0, 1):
         for instance_id in state.players[player].play:
             card = engine.card_def(state, instance_id)
             for idx, trigger in enumerate(card.triggers):
                 if trigger.event not in SUPPORTED_TRIGGER_EVENTS:
                     continue
-                
+
                 candidates.append(TriggerCandidate(
                     source_instance_id=instance_id,
                     source_card=card,
@@ -275,7 +275,7 @@ def collect_printed_trigger_candidates(
                     ability_index=idx,
                     source_zones=trigger.source_zones,
                 ))
-    
+
     return candidates
 
 
@@ -287,20 +287,20 @@ def trigger_matches_event(
 ) -> bool:
     """Check if a trigger candidate matches the pending event."""
     trigger = candidate.trigger
-    
+
     # Event type must match
     if trigger.event != pending.event:
         return False
-    
+
     # Check source zone restrictions
     if trigger.source_zones:
         source_zone = state.cards[candidate.source_instance_id].zone
         if source_zone not in trigger.source_zones:
             return False
-    
+
     # Check `on` filter (subject of the trigger)
     on_value = trigger.on
-    
+
     # Handle string aliases
     if isinstance(on_value, str):
         if not _on_filter_matches_string(state, engine, candidate, pending, on_value):
@@ -309,18 +309,18 @@ def trigger_matches_event(
         if not _on_filter_matches_object(state, engine, candidate, pending, on_value):
             return False
     # None means match any subject
-    
+
     # Self-entry rule: A card cannot observe its own play/ink event unless on == SELF
     if pending.trigger_source_card_id == candidate.source_instance_id:
         if trigger.event in {TRIGGER_EVENT_PLAY, TRIGGER_EVENT_INK}:
             if on_value != "SELF":
                 return False
-    
+
     # Check defender-is-character restriction
     for restriction in trigger.restrictions:
         if not _restriction_satisfied(state, engine, candidate, pending, restriction):
             return False
-    
+
     return True
 
 
@@ -334,24 +334,24 @@ def _on_filter_matches_string(
     """Check if a string `on` value matches the pending event."""
     source_instance_id = candidate.source_instance_id
     subject_card_id = pending.subject_card_id
-    
+
     if on_value == "SELF":
         return subject_card_id == source_instance_id
-    
+
     if on_value in {"YOU", "CONTROLLER"}:
         # Trigger fires when its controller performs the action
         source_controller = state.cards[source_instance_id].controller
         return pending.player_id == source_controller
-    
+
     if on_value == "OPPONENT":
         # Trigger fires for opponent action
         source_controller = state.cards[source_instance_id].controller
         return pending.player_id is not None and pending.player_id != source_controller
-    
+
     if on_value == "ANY_PLAYER":
         # Trigger fires for any player action
         return pending.player_id is not None
-    
+
     if on_value == "YOUR_CHARACTERS":
         # Trigger fires for any character you control
         if subject_card_id is None:
@@ -360,7 +360,7 @@ def _on_filter_matches_string(
         if subject_card is None:
             return False
         return subject_card.controller == state.cards[source_instance_id].controller
-    
+
     if on_value == "YOUR_OTHER_CHARACTERS":
         # Exclude self
         if subject_card_id == source_instance_id:
@@ -372,7 +372,7 @@ def _on_filter_matches_string(
             return False
         source_controller = state.cards[source_instance_id].controller
         return subject_card.controller == source_controller
-    
+
     if on_value == "OPPOSING_CHARACTERS":
         if subject_card_id is None:
             return True
@@ -381,13 +381,13 @@ def _on_filter_matches_string(
             return False
         source_controller = state.cards[source_instance_id].controller
         return subject_card.controller == state.opponent(source_controller)
-    
+
     if on_value == "ANY_CHARACTER":
         if subject_card_id is None:
             return True
         subject_card = state.cards.get(subject_card_id)
         return subject_card is not None
-    
+
     # Default: allow match
     return True
 
@@ -405,22 +405,22 @@ def _on_filter_matches_object(
     controller_filter = on_value.get("controller")
     owner_filter = on_value.get("owner")
     classification_filter = on_value.get("classification")
-    
+
     if pending.subject_card_id is None:
         return True
-    
+
     subject_card = state.cards.get(pending.subject_card_id)
     if subject_card is None:
         return False
-    
+
     subject_def = engine.card_def(state, pending.subject_card_id)
     source_controller = state.cards[candidate.source_instance_id].controller
-    
+
     # Card type filter
     if card_type_filter:
         if subject_def.card_type != card_type_filter:
             return False
-    
+
     # Controller filter (you = source controller, opponent = opponent)
     if controller_filter == "you":
         if subject_card.controller != source_controller:
@@ -428,7 +428,7 @@ def _on_filter_matches_object(
     elif controller_filter == "opponent":
         if subject_card.controller != state.opponent(source_controller):
             return False
-    
+
     # Owner filter
     if owner_filter == "you":
         if subject_card.owner != source_controller:
@@ -436,13 +436,13 @@ def _on_filter_matches_object(
     elif owner_filter == "opponent":
         if subject_card.owner != state.opponent(source_controller):
             return False
-    
+
     # Classification filter (simplified)
     if classification_filter:
         # Check if card has the classification keyword
         if classification_filter not in subject_def.keywords:
             return False
-    
+
     return True
 
 
@@ -455,7 +455,7 @@ def _restriction_satisfied(
 ) -> bool:
     """Check if a trigger restriction is satisfied."""
     restriction_type = restriction.get("type") or restriction.get("kind")
-    
+
     if restriction_type == "defender-is-character":
         # Only fires when defender in challenge is a character
         if pending.event == TRIGGER_EVENT_CHALLENGE:
@@ -466,7 +466,7 @@ def _restriction_satisfied(
                 defender_def = engine.card_def(state, pending.defender_id)
                 if defender_def.card_type != CARD_CHARACTER:
                     return False
-    
+
     # Default: restriction satisfied
     return True
 
@@ -479,20 +479,20 @@ def enqueue_bag_effect(
 ) -> BagEffectEntry | None:
     """Create a BagEffectEntry and enqueue it for resolution."""
     trigger = candidate.trigger
-    
+
     # Determine occurrence index for per-occurrence tracking
     trigger_key = candidate.ability_key
     occurrence_index = state.trigger_occurrences.get(trigger_key, 0) + 1
     state.trigger_occurrences[trigger_key] = occurrence_index
-    
+
     # Determine chooser (controller by default for most triggers)
     source_card = state.cards[candidate.source_instance_id]
     controller_id = source_card.controller
-    
+
     # Optional triggers have a chooser; mandatory triggers use controller
     is_optional = trigger.optional or (trigger.auto_resolve is False)
     chooser_id = controller_id  # Could be different for opponent-triggered effects
-    
+
     entry = BagEffectEntry(
         id=state.next_bag_id(),
         kind="triggered_ability",
@@ -518,7 +518,7 @@ def enqueue_bag_effect(
         event=pending,
         raw={},
     )
-    
+
     state.bag.append(entry)
     return entry
 
@@ -530,17 +530,17 @@ def flush_triggered_events_to_bag(
     window: str | None = None,
 ) -> int:
     """Flush pending trigger events to bag entries at resolution boundary.
-    
+
     Returns the number of bag entries added.
     """
     if not state.pending_trigger_events:
         return 0
-    
+
     enqueued_count = 0
-    
+
     # Collect candidates from cards currently in play
     candidates = collect_printed_trigger_candidates(state, engine, window=window)
-    
+
     # Process each buffered event
     for pending in list(state.pending_trigger_events):
         for candidate in candidates:
@@ -548,45 +548,45 @@ def flush_triggered_events_to_bag(
                 entry = enqueue_bag_effect(state, engine, candidate, pending)
                 if entry:
                     enqueued_count += 1
-    
+
     # Clear the pending events after flushing
     state.pending_trigger_events.clear()
-    
+
     return enqueued_count
 
 
 def get_next_bag_resolver(state: GameState) -> int | None:
     """Get the player who should resolve the next bag item.
-    
+
     Uses rotation based on last_bag_resolver when multiple players have bag items.
     """
     if not state.bag:
         return None
-    
+
     # Get the set of controllers who have pending bag items
     resolver_counts: dict[int, int] = {}
     for entry in state.bag:
         resolver_counts[entry.controller_id] = resolver_counts.get(entry.controller_id, 0) + 1
-    
+
     if not resolver_counts:
         return None
-    
+
     # If only one player has items, they resolve
     if len(resolver_counts) == 1:
         return list(resolver_counts.keys())[0]
-    
+
     # Multiple players: rotate based on last resolver
     last = state.last_bag_resolver
-    
+
     # Try to find a player who has items and isn't the last resolver
     for player in (0, 1):
         if player != last and player in resolver_counts:
             return player
-    
+
     # Fallback: use the player after last (wrapping)
     if last is not None:
         return state.opponent(last)
-    
+
     # No last resolver: return player 0
     return 0
 
@@ -596,7 +596,7 @@ def get_bag_items_for_current_resolver(state: GameState) -> list[BagEffectEntry]
     resolver = get_next_bag_resolver(state)
     if resolver is None:
         return []
-    
+
     # Return items where the resolver is the controller or chooser
     return [
         entry for entry in state.bag
@@ -621,10 +621,10 @@ def can_resolve_bag_effect_by_restrictions(state: GameState, entry: BagEffectEnt
     """Check if a bag effect can be resolved based on trigger restrictions."""
     # Check once-per-turn and occurrence limits
     trigger_key = entry.ability_key
-    
+
     # Check if this is a once-per-turn trigger and if it already resolved
     # (simplified - full implementation would check trigger_resolutions ledger)
-    
+
     return True
 
 

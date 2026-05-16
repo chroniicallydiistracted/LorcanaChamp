@@ -530,30 +530,30 @@ def _extract_ability_snippets(snippet: str) -> list[dict[str, Any]]:
 
 def _extract_top_level_property_value(snippet: str, key: str) -> str | None:
     """Extract the value of a top-level property from a TypeScript object snippet.
-    
+
     Respects quoted strings (single, double, template), arrays, nested objects,
     and function calls - does not split on commas inside delimiters.
-    
+
     Returns the raw value text (without trailing comma) or None if not found.
     """
     # Pattern to match key at top level (after { or , or newline, not inside nested structure)
     # We look for: key followed by optional whitespace, then colon, then value
     pattern = rf"\b{re.escape(key)}\s*:"
-    
+
     # Find all occurrences of the key
     for match in re.finditer(pattern, snippet):
         colon_pos = match.end() - 1  # Position of colon
         value_start = colon_pos + 1
-        
+
         # Skip whitespace after colon
         while value_start < len(snippet) and snippet[value_start] in " \t":
             value_start += 1
-        
+
         if value_start >= len(snippet):
             continue
-            
+
         first_char = snippet[value_start]
-        
+
         if first_char in '"\'`':
             # Quoted string - find matching close quote
             close = _find_matching_quote(snippet, value_start, first_char)
@@ -602,11 +602,11 @@ def _extract_top_level_property_value(snippet: str, key: str) -> str | None:
                 elif char in ",\n" and depth == 0:
                     end = i
                     break
-            
+
             value = snippet[value_start:end].rstrip()
             if value:
                 return value
-    
+
     return None
 
 
@@ -631,37 +631,37 @@ def _find_matching_quote(text: str, start: int, quote_char: str) -> int:
 
 def _parse_fallback_ts_value(value_text: str) -> Any:
     """Parse a TypeScript value from the fallback extractor.
-    
+
     Handles: strings, numbers, booleans, null, arrays, objects (as raw strings).
     """
     value_text = value_text.strip()
-    
+
     # Handle null
     if value_text == "null":
         return None
-    
+
     # Handle booleans
     if value_text == "true":
         return True
     if value_text == "false":
         return False
-    
+
     # Handle numbers
     if re.fullmatch(r"-?\d+", value_text):
         return int(value_text)
-    
+
     # Handle quoted strings
     if (value_text.startswith('"') and value_text.endswith('"')) or \
        (value_text.startswith("'") and value_text.endswith("'")):
         return value_text[1:-1]
-    
+
     # Handle template strings
     if value_text.startswith("`") and value_text.endswith("`"):
         # Remove template string markers, handle basic escape sequences
         inner = value_text[1:-1]
         inner = inner.replace("\\`", "`").replace("\\$", "$").replace("\\n", "\n").replace("\\t", "\t")
         return inner
-    
+
     # Handle arrays (extract string/number items)
     if value_text.startswith("[") and value_text.endswith("]"):
         inner = value_text[1:-1].strip()
@@ -683,11 +683,11 @@ def _parse_fallback_ts_value(value_text: str) -> Any:
             else:
                 result.append(item)
         return result
-    
+
     # Handle objects (as raw string)
     if value_text.startswith("{") and value_text.endswith("}"):
         return {"_rawObject": value_text}
-    
+
     # Unquoted identifier or string
     return value_text
 

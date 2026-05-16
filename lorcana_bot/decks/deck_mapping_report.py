@@ -84,13 +84,13 @@ def build_suite_mapping_report(resolved_decks: list[ResolvedDeck], card_defs: di
             card_defs = {card.id: card for card in db.all_cards()}
         else:
             card_defs = {}
-    
+
     unique_total: Counter[str] = Counter()
     copy_total: Counter[str] = Counter()
     deck_presence: Counter[str] = Counter()
     by_deck: dict[str, Counter[str]] = {}
     summaries = []
-    
+
     # Build trigger audit rows
     resolved_decks_dict = []
     for deck in resolved_decks:
@@ -100,15 +100,15 @@ def build_suite_mapping_report(resolved_decks: list[ResolvedDeck], card_defs: di
             "cards": [{"card_id": card.card_id, "count": card.count} for card in deck.cards]
         }
         resolved_decks_dict.append(deck_dict)
-    
+
     trigger_rows = build_trigger_audit_rows(resolved_decks_dict, card_defs)
-    
+
     # Build trigger summary
     trigger_summary = build_trigger_summary(trigger_rows)
-    
+
     # Build milestone recommendation
     milestone_rec = build_milestone_recommendation(trigger_summary, trigger_rows)
-    
+
     for deck in sorted(resolved_decks, key=lambda item: item.id):
         summary = build_deck_mapping_summary(deck)
         summaries.append(summary)
@@ -122,7 +122,7 @@ def build_suite_mapping_report(resolved_decks: list[ResolvedDeck], card_defs: di
     # Use trigger milestone if available
     trigger_milestone = milestone_rec.get("recommended_next_milestone", "none")
     final_milestone = trigger_milestone if trigger_milestone != "unknown" else (work_order[0]["category"] if work_order else "none")
-    
+
     return {
         "schema_version": SCHEMA_VERSION,
         "total_decks": len(resolved_decks),

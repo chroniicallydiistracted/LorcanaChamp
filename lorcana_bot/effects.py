@@ -212,6 +212,11 @@ class EffectResolver:
         return context.optional_choices.get(key, True)
 
     def _discard(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        # Check for explicit discard choice requirements
+        raw = effect.raw or {}
+        is_chosen = raw.get("chosen", False)
+        chosen_by = raw.get("chosen_by") or raw.get("chosenBy")
+
         targets = []
         if effect.target not in {"opponent", "opposing_player", "controller", "actor", "you"}:
             targets = self._target_cards(state, effect, context, require_target=False)
@@ -229,7 +234,56 @@ class EffectResolver:
             return
 
         player = self._target_player(state, effect, context)
-        for _ in range(min(self._amount(effect), len(state.players[player].hand))):
+        amount = self._amount(effect)
+
+        # Determine if explicit choice is required
+        # Rule 1: If effect.raw["chosen"] is true, create pending discard_choice
+        # Rule 2: If effect.raw["chosen_by"] or effect.raw["chosenBy"] is "opponent", chooser is opponent
+        # Rule 3: If target player is not the resolving actor and explicit choice is required, create pending
+        # Rule 4: If no explicit choice is required, preserve current deterministic discard behavior
+
+        requires_explicit_choice = is_chosen or chosen_by is not None
+
+        if requires_explicit_choice:
+            # Build discard candidates from the target player's hand
+            candidate_ids = tuple(state.players[player].hand)
+
+            # Determine the chooser
+            if chosen_by == "opponent":
+                chooser_id = state.opponent(context.actor)
+            else:
+                # Default: controller chooses (for "chosen" without "chosen_by")
+                chooser_id = context.actor
+
+            # Determine min/max selection count
+            max_discard = min(amount, len(candidate_ids))
+            if max_discard == 0:
+                return  # Nothing to discard
+
+            # Import and create the pending effect
+            from lorcana_bot.pending_effects import create_discard_choice_pending_effect
+
+            source_card_id = None
+            if context.source is not None and context.source in state.cards:
+                source_card_id = state.cards[context.source].card_id
+
+            create_discard_choice_pending_effect(
+                state,
+                controller_id=context.actor,
+                chooser_id=chooser_id,
+                source_id=context.source,
+                source_card_id=source_card_id,
+                target_player_id=player,
+                candidate_ids=candidate_ids,
+                min_select=1,
+                max_select=max_discard,
+                origin="discard_effect",
+                raw=raw,  # Pass through raw metadata for effect tracking
+            )
+            return
+
+        # No explicit choice required - preserve deterministic behavior
+        for _ in range(min(amount, len(state.players[player].hand))):
             self.engine._discard_eventful(
                 state,
                 state.players[player].hand[0],
@@ -322,23 +376,23 @@ class EffectResolver:
             players = (context.actor, state.opponent(context.actor))
         else:
             raise EffectResolutionError(f"Unsupported for_each collection {collection!r}")
-        
+
         result: list[int] = []
         for player in players:
             for cid in state.players[player].play:
                 if self.engine.card_def(state, cid).card_type != CARD_CHARACTER:
                     continue
-                
+
                 # Filter out source from your_other_characters
                 if collection == "your_other_characters" and cid == context.source:
                     continue
-                
+
                 # Filter by damage state
                 if collection == "damaged_characters" and state.cards[cid].damage == 0:
                     continue
                 if collection == "opposing_damaged_characters" and state.cards[cid].damage == 0:
                     continue
-                
+
                 result.append(cid)
         return result
 
@@ -366,21 +420,21 @@ class EffectResolver:
 
     def _resolve_scry(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle scry effect - look at top N cards and order them.
-        
+
         Scry requires creating a pending effect that allows the player to:
         1. Look at the top N cards of their deck (private)
         2. Put any number on top in any order
         3. Put the rest on bottom in any order
-        
+
         Uses create_scry_pending_effect which stores top N card IDs privately
         and does NOT move cards until resolve_scry_ordering is called.
         """
         from .pending_effects import create_scry_pending_effect
-        
+
         amount = self._amount(effect)
         if amount <= 0:
             return
-        
+
         # Create proper scry pending effect with requirement tracking
         create_scry_pending_effect(
             state=state,
@@ -394,7 +448,7 @@ class EffectResolver:
 
     def _resolve_look_at_top(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle look_at_top effect - reveal top N cards without moving them.
-        
+
         This is informational only for the player who controls the effect.
         The cards are revealed but stay on top of the deck.
         """
@@ -402,7 +456,7 @@ class EffectResolver:
         # Cards stay on deck, just the player gets to see them
         amount = self._amount(effect)
         player_deck = state.players[context.actor].deck
-        
+
         # Emit reveal event for the looked-at cards (private info)
         top_cards = player_deck[:min(amount, len(player_deck))]
         if top_cards:
@@ -421,29 +475,29 @@ class EffectResolver:
 
     def _resolve_reveal_top_card(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle reveal_top_card effect - reveal the top card of a deck.
-        
+
         The card identity becomes public and is routed according to effect.value.
         """
         amount = self._amount(effect)
         if amount <= 0:
             amount = 1
-        
+
         player = self._target_player(state, effect, context)
         player_deck = state.players[player].deck
-        
+
         if not player_deck:
             return
-        
+
         # Reveal top card(s)
         revealed_cards = []
         for i in range(min(amount, len(player_deck))):
             cid = player_deck[i]
             inst = state.cards[cid]
-            
+
             # Mark as revealed (public info)
             inst.revealed = True
             revealed_cards.append(cid)
-            
+
             # Emit public reveal event
             self.engine.emit_event(
                 state,
@@ -457,7 +511,7 @@ class EffectResolver:
                     "player": player,
                 },
             )
-        
+
         # Route the revealed card(s) according to effect value
         if effect.value:
             destination = str(effect.value)
@@ -475,17 +529,17 @@ class EffectResolver:
 
     def _resolve_reveal_hand(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle reveal_hand effect - reveal all cards in hand.
-        
+
         The card identities become public and are routed according to effect.value.
         """
         player = self._target_player(state, effect, context)
         hand = state.players[player].hand
-        
+
         # Reveal all cards in hand
         for cid in hand:
             inst = state.cards[cid]
             inst.revealed = True
-            
+
             # Emit public reveal event
             self.engine.emit_event(
                 state,
@@ -502,16 +556,16 @@ class EffectResolver:
 
     def _resolve_reveal_cards(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle reveal_cards effect - reveal specific cards.
-        
+
         The card identities become public.
         """
         # Get cards to reveal from context.target or effect.target
         cards_to_reveal = self._target_cards(state, effect, context, require_target=False)
-        
+
         for cid in cards_to_reveal:
             inst = state.cards[cid]
             inst.revealed = True
-            
+
             # Emit public reveal event
             self.engine.emit_event(
                 state,
@@ -526,31 +580,31 @@ class EffectResolver:
 
     def _resolve_search_deck(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle search_deck effect - search deck for cards matching a filter.
-        
+
         This requires pending player input to select which card to take.
         The filter is specified in effect.value as a card type, keyword, or name.
-        
+
         Uses create_search_pending_effect which stores candidate card IDs privately
         and requires explicit selection before moving.
         """
         from .pending_effects import create_search_pending_effect
-        
+
         player = self._target_player(state, effect, context)
         player_deck = state.players[player].deck
-        
+
         if not player_deck:
             return
-        
+
         # Parse filter from effect.value (card_type, keyword, or name)
         filter_desc = str(effect.value) if effect.value else None
-        
+
         # For now, include all deck cards as candidates (full search)
         # In a real implementation, this would filter based on effect.value
         candidate_ids = tuple(player_deck)
-        
+
         # Determine destination from effect or default
         destination = str(effect.value) if effect.value else "hand"
-        
+
         # Create proper search pending effect with requirement tracking
         create_search_pending_effect(
             state=state,
@@ -568,7 +622,7 @@ class EffectResolver:
 
     def _resolve_put_card_in_hand(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle put_card_in_hand effect - move selected card to hand.
-        
+
         The card to move is determined by context.choice or the pending effect selection.
         """
         # The card to move should be specified in context.choice (card instance id)
@@ -576,7 +630,7 @@ class EffectResolver:
         if card_id is None:
             # No specific card - this is an error unless it's from a pending effect
             return
-        
+
         if card_id in state.cards:
             self.engine._move_card_eventful(
                 state,
@@ -591,14 +645,14 @@ class EffectResolver:
 
     def _resolve_put_card_on_top(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle put_card_on_top effect - move card to top of deck.
-        
+
         The card to move is determined by context.choice or the pending effect selection.
         """
         # The card to move should be specified in context.choice
         card_id = context.choice
         if card_id is None:
             return
-        
+
         if card_id in state.cards:
             self.engine._move_card_eventful(
                 state,
@@ -612,14 +666,14 @@ class EffectResolver:
 
     def _resolve_put_card_on_bottom(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle put_card_on_bottom effect - move card to bottom of deck.
-        
+
         The card to move is determined by context.choice or the pending effect selection.
         """
         # The card to move should be specified in context.choice
         card_id = context.choice
         if card_id is None:
             return
-        
+
         if card_id in state.cards:
             self.engine._move_card_eventful(
                 state,
@@ -632,14 +686,14 @@ class EffectResolver:
 
     def _resolve_put_card_in_discard(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle put_card_in_discard effect - move card to discard.
-        
+
         The card to move is determined by context.choice or the pending effect selection.
         """
         # The card to move should be specified in context.choice
         card_id = context.choice
         if card_id is None:
             return
-        
+
         if card_id in state.cards:
             self.engine._move_card_eventful(
                 state,
@@ -651,7 +705,7 @@ class EffectResolver:
 
     def _resolve_shuffle_deck(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle shuffle_deck effect - shuffle the deck.
-        
+
         Uses deterministic shuffling based on game seed.
         """
         import random
@@ -662,7 +716,7 @@ class EffectResolver:
 
     def _resolve_name_a_card(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle name_a_card effect - name a specific card.
-        
+
         This requires pending player input to choose the card name.
         The named card is then used for comparison or routing.
         """
@@ -685,23 +739,23 @@ class EffectResolver:
 
     def _resolve_reveal_and_route(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle reveal_and_route effect - reveal a card and move it to a destination.
-        
+
         This combines reveal and routing in one effect.
         """
         # Get destination from effect.value
         destination = str(effect.value) if effect.value else "hand"
-        
+
         player = self._target_player(state, effect, context)
         player_deck = state.players[player].deck
-        
+
         if not player_deck:
             return
-        
+
         # Reveal top card
         cid = player_deck[0]
         inst = state.cards[cid]
         inst.revealed = True
-        
+
         # Emit public reveal event
         self.engine.emit_event(
             state,
@@ -715,7 +769,7 @@ class EffectResolver:
                 "player": player,
             },
         )
-        
+
         # Route to destination
         if destination == "hand":
             self.engine._move_card_eventful(state, cid, ZONE_HAND, actor=player, source_id=context.source)

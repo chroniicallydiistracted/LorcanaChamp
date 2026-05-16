@@ -135,7 +135,7 @@ RESOLUTION_REQUIREMENT_KINDS = {
 @dataclass
 class TriggerProjectionAnalysis:
     """Analysis result for a source trigger's projection feasibility."""
-    
+
     source_ability: SourceAbilityDef
     can_project: bool = False
     projected_trigger_id: str | None = None
@@ -147,7 +147,7 @@ class TriggerProjectionAnalysis:
     resolution_requirements: tuple[str, ...] = field(default_factory=tuple)
     recommended_engine_work: tuple[str, ...] = field(default_factory=tuple)
     failure_reasons: tuple[str, ...] = field(default_factory=tuple)
-    
+
     @property
     def primary_blocker(self) -> str | None:
         """Return the most specific blocker."""
@@ -158,14 +158,14 @@ class TriggerProjectionAnalysis:
         if specific_blockers:
             return specific_blockers[0]
         return self.blockers[0]
-    
+
     @property
     def blocker_family(self) -> str:
         """Determine blocker family from primary blocker."""
         blocker = self.primary_blocker
         if blocker is None:
             return "unknown"
-        
+
         if blocker.startswith("unsupported_trigger_event:"):
             return "trigger_event"
         if blocker.startswith("unsupported_trigger_on:"):
@@ -192,21 +192,21 @@ class TriggerProjectionAnalysis:
             return "unknown"
         if blocker == "unsupported_trigger":
             return "unknown"
-        
+
         return "unknown"
 
 
 def _analyze_trigger_on_filter(on_filter: dict[str, Any]) -> str | None:
     """Analyze a trigger on filter object for supported keys.
-    
+
     Returns a blocker string if unsupported, None if supported.
     """
     supported_keys = {"cardType", "controller", "owner", "classification", "excludeSelf"}
-    
+
     for key in on_filter:
         if key not in supported_keys:
             return f"unsupported_trigger_on:complex_filter:{key}"
-    
+
     # All keys are supported
     return None
 
@@ -216,7 +216,7 @@ def analyze_source_trigger_projection(
     ability: SourceAbilityDef,
 ) -> TriggerProjectionAnalysis:
     """Analyze whether a source trigger ability can be projected as executable.
-    
+
     This function performs the same analysis that project_triggers() uses,
     but returns detailed blocker information for reporting purposes.
     """
@@ -226,10 +226,10 @@ def analyze_source_trigger_projection(
     condition_kinds = tuple(_extract_condition_kinds(ability.condition))
     cost_kinds = tuple(c.kind for c in ability.costs)
     resolution_requirements = tuple(_extract_resolution_requirements(ability))
-    
+
     blockers: list[str] = []
     failure_reasons: list[str] = []
-    
+
     # Check if this is a triggered ability
     if ability.kind == "activated":
         # B9: Activated abilities now have a separate execution path in the engine.
@@ -262,7 +262,7 @@ def analyze_source_trigger_projection(
             failure_reasons=tuple(failure_reasons),
             recommended_engine_work=_get_recommended_work(blockers),
         )
-    
+
     trigger = ability.trigger
     if not trigger:
         blockers.append("unsupported_trigger_unknown")
@@ -278,12 +278,12 @@ def analyze_source_trigger_projection(
             failure_reasons=tuple(failure_reasons),
             recommended_engine_work=_get_recommended_work(blockers),
         )
-    
+
     # Check trigger event
     if trigger.event not in SUPPORTED_TRIGGER_EVENTS:
         blockers.append(f"unsupported_trigger_event:{trigger.event}")
         failure_reasons.append(f"trigger event '{trigger.event}' not supported")
-    
+
     # Check trigger on
     if trigger.on:
         # Complex filter check
@@ -295,7 +295,7 @@ def analyze_source_trigger_projection(
         elif trigger.on not in SUPPORTED_TRIGGER_ON_VALUES:
             blockers.append(f"unsupported_trigger_on:{trigger.on}")
             failure_reasons.append(f"trigger on '{trigger.on}' not supported")
-    
+
     # Check effects
     all_effects_supported = True
     for effect in ability.effects:
@@ -303,31 +303,31 @@ def analyze_source_trigger_projection(
         if effect_blocker:
             blockers.append(effect_blocker)
             all_effects_supported = False
-    
+
     # Check target requirements
     for effect in ability.effects:
         target_blocker = _analyze_target_support(effect)
         if target_blocker:
             blockers.append(target_blocker)
-    
+
     # Check condition
     if ability.condition:
         cond_kind = ability.condition.kind
         if cond_kind not in SUPPORTED_CONDITION_KINDS:
             blockers.append(f"unsupported_trigger_condition:{cond_kind}")
             failure_reasons.append(f"condition kind '{cond_kind}' not supported")
-    
+
     # Check resolution requirements
     for req in resolution_requirements:
         blockers.append(f"unsupported_trigger_resolution_requirement:{req}")
         failure_reasons.append(f"resolution requirement '{req}' not supported")
-    
+
     # Can we project?
     can_project = (
         len(blockers) == 0 and
         trigger.event in SUPPORTED_TRIGGER_EVENTS
     )
-    
+
     if can_project:
         projected_id = ability.id or f"{card.id}:trigger:{card.source_abilities.index(ability)}"
         return TriggerProjectionAnalysis(
@@ -342,7 +342,7 @@ def analyze_source_trigger_projection(
             resolution_requirements=resolution_requirements,
             recommended_engine_work=(),
         )
-    
+
     return TriggerProjectionAnalysis(
         source_ability=ability,
         can_project=False,
@@ -396,7 +396,7 @@ def _extract_condition_kinds(condition: SourceConditionDef | None) -> list[str]:
 def _extract_resolution_requirements(ability: SourceAbilityDef) -> list[str]:
     """Determine resolution requirements from ability structure."""
     requirements = []
-    
+
     # Recursively check all effects
     def _check_effect(effect: SourceEffectDef) -> None:
         if effect.kind == "choice":
@@ -413,52 +413,52 @@ def _extract_resolution_requirements(ability: SourceAbilityDef) -> list[str]:
             requirements.append("destination")
         if effect.raw.get("amount"):
             requirements.append("amount")
-        
+
         # Recursively check child effects
         for child in effect.effects:
             _check_effect(child)
-        
+
         # Check branches (for conditional effects)
         if hasattr(effect, 'branches') and effect.branches:
             for branch in effect.branches:
                 for branch_effect in branch.effects:
                     _check_effect(branch_effect)
-    
+
     # Check all top-level effects
     for effect in ability.effects:
         _check_effect(effect)
-    
+
     # Check if ability is optional
     if ability.auto_resolve is False:
         requirements.append("optional")
-    
+
     # Check for opponent choices (guard against mock objects without target attr)
     for effect in ability.effects:
         if hasattr(effect, 'target') and effect.target and effect.target.alias in {"OPPONENT", "CHOSEN_PLAYER"}:
             requirements.append("opponent_choice")
-    
+
     return list(set(requirements))
 
 
 def _analyze_effect_support(effect: SourceEffectDef) -> str | None:
     """Check if effect kind is supported for trigger projection."""
     kind = effect.kind
-    
+
     # Check if effect kind is in the engine map
     if kind not in ENGINE_EFFECT_MAP:
         return f"unsupported_trigger_effect:{kind}"
-    
+
     # Check if mapped kind is supported
     mapped_kind = ENGINE_EFFECT_MAP[kind]
     if mapped_kind not in SUPPORTED_TRIGGER_ENGINE_EFFECT_KINDS:
         return f"unsupported_trigger_effect:{kind}"
-    
+
     # Recursively check children
     for child in effect.effects:
         blocker = _analyze_effect_support(child)
         if blocker:
             return blocker
-    
+
     return None
 
 
@@ -467,31 +467,31 @@ def _analyze_target_support(effect: SourceEffectDef) -> str | None:
     target = effect.target
     if not target:
         return None
-    
+
     # B3: CHOSEN_* targets are now supported via pending effect layer
     # Check if target alias is supported
     if target.alias:
         if target.alias not in SUPPORTED_TARGET_ALIASES:
             return f"unsupported_trigger_target:{target.alias}"
-    
+
     # Check if selector is supported (chosen implies target prompt)
     # B3: Selector-based chosen targets are also supported via pending effects
     if target.selector == "chosen":
         return None  # Now supported via pending effect layer
-    
+
     # Recursively check children
     for child in effect.effects:
         blocker = _analyze_target_support(child)
         if blocker:
             return blocker
-    
+
     return None
 
 
 def _get_recommended_work(blockers: list[str]) -> tuple[str, ...]:
     """Determine recommended engine work from blockers."""
     work_set = set()
-    
+
     for blocker in blockers:
         if blocker.startswith("unsupported_trigger_event:"):
             work_set.add("broader_trigger_projection")
@@ -525,7 +525,7 @@ def _get_recommended_work(blockers: list[str]) -> tuple[str, ...]:
             work_set.add("activated_abilities")
         elif blocker in {"unsupported_trigger_parser_gap", "unsupported_trigger_unknown", "unsupported_trigger"}:
             work_set.add("unknown_parser_hardening")
-    
+
     return tuple(sorted(work_set))
 
 
@@ -535,30 +535,30 @@ def build_trigger_audit_rows(
 ) -> list[dict[str, Any]]:
     """Build audit rows for all triggers in resolved decks."""
     rows = []
-    
+
     for deck in resolved_decks:
         deck_id = deck.get("id", "unknown")
         deck_name = deck.get("name", "unknown")
-        
+
         for card_entry in deck.get("cards", []):
             card_id = card_entry.get("card_id")
             if not card_id or card_id not in card_defs:
                 continue
-            
+
             card_def = card_defs[card_id]
             card_count = card_entry.get("count", 1)
             ink = card_entry.get("ink")
             card_type = card_entry.get("card_type")
             full_name = card_entry.get("full_name", card_def.full_name)
-            
+
             # Analyze each source ability
             for idx, ability in enumerate(card_def.source_abilities or []):
                 if ability.kind != "triggered":
                     continue
-                
+
                 analysis = analyze_source_trigger_projection(card_def, ability)
                 trigger = ability.trigger
-                
+
                 row = {
                     "deck_id": deck_id,
                     "deck_name": deck_name,
@@ -596,7 +596,7 @@ def build_trigger_audit_rows(
                     "deck_presence_weight": 1,
                 }
                 rows.append(row)
-    
+
     return rows
 
 
@@ -605,20 +605,20 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     total_rows = len(rows)
     projected_rows = sum(1 for r in rows if r["projection_status"] == "projected")
     blocked_rows = sum(1 for r in rows if r["projection_status"] != "projected")
-    
+
     # Copy-weighted statistics
     blocked_copies = sum(r["copy_weight"] for r in rows if r["projection_status"] != "projected")
     broad_unsupported = sum(
-        r["copy_weight"] for r in rows 
+        r["copy_weight"] for r in rows
         if r.get("primary_blocker") and "unsupported_trigger" in r["primary_blocker"]
         and ":" not in r["primary_blocker"]
     )
-    
+
     # By primary blocker (exclude projected)
     blocker_copies = Counter()
     blocker_cards = {}  # blocker -> set of card_ids
     blocker_decks = {}  # blocker -> set of deck_ids
-    
+
     for row in rows:
         if row["projection_status"] == "projected":
             continue
@@ -626,7 +626,7 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         deck_id = row.get("deck_id")
         card_id = row.get("card_id")
         copies = row.get("copy_weight", 1)
-        
+
         blocker_copies[blocker] += copies
         if blocker not in blocker_cards:
             blocker_cards[blocker] = set()
@@ -635,7 +635,7 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             if blocker not in blocker_decks:
                 blocker_decks[blocker] = set()
             blocker_decks[blocker].add(deck_id)
-    
+
     # Build by_primary_blocker output
     by_primary_blocker_copies = []
     for blocker, copies in sorted(blocker_copies.items(), key=lambda x: (-x[1], x[0])):
@@ -644,7 +644,7 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         # B2: Handle "unknown" blocker specially and guard against empty tuple
         work_result = _get_recommended_work([blocker]) if blocker != "unknown" else ()
         recommended = work_result[0] if work_result else "unknown_parser_hardening"
-        
+
         by_primary_blocker_copies.append({
             "blocker": blocker,
             "copies": copies,
@@ -653,12 +653,12 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "example_cards": [],  # TODO: implement if needed
             "recommended_engine_work": recommended,
         })
-    
+
     # Build by_recommended_engine_work
     work_copies = Counter()
     work_cards = {}  # work -> set of card_ids
     work_decks = {}  # work -> set of deck_ids
-    
+
     for row in rows:
         if row["projection_status"] == "projected":
             continue
@@ -674,12 +674,12 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 if work not in work_decks:
                     work_decks[work] = set()
                 work_decks[work].add(deck_id)
-    
+
     by_recommended_engine_work = []
     for work in sorted(work_copies.keys(), key=lambda x: -work_copies[x]):
         blockers_for_work = list(set(
-            r["primary_blocker"] 
-            for r in rows 
+            r["primary_blocker"]
+            for r in rows
             if work in r.get("recommended_engine_work", [])
             and r["projection_status"] != "projected"
         ))
@@ -690,13 +690,13 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "deck_presence": len(work_decks.get(work, set())),
             "blockers": sorted(blockers_for_work),
         })
-    
+
     # B2: By trigger event with per-event sets for correct aggregation
     by_trigger_event = []
     event_copies = Counter()
     event_cards = defaultdict(set)  # event -> set of card_ids
     event_decks = defaultdict(set)  # event -> set of deck_ids
-    
+
     for row in rows:
         if row["projection_status"] == "projected":
             continue
@@ -708,7 +708,7 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         event_cards[event].add(card_id)
         if deck_id:
             event_decks[event].add(deck_id)
-    
+
     for event in sorted(event_copies.keys(), key=lambda x: -event_copies[x]):
         by_trigger_event.append({
             "trigger_event": event,
@@ -716,13 +716,13 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "unique_cards": len(event_cards[event]),
             "deck_presence": len(event_decks[event]),
         })
-    
+
     # B2: By trigger on with per-event sets
     by_trigger_on = []
     on_copies = Counter()
     on_cards = defaultdict(set)
     on_decks = defaultdict(set)
-    
+
     for row in rows:
         if row["projection_status"] == "projected":
             continue
@@ -744,7 +744,7 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         on_cards[on_val].add(card_id)
         if deck_id:
             on_decks[on_val].add(deck_id)
-    
+
     for on_val in sorted(on_copies.keys(), key=lambda x: -on_copies[x]):
         by_trigger_on.append({
             "trigger_on": on_val,
@@ -752,13 +752,13 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "unique_cards": len(on_cards[on_val]),
             "deck_presence": len(on_decks[on_val]),
         })
-    
+
     # B2: By effect kind with per-kind sets
     by_effect_kind = []
     effect_copies = Counter()
     effect_cards = defaultdict(set)
     effect_decks = defaultdict(set)
-    
+
     for row in rows:
         if row["projection_status"] == "projected":
             continue
@@ -770,7 +770,7 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             effect_cards[ek].add(card_id)
             if deck_id:
                 effect_decks[ek].add(deck_id)
-    
+
     for ek in sorted(effect_copies.keys(), key=lambda x: -effect_copies[x]):
         by_effect_kind.append({
             "effect_kind": ek,
@@ -778,13 +778,13 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "unique_cards": len(effect_cards[ek]),
             "deck_presence": len(effect_decks[ek]),
         })
-    
+
     # B2: By condition kind with per-kind sets
     by_condition_kind = []
     cond_copies = Counter()
     cond_cards = defaultdict(set)
     cond_decks = defaultdict(set)
-    
+
     for row in rows:
         if row["projection_status"] == "projected":
             continue
@@ -796,7 +796,7 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             cond_cards[ck].add(card_id)
             if deck_id:
                 cond_decks[ck].add(deck_id)
-    
+
     for ck in sorted(cond_copies.keys(), key=lambda x: -cond_copies[x]):
         by_condition_kind.append({
             "condition_kind": ck,
@@ -804,13 +804,13 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "unique_cards": len(cond_cards[ck]),
             "deck_presence": len(cond_decks[ck]),
         })
-    
+
     # B2: By target kind with per-kind sets
     by_target_kind = []
     target_copies = Counter()
     target_cards = defaultdict(set)
     target_decks = defaultdict(set)
-    
+
     for row in rows:
         if row["projection_status"] == "projected":
             continue
@@ -822,7 +822,7 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             target_cards[tk].add(card_id)
             if deck_id:
                 target_decks[tk].add(deck_id)
-    
+
     for tk in sorted(target_copies.keys(), key=lambda x: -target_copies[x]):
         by_target_kind.append({
             "target_kind": tk,
@@ -830,13 +830,13 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "unique_cards": len(target_cards[tk]),
             "deck_presence": len(target_decks[tk]),
         })
-    
+
     # B2: By resolution requirement with per-kind sets
     by_resolution_requirement = []
     res_copies = Counter()
     res_cards = defaultdict(set)
     res_decks = defaultdict(set)
-    
+
     for row in rows:
         if row["projection_status"] == "projected":
             continue
@@ -848,7 +848,7 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             res_cards[rr].add(card_id)
             if deck_id:
                 res_decks[rr].add(deck_id)
-    
+
     for rr in sorted(res_copies.keys(), key=lambda x: -res_copies[x]):
         by_resolution_requirement.append({
             "resolution_requirement": rr,
@@ -885,11 +885,11 @@ def build_trigger_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
 def build_projection_failures(rows: list[dict[str, Any]]) -> dict[str, Any]:
     """Build projection failures report."""
     failures = []
-    
+
     for row in rows:
         if row["projection_status"] == "projected":
             continue
-        
+
         failure = {
             "card_id": row["card_id"],
             "full_name": row["full_name"],
@@ -908,23 +908,23 @@ def build_projection_failures(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "recommended_engine_work": row["recommended_engine_work"],
         }
         failures.append(failure)
-    
+
     # Summary
     failure_reason_counts_copies = Counter()
     failure_reason_counts_unique = Counter()
-    
+
     for f in failures:
         card_id = f["card_id"]
         copies = f["copy_weight"]
         for reason in f["failure_reasons"]:
             failure_reason_counts_copies[reason] += copies
             failure_reason_counts_unique[card_id] += 1
-    
+
     high_impact_failures = sorted(
-        failures, 
+        failures,
         key=lambda x: (-x["copy_weight"], -len(x["failure_reasons"]))
     )[:20]
-    
+
     return {
         "failures": failures,
         "summary": {
@@ -954,44 +954,44 @@ def build_milestone_recommendation(summary: dict[str, Any], rows: list[dict[str,
         "pending_effect_prompts": {"copies": 0, "unique_cards": 0, "deck_presence": 0, "blockers": []},
         "other_source_execution": {"copies": 0, "unique_cards": 0, "deck_presence": 0, "blockers": []},
     }
-    
+
     # B2: Use per-work sets for unique cards/decks aggregation
     from collections import defaultdict
     work_cards = defaultdict(set)
     work_decks = defaultdict(set)
     work_copies = defaultdict(int)
-    
+
     for row in rows:
         if row["projection_status"] == "projected":
             continue
-        
+
         copies = row.get("copy_weight", 1)
         deck_id = row.get("deck_id")
         card_id = row.get("card_id")
-        
+
         for work in row.get("recommended_engine_work", []):
             work_copies[work] += copies
             work_cards[work].add(card_id)
             work_decks[work].add(deck_id)
-            
+
             if work in candidates:
                 candidates[work]["copies"] = work_copies[work]
                 candidates[work]["unique_cards"] = len(work_cards[work])
                 candidates[work]["deck_presence"] = len(work_decks[work])
-                
+
                 blocker = row.get("primary_blocker")
                 if blocker and blocker not in candidates[work]["blockers"]:
                     candidates[work]["blockers"].append(blocker)
-    
+
     # Calculate scores
     scored_candidates = []
     for name, data in candidates.items():
         copies = data["copies"]
         unique = data["unique_cards"]
         decks = data["deck_presence"]
-        
+
         score = copies * 3 + unique * 5 + decks * 10
-        
+
         # Bonuses
         if name == "target_choice_prompts":
             score += 30
@@ -1007,7 +1007,7 @@ def build_milestone_recommendation(summary: dict[str, Any], rows: list[dict[str,
             score += 10
         elif name == "replacement_prevention":
             score += 5
-        
+
         # Prerequisites
         if name == "target_choice_prompts" and any("CHOSEN" in b for b in data["blockers"]):
             score += 50
@@ -1015,7 +1015,7 @@ def build_milestone_recommendation(summary: dict[str, Any], rows: list[dict[str,
             score += 30
         if name == "broader_trigger_projection" and any("not_projected" in b for b in data["blockers"]):
             score += 25
-        
+
         # Penalties
         penalties = {
             "replacement_prevention": 30,
@@ -1027,7 +1027,7 @@ def build_milestone_recommendation(summary: dict[str, Any], rows: list[dict[str,
             "shift": 5,
         }
         score -= penalties.get(name, 0)
-        
+
         scored_candidates.append({
             "milestone": name,
             "score": score,
@@ -1039,15 +1039,15 @@ def build_milestone_recommendation(summary: dict[str, Any], rows: list[dict[str,
             "dependencies": [],
             "notes": "",
         })
-    
+
     # Sort by score
     scored_candidates.sort(key=lambda x: (-x["score"], x["milestone"]))
-    
+
     # Determine recommended
     if scored_candidates:
         recommended = scored_candidates[0]["milestone"]
         recommended_data = scored_candidates[0]
-        
+
         # Confidence based on score gap
         if len(scored_candidates) > 1:
             gap = scored_candidates[0]["score"] - scored_candidates[1]["score"]
@@ -1059,19 +1059,19 @@ def build_milestone_recommendation(summary: dict[str, Any], rows: list[dict[str,
                 confidence = "low"
         else:
             confidence = "high"
-        
+
         reason = f"Recommended based on copy/unique/deck impact scoring. Top blocker: {recommended_data['representative_blockers'][0] if recommended_data['representative_blockers'] else 'unknown'}"
     else:
         recommended = "unknown"
         confidence = "low"
         reason = "No blockers found"
-    
+
     # Do not prioritize
     do_not_prioritize = [
         {"milestone": "replacement_prevention", "reason": "low copy impact in current 12 decks"},
         {"milestone": "singer_songs", "reason": "no sing triggers in current decks"},
     ]
-    
+
     return {
         "schema_version": 1,
         "recommended_next_milestone": recommended,

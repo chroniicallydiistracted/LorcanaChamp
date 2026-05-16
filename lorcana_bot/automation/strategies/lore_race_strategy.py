@@ -102,7 +102,7 @@ def score_lore_race(context: StrategyContext, candidate: AutomatedActionCandidat
     elif candidate.family in {AutomatedActionFamily.RESOLVE_BAG, AutomatedActionFamily.RESOLVE_EFFECT}:
         # B7: Resolution candidates score based on polarity and projected benefit
         add("resolve_required", 100)  # High base score for resolution priority
-        
+
         # Score based on effect polarity
         polarity = candidate.effect_polarity
         if polarity == "beneficial":
@@ -111,13 +111,13 @@ def score_lore_race(context: StrategyContext, candidate: AutomatedActionCandidat
             add("harmful_effect", -30)
         elif polarity == "mixed":
             add("mixed_effect", 10)
-        
+
         # Score based on projected benefit/harm
         projected_benefit = candidate.projected_benefit
         projected_harm = candidate.projected_harm
         add("projected_benefit", projected_benefit)
         add("projected_harm", -projected_harm)
-        
+
         # Handle optional effects
         if candidate.resolve_optional is not None:
             if candidate.resolve_optional:  # Accepting
@@ -130,7 +130,7 @@ def score_lore_race(context: StrategyContext, candidate: AutomatedActionCandidat
                     add("decline_harmful_optional", 20)
                 else:
                     add("decline_beneficial_optional", -30)
-        
+
         # Bonus for mandatory resolution (no optional choice)
         if candidate.metadata.get("optional") is not True:
             add("mandatory_resolution", 25)

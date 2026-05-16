@@ -89,7 +89,7 @@ def _pending_effect_candidates(
     actor: int,
 ) -> list[AutomatedActionCandidate]:
     """Generate RESOLVE_EFFECT candidates from pending effects.
-    
+
     This mirrors Lorcanito's resolution enumeration for pending action effects.
     Priority ordering:
     1. Optional accept/decline choices
@@ -98,17 +98,17 @@ def _pending_effect_candidates(
     """
     from lorcana_bot.pending_effects import get_current_pending_effect, get_valid_targets_for_requirement
     from lorcana_bot.cards import EffectDef
-    
+
     candidates = []
     pe = get_current_pending_effect(state, actor)
     if pe is None:
         return candidates
-    
+
     # Determine effect metadata
     effect_kind = _get_effect_kind(pe)
     effect_polarity = _classify_effect_polarity(pe, actor)
     projected_benefit, projected_harm = _estimate_effect_impact(pe, engine, actor)
-    
+
     # Check if this is optional (accept/decline)
     if pe.optional and pe.accepted is None:
         # Accept option
@@ -266,7 +266,7 @@ def _pending_effect_candidates(
             effect_polarity=effect_polarity,
             origin=pe.origin,
         ))
-    
+
     return candidates
 
 
@@ -285,60 +285,60 @@ def _get_effect_kind(pe: Any) -> str | None:
 
 def _classify_effect_polarity(pe: Any, actor: int) -> str:
     """Classify effect polarity for the given actor.
-    
+
     Mirrors Lorcanito's classifyTargetedStepPolarity and classifyEffectPolarity.
     """
     effect = None
     if pe.effects and pe.current_effect_index < len(pe.effects):
         effect = pe.effects[pe.current_effect_index]
-    
+
     if effect is None:
         return "neutral"
-    
+
     effect_target = None
     if hasattr(effect, 'target'):
         effect_target = effect.target
     elif isinstance(effect, dict):
         effect_target = effect.get('target')
-    
+
     # Determine polarity based on effect type and target
     effect_kind = _get_effect_kind(pe)
-    
+
     # DRAW, GAIN_LORE, PLAY_CARD are generally beneficial
     beneficial_effects = {"draw", "gain_lore", "play_card", "put_in_play", "gain_ink"}
     # DEAL_DAMAGE to opponent is beneficial, to self is harmful
     # HEAL is generally beneficial
-    
+
     if effect_kind in beneficial_effects:
         if effect_target in {"YOU", "CONTROLLER", None} or effect_target == str(actor):
             return "beneficial"
         if effect_target in {"OPPONENT", "EACH_OPPONENT"}:
             return "beneficial"
         return "mixed"
-    
+
     if effect_kind == "deal_damage":
         if effect_target in {"OPPONENT", "EACH_OPPONENT"}:
             return "beneficial"
         if effect_target in {"YOU", "CONTROLLER", None} or effect_target == str(actor):
             return "harmful"
         return "mixed"
-    
+
     if effect_kind == "banish":
         return "neutral"  # Depends heavily on what's being banished
-    
+
     return "neutral"
 
 
 def _estimate_effect_impact(pe: Any, engine: GameEngine | None, actor: int) -> tuple[float, float]:
     """Estimate projected benefit and harm for an effect.
-    
+
     Mirrors Lorcanito's estimateEffectBenefit with simple heuristics.
     """
     benefit = 0.0
     harm = 0.0
-    
+
     effect_kind = _get_effect_kind(pe)
-    
+
     # Simple benefit estimates based on effect type
     if effect_kind == "draw":
         benefit += 3.0  # Cards have value
@@ -352,7 +352,7 @@ def _estimate_effect_impact(pe: Any, engine: GameEngine | None, actor: int) -> t
         harm += 2.0  # Damage is harm to opponent
     elif effect_kind == "banish":
         harm += 3.0  # Banishing is harmful
-    
+
     return benefit, harm
 
 
@@ -520,6 +520,10 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
         choice_index = choice.get("choice_index")
         named_card = choice.get("named_card")
         destination = choice.get("destination")
+        amount = choice.get("amount")
+        targets = tuple(choice.get("targets", ()))
+        discard_card_ids = tuple(choice.get("discard_card_ids", ()))
+        enter_play_exerted = choice.get("enter_play_exerted")
 
         source_card_id = None
         if action.source is not None and action.source in state.cards:
@@ -534,6 +538,10 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
             "bottom_cards": tuple(choice.get("bottom_cards", ())),
             "named_card": named_card,
             "destination": destination,
+            "amount": amount,
+            "targets": targets,
+            "discard_card_ids": discard_card_ids,
+            "enter_play_exerted": enter_play_exerted,
         }
         metadata = {key: value for key, value in metadata.items() if value is not None and value != ()}
 
@@ -546,6 +554,10 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
             label = f"Select card {choice['selected_card_id']}"
         elif "top_cards" in choice or "bottom_cards" in choice:
             label = "Choose scry ordering"
+        elif discard_card_ids:
+            label = f"Discard {len(discard_card_ids)} cards"
+        elif amount is not None:
+            label = f"Choose amount {amount}"
 
         return AutomatedActionCandidate(
             family=AutomatedActionFamily.RESOLVE_EFFECT,
@@ -562,6 +574,10 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
                 bottom_cards=tuple(choice.get("bottom_cards", ())),
                 named_card=named_card,
                 destination=destination,
+                amount=amount,
+                targets=targets,
+                discard_card_ids=discard_card_ids,
+                enter_play_exerted=enter_play_exerted,
             ),
             source_instance_id=action.source,
             source_card_id=source_card_id,
@@ -573,11 +589,16 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
             destinations={str(destination): ()} if destination is not None else {},
             label=label,
             metadata=metadata,
+            # B9: Capture new pending choice fields
+            amount=amount,
+            targets=targets,
+            discard_card_ids=discard_card_ids,
+            enter_play_exerted=enter_play_exerted,
         )
     if action.kind == ACTION_RESOLVE_BAG:
         bag_id = action.choice.get("bag_id") if action.choice else None
         accept = action.choice.get("accept", True) if action.choice else True
-        
+
         # Get trigger info from bag entry
         source_card_id = None
         ability_id = None
@@ -585,7 +606,7 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
         event_type = None
         optional = False
         effect_kinds: list[str] = []
-        
+
         if bag_id and hasattr(state, "bag"):
             for entry in state.bag:
                 if entry.id == bag_id:
@@ -596,9 +617,9 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
                     optional = getattr(entry, "optional", False)
                     effect_kinds = [str(getattr(e, "kind", "unknown")) for e in getattr(entry, "effects", [])]
                     break
-        
+
         is_optional = optional and not accept
-        
+
         return AutomatedActionCandidate(
             family=AutomatedActionFamily.RESOLVE_BAG,
             actor=actor,
@@ -621,14 +642,14 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
         )
     if action.kind == ACTION_USE_ABILITY:
         from lorcana_bot.abilities import get_activated_abilities_for_card
-        
+
         source_card_id = None
         ability_id = action.choice.get("ability_id") if action.choice else None
         ability_index = action.choice.get("ability_index") if action.choice else None
-        
+
         if action.source:
             source_card_id = state.cards[action.source].card_id if action.source in state.cards else None
-        
+
         # Get ability name from card
         ability_name = None
         if action.source:
@@ -638,13 +659,13 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
                 if a.ability_index == ability_index or a.ability_id == ability_id:
                     ability_name = a.name
                     break
-        
+
         return AutomatedActionCandidate(
             family=AutomatedActionFamily.ACTIVATE_ABILITY,
             actor=actor,
             stable_key=make_stable_key(
-                AutomatedActionFamily.ACTIVATE_ABILITY, 
-                actor, 
+                AutomatedActionFamily.ACTIVATE_ABILITY,
+                actor,
                 source=action.source,
                 ability_id=ability_id,
                 ability_index=ability_index,
@@ -693,7 +714,7 @@ def _mulligan_structural_candidates(state: GameState, engine: GameEngine, actor:
 
 def _record_activated_ability_skips(state: GameState, engine: GameEngine, actor: int, result: CandidateEnumerationResult) -> None:
     from lorcana_bot.abilities import get_available_abilities_for_player, validate_ability_costs
-    
+
     # Only report skipped abilities that can't be used this turn
     for ability in get_available_abilities_for_player(state, engine, actor):
         can_pay, _ = validate_ability_costs(state, engine, ability)

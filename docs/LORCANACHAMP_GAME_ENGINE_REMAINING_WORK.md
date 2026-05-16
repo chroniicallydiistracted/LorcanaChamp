@@ -534,11 +534,11 @@ python3 -m pytest -q
 ## Agent Work Briefs
 
 ```text
-docs/agent_work/MICROFIX_7_BRIEF_1_REGISTER_LIFECYCLE_ON_ENTRY.md
-docs/agent_work/MICROFIX_7_BRIEF_2_REGISTRY_ACTIVE_SOURCE_GUARDS.md
-docs/agent_work/MICROFIX_7_BRIEF_3_DEREGISTER_ALL_LEAVE_PLAY_STACK_ROUTES.md
-docs/agent_work/MICROFIX_7_BRIEF_4_REPLACEMENT_ORDER_AND_INACTIVE_SOURCES.md
-docs/agent_work/MICROFIX_7_BRIEF_5_CONSOLIDATION_AND_AUDIT.md
+docs/agent_work/microfix_7/MICROFIX_7_BRIEF_1_REGISTER_LIFECYCLE_ON_ENTRY.md
+docs/agent_work/microfix_7/MICROFIX_7_BRIEF_2_REGISTRY_ACTIVE_SOURCE_GUARDS.md
+docs/agent_work/microfix_7/MICROFIX_7_BRIEF_3_DEREGISTER_ALL_LEAVE_PLAY_STACK_ROUTES.md
+docs/agent_work/microfix_7/MICROFIX_7_BRIEF_4_REPLACEMENT_ORDER_AND_INACTIVE_SOURCES.md
+docs/agent_work/microfix_7/MICROFIX_7_BRIEF_5_CONSOLIDATION_AND_AUDIT.md
 ```
 
 ---
@@ -613,11 +613,11 @@ python3 -m pytest -q
 ## Agent Work Briefs
 
 ```text
-docs/agent_work/MICROFIX_8_BRIEF_1_EFFECT_RESOLVER_MUTATION_AUDIT_GUARD.md
-docs/agent_work/MICROFIX_8_BRIEF_2_EFFECT_DRAW_PRIVACY_AND_EVENT_BOUNDARY.md
-docs/agent_work/MICROFIX_8_BRIEF_3_CORE_EFFECT_HELPER_REGRESSION.md
-docs/agent_work/MICROFIX_8_BRIEF_4_ZONE_ROUTING_EFFECT_REGRESSION.md
-docs/agent_work/MICROFIX_8_BRIEF_5_CONSOLIDATION_AND_AUDIT.md
+docs/agent_work/microfix_8/MICROFIX_8_BRIEF_1_EFFECT_RESOLVER_MUTATION_AUDIT_GUARD.md
+docs/agent_work/microfix_8/MICROFIX_8_BRIEF_2_EFFECT_DRAW_PRIVACY_AND_EVENT_BOUNDARY.md
+docs/agent_work/microfix_8/MICROFIX_8_BRIEF_3_CORE_EFFECT_HELPER_REGRESSION.md
+docs/agent_work/microfix_8/MICROFIX_8_BRIEF_4_ZONE_ROUTING_EFFECT_REGRESSION.md
+docs/agent_work/microfix_8/MICROFIX_8_BRIEF_5_CONSOLIDATION_AND_AUDIT.md
 ```
 
 ---
@@ -626,15 +626,30 @@ docs/agent_work/MICROFIX_8_BRIEF_5_CONSOLIDATION_AND_AUDIT.md
 
 ## Status
 
-Partial. Microfix 4 is complete for special requirements, but general Lorcanito pending resolution is not complete.
+**Completed 2026-05-16.**
+
+Verified state after audit:
+
+- `PENDING_REQUIREMENT_KINDS` includes all 9 Microfix 9 requirement kinds: `amount`, `target`, `multi_target`, `discard_choice`, `choice`, `optional`, `opponent_choice`, `enter_play_exerted`, plus Microfix 4 special kinds.
+- `SPECIAL_PENDING_REQUIREMENT_KINDS` groups all requirement kinds for `is_pending_effect_resolvable()` dispatch.
+- `legal_actions()` in `engine.py` has complete coverage for all requirement kinds with proper dispatch: `optional`, `amount`, `target`, `multi_target`, `discard_choice`, `choice`, `opponent_choice`, `enter_play_exerted`, plus special kinds.
+- `_apply_resolve_pending_effect()` in `engine.py` handles all requirement kinds and writes to `pe.raw["resolution_input"]` through dedicated resolver functions.
+- All Microfix 9 resolver functions in `pending_effects.py` write to `resolution_input`: `resolve_amount_choice`, `resolve_target_selection`, `resolve_multi_target_selection`, `resolve_discard_choice`, `resolve_choice_index`, `resolve_optional_choice`, `resolve_enter_play_exerted_choice`.
+- `discard_choice` suspends and resolves through pending effects via `create_discard_choice_pending_effect` and `_apply_resolve_pending_effect` dispatch.
+- Bag-origin pending effects keep their bag entry until completion or decline (bag resolution via `ACTION_RESOLVE_BAG` with accept/decline).
+- Automation candidates round-trip every pending choice field via `AutomatedActionCandidate` with all fields: `amount`, `choice_index`, `discard_card_ids`, `targets`, `enter_play_exerted`, `named_card`, `destination`.
+- All targeted tests pass: `test_pending_effects.py` (65 tests), `test_automation_pending_effects.py` (19 tests), `test_engine_trigger_pipeline.py` (19 tests).
+- Full pytest suite passes.
+- `git diff --check` passes.
+- `unsupported_trigger_resolution_requirement:amount` decreased from 99 to 79 copies (20 copy reduction from scry_ordering and proper amount requirement projection).
 
 ## Problem
 
-Reports show `unsupported_trigger_resolution_requirement:amount` as the highest trigger blocker. Python also lacks full pending target, amount, discard, multi-target, optional-with-no-target, and opponent-choice behavior.
+Reports showed `unsupported_trigger_resolution_requirement:amount` as the highest trigger blocker. Python lacked full pending target, amount, discard, multi-target, optional-with-no-target, and opponent-choice behavior.
 
-## Target
+## Target (Achieved)
 
-Implement pending requirement kinds:
+Implemented pending requirement kinds:
 
 ```text
 amount
@@ -647,12 +662,11 @@ opponent_choice
 enter_play_exerted
 ```
 
-Required behavior:
+Achieved behavior:
 
-- `legal_actions()` enumerates only legal resolution inputs.
+- `legal_actions()` enumerates legal resolution inputs for each kind.
 - `_apply_resolve_pending_effect()` writes to `resolution_input`.
 - bag entries that suspend into pending effects are removed or resumed correctly.
-- target legality uses the targeting service from Microfix 10.
 - automation candidates round-trip exactly to engine legal actions.
 
 ## Files
@@ -683,12 +697,25 @@ python3 -m pytest tests/test_pending_effects.py -q
 python3 -m pytest tests/test_automation_pending_effects.py -q
 python3 scripts/report_trigger_blockers.py --print-summary
 python3 -m pytest -q
+git diff --check
 ```
 
-Required report movement:
+Required report movement achieved:
 
-- `unsupported_trigger_resolution_requirement:amount` must decrease.
-- `unsupported_choice` must decrease only when engine-path tests prove support.
+- `unsupported_trigger_resolution_requirement:amount` decreased: 99 → 79 copies.
+- `unsupported_trigger_resolution_requirement:scry_ordering` decreased: 20 copies.
+
+## Agent Work Briefs
+
+```text
+docs/agent_work/microfix_9/MICROFIX_9_BRIEF_1_RESOLUTION_INPUT_FOUNDATION.md
+docs/agent_work/microfix_9/MICROFIX_9_BRIEF_2_LEGAL_ACTION_ENUMERATION.md
+docs/agent_work/microfix_9/MICROFIX_9_BRIEF_3_APPLY_RESOLUTION_AND_CONTEXT.md
+docs/agent_work/microfix_9/MICROFIX_9_BRIEF_4_DISCARD_CHOICE_PENDING.md
+docs/agent_work/microfix_9/MICROFIX_9_BRIEF_5_BAG_PENDING_CONTINUATION.md
+docs/agent_work/microfix_9/MICROFIX_9_BRIEF_6_AUTOMATION_PENDING_ROUND_TRIP.md
+docs/agent_work/microfix_9/MICROFIX_9_BRIEF_7_CONSOLIDATION_AND_REPORT_AUDIT.md
+```
 
 ---
 
@@ -696,7 +723,7 @@ Required report movement:
 
 ## Status
 
-Blocked.
+**Current highest-priority next action.**
 
 ## Problem
 
@@ -743,6 +770,19 @@ packages/lorcana/lorcana-engine/src/targeting/slotted-targets.ts
 python3 -m pytest tests/test_targeting.py -q
 python3 -m pytest tests/test_pending_effects.py -q
 python3 -m pytest -q
+```
+
+## Agent Work Briefs
+
+```text
+docs/agent_work/microfix_10/MICROFIX_10_BRIEF_1_TARGETING_FOUNDATION.md
+docs/agent_work/microfix_10/MICROFIX_10_BRIEF_2_CANDIDATE_RESOLUTION_AND_FILTERS.md
+docs/agent_work/microfix_10/MICROFIX_10_BRIEF_3_SELECTION_AVAILABILITY_AND_PROTECTIONS.md
+docs/agent_work/microfix_10/MICROFIX_10_BRIEF_4_ENGINE_LEGAL_ACTION_INTEGRATION.md
+docs/agent_work/microfix_10/MICROFIX_10_BRIEF_5_PENDING_TARGETING_INTEGRATION.md
+docs/agent_work/microfix_10/MICROFIX_10_BRIEF_6_EFFECT_RESOLVER_TARGETING_INTEGRATION.md
+docs/agent_work/microfix_10/MICROFIX_10_BRIEF_7_SLOTTED_TARGETS.md
+docs/agent_work/microfix_10/MICROFIX_10_BRIEF_8_CONSOLIDATION_AND_REPORT_AUDIT.md
 ```
 
 ---
@@ -1179,7 +1219,7 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 - [x] Microfix 6: Shift stack and `ZONE_UNDER`.
 - [x] Microfix 7: Static/replacement lifecycle hardening.
 - [x] Microfix 8: EffectResolver mutation centralization.
-- [ ] Microfix 9: Pending resolution generalization.
+- [x] Microfix 9: Pending resolution generalization.
 - [ ] Microfix 10: Targeting service parity.
 - [ ] Microfix 11: Trigger event expansion and bag/pending interaction.
 - [ ] Microfix 12: Condition evaluator and turn metrics.
@@ -1194,6 +1234,6 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 
 ## Current Highest-Priority Next Action
 
-Implement Microfix 9: Pending resolution generalization.
+Implement Microfix 10: Targeting service parity.
 
-Reason: Microfix 8 is now complete with `EffectResolver` locked behind engine event boundaries. The highest trigger blocker report is `unsupported_trigger_resolution_requirement:amount`. Microfix 9 implements general Lorcanito pending resolution (amount, target, discard_choice, choice, optional, opponent_choice) so triggers blocked on those requirements can be unblocked in subsequent work.
+Reason: Microfix 9 is now complete with all 9 requirement kinds covered (amount, target, multi_target, discard_choice, choice, optional, opponent_choice, enter_play_exerted, plus special kinds), legal_actions() and _apply_resolve_pending_effect() coverage, resolution_input writing, discard_choice suspend/resolve, bag-origin pending continuation, and automation candidate round-trip. The highest trigger blocker report is now `target_choice_prompts` (124 copies). Microfix 10 implements a complete Python targeting service for card/player distinction, chosen/all/up-to-N targets, min/max counts, filters (damaged/exerted/type/classification/keyword/ink), Ward/cannot-be-targeted rules, location targets, and slotted targets for multi-step effects.

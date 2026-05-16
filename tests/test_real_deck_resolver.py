@@ -49,19 +49,19 @@ def test_malicious_mean_and_scary_resolves_without_alias():
     """Regression test: Malicious, Mean, and Scary should resolve without needing a deck alias."""
     import json
     from pathlib import Path
-    
+
     source_json = Path("data/lorcanito_extracted/cards.normalized.json")
     if not source_json.exists():
         import pytest
         pytest.skip("cards.normalized.json not available")
-    
+
     cards_data = json.loads(source_json.read_text())["cards"]
     rc1_card = next((c for c in cards_data if c.get("id") == "Rc1"), None)
     assert rc1_card is not None, "Card Rc1 not found in source"
-    
+
     # Build index with the actual card
     index = build_source_card_index([rc1_card])
-    
+
     # Test resolution
     resolved = resolve_deck_card(RawDeckCard("Malicious, Mean, and Scary", 4), index)
     assert resolved.resolved, f"Expected resolved, got status: {resolved.resolution_status}, error: {resolved.resolution_error}"

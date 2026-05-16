@@ -24,7 +24,7 @@ def engine():
 def test_resolve_bag_requires_action(engine):
     """Test that bag resolution must go through ACTION_RESOLVE_BAG."""
     state = engine.setup_game([["test_char"], ["test_char"]], seed=42)
-    
+
     # Direct resolve_bag call should raise
     with pytest.raises(RuntimeError, match="Bag must be resolved through ACTION_RESOLVE_BAG"):
         engine.resolve_bag(state)
@@ -33,12 +33,12 @@ def test_resolve_bag_requires_action(engine):
 def test_resolve_bag_action_processes_effects(engine):
     """Test that ACTION_RESOLVE_BAG processes bag effects."""
     state = engine.setup_game([["test_char"], ["test_char"]], seed=42)
-    
+
     # Create a mock bag entry (this would normally be created by triggers)
     # For now, just test that the action can be applied
     actions = engine.legal_actions(state, 0)
     resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_BAG]
-    
+
     if resolve_actions:
         next_state = engine.apply_action(state, resolve_actions[0])
         assert next_state is not None
@@ -50,21 +50,21 @@ class TestTriggerContextInBagResolution:
     def test_trigger_subject_available_in_resolution(self, engine):
         """Test that trigger_subject is passed to effect resolution context."""
         state = engine.setup_game([["test_char"] * 30, ["test_char"] * 30], seed=42)
-        
+
         # Manually create card instances in play using CardInstance
         from lorcana_bot.state import CardInstance
         from lorcana_bot.constants import ZONE_PLAY
-        
+
         # Get next available instance ID
         next_id = max(state.cards.keys()) + 1 if state.cards else 1
         test_char = next_id
         lore_char = next_id + 1
-        
+
         # Create instances
         state.cards[test_char] = CardInstance(instance_id=test_char, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
         state.cards[lore_char] = CardInstance(instance_id=lore_char, card_id="lore_char", owner=0, controller=0, zone=ZONE_PLAY)
         state.players[0].play.extend([test_char, lore_char])
-        
+
         # Create a bag entry with trigger context
         pending_event = PendingTriggeredEvent(
             id="test_event_1",
@@ -75,7 +75,7 @@ class TestTriggerContextInBagResolution:
             source_card_type="character",
             payload={},
         )
-        
+
         bag_entry = BagEffectEntry(
             id="bag_1",
             kind="triggered_ability",
@@ -95,38 +95,38 @@ class TestTriggerContextInBagResolution:
             event=pending_event,
             raw={},
         )
-        
+
         # Add to bag
         state.bag.append(bag_entry)
-        
+
         # Find resolve bag action
         actions = engine.legal_actions(state, 0)
         resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_BAG]
         assert len(resolve_actions) > 0
-        
+
         # Apply the resolve action
         next_state = engine.apply_action(state, resolve_actions[0])
-        
+
         # The trigger_subject (lore_char) should have taken damage
         assert next_state.cards[lore_char].damage == 1
 
     def test_event_target_in_payload(self, engine):
         """Test that event_target from payload is used."""
         state = engine.setup_game([["test_char"] * 30, ["test_char"] * 30], seed=42)
-        
+
         # Manually create card instances in play for both players
         from lorcana_bot.state import CardInstance
         from lorcana_bot.constants import ZONE_PLAY
-        
+
         next_id = max(state.cards.keys()) + 1 if state.cards else 1
         test_char = next_id
         lore_char = next_id + 1
-        
+
         state.cards[test_char] = CardInstance(instance_id=test_char, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
         state.cards[lore_char] = CardInstance(instance_id=lore_char, card_id="lore_char", owner=1, controller=1, zone=ZONE_PLAY)
         state.players[0].play.append(test_char)
         state.players[1].play.append(lore_char)
-        
+
         # Create a bag entry with event_target in payload
         pending_event = PendingTriggeredEvent(
             id="test_event_2",
@@ -137,7 +137,7 @@ class TestTriggerContextInBagResolution:
             source_card_type="character",
             payload={"event_target_id": lore_char},
         )
-        
+
         bag_entry = BagEffectEntry(
             id="bag_2",
             kind="triggered_ability",
@@ -157,18 +157,18 @@ class TestTriggerContextInBagResolution:
             event=pending_event,
             raw={},
         )
-        
+
         # Add to bag
         state.bag.append(bag_entry)
-        
+
         # Find resolve bag action
         actions = engine.legal_actions(state, 0)
         resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_BAG]
         assert len(resolve_actions) > 0
-        
+
         # Apply the resolve action
         next_state = engine.apply_action(state, resolve_actions[0])
-        
+
         # The event_target (lore_char) should have taken damage
         # Note: lore_char has willpower=2, so 2 damage banishes it (moves to discard)
         # Check the card state - it should have been banished (zone = discard)
@@ -177,19 +177,19 @@ class TestTriggerContextInBagResolution:
     def test_controller_target_in_bag_effect(self, engine):
         """Test that controller target resolves to controller in bag effect."""
         state = engine.setup_game([["lore_char"] * 30, ["test_char"] * 30], seed=42)
-        
+
         # Manually create card instance in play
         from lorcana_bot.state import CardInstance
         from lorcana_bot.constants import ZONE_PLAY
-        
+
         next_id = max(state.cards.keys()) + 1 if state.cards else 1
         lore_char = next_id
-        
+
         state.cards[lore_char] = CardInstance(instance_id=lore_char, card_id="lore_char", owner=0, controller=0, zone=ZONE_PLAY)
         state.players[0].play.append(lore_char)
-        
+
         initial_lore = state.players[0].lore
-        
+
         # Create a bag entry with controller target
         pending_event = PendingTriggeredEvent(
             id="test_event_3",
@@ -200,7 +200,7 @@ class TestTriggerContextInBagResolution:
             source_card_type="character",
             payload={},
         )
-        
+
         bag_entry = BagEffectEntry(
             id="bag_3",
             kind="triggered_ability",
@@ -220,18 +220,18 @@ class TestTriggerContextInBagResolution:
             event=pending_event,
             raw={},
         )
-        
+
         # Add to bag
         state.bag.append(bag_entry)
-        
+
         # Find resolve bag action
         actions = engine.legal_actions(state, 0)
         resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_BAG]
         assert len(resolve_actions) > 0
-        
+
         # Apply the resolve action
         next_state = engine.apply_action(state, resolve_actions[0])
-        
+
         # Controller should have gained lore
         assert next_state.players[0].lore == initial_lore + 1
 
@@ -242,19 +242,19 @@ class TestYourOtherCharactersExcludesSource:
     def test_your_other_characters_excludes_trigger_source(self, engine):
         """your_other_characters should exclude trigger_source."""
         state = engine.setup_game([["test_char"] * 30, ["lore_char"] * 30], seed=42)
-        
+
         # Manually create two card instances in play
         from lorcana_bot.state import CardInstance
         from lorcana_bot.constants import ZONE_PLAY
-        
+
         next_id = max(state.cards.keys()) + 1 if state.cards else 1
         char1 = next_id
         char2 = next_id + 1
-        
+
         state.cards[char1] = CardInstance(instance_id=char1, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
         state.cards[char2] = CardInstance(instance_id=char2, card_id="lore_char", owner=0, controller=0, zone=ZONE_PLAY)
         state.players[0].play.extend([char1, char2])
-        
+
         # Create bag entry targeting your_other_characters
         pending_event = PendingTriggeredEvent(
             id="test_event_4",
@@ -265,7 +265,7 @@ class TestYourOtherCharactersExcludesSource:
             source_card_type="character",
             payload={},
         )
-        
+
         bag_entry = BagEffectEntry(
             id="bag_4",
             kind="triggered_ability",
@@ -285,18 +285,18 @@ class TestYourOtherCharactersExcludesSource:
             event=pending_event,
             raw={},
         )
-        
+
         # Add to bag
         state.bag.append(bag_entry)
-        
+
         # Find resolve bag action
         actions = engine.legal_actions(state, 0)
         resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_BAG]
         assert len(resolve_actions) > 0
-        
+
         # Apply the resolve action
         next_state = engine.apply_action(state, resolve_actions[0])
-        
+
         # char2 (other character) should have damage, char1 (source) should not
         assert next_state.cards[char2].damage == 1
         assert next_state.cards[char1].damage == 0
@@ -308,21 +308,21 @@ class TestChallengeTriggerEventTarget:
     def test_challenge_trigger_with_defender_id(self, engine):
         """Challenge trigger with deal-damage to event_target should use defender_id from payload."""
         state = engine.setup_game([["test_char"] * 30, ["test_char"] * 30], seed=42)
-        
+
         # Create card instances for both players
         from lorcana_bot.state import CardInstance
         from lorcana_bot.constants import ZONE_PLAY
-        
+
         next_id = max(state.cards.keys()) + 1 if state.cards else 1
         attacker = next_id
         defender = next_id + 1
-        
+
         # Player 0 has attacker, Player 1 has defender
         state.cards[attacker] = CardInstance(instance_id=attacker, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
         state.cards[defender] = CardInstance(instance_id=defender, card_id="test_char", owner=1, controller=1, zone=ZONE_PLAY)
         state.players[0].play.append(attacker)
         state.players[1].play.append(defender)
-        
+
         # Create bag entry with defender_id (like challenge event does)
         pending_event = PendingTriggeredEvent(
             id="test_challenge_event",
@@ -333,7 +333,7 @@ class TestChallengeTriggerEventTarget:
             source_card_type="character",
             payload={"defender_id": defender},  # B2: challenge payload uses defender_id
         )
-        
+
         bag_entry = BagEffectEntry(
             id="bag_challenge",
             kind="triggered_ability",
@@ -353,18 +353,18 @@ class TestChallengeTriggerEventTarget:
             event=pending_event,
             raw={},
         )
-        
+
         # Add to bag
         state.bag.append(bag_entry)
-        
+
         # Find resolve bag action
         actions = engine.legal_actions(state, 0)
         resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_BAG]
         assert len(resolve_actions) > 0
-        
+
         # Apply the resolve action
         next_state = engine.apply_action(state, resolve_actions[0])
-        
+
         # The event_target (defender) should have taken damage
         # defender is a character with willpower=2, so 1 damage doesn't banish it
         assert next_state.cards[defender].damage == 1
@@ -373,17 +373,17 @@ class TestChallengeTriggerEventTarget:
     def test_quest_trigger_with_subject_card_id(self, engine):
         """Quest trigger with trigger_subject should use subject_card_id from payload."""
         state = engine.setup_game([["lore_char"] * 30, ["test_char"] * 30], seed=42)
-        
+
         # Create card instance
         from lorcana_bot.state import CardInstance
         from lorcana_bot.constants import ZONE_PLAY
-        
+
         next_id = max(state.cards.keys()) + 1 if state.cards else 1
         quester = next_id
-        
+
         state.cards[quester] = CardInstance(instance_id=quester, card_id="lore_char", owner=0, controller=0, zone=ZONE_PLAY)
         state.players[0].play.append(quester)
-        
+
         # Create bag entry using subject_card_id (quest payload)
         pending_event = PendingTriggeredEvent(
             id="test_quest_event",
@@ -394,7 +394,7 @@ class TestChallengeTriggerEventTarget:
             source_card_type="character",
             payload={"subject_card_id": quester},  # B2: quest payload uses subject_card_id
         )
-        
+
         bag_entry = BagEffectEntry(
             id="bag_quest",
             kind="triggered_ability",
@@ -414,18 +414,18 @@ class TestChallengeTriggerEventTarget:
             event=pending_event,
             raw={},
         )
-        
+
         # Add to bag
         state.bag.append(bag_entry)
-        
+
         # Find resolve bag action
         actions = engine.legal_actions(state, 0)
         resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_BAG]
         assert len(resolve_actions) > 0
-        
+
         # Apply the resolve action
         next_state = engine.apply_action(state, resolve_actions[0])
-        
+
         # The trigger_subject (quester) should have taken damage
         assert next_state.cards[quester].damage == 1
 
@@ -436,17 +436,17 @@ class TestNonActiveBagResolver:
     def test_non_active_player_can_resolve_bag(self, engine):
         """Test that non-active player can receive ACTION_RESOLVE_BAG."""
         state = engine.setup_game([["test_char"] * 30, ["test_char"] * 30], seed=42)
-        
+
         # Manually create a card in play for player 1
         from lorcana_bot.state import CardInstance
         from lorcana_bot.constants import ZONE_PLAY
-        
+
         next_id = max(state.cards.keys()) + 1 if state.cards else 1
         test_char = next_id
-        
+
         state.cards[test_char] = CardInstance(instance_id=test_char, card_id="test_char", owner=1, controller=1, zone=ZONE_PLAY)
         state.players[1].play.append(test_char)
-        
+
         # Create a bag entry controlled by player 1
         from lorcana_bot.state import PendingTriggeredEvent
         pending_event = PendingTriggeredEvent(
@@ -458,7 +458,7 @@ class TestNonActiveBagResolver:
             source_card_type="character",
             payload={},
         )
-        
+
         bag_entry = BagEffectEntry(
             id="bag_5",
             kind="triggered_ability",
@@ -478,16 +478,16 @@ class TestNonActiveBagResolver:
             event=pending_event,
             raw={},
         )
-        
+
         state.bag.append(bag_entry)
-        
+
         # Player 0 is active, but player 1 is the bag resolver
         # Player 1 (non-active) should get RESOLVE_BAG action
         player1_actions = engine.legal_actions(state, 1)
         resolve_actions = [a for a in player1_actions if a.kind == ACTION_RESOLVE_BAG]
-        
+
         assert len(resolve_actions) > 0, "Non-active bag resolver should get RESOLVE_BAG action"
-        
+
         # Player 0 (active) should only get CONCEDE since they're not the resolver
         player0_actions = engine.legal_actions(state, 0)
         non_concede = [a for a in player0_actions if a.kind != ACTION_CONCEDE]
@@ -496,14 +496,14 @@ class TestNonActiveBagResolver:
     def test_normal_actions_resume_when_bag_empty(self, engine):
         """Test that normal actions resume when bag is empty."""
         state = engine.setup_game([["test_char"] * 30, ["test_char"] * 30], seed=42)
-        
+
         # No bag items - active player should get normal actions
         actions = engine.legal_actions(state, state.active_player)
-        
+
         # Should have normal actions, not just CONCEDE
         end_turn = [a for a in actions if a.kind == ACTION_END_TURN]
         assert len(end_turn) > 0, "Active player should have END_TURN when bag is empty"
-        
+
         # Non-active player should have no actions (no bag, not active)
         non_active = 1 - state.active_player
         non_active_actions = engine.legal_actions(state, non_active)

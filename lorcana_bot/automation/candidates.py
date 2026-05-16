@@ -53,7 +53,7 @@ class EffectPolarity(StrEnum):
 @dataclass(frozen=True)
 class ResolutionMetadata:
     """Rich metadata for resolution candidates (resolveBag, resolveEffect).
-    
+
     Mirrors Lorcanito's resolution metadata with effect inspection, polarity
     classification, projected benefit/harm, and hidden-info policy.
     """
@@ -63,27 +63,27 @@ class ResolutionMetadata:
     ability_id: str | None = None
     ability_index: int | None = None
     ability_name: str | None = None
-    
+
     # Effect information
     effect_kind: str | None = None  # "draw", "gain_lore", "deal_damage", etc.
     effect_polarity: EffectPolarity = EffectPolarity.NEUTRAL
     optional: bool = False
-    
+
     # Projected impact (estimated benefit score for actor)
     projected_benefit: float = 0.0
     projected_harm: float = 0.0
-    
+
     # Target information
     targets_chosen: tuple[int, ...] = ()
     target_requirement_kind: str | None = None  # "chosen_character", "chosen_opposing_character", etc.
-    
+
     # Choice information
     choice_index: int | None = None
     choice_options_count: int = 0
-    
+
     # Hidden-info policy (how much the bot can see)
     information_policy: str = "fair"  # "fair" or "oracle"
-    
+
     # Origin tracking
     origin: str = "bag"  # "bag", "action", "activated"
     origin_id: str | None = None
@@ -114,7 +114,7 @@ class AutomatedActionCandidate:
     destinations: dict[str, tuple[int, ...]] = field(default_factory=dict)
     label: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
-    
+
     # B7: Resolution-specific fields for comprehensive metadata
     effect_kind: str | None = None           # "draw", "gain_lore", "deal_damage", etc.
     effect_polarity: str | None = None        # "beneficial", "harmful", "mixed", "neutral"
@@ -122,6 +122,11 @@ class AutomatedActionCandidate:
     projected_harm: float = 0.0               # Estimated harm score
     target_requirement_kind: str | None = None  # "chosen_character", etc.
     origin: str = "bag"                      # "bag", "action", "activated"
+
+    # B9: Pending choice fields for round-trip completeness
+    amount: int | None = None                # For "amount" pending requirement
+    enter_play_exerted: bool | None = None   # For "enter_play_exerted" pending requirement
+    discard_card_ids: tuple[int, ...] = () # For "discard_choice" pending requirement
 
 
 @dataclass(frozen=True)

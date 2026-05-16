@@ -84,6 +84,13 @@ from .pending_effects import (
     resolve_reveal_routing,
     resolve_named_card,
     resolve_destination_choice,
+    resolve_amount_choice,
+    resolve_target_selection,
+    resolve_multi_target_selection,
+    resolve_discard_choice,
+    resolve_choice_index,
+    resolve_optional_choice,
+    resolve_enter_play_exerted_choice,
     advance_pending_effect,
     complete_pending_effect,
     get_next_pending_effect_chooser,
@@ -259,11 +266,11 @@ class GameEngine:
                 # Player is the current chooser - only RESOLVE_PENDING_EFFECT and CONCEDE are legal
                 actions: list[Action] = []
                 requirement = pe.current_requirement
-                
+
                 requirement_kind = (pe.raw or {}).get("requirement_kind")
                 raw_requirement = (pe.raw or {}).get("requirement")
 
-                if pe.optional and pe.accepted is None:
+                if requirement_kind == "optional" and pe.accepted is None:
                     # Optional effect - can accept or decline
                     actions.append(Action(
                         ACTION_RESOLVE_PENDING_EFFECT,
@@ -276,6 +283,192 @@ class GameEngine:
                         actor=player,
                         source=pe.source_id,
                         choice={"pending_effect_id": pe.id, "accept": False}
+                    ))
+                elif requirement_kind == "amount":
+                    # Amount selection required
+                    amount_options = (
+                        (pe.raw or {}).get("amount_options")
+                        or getattr(raw_requirement, "options", None)
+                        or []
+                    )
+                    # Fallback: generate from min/max if provided
+                    min_amount = (
+                        (pe.raw or {}).get("min_amount")
+                        if (pe.raw or {}).get("min_amount") is not None
+                        else (pe.raw or {}).get("min", getattr(raw_requirement, "min_amount", getattr(raw_requirement, "min", 0)))
+                    )
+                    max_amount = (
+                        (pe.raw or {}).get("max_amount")
+                        if (pe.raw or {}).get("max_amount") is not None
+                        else (pe.raw or {}).get("max", getattr(raw_requirement, "max_amount", getattr(raw_requirement, "max", len(amount_options))))
+                    )
+                    if not amount_options and max_amount > 0:
+                        amount_options = list(range(min_amount, max_amount + 1))
+                    for amount in amount_options:
+                        actions.append(Action(
+                            ACTION_RESOLVE_PENDING_EFFECT,
+                            actor=player,
+                            source=pe.source_id,
+                            choice={"pending_effect_id": pe.id, "amount": amount}
+                        ))
+                elif requirement_kind == "target":
+                    # Single target selection - use raw candidate_ids or fallback to get_valid_targets
+                    candidate_ids = (
+                        (pe.raw or {}).get("candidate_ids")
+                        or getattr(raw_requirement, "candidate_ids", None)
+                        or []
+                    )
+                    if candidate_ids:
+                        # Use explicit candidate list from raw
+                        for target_id in candidate_ids:
+                            actions.append(Action(
+                                ACTION_RESOLVE_PENDING_EFFECT,
+                                actor=player,
+                                source=pe.source_id,
+                                target=target_id,
+                                choice={"pending_effect_id": pe.id, "targets": (target_id,)}
+                            ))
+                    elif requirement is not None:
+                        # Fallback to get_valid_targets_for_requirement
+                        valid_targets = get_valid_targets_for_requirement(state, requirement, player, self)
+                        for target in valid_targets:
+                            actions.append(Action(
+                                ACTION_RESOLVE_PENDING_EFFECT,
+                                actor=player,
+                                source=pe.source_id,
+                                target=target,
+                                choice={"pending_effect_id": pe.id, "targets": (target,)}
+                            ))
+                elif requirement_kind == "multi_target":
+                    # Multi-target selection - enumerate combinations respecting min/max
+                    raw_candidates = (
+                        (pe.raw or {}).get("candidate_ids")
+                        or getattr(raw_requirement, "candidate_ids", None)
+                        or []
+                    )
+                    min_targets = getattr(raw_requirement, "min_targets", 1)
+                    max_targets = getattr(raw_requirement, "max_targets", len(raw_candidates))
+                    if max_targets is None:
+                        max_targets = len(raw_candidates)
+                    # Filter to valid targets if we have a requirement for validation
+                    if requirement is not None:
+                        valid_set = set(get_valid_targets_for_requirement(state, requirement, player, self))
+                        candidates = tuple(cid for cid in raw_candidates if cid in valid_set)
+                    else:
+                        candidates = tuple(raw_candidates)
+                    # Generate all valid target combinations
+                    from itertools import combinations
+                    for r in range(min_targets, max_targets + 1):
+                        for combo in combinations(candidates, r):
+                            actions.append(Action(
+                                ACTION_RESOLVE_PENDING_EFFECT,
+                                actor=player,
+                                source=pe.source_id,
+                                target=combo[0] if combo else None,
+                                choice={"pending_effect_id": pe.id, "targets": combo}
+                            ))
+                elif requirement_kind == "discard_choice":
+                    # Discard choice - enumerate card combinations from hand candidates
+                    card_candidates = (
+                        (pe.raw or {}).get("card_candidate_ids")
+                        or (pe.raw or {}).get("candidate_ids")
+                        or getattr(raw_requirement, "card_candidate_ids", None)
+                        or []
+                    )
+                    # Use raw_requirement if available, otherwise fall back to pe.raw
+                    if raw_requirement is not None:
+                        min_cards = getattr(raw_requirement, "min_cards", 1)
+                        max_cards = getattr(raw_requirement, "max_cards", None)
+                    else:
+                        min_cards = (pe.raw or {}).get("min_cards", 1)
+                        max_cards = (pe.raw or {}).get("max_cards", None)
+                    if max_cards is None:
+                        max_cards = len(card_candidates)
+                    # Filter to cards in chooser's hand
+                    hand_cards = set(state.players[player].hand)
+                    valid_cards = tuple(cid for cid in card_candidates if cid in hand_cards)
+                    from itertools import combinations
+                    for r in range(min_cards, max_cards + 1):
+                        for combo in combinations(valid_cards, r):
+                            actions.append(Action(
+                                ACTION_RESOLVE_PENDING_EFFECT,
+                                actor=player,
+                                source=pe.source_id,
+                                choice={"pending_effect_id": pe.id, "discard_card_ids": combo}
+                            ))
+                elif requirement_kind == "choice":
+                    # Index-based choice selection
+                    choice_options = (
+                        (pe.raw or {}).get("options")
+                        or getattr(raw_requirement, "options", None)
+                        or list(pe.choice_options)
+                    )
+                    for idx, _ in enumerate(choice_options):
+                        actions.append(Action(
+                            ACTION_RESOLVE_PENDING_EFFECT,
+                            actor=player,
+                            source=pe.source_id,
+                            choice={"pending_effect_id": pe.id, "choice_index": idx}
+                        ))
+                elif requirement_kind == "opponent_choice":
+                    # Opponent makes a choice - only visible to pe.chooser_id
+                    # Determine choice type from raw
+                    choice_type = (pe.raw or {}).get("choice_type", "choice")
+                    if choice_type == "target" or choice_type == "targets":
+                        # Target-based opponent choice
+                        candidate_ids = (
+                            (pe.raw or {}).get("candidate_ids")
+                            or getattr(raw_requirement, "candidate_ids", None)
+                            or []
+                        )
+                        for target_id in candidate_ids:
+                            actions.append(Action(
+                                ACTION_RESOLVE_PENDING_EFFECT,
+                                actor=player,
+                                source=pe.source_id,
+                                target=target_id,
+                                choice={"pending_effect_id": pe.id, "targets": (target_id,)}
+                            ))
+                    elif choice_type == "amount":
+                        amount_options = (
+                            (pe.raw or {}).get("amount_options")
+                            or getattr(raw_requirement, "options", None)
+                            or []
+                        )
+                        for amount in amount_options:
+                            actions.append(Action(
+                                ACTION_RESOLVE_PENDING_EFFECT,
+                                actor=player,
+                                source=pe.source_id,
+                                choice={"pending_effect_id": pe.id, "amount": amount}
+                            ))
+                    else:
+                        # Default: choice index
+                        choice_options = (
+                            (pe.raw or {}).get("options")
+                            or getattr(raw_requirement, "options", None)
+                            or list(pe.choice_options)
+                        )
+                        for idx, _ in enumerate(choice_options):
+                            actions.append(Action(
+                                ACTION_RESOLVE_PENDING_EFFECT,
+                                actor=player,
+                                source=pe.source_id,
+                                choice={"pending_effect_id": pe.id, "choice_index": idx}
+                            ))
+                elif requirement_kind == "enter_play_exerted":
+                    # Enter play exerted choice - true/false
+                    actions.append(Action(
+                        ACTION_RESOLVE_PENDING_EFFECT,
+                        actor=player,
+                        source=pe.source_id,
+                        choice={"pending_effect_id": pe.id, "enter_play_exerted": True}
+                    ))
+                    actions.append(Action(
+                        ACTION_RESOLVE_PENDING_EFFECT,
+                        actor=player,
+                        source=pe.source_id,
+                        choice={"pending_effect_id": pe.id, "enter_play_exerted": False}
                     ))
                 elif requirement_kind == "scry_ordering":
                     candidate_ids = tuple(getattr(raw_requirement, "candidate_ids", ()))
@@ -386,13 +579,13 @@ class GameEngine:
                         source=pe.source_id,
                         choice={"pending_effect_id": pe.id}
                     ))
-                
+
                 actions.append(Action(ACTION_CONCEDE, actor=player))
                 return actions
             else:
                 # No pending effect for this player
                 return [Action(ACTION_CONCEDE, actor=player)]
-        
+
         # B2: Bag handling - bag resolver acts even when not active player
         if has_pending_bag_items(state):
             resolver = get_next_bag_resolver(state)
@@ -450,7 +643,7 @@ class GameEngine:
             is_song_card, get_singer_info, can_sing_song,
             get_shift_info, get_shift_targets, can_play_as_shift,
         )
-        
+
         # Generate SING_SONG actions for songs with singers
         for song_cid in ps.hand:
             song_card = self.card_def(state, song_cid)
@@ -464,7 +657,7 @@ class GameEngine:
                             actions.append(Action(
                                 "SING_SONG", actor=player, card=song_cid, source=singer_cid
                             ))
-        
+
         # Generate PLAY_SHIFTED actions for shift characters
         for shift_cid in ps.hand:
             shift_card = self.card_def(state, shift_cid)
@@ -477,7 +670,7 @@ class GameEngine:
                             actions.append(Action(
                                 "PLAY_SHIFTED", actor=player, card=shift_cid, target=target.instance_id
                             ))
-        
+
         for cid in ps.play:
             if self.can_quest(state, cid):
                 actions.append(Action(ACTION_QUEST, actor=player, source=cid))
@@ -735,7 +928,7 @@ class GameEngine:
             raise IllegalActionError(f"Unhandled action kind {action.kind}")
 
         next_state.action_log.append(ActionLogEntry(turn_number=log_turn_number, phase=log_phase, action=action))
-        
+
         # B2: Resolution boundary - resolve banishes first, then flush triggers
         self.resolve_banishes(next_state)
         flush_triggered_events_to_bag(next_state, self)
@@ -782,14 +975,14 @@ class GameEngine:
 
     def draw_cards(self, state: GameState, player: int, count: int, *, private: bool = False) -> list[int]:
         """Draw cards from the deck to hand.
-        
+
         Args:
             state: The game state
             player: The player drawing cards
             count: Number of cards to draw
             private: If True, card identities are hidden from opponents in logs
                     (used for effect-driven draws where opponents shouldn't see the card)
-        
+
         Returns:
             List of drawn card instance IDs (for event tracking)
         """
@@ -807,7 +1000,7 @@ class GameEngine:
             inst.revealed = False
             ps.hand.append(cid)
             drawn_ids.append(cid)
-        
+
         # Emit CARD_DRAWN event with appropriate privacy level
         # In private mode, we don't leak the card identities to opponent
         if private:
@@ -833,7 +1026,7 @@ class GameEngine:
                     "private": False,
                 },
             )
-        
+
         return drawn_ids
 
     def emit_event(
@@ -848,7 +1041,7 @@ class GameEngine:
         queue_triggers: bool = True,
     ) -> GameEvent:
         """Central event emission method that also buffers triggers.
-        
+
         This is the single entry point for all game events that should
         potentially trigger triggered abilities.
         """
@@ -864,14 +1057,14 @@ class GameEngine:
             source_card_id=state.cards[source].card_id if source and source in state.cards else None,
             target_card_id=state.cards[target].card_id if target and target in state.cards else None,
         )
-        
+
         # Append to event log
         state.event_log.append(event)
-        
+
         # Buffer for trigger matching if not a diagnostic event
         if queue_triggers and event_type not in _DIAGNOSTIC_EVENTS:
             buffer_trigger_event(state, event)
-        
+
         return event
 
     def _move_card_eventful(
@@ -1028,7 +1221,7 @@ class GameEngine:
         queue_triggers: bool = True,
     ) -> None:
         """Banish one card through replacement handling and emit CHARACTER_BANISHED.
-        
+
         This is the authoritative banish helper. It:
         1. Evaluates replacement effects (via banish_card)
         2. Deregisters static/replacement effects if leaving play
@@ -1050,7 +1243,7 @@ class GameEngine:
             source_id=source_id,
             default_destination=ZONE_DISCARD,
         )
-        
+
         # Perform the actual move through the engine-owned zone boundary.
         self._move_card_eventful(
             state,
@@ -1060,7 +1253,7 @@ class GameEngine:
             controller=controller,
             queue_triggers=False,
         )
-        
+
         self.emit_event(
             state,
             EVENT_CHARACTER_BANISHED,
@@ -1121,7 +1314,7 @@ class GameEngine:
         queue_triggers: bool = True,
     ) -> None:
         """Ready one card and optionally emit CARD_READIED.
-        
+
         Set emit_event=False when readying is part of a compound action
         (end turn readying) where a single event covers all readyings.
         """
@@ -1162,7 +1355,7 @@ class GameEngine:
         queue_triggers: bool = True,
     ) -> None:
         """Exert one card and optionally emit CARD_EXERTED.
-        
+
         Set emit_event=False when exerting is part of a compound action
         (quest, challenge, sing) where the parent action emits the event.
         """
@@ -1203,7 +1396,7 @@ class GameEngine:
         queue_triggers: bool = True,
     ) -> None:
         """Gain lore and emit a gain-lore trigger payload.
-        
+
         Set emit_event=False when gaining lore is part of a compound action
         (quest, location lore) where the parent action emits a more specific event.
         """
@@ -1383,7 +1576,7 @@ class GameEngine:
 
     def resolve_banishes(self, state: GameState) -> None:
         """Resolve banishes with rich Lorcanito-aligned payloads including challenge context.
-        
+
         B8: Routes through _banish_eventful() to use replacement-aware banish handling.
         """
         banished: list[tuple[int, str]] = []  # (cid, card_type)
@@ -1393,7 +1586,7 @@ class GameEngine:
             cdef = self.card_def(state, cid)
             if cdef.card_type in {CARD_CHARACTER, CARD_LOCATION} and inst.damage >= self.effective_willpower(state, cid):
                 banished.append((cid, cdef.card_type))
-        
+
         for cid, card_type in banished:
             card = state.cards[cid]
             controller = card.controller
@@ -1401,7 +1594,7 @@ class GameEngine:
             last_damage_source = card.last_damage_source
             source_for_banish: int | None = int(last_damage_source) if isinstance(last_damage_source, (int, str)) and last_damage_source else None
             happened_in_challenge = card.last_damage_was_challenge
-            
+
             # B8: Route through _banish_eventful which handles:
             # 1. Deregistering static/replacement effects
             # 2. Evaluating replacement effects via banish_card
@@ -1444,16 +1637,16 @@ class GameEngine:
         card_id: int,
     ) -> None:
         """Register static and replacement effects for a card entering public play.
-        
+
         This helper centralizes lifecycle registration for permanents entering the
         play zone. It must be called after a card becomes a public permanent (in play
         with no stack_parent_id), and only for non-action permanents.
-        
+
         The helper refuses:
         - Cards not in ZONE_PLAY
         - Cards with stack_parent_id (not publicly visible)
         - Action cards (actions go to discard, not play)
-        
+
         Lorcanito parity: Lorcanito registers live continuous/replacement state
         only after a card becomes an active public permanent.
         """
@@ -1478,7 +1671,7 @@ class GameEngine:
         from_zone = state.cards[action.card].zone  # Store before move
         self._pay_ink(state, player, cost)
         self._consume_cost_reductions(state, player, card.card_type, card.cost - cost)
-        
+
         if card.card_type == CARD_ACTION:
             self._move_card_eventful(state, action.card, ZONE_DISCARD, actor=player)
             self._resolve_effects(state, player, action.card, action.target)
@@ -1493,7 +1686,7 @@ class GameEngine:
             to_zone = ZONE_PLAY
             # Register static and replacement effects for public permanent entry
             self._register_lifecycle_effects_for_public_permanent(state, action.card)
-        
+
         # Emit play event with rich Lorcanito-aligned payload
         self.emit_event(
             state,
@@ -1526,7 +1719,7 @@ class GameEngine:
         self._exert_eventful(state, source, actor=action.actor, source_id=source, emit_event=False)
         state.cards[source].has_quested_this_turn = True
         self._gain_lore_eventful(state, action.actor, lore, source_id=source, emit_event=False)
-        
+
         # Emit quest event with rich Lorcanito-aligned payload
         self.emit_event(
             state,
@@ -1556,7 +1749,7 @@ class GameEngine:
         defender_damage_dealt = 0
         if target_def.card_type == CARD_CHARACTER:
             defender_base_damage = self._damage_after_resist(source_def, self.effective_strength(state, action.target))
-        
+
         # Apply damage through the engine-owned damage helper so DAMAGE_DEALT
         # events are emitted and triggers are buffered. Challenge damage has
         # already had resist applied above, so apply_resist=False here.
@@ -1570,7 +1763,7 @@ class GameEngine:
             apply_resist=False,
         )
         attacker_damage_dealt = attacker_event.current_amount
-        
+
         # Apply damage through the engine-owned damage helper for defender -> attacker.
         if target_def.card_type == CARD_CHARACTER:
             defender_event = self._deal_damage_eventful(
@@ -1583,9 +1776,9 @@ class GameEngine:
                 apply_resist=False,
             )
             defender_damage_dealt = defender_event.current_amount
-        
+
         target_inst.was_challenged_this_turn = True
-        
+
         # Emit challenge event with rich Lorcanito-aligned payload
         self.emit_event(
             state,
@@ -1714,34 +1907,34 @@ class GameEngine:
 
     def _apply_sing_song(self, state: GameState, action: Action) -> None:
         """Apply SING_SONG action - singer exerts and sings a song card.
-        
+
         Action fields:
         - card: The song card instance ID from hand
         - source: The singer character instance ID in play
         """
         from .play_modes import execute_sing_song
-        
+
         if action.card is None:
             raise IllegalActionError("SING_SONG requires a song card")
         if action.source is None:
             raise IllegalActionError("SING_SONG requires a singer source")
-        
+
         execute_sing_song(state, self, action.source, action.card)
 
     def _apply_play_shifted(self, state: GameState, action: Action) -> None:
         """Apply PLAY_SHIFTED action - play a shifted character on a target.
-        
+
         Action fields:
         - card: The shifted character instance ID from hand
         - target: The target character instance ID in play
         """
         from .play_modes import execute_shift_play
-        
+
         if action.card is None:
             raise IllegalActionError("PLAY_SHIFTED requires a shifted card")
         if action.target is None:
             raise IllegalActionError("PLAY_SHIFTED requires a target character")
-        
+
         execute_shift_play(state, self, action.card, action.target)
         # Register static and replacement effects for the new public permanent (shifted card)
         self._register_lifecycle_effects_for_public_permanent(state, action.card)
@@ -1821,32 +2014,32 @@ class GameEngine:
         """Apply RESOLVE_BAG action to resolve a trigger from the bag."""
         if not action.choice or "bag_id" not in action.choice:
             raise IllegalActionError("RESOLVE_BAG requires bag_id in choice")
-        
+
         bag_id = action.choice["bag_id"]
         accept = action.choice.get("accept", True)
-        
+
         # Find the bag entry
         entry: BagEffectEntry | None = None
         for idx, item in enumerate(state.bag):
             if item.id == bag_id:
                 entry = item
                 break
-        
+
         if entry is None:
             raise IllegalActionError(f"Bag item {bag_id} not found")
-        
+
         # Validate resolver
         next_resolver = get_next_bag_resolver(state)
         if next_resolver is not None and action.actor != next_resolver:
             raise IllegalActionError(f"Player {action.actor} is not the current bag resolver (expected {next_resolver})")
-        
+
         # Validate controller/chooser
         if action.actor != entry.controller_id and action.actor != entry.chooser_id:
             raise IllegalActionError(f"Player {action.actor} cannot resolve this bag item (controller={entry.controller_id}, chooser={entry.chooser_id})")
-        
+
         # Set last resolver
         set_last_bag_resolver(state, action.actor)
-        
+
         # Handle decline
         if accept is False:
             if not (entry.optional or entry.auto_resolve is False):
@@ -1854,13 +2047,13 @@ class GameEngine:
             remove_bag_effect(state, bag_id)
             self.emit_event(state, EVENT_TRIGGER_DECLINED, actor=action.actor, source=entry.source_id, payload={"bag_id": bag_id, "ability_id": entry.ability_id}, queue_triggers=False)
             return
-        
+
         # Check restrictions
         if not can_resolve_bag_effect_by_restrictions(state, entry):
             remove_bag_effect(state, bag_id)
             self.emit_event(state, EVENT_TRIGGER_SKIPPED, actor=action.actor, source=entry.source_id, payload={"bag_id": bag_id, "reason": "restriction_not_satisfied"}, queue_triggers=False)
             return
-        
+
         # Evaluate condition at resolution time
         if entry.condition:
             try:
@@ -1874,7 +2067,7 @@ class GameEngine:
                 remove_bag_effect(state, bag_id)
                 self.emit_event(state, EVENT_TRIGGER_SKIPPED, actor=action.actor, source=entry.source_id, payload={"bag_id": bag_id, "reason": "unsupported_condition"}, queue_triggers=False)
                 return
-        
+
         # B2: Resolve effects as the trigger controller, not the chooser
         # Normalize event target from payload (handles defender_id from challenge events)
         event_payload = entry.event.payload if entry.event else {}
@@ -1884,12 +2077,12 @@ class GameEngine:
             or event_payload.get('defender_id')
             or event_payload.get('subject_card_id')
         )
-        
+
         # Build current_targets tuple for collection-based targeting
         current_targets: tuple[int, ...] = ()
         if event_target:
             current_targets = (event_target,)
-        
+
         context = EffectResolutionContext(
             actor=entry.controller_id,
             source=entry.source_id,
@@ -1901,23 +2094,48 @@ class GameEngine:
             trigger_subject=entry.event.subject_card_id if entry.event else None,
             current_targets=current_targets,
         )
+
+        # Count pending effects BEFORE resolution to detect if effects create new pending
+        pending_count_before = len(state.pending_effects)
+
         self._resolve_explicit_effects(state, entry.effects, context)
-        
+
+        # Check if any new pending effects were created from this bag item's resolution
+        pending_count_after = len(state.pending_effects)
+        created_pending = pending_count_after > pending_count_before
+
+        if created_pending:
+            # Mark all newly created pending effects with bag origin
+            for pe in state.pending_effects[pending_count_before:]:
+                pe.origin = "bag"
+                pe.origin_id = bag_id
+                # Store bag entry context in pending effect raw for completion handling
+                pe.raw.setdefault("bag_id", bag_id)
+                pe.raw.setdefault("event", entry.event.event if entry.event else None)
+                pe.raw.setdefault("event_payload", event_payload)
+                pe.raw.setdefault("trigger_subject", entry.event.subject_card_id if entry.event else None)
+                pe.raw.setdefault("ability_id", entry.ability_id)
+                pe.raw.setdefault("source_id", entry.source_id)
+                pe.raw.setdefault("controller_id", entry.controller_id)
+            # Do NOT record resolution or remove bag entry yet - wait for pending to complete
+            return
+
+        # No pending effects created - complete resolution immediately
         # Record resolution
         record_bag_effect_resolution(state, entry)
-        
+
         # Remove bag entry
         remove_bag_effect(state, bag_id)
-        
+
         # Emit trigger resolved event
         self.emit_event(state, EVENT_TRIGGER_RESOLVED, actor=action.actor, source=entry.source_id, payload={"bag_id": bag_id, "ability_id": entry.ability_id}, queue_triggers=False)
-        
+
         # B2: Flush any newly emitted trigger events
         # This is handled by the resolution boundary in apply_action
 
     def _apply_use_ability(self, state: GameState, action: Action) -> None:
         """Apply USE_ABILITY action to execute an activated ability.
-        
+
         This method:
         1. Extracts the ability from the source card
         2. Validates and pays all costs atomically
@@ -1925,26 +2143,26 @@ class GameEngine:
         4. Marks the ability as used this turn
         """
         from .abilities import get_activated_abilities_for_card, use_ability, AbilityCostError, AbilityExecutionError
-        
+
         if action.source is None:
             raise IllegalActionError("USE_ABILITY requires a source card")
-        
+
         source_id = action.source
         card_inst = state.cards.get(source_id)
         if card_inst is None:
             raise IllegalActionError(f"Source card {source_id} not found")
-        
+
         if card_inst.zone != ZONE_PLAY:
             raise IllegalActionError("USE_ABILITY source must be in play")
-        
+
         # Get the ability index from the choice
         ability_index = action.choice.get("ability_index") if action.choice else None
         ability_id = action.choice.get("ability_id") if action.choice else None
-        
+
         # Find the ability on the card
         card_def = self.card_def(state, source_id)
         abilities = get_activated_abilities_for_card(state, source_id, card_def)
-        
+
         ability = None
         if ability_index is not None:
             for a in abilities:
@@ -1956,16 +2174,16 @@ class GameEngine:
                 if a.ability_id == ability_id:
                     ability = a
                     break
-        
+
         if ability is None:
             raise IllegalActionError(f"Ability not found on card {source_id}")
-        
+
         # Execute the ability (validates costs, pays them, and resolves effects)
         result = use_ability(state, self, ability)
-        
+
         if not result.success:
             raise AbilityExecutionError(f"Ability execution failed: {result.error_message}")
-        
+
         # Emit ability used event
         self.emit_event(
             state,
@@ -1983,43 +2201,69 @@ class GameEngine:
 
     def _apply_resolve_pending_effect(self, state: GameState, action: Action) -> None:
         """Apply RESOLVE_PENDING_EFFECT action to resolve a pending effect.
-        
+
         This handles the target choice, choice index, and optional accept/decline
         for pending effects that require player input.
         """
         if not action.choice or "pending_effect_id" not in action.choice:
             raise IllegalActionError("RESOLVE_PENDING_EFFECT requires pending_effect_id in choice")
-        
+
         pending_id = action.choice["pending_effect_id"]
         accept = action.choice.get("accept")
         choice_index = action.choice.get("choice_index")
-        
+
         # Find the pending effect
         pe = None
         for item in state.pending_effects:
             if item.id == pending_id:
                 pe = item
                 break
-        
+
         if pe is None:
             raise IllegalActionError(f"Pending effect {pending_id} not found")
-        
+
         # Validate chooser
         if action.actor != pe.chooser_id:
             raise IllegalActionError(f"Player {action.actor} is not the current chooser (expected {pe.chooser_id})")
-        
+
         # Handle optional accept/decline
         if pe.optional and pe.accepted is None and accept is not None:
             resolve_pending_effect_optional(state, pending_id, accept)
             if accept is False:
                 # Decline - remove pending effect
+                # B9.5: If this pending effect has bag origin, handle the bag entry decline
+                if pe.origin == "bag" and pe.origin_id:
+                    bag_id = pe.origin_id
+                    # Find the matching bag entry
+                    bag_entry = None
+                    for entry in state.bag:
+                        if entry.id == bag_id:
+                            bag_entry = entry
+                            break
+
+                    if bag_entry is not None:
+                        # Check if this is an optional bag entry (allow decline)
+                        if bag_entry.optional:
+                            remove_bag_effect(state, bag_id)
+                            self.emit_event(
+                                state,
+                                EVENT_TRIGGER_DECLINED,
+                                actor=action.actor,
+                                source=bag_entry.source_id,
+                                payload={"bag_id": bag_id, "ability_id": bag_entry.ability_id},
+                                queue_triggers=False,
+                            )
+                        else:
+                            # Non-optional bag item - raise error unless pending permits decline
+                            raise IllegalActionError("Non-optional bag item cannot be declined")
+
                 complete_pending_effect(state, pending_id)
                 return
             # Continue to resolve the effect
         elif pe.optional and pe.accepted is None and accept is None:
             # Optional effect requires explicit accept/decline
             raise IllegalActionError("Optional pending effect requires explicit accept/decline")
-        
+
         raw = pe.raw or {}
         requirement_kind = raw.get("requirement_kind")
 
@@ -2079,6 +2323,109 @@ class GameEngine:
             complete_pending_effect(state, pending_id)
             return
 
+        # B9.3: General requirement_kind dispatch for Microfix 9 pending effects
+        # These requirement kinds validate player input, persist to pe.raw["resolution_input"],
+        # and pass selected values into effect resolution.
+        if requirement_kind in {
+            "amount",
+            "target",
+            "multi_target",
+            "discard_choice",
+            "choice",
+            "optional",
+            "opponent_choice",
+            "enter_play_exerted",
+        }:
+            try:
+                if requirement_kind == "amount":
+                    amount = action.choice.get("amount")
+                    if amount is None:
+                        raise IllegalActionError("amount requirement requires amount in choice")
+                    resolve_amount_choice(state, pending_id, int(amount), engine=self)
+
+                elif requirement_kind == "target":
+                    targets = action.choice.get("targets")
+                    if targets is None:
+                        raise IllegalActionError("target requirement requires targets in choice")
+                    targets_tuple = tuple(targets) if targets else ()
+                    resolve_target_selection(state, pending_id, targets_tuple, engine=self)
+
+                elif requirement_kind == "multi_target":
+                    targets = action.choice.get("targets")
+                    if targets is None:
+                        raise IllegalActionError("multi_target requirement requires targets in choice")
+                    targets_tuple = tuple(targets) if targets else ()
+                    resolve_multi_target_selection(state, pending_id, targets_tuple, engine=self)
+
+                elif requirement_kind == "discard_choice":
+                    discard_card_ids = action.choice.get("discard_card_ids")
+                    if discard_card_ids is None:
+                        raise IllegalActionError("discard_choice requirement requires discard_card_ids in choice")
+                    discard_tuple = tuple(discard_card_ids) if discard_card_ids else ()
+                    resolve_discard_choice(state, pending_id, discard_tuple, engine=self)
+
+                    # After resolving the choice, apply the actual discards through _discard_eventful
+                    # Get the target player and discard selected cards
+                    target_player_id = pe.raw.get("target_player_id", pe.chooser_id)
+                    for cid in discard_tuple:
+                        self._discard_eventful(
+                            state,
+                            cid,
+                            actor=target_player_id,
+                            source_id=pe.source_id,
+                            reason="effect",
+                        )
+
+                elif requirement_kind == "choice":
+                    idx = choice_index if choice_index is not None else action.choice.get("choice_index")
+                    if idx is None:
+                        raise IllegalActionError("choice requirement requires choice_index")
+                    resolve_choice_index(state, pending_id, int(idx), engine=self)
+
+                elif requirement_kind == "optional":
+                    # Optional accept/decline was already handled above; this is for
+                    # requirement_kind="optional" with effect sequences
+                    if accept is None:
+                        raise IllegalActionError("optional requirement requires accept/decline")
+                    resolve_optional_choice(state, pending_id, bool(accept), engine=self)
+
+                elif requirement_kind == "opponent_choice":
+                    # Opponent makes a choice - read choice_type from raw
+                    choice_type = raw.get("choice_type", "choice")
+                    if choice_type == "target" or choice_type == "targets":
+                        targets = action.choice.get("targets")
+                        if targets is None:
+                            raise IllegalActionError("opponent_choice (target) requires targets in choice")
+                        targets_tuple = tuple(targets) if targets else ()
+                        resolve_target_selection(state, pending_id, targets_tuple, engine=self)
+                    elif choice_type == "amount":
+                        amount = action.choice.get("amount")
+                        if amount is None:
+                            raise IllegalActionError("opponent_choice (amount) requires amount in choice")
+                        resolve_amount_choice(state, pending_id, int(amount), engine=self)
+                    else:
+                        # Default: choice index
+                        idx = choice_index if choice_index is not None else action.choice.get("choice_index")
+                        if idx is None:
+                            raise IllegalActionError("opponent_choice (choice) requires choice_index")
+                        resolve_choice_index(state, pending_id, int(idx), engine=self)
+
+                elif requirement_kind == "enter_play_exerted":
+                    enter_exerted = action.choice.get("enter_play_exerted")
+                    if enter_exerted is None:
+                        raise IllegalActionError("enter_play_exerted requirement requires enter_play_exerted in choice")
+                    resolve_enter_play_exerted_choice(state, pending_id, bool(enter_exerted), engine=self)
+
+            except ValueError as exc:
+                raise IllegalActionError(str(exc)) from exc
+
+            # After resolving input, check if we should complete or continue to effect resolution
+            # If this pending effect has no effects (pure input requirement), complete it
+            # Otherwise, fall through to effect resolution
+            if not pe.effects:
+                complete_pending_effect(state, pending_id)
+                return
+
         # Check if target input is required but not provided
         requirement = pe.current_requirement
         if pe.requires_target_input and requirement is not None:
@@ -2088,14 +2435,14 @@ class GameEngine:
             # Validate the target is in the stored selections or action target
             if action.target is not None:
                 resolve_pending_effect_target(state, pending_id, (action.target,))
-        
+
         # Check if choice input is required but not provided
         if pe.requires_choice_input:
             if not pe.selected_choice and choice_index is None:
                 raise IllegalActionError(f"Pending effect {pending_id} requires a choice selection")
             if choice_index is not None:
                 resolve_pending_effect_choice(state, pending_id, choice_index)
-        
+
         # Resolve the current effect
         current_effect = pe.current_effect
         if current_effect is not None:
@@ -2103,13 +2450,16 @@ class GameEngine:
             selected_target = pe.selected_targets[0] if pe.selected_targets else action.target
             # Get choice from stored selected_choice or action choice_index
             selected_choice = pe.selected_choice if pe.selected_choice is not None else choice_index
-            
+            # Get all selected targets for current_targets
+            selected_targets = tuple(pe.selected_targets) if pe.selected_targets else ()
+
             # Extract event context from raw
             raw = pe.raw or {}
             event = raw.get('event')
             event_payload = raw.get('event_payload', {})
-            
-            # Build context with target from pending effect
+
+            # Build context with target from pending effect and current_targets for multi-target effects
+            # pending_trigger_id is set if origin is "bag", trigger_source/trigger_subject from event
             context = EffectResolutionContext(
                 actor=pe.controller_id,
                 source=pe.source_id,
@@ -2117,17 +2467,45 @@ class GameEngine:
                 event=event,
                 event_payload=event_payload,
                 choice=selected_choice,
+                pending_trigger_id=pe.origin_id if pe.origin == "bag" else None,
+                trigger_source=pe.source_id if pe.origin == "bag" else None,
+                trigger_subject=raw.get("trigger_subject"),
+                current_targets=selected_targets,
             )
-            
+
             # Resolve the effect
             self.effect_resolver.resolve(state, current_effect, context)
-        
+
         # Advance to next effect or complete
         advance_pending_effect(state, pending_id)
-        
+
         # Check if complete
         updated_pe = get_pending_effect_by_id(state, pending_id)
         if updated_pe and updated_pe.is_complete:
+            # B9.5: If this pending effect has bag origin, complete the bag entry as well
+            if updated_pe.origin == "bag" and updated_pe.origin_id:
+                bag_id = updated_pe.origin_id
+                # Find the matching bag entry
+                bag_entry = None
+                for entry in state.bag:
+                    if entry.id == bag_id:
+                        bag_entry = entry
+                        break
+
+                if bag_entry is not None:
+                    # Record resolution and remove bag entry
+                    record_bag_effect_resolution(state, bag_entry)
+                    remove_bag_effect(state, bag_id)
+                    # Emit trigger resolved event
+                    self.emit_event(
+                        state,
+                        EVENT_TRIGGER_RESOLVED,
+                        actor=action.actor,
+                        source=bag_entry.source_id,
+                        payload={"bag_id": bag_id, "ability_id": bag_entry.ability_id},
+                        queue_triggers=False,
+                    )
+
             complete_pending_effect(state, pending_id)
 
 
@@ -2172,7 +2550,7 @@ class GameRunner:
                     break
             else:
                 player = state.active_player
-            
+
             legal = self.engine.legal_actions(state, player)
             if not legal:
                 state.winner = state.opponent(player)

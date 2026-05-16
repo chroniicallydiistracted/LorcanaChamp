@@ -181,16 +181,16 @@ class TestCandidateEnumerationSourceOfTruth:
         state = MagicMock()
         engine = MagicMock()
         engine.legal_actions.return_value = []
-        
+
         result = enumerate_automated_action_candidates(state, engine, 0)
-        
+
         assert result.candidates == []
-    
+
     def test_enumerate_derives_candidates_from_legal_actions(self):
         """Candidates should be derived from engine.legal_actions()."""
         from lorcana_bot.actions import Action
         from lorcana_bot.constants import ACTION_PLAY_CARD
-        
+
         state = MagicMock()
         # Need to provide cards dict with the instance
         state.cards = {1: MagicMock(card_id="test_card")}
@@ -209,8 +209,8 @@ class TestCandidateEnumerationSourceOfTruth:
             effects=[],
         )
         engine.available_ink.return_value = 3
-        
+
         result = enumerate_automated_action_candidates(state, engine, 0)
-        
+
         assert len(result.candidates) == 1
         assert result.candidates[0].family == AutomatedActionFamily.PLAY_CARD

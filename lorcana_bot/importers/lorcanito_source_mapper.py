@@ -438,7 +438,7 @@ def project_action_effects(card: CardDef) -> tuple[EffectDef, ...]:
 # Supported trigger events for B2 trigger projection
 SUPPORTED_TRIGGER_EVENTS = frozenset({
     "play",
-    "quest", 
+    "quest",
     "challenge",
     "banish",
     "start-turn",
@@ -579,7 +579,7 @@ BLOCKED_CONDITION_KINDS = frozenset({
 
 def project_triggers(card: CardDef) -> tuple[TriggerDef, ...]:
     """Project source triggers into executable TriggerDefs.
-    
+
     Returns an empty tuple if no source triggers can be projected.
     Source triggers stay source-only if:
     - The trigger event is not supported
@@ -590,34 +590,34 @@ def project_triggers(card: CardDef) -> tuple[TriggerDef, ...]:
     """
     if not card.source_abilities:
         return ()
-    
+
     triggers: list[TriggerDef] = []
     for idx, ability in enumerate(card.source_abilities):
         if ability.kind != "triggered":
             continue
-        
+
         trigger = ability.trigger
         if not trigger:
             continue
-        
+
         # Check if trigger event is supported
         if trigger.event not in SUPPORTED_TRIGGER_EVENTS:
             continue
-        
+
         # Check if all effects are supported
         projected_effects: list[EffectDef] = []
         all_effects_supported = True
-        
+
         for effect in ability.effects:
             projected = _project_trigger_effect(effect)
             if projected is None:
                 all_effects_supported = False
                 break
             projected_effects.append(projected)
-        
+
         if not all_effects_supported:
             continue
-        
+
         # Check if condition is supported (if any)
         projected_condition: dict[str, Any] | None = None
         if ability.condition:
@@ -626,10 +626,10 @@ def project_triggers(card: CardDef) -> tuple[TriggerDef, ...]:
             projected_condition = _project_trigger_condition(ability.condition)
             if projected_condition is None:
                 continue
-        
+
         # Check source_zones (play is always supported)
         source_zones = tuple(ability.source_zones) if ability.source_zones else ("play",)
-        
+
         # Build TriggerDef
         trigger_def = TriggerDef(
             id=ability.id or f"{card.id}:trigger:{idx}",
@@ -646,25 +646,25 @@ def project_triggers(card: CardDef) -> tuple[TriggerDef, ...]:
             raw={"source_ability": ability.raw},
         )
         triggers.append(trigger_def)
-    
+
     return tuple(triggers)
 
 
 def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
     """Project a source effect into an EffectDef for trigger execution.
-    
+
     Returns None if the effect cannot be projected.
-    
+
     B3: CHOSEN_* targets are now allowed - they will be resolved via pending effect
     system at runtime, allowing triggers with chosen targets to project.
     """
     kind = ENGINE_EFFECT_MAP.get(effect.kind)
     if not kind:
         return None
-    
+
     if kind not in SUPPORTED_EFFECT_KINDS:
         return None
-    
+
     # Check target if present
     target = None
     if effect.target:
@@ -675,14 +675,14 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
         if effect.target.alias and effect.target.alias not in SUPPORTED_TARGET_ALIASES:
             return None
         target = _project_target(effect.target)
-    
+
     # Check condition if present
     condition = None
     if effect.condition:
         if effect.condition.execution_status != ExecutionStatus.EXECUTABLE:
             return None
         condition = _project_trigger_condition(effect.condition)
-    
+
     # Project children
     children: tuple[EffectDef, ...] = ()
     if effect.effects:
@@ -693,7 +693,7 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
                 return None
             projected_children.append(p)
         children = tuple(projected_children)
-    
+
     # Project branches for choice/or
     branches: tuple[EffectDef, ...] = ()
     if effect.branches and effect.kind in {"choice", "or"}:
@@ -704,14 +704,14 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
                 return None
             projected_branches.append(p)
         branches = tuple(projected_branches)
-    
+
     # Extract value
     value = effect.raw.get("attribute") or effect.raw.get("stat") or effect.raw.get("cardType") or effect.choice
     keyword = effect.raw.get("keyword")
-    
+
     if effect.kind == "modify-stat":
         value = {str(effect.raw.get("attribute") or "strength"): effect.amount or effect.raw.get("modifier", 0)}
-    
+
     return EffectDef(
         kind=kind,
         amount=int(effect.amount or 0) if isinstance(effect.amount, int) or str(effect.amount or "").isdigit() else 0,
@@ -728,23 +728,23 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
 
 def _project_trigger_condition(condition: SourceConditionDef) -> dict[str, Any] | None:
     """Project a source condition into engine format.
-    
+
     Returns None if the condition kind is not supported.
     """
     if condition.kind == "always":
         return {"kind": "always"}
-    
+
     if condition.kind in SUPPORTED_CONDITION_KINDS:
         # Map source condition to engine condition format
         result: dict[str, Any] = {"kind": condition.kind}
-        
+
         if condition.value is not None:
             result["value"] = condition.value
         if condition.comparison is not None:
             result["comparison"] = condition.comparison
         if condition.subject is not None:
             result["subject"] = condition.subject
-        
+
         # Handle logical conditions
         if condition.kind in {"and", "or", "not"} and condition.operands:
             inner_conditions = []
@@ -757,9 +757,9 @@ def _project_trigger_condition(condition: SourceConditionDef) -> dict[str, Any] 
                 result["condition"] = inner_conditions[0] if inner_conditions else None
             else:
                 result["conditions"] = inner_conditions
-        
+
         return result
-    
+
     return None
 
 

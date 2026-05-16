@@ -12,7 +12,7 @@ from lorcana_bot.importers.lorcanito_source_mapper import (
 def _make_source_ability(kind, trigger_event=None, effect_kind="draw", optional=True, is_static=False):
     """Helper to create SourceAbilityDef for tests."""
     from lorcana_bot.card_logic import SourceAbilityDef, SourceEffectDef, SourceTriggerDef, ExecutionStatus
-    
+
     trigger = None
     if trigger_event:
         trigger = SourceTriggerDef(
@@ -24,14 +24,14 @@ def _make_source_ability(kind, trigger_event=None, effect_kind="draw", optional=
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
         )
-    
+
     effect = SourceEffectDef(
         kind=effect_kind,
         raw={},
         mapping_status="structurally_mapped",
         execution_status=ExecutionStatus.EXECUTABLE,
     )
-    
+
     return SourceAbilityDef(
         id=f"{kind}_ability",
         kind=kind if not is_static else "static",
@@ -79,7 +79,7 @@ class TestProjectTriggers:
         )
         ability = _make_source_ability("action")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert result == ()
 
@@ -96,10 +96,10 @@ class TestProjectTriggers:
             willpower=2,
             lore=1,
         )
-        
+
         ability = _make_source_ability("triggered", trigger_event="play", effect_kind="draw")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert len(result) == 1
         assert result[0].event == "play"
@@ -117,11 +117,11 @@ class TestProjectTriggers:
             willpower=3,
             lore=2,
         )
-        
+
         # sing event is not supported
         ability = _make_source_ability("triggered", trigger_event="sing", effect_kind="draw")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert result == ()
 
@@ -138,11 +138,11 @@ class TestProjectTriggers:
             willpower=2,
             lore=1,
         )
-        
+
         # shift effect is not supported for trigger projection
         ability = _make_source_ability("triggered", trigger_event="play", effect_kind="shift")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert result == ()
 
@@ -159,10 +159,10 @@ class TestProjectTriggers:
             willpower=2,
             lore=2,
         )
-        
+
         ability = _make_source_ability("triggered", trigger_event="quest", effect_kind="gain-lore")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert len(result) == 1
         assert result[0].event == "quest"
@@ -180,10 +180,10 @@ class TestProjectTriggers:
             willpower=3,
             lore=1,
         )
-        
+
         ability = _make_source_ability("static", is_static=True)
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert result == ()
 
@@ -236,7 +236,7 @@ class TestEventDerivedTargetProjection:
     def _make_trigger_with_target(self, effect_kind, target_alias):
         """Create a triggered ability with a specific target alias."""
         from lorcana_bot.card_logic import SourceAbilityDef, SourceEffectDef, SourceTargetDef, SourceTriggerDef, ExecutionStatus
-        
+
         trigger = SourceTriggerDef(
             event="challenge",
             on=None,
@@ -246,7 +246,7 @@ class TestEventDerivedTargetProjection:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
         )
-        
+
         target = SourceTargetDef(
             kind="alias",
             alias=target_alias,
@@ -254,7 +254,7 @@ class TestEventDerivedTargetProjection:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.EXECUTABLE,
         )
-        
+
         effect = SourceEffectDef(
             kind=effect_kind,
             target=target,
@@ -262,7 +262,7 @@ class TestEventDerivedTargetProjection:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.EXECUTABLE,
         )
-        
+
         return SourceAbilityDef(
             id=f"triggered_with_{target_alias}",
             kind="triggered",
@@ -282,7 +282,7 @@ class TestEventDerivedTargetProjection:
     def test_event_source_target_projects(self):
         """EVENT_SOURCE target should project."""
         from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
-        
+
         card = CardDef(
             id="test_card",
             full_name="Test Card",
@@ -296,14 +296,14 @@ class TestEventDerivedTargetProjection:
         )
         ability = self._make_trigger_with_target("deal-damage", "EVENT_SOURCE")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert len(result) == 1
 
     def test_event_target_target_projects(self):
         """EVENT_TARGET target should project."""
         from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
-        
+
         card = CardDef(
             id="test_card",
             full_name="Test Card",
@@ -317,14 +317,14 @@ class TestEventDerivedTargetProjection:
         )
         ability = self._make_trigger_with_target("deal-damage", "EVENT_TARGET")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert len(result) == 1
 
     def test_trigger_subject_target_projects(self):
         """TRIGGER_SUBJECT target should project."""
         from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
-        
+
         card = CardDef(
             id="test_card",
             full_name="Test Card",
@@ -338,14 +338,14 @@ class TestEventDerivedTargetProjection:
         )
         ability = self._make_trigger_with_target("deal-damage", "TRIGGER_SUBJECT")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert len(result) == 1
 
     def test_your_other_characters_target_projects(self):
         """YOUR_OTHER_CHARACTERS target should project correctly."""
         from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
-        
+
         card = CardDef(
             id="test_card",
             full_name="Test Card",
@@ -359,14 +359,14 @@ class TestEventDerivedTargetProjection:
         )
         ability = self._make_trigger_with_target("deal-damage", "YOUR_OTHER_CHARACTERS")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert len(result) == 1
 
     def test_all_opposing_characters_target_projects(self):
         """ALL_OPPOSING_CHARACTERS target should project."""
         from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
-        
+
         card = CardDef(
             id="test_card",
             full_name="Test Card",
@@ -380,14 +380,14 @@ class TestEventDerivedTargetProjection:
         )
         ability = self._make_trigger_with_target("deal-damage", "ALL_OPPOSING_CHARACTERS")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         result = project_triggers(card)
         assert len(result) == 1
 
     def test_chosen_character_target_now_projects(self):
         """CHOSEN_CHARACTER target now projects via pending effect layer (B3)."""
         from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
-        
+
         card = CardDef(
             id="test_card",
             full_name="Test Card",
@@ -401,7 +401,7 @@ class TestEventDerivedTargetProjection:
         )
         ability = self._make_trigger_with_target("deal-damage", "CHOSEN_CHARACTER")
         object.__setattr__(card, 'source_abilities', (ability,))
-        
+
         # B3: CHOSEN_CHARACTER now projects because pending effect layer
         # handles target prompts at runtime
         result = project_triggers(card)
@@ -416,7 +416,7 @@ class TestQuestTriggerGainLore:
         """Quest trigger with gain-lore should project for controller."""
         from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
         from lorcana_bot.card_logic import SourceAbilityDef, SourceEffectDef, SourceTargetDef, SourceTriggerDef, ExecutionStatus
-        
+
         card = CardDef(
             id="quest_lore_card",
             full_name="Quest Lore Card",
@@ -428,7 +428,7 @@ class TestQuestTriggerGainLore:
             willpower=2,
             lore=1,
         )
-        
+
         trigger = SourceTriggerDef(
             event="quest",
             on=None,
@@ -438,7 +438,7 @@ class TestQuestTriggerGainLore:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
         )
-        
+
         target = SourceTargetDef(
             kind="alias",
             alias="CONTROLLER",
@@ -446,7 +446,7 @@ class TestQuestTriggerGainLore:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.EXECUTABLE,
         )
-        
+
         effect = SourceEffectDef(
             kind="gain-lore",
             target=target,
@@ -455,7 +455,7 @@ class TestQuestTriggerGainLore:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.EXECUTABLE,
         )
-        
+
         ability = SourceAbilityDef(
             id="quest_gain_lore",
             kind="triggered",
@@ -471,10 +471,10 @@ class TestQuestTriggerGainLore:
             execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
             auto_resolve=None,
         )
-        
+
         object.__setattr__(card, 'source_abilities', (ability,))
         result = project_triggers(card)
-        
+
         assert len(result) == 1
         assert result[0].event == "quest"
         assert result[0].effects[0].target == "controller"
@@ -487,7 +487,7 @@ class TestChallengeTriggerDamagesEventTarget:
         """Challenge trigger with deal-damage to event_target should project."""
         from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
         from lorcana_bot.card_logic import SourceAbilityDef, SourceEffectDef, SourceTargetDef, SourceTriggerDef, ExecutionStatus
-        
+
         card = CardDef(
             id="challenge_damage_card",
             full_name="Challenge Damage Card",
@@ -499,7 +499,7 @@ class TestChallengeTriggerDamagesEventTarget:
             willpower=2,
             lore=1,
         )
-        
+
         trigger = SourceTriggerDef(
             event="challenge",
             on="SELF",
@@ -509,7 +509,7 @@ class TestChallengeTriggerDamagesEventTarget:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
         )
-        
+
         target = SourceTargetDef(
             kind="alias",
             alias="EVENT_TARGET",
@@ -517,7 +517,7 @@ class TestChallengeTriggerDamagesEventTarget:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.EXECUTABLE,
         )
-        
+
         effect = SourceEffectDef(
             kind="deal-damage",
             target=target,
@@ -526,7 +526,7 @@ class TestChallengeTriggerDamagesEventTarget:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.EXECUTABLE,
         )
-        
+
         ability = SourceAbilityDef(
             id="challenge_deal_damage",
             kind="triggered",
@@ -542,10 +542,10 @@ class TestChallengeTriggerDamagesEventTarget:
             execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
             auto_resolve=None,
         )
-        
+
         object.__setattr__(card, 'source_abilities', (ability,))
         result = project_triggers(card)
-        
+
         assert len(result) == 1
         assert result[0].event == "challenge"
         assert result[0].effects[0].target == "event_target"
@@ -558,7 +558,7 @@ class TestBanishTriggerDrawsForController:
         """Banish trigger with draw for controller should project."""
         from lorcana_bot.importers.lorcanito_source_mapper import project_triggers
         from lorcana_bot.card_logic import SourceAbilityDef, SourceEffectDef, SourceTargetDef, SourceTriggerDef, ExecutionStatus
-        
+
         card = CardDef(
             id="banish_draw_card",
             full_name="Banish Draw Card",
@@ -570,7 +570,7 @@ class TestBanishTriggerDrawsForController:
             willpower=2,
             lore=1,
         )
-        
+
         trigger = SourceTriggerDef(
             event="banish",
             on=None,
@@ -580,7 +580,7 @@ class TestBanishTriggerDrawsForController:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
         )
-        
+
         effect = SourceEffectDef(
             kind="draw",
             amount=1,
@@ -588,7 +588,7 @@ class TestBanishTriggerDrawsForController:
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.EXECUTABLE,
         )
-        
+
         ability = SourceAbilityDef(
             id="banish_draw",
             kind="triggered",
@@ -604,10 +604,10 @@ class TestBanishTriggerDrawsForController:
             execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
             auto_resolve=None,
         )
-        
+
         object.__setattr__(card, 'source_abilities', (ability,))
         result = project_triggers(card)
-        
+
         assert len(result) == 1
         assert result[0].event == "banish"
         assert result[0].effects[0].kind == "draw"

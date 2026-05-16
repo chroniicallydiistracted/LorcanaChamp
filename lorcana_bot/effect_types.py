@@ -7,7 +7,7 @@ from typing import Any
 @dataclass(frozen=True, slots=True)
 class ConditionContext:
     """Context for evaluating trigger conditions and effect conditions.
-    
+
     This dataclass provides the runtime context for condition evaluation,
     including actor, source, target, event information, and board state.
     Used in both trigger matching and bag resolution recheck.

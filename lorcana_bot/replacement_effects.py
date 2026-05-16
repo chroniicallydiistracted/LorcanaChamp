@@ -41,12 +41,12 @@ class ReplacementEffectType(Enum):
 
 def _is_active_public_source(state: GameState, source_id: int) -> bool:
     """Check if a card is an active public source for static/replacement effects.
-    
+
     A card is an active public source only when:
     - It exists in game state
     - It is in the play zone (ZONE_PLAY)
     - It is a top-level card (stack_parent_id is None), not under a shifted card
-    
+
     Cards in ZONE_UNDER (shifted stack) are stored as stack metadata and are not
     active public sources.
     """
@@ -77,7 +77,7 @@ class ReplacementEffectEntry:
     replacement_effect: str | None = None  # "return_to_hand", "discard", "ready"
     # Usage tracking key
     usage_key: str | None = None  # e.g., "prevent_next_1"
-    
+
     @property
     def identifier(self) -> str:
         """Unique identifier for this effect."""
@@ -90,51 +90,51 @@ class ReplacementEffectRegistry:
     effects: list[ReplacementEffectEntry] = field(default_factory=list)
     # Once-per-turn usage ledger: key -> {"player": int, "used": bool, "turn": int}
     usage_ledger: dict[str, dict[str, Any]] = field(default_factory=dict)
-    
+
     def register_effect(self, entry: ReplacementEffectEntry) -> None:
         """Add a replacement effect to the registry if not already present.
-        
+
         Idempotent registration prevents duplicate effects from repeated
         lifecycle registration (e.g., on card re-entry to play).
         """
         if entry not in self.effects:
             self.effects.append(entry)
-    
+
     def deregister_effects_from_source(self, source_id: int) -> None:
         """Remove all replacement effects from a specific source card."""
         self.effects = [e for e in self.effects if e.source_id != source_id]
-    
+
     def get_effects_for_instance(self, state: GameState, instance_id: int) -> list[ReplacementEffectEntry]:
         """Get all replacement effects that apply to a specific card instance."""
         return [e for e in self.effects if self._applies_to(state, instance_id, e)]
-    
+
     def _applies_to(self, state: GameState, instance_id: int, effect: ReplacementEffectEntry) -> bool:
         """Check if a replacement effect applies to an instance."""
         inst = state.cards.get(instance_id)
         if inst is None:
             return False
-        
+
         # Check if source is an active public source (in play zone, not under shift stack)
         source_inst = state.cards.get(effect.source_id)
         if source_inst is None or source_inst.zone != "play" or source_inst.stack_parent_id is not None:
             return False
-        
+
         if effect.target_mode == "self":
             return instance_id == effect.source_id
-        
+
         source_controller = source_inst.controller
-        
+
         if effect.target_mode == "your_characters":
             return inst.controller == source_controller and inst.zone == "play"
-        
+
         if effect.target_mode == "opposing_characters":
             return inst.controller != source_controller and inst.zone == "play"
-        
+
         if effect.target_mode == "all_characters":
             return inst.zone == "play"
-        
+
         return False
-    
+
     def check_and_use_once_per_turn(
         self,
         state: GameState,
@@ -142,16 +142,16 @@ class ReplacementEffectRegistry:
         player: int | None = None,
     ) -> bool:
         """Check if a once-per-turn effect can be used and mark it as used.
-        
+
         Returns True if the effect can be used (not used this turn or not once_per_turn).
         Returns False if already used this turn.
         """
         if not effect.once_per_turn:
             return True
-        
+
         usage_key = effect.usage_key or effect.identifier
         entry = self.usage_ledger.get(usage_key)
-        
+
         if entry is None:
             # Not used yet
             self.usage_ledger[usage_key] = {
@@ -160,12 +160,12 @@ class ReplacementEffectRegistry:
                 "turn": state.turn_number,
             }
             return True
-        
+
         # Check if same turn
         if entry["turn"] == state.turn_number:
             # Already used this turn
             return False
-        
+
         # Reset for new turn
         self.usage_ledger[usage_key] = {
             "player": player or 0,
@@ -173,7 +173,7 @@ class ReplacementEffectRegistry:
             "turn": state.turn_number,
         }
         return True
-    
+
     def reset_usage_for_turn(self, state: GameState, turn_number: int) -> None:
         """Reset usage ledger for a specific turn number."""
         keys_to_remove = [
@@ -182,7 +182,7 @@ class ReplacementEffectRegistry:
         ]
         for key in keys_to_remove:
             del self.usage_ledger[key]
-    
+
     def clear(self) -> None:
         """Clear all effects and usage tracking."""
         self.effects.clear()
@@ -245,14 +245,14 @@ def evaluate_prevention(
     target_controller: int,
 ) -> tuple[int, str | None]:
     """Evaluate if damage can be prevented and by how much.
-    
+
     Returns (prevented_amount, replacement_description).
     If no prevention applies, returns (0, None).
     """
     registry = get_registry(state)
     total_prevented = 0
     description = None
-    
+
     # Check all replacement effects for the target
     for effect in registry.effects:
         if effect.effect_type == ReplacementEffectType.PREVENT_DAMAGE:
@@ -260,12 +260,12 @@ def evaluate_prevention(
                 # Check once-per-turn
                 if not registry.check_and_use_once_per_turn(state, effect, target_controller):
                     continue
-                
+
                 # Prevent up to the effect amount
                 prevent_amount = min(effect.amount, damage_event.current_amount)
                 total_prevented += prevent_amount
                 description = f"prevent {prevent_amount} damage"
-    
+
     return total_prevented, description
 
 
@@ -275,12 +275,12 @@ def evaluate_banish_replacement(
     target_controller: int,
 ) -> tuple[str, str | None]:
     """Evaluate if banish can be replaced.
-    
+
     Returns (destination, replacement_description).
     If no replacement applies, returns ("discard", None).
     """
     registry = get_registry(state)
-    
+
     # Check all replacement effects for the target
     for effect in registry.effects:
         if effect.effect_type == ReplacementEffectType.REPLACE_BANISH_RETURN_TO_HAND:
@@ -288,13 +288,13 @@ def evaluate_banish_replacement(
                 if not registry.check_and_use_once_per_turn(state, effect, target_controller):
                     continue
                 return ("hand", "return to hand instead of banish")
-        
+
         if effect.effect_type == ReplacementEffectType.REPLACE_BANISH_DISCARD:
             if registry._applies_to(state, banish_event.target_id, effect):
                 if not registry.check_and_use_once_per_turn(state, effect, target_controller):
                     continue
                 return ("discard", "discard instead of banish")
-    
+
     return banish_event.original_destination, None
 
 
@@ -305,7 +305,7 @@ def check_cannot_be_challenged(
 ) -> bool:
     """Check if a character cannot be challenged."""
     registry = get_registry(state)
-    
+
     for effect in registry.effects:
         if effect.effect_type == ReplacementEffectType.CANNOT_BE_CHALLENGED:
             if registry._applies_to(state, target_id, effect):
@@ -314,7 +314,7 @@ def check_cannot_be_challenged(
                     if not _evaluate_simple_condition(state, effect.condition, target_id):
                         continue
                 return True
-    
+
     return False
 
 
@@ -325,7 +325,7 @@ def check_cannot_be_targeted(
 ) -> bool:
     """Check if a character cannot be targeted."""
     registry = get_registry(state)
-    
+
     for effect in registry.effects:
         if effect.effect_type == ReplacementEffectType.CANNOT_BE_TARGETED:
             if registry._applies_to(state, target_id, effect):
@@ -334,7 +334,7 @@ def check_cannot_be_targeted(
                     if not _evaluate_simple_condition(state, effect.condition, target_id):
                         continue
                 return True
-    
+
     return False
 
 
@@ -345,10 +345,10 @@ def _evaluate_simple_condition(
 ) -> bool:
     """Evaluate a simple condition for replacement effect activation."""
     kind = condition.get("kind", "always")
-    
+
     if kind == "always":
         return True
-    
+
     if kind == "has_keyword":
         from .static_effects import keywords_for_instance
         inst = state.cards.get(target_id)
@@ -360,33 +360,33 @@ def _evaluate_simple_condition(
         keywords = keywords_for_instance(state, target_id)
         keyword = condition.get("keyword", "")
         return keyword.upper().replace(" ", "_") in keywords
-    
+
     if kind == "damaged":
         inst = state.cards.get(target_id)
         if inst is None:
             return False
         return inst.damage > 0
-    
+
     if kind == "exerted":
         inst = state.cards.get(target_id)
         if inst is None:
             return False
         return inst.exerted
-    
+
     if kind == "controller_has_lore_at_least":
         inst = state.cards.get(target_id)
         if inst is None:
             return False
         required_lore = int(condition.get("amount", 0))
         return state.players[inst.controller].lore >= required_lore
-    
+
     if kind == "opponent_has_lore_at_least":
         inst = state.cards.get(target_id)
         if inst is None:
             return False
         required_lore = int(condition.get("amount", 0))
         return state.players[state.opponent(inst.controller)].lore >= required_lore
-    
+
     return True
 
 
@@ -401,11 +401,11 @@ def deal_damage(
     is_challenge: bool = False,
 ) -> DamageEvent:
     """Apply damage to a target, intercepting with replacement effects.
-    
+
     Returns a DamageEvent describing what happened.
     """
     from .constants import ZONE_PLAY
-    
+
     # Create the damage event
     event = DamageEvent(
         target_id=target_id,
@@ -414,20 +414,20 @@ def deal_damage(
         current_amount=amount,
         was_challenge=is_challenge,
     )
-    
+
     # Check for prevention
     inst = state.cards.get(target_id)
     if inst is None:
         return event
-    
+
     controller = inst.controller
     prevented, description = evaluate_prevention(state, event, controller)
-    
+
     if prevented > 0:
         event.current_amount = max(0, event.current_amount - prevented)
         event.was_replaced = True
         event.replacement_description = description
-    
+
     # Apply remaining damage
     if event.current_amount > 0 and target_id in state.cards:
         state.cards[target_id].damage += event.current_amount
@@ -450,15 +450,15 @@ def banish_card(
     default_destination: str = "discard",
 ) -> BanishEvent:
     """Evaluate banish replacement effects and return the resolved destination.
-    
+
     IMPORTANT: This function does NOT perform the actual card move.
     The caller (typically GameEngine._banish_eventful) is responsible for
     moving the card after calling this function.
-    
+
     Returns a BanishEvent describing what destination was resolved.
     """
     from .constants import ZONE_DISCARD, ZONE_HAND
-    
+
     # Create the banish event
     event = BanishEvent(
         target_id=target_id,
@@ -466,23 +466,23 @@ def banish_card(
         original_destination=default_destination,
         actual_destination=default_destination,
     )
-    
+
     # Check for replacement - only evaluate, do not mutate state
     inst = state.cards.get(target_id)
     if inst is None:
         return event
-    
+
     controller = inst.controller
     new_destination, description = evaluate_banish_replacement(state, event, controller)
-    
+
     if new_destination != event.original_destination:
         event.actual_destination = new_destination
         event.was_replaced = True
         event.replacement_description = description
-    
+
     # Do NOT perform the move here. Caller handles the actual card movement
     # through GameEngine._move_card_eventful or _banish_eventful.
-    
+
     return event
 
 

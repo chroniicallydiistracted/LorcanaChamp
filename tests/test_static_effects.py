@@ -61,7 +61,7 @@ class TestStaticEffectRegistry:
         entry2 = create_modify_stat_effect(source_id=2, stat="willpower", amount=1)
         state.static_effect_registry.register_effect(entry1)
         state.static_effect_registry.register_effect(entry2)
-        
+
         state.static_effect_registry.deregister_effects_from_source(1)
         assert len(state.static_effect_registry.effects) == 1
         assert state.static_effect_registry.effects[0].source_id == 2
@@ -69,20 +69,20 @@ class TestStaticEffectRegistry:
     def test_get_effects_for_instance(self, make_state):
         """Test getting effects that apply to a specific instance."""
         state = make_state()
-        
+
         # Add source card in play
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="test", owner=0, controller=0, zone="play")
         state.cards[3] = CardInstance(instance_id=3, card_id="test", owner=1, controller=1, zone="play")
-        
+
         # Self-targeted effect
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=3, target_mode="self")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Should apply to source (self)
         effects = state.static_effect_registry.get_effects_for_instance(state, 1)
         assert len(effects) == 1
-        
+
         # Should not apply to other friendly characters
         effects = state.static_effect_registry.get_effects_for_instance(state, 2)
         assert len(effects) == 0
@@ -90,18 +90,18 @@ class TestStaticEffectRegistry:
     def test_applies_to_your_characters(self, make_state):
         """Test effect targeting your characters."""
         state = make_state()
-        
+
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="test", owner=0, controller=0, zone="play")
         state.cards[3] = CardInstance(instance_id=3, card_id="test", owner=1, controller=1, zone="play")
-        
+
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Should apply to friendly character (id=2)
         effects = state.static_effect_registry.get_effects_for_instance(state, 2)
         assert len(effects) == 1
-        
+
         # Should not apply to opposing character (id=3)
         effects = state.static_effect_registry.get_effects_for_instance(state, 3)
         assert len(effects) == 0
@@ -109,18 +109,18 @@ class TestStaticEffectRegistry:
     def test_applies_to_opposing_characters(self, make_state):
         """Test effect targeting opposing characters."""
         state = make_state()
-        
+
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="test", owner=0, controller=0, zone="play")
         state.cards[3] = CardInstance(instance_id=3, card_id="test", owner=1, controller=1, zone="play")
-        
+
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="opposing_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Should apply to opposing character (id=3)
         effects = state.static_effect_registry.get_effects_for_instance(state, 3)
         assert len(effects) == 1
-        
+
         # Should not apply to friendly character (id=2)
         effects = state.static_effect_registry.get_effects_for_instance(state, 2)
         assert len(effects) == 0
@@ -128,20 +128,20 @@ class TestStaticEffectRegistry:
     def test_effect_removed_when_source_leaves_play(self, make_state):
         """Test that effect no longer applies when source card leaves play."""
         state = make_state()
-        
+
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="test", owner=0, controller=0, zone="play")
-        
+
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Source card in play - effect applies
         effects = state.static_effect_registry.get_effects_for_instance(state, 2)
         assert len(effects) == 1
-        
+
         # Source card leaves play
         state.cards[1].zone = "discard"
-        
+
         # Effect no longer applies
         effects = state.static_effect_registry.get_effects_for_instance(state, 2)
         assert len(effects) == 0
@@ -153,42 +153,42 @@ class TestStaticModifierCalculation:
     def test_get_static_modifier_strength(self, make_state):
         """Test getting static strength modifier."""
         state = make_state()
-        
+
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="test", owner=0, controller=0, zone="play")
-        
+
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=3, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         modifier = get_static_modifier(state, 2, "strength")
         assert modifier == 3
 
     def test_get_static_modifier_willpower(self, make_state):
         """Test getting static willpower modifier."""
         state = make_state()
-        
+
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="test", owner=0, controller=0, zone="play")
-        
+
         entry = create_modify_stat_effect(source_id=1, stat="willpower", amount=2, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         modifier = get_static_modifier(state, 2, "willpower")
         assert modifier == 2
 
     def test_multiple_static_modifiers(self, make_state):
         """Test multiple static modifiers stack."""
         state = make_state()
-        
+
         state.cards[1] = CardInstance(instance_id=1, card_id="source1", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="source2", owner=0, controller=0, zone="play")
         state.cards[3] = CardInstance(instance_id=3, card_id="target", owner=0, controller=0, zone="play")
-        
+
         entry1 = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
         entry2 = create_modify_stat_effect(source_id=2, stat="strength", amount=3, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry1)
         state.static_effect_registry.register_effect(entry2)
-        
+
         modifier = get_static_modifier(state, 3, "strength")
         assert modifier == 5
 
@@ -205,13 +205,13 @@ class TestKeywordGrant:
     def test_keyword_grant_effect_applies(self, make_state):
         """Test that keyword grant effect applies to target."""
         state = make_state()
-        
+
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="test", owner=0, controller=0, zone="play")
-        
+
         entry = create_keyword_grant_effect(source_id=1, keyword="bodyguard", target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         effects = state.static_effect_registry.get_effects_for_instance(state, 2)
         assert len(effects) == 1
         assert effects[0].keyword == "BODYGUARD"
@@ -260,7 +260,7 @@ class TestParseStaticEffectsFromCard:
                 },
             },
         )
-        
+
         effects = []
         for ability in abilities:
             if ability.get("type") == "static":
@@ -274,7 +274,7 @@ class TestParseStaticEffectsFromCard:
                         amount=amount,
                         target_mode="self",
                     ))
-        
+
         assert len(effects) == 1
         assert effects[0].effect_type == StaticEffectType.MODIFY_STRENGTH
         assert effects[0].amount == 2
@@ -290,7 +290,7 @@ class TestParseStaticEffectsFromCard:
                 },
             },
         )
-        
+
         effects = []
         for ability in abilities:
             if ability.get("type") == "static":
@@ -302,7 +302,7 @@ class TestParseStaticEffectsFromCard:
                         keyword=keyword,
                         target_mode="your_characters",
                     ))
-        
+
         assert len(effects) == 1
         assert effects[0].effect_type == StaticEffectType.GRANT_KEYWORD
         assert effects[0].keyword == "BODYGUARD"
@@ -316,7 +316,7 @@ class TestEffectDoesNotMutatePrintedCard:
         char = sample_cards.get("test_char")
         original_strength = char.strength
         original_willpower = char.willpower
-        
+
         # Create state and apply static effect
         players = [PlayerState(), PlayerState()]
         cards = {
@@ -324,11 +324,11 @@ class TestEffectDoesNotMutatePrintedCard:
             2: CardInstance(instance_id=2, card_id="test_char", owner=0, controller=0, zone="play"),
         }
         state = GameState(players=players, cards=cards)
-        
+
         # Register a +3 strength static effect
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=3, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Printed stats should be unchanged
         assert char.strength == original_strength
         assert char.willpower == original_willpower
@@ -345,11 +345,11 @@ class TestStaticEffectIntegration:
             2: CardInstance(instance_id=2, card_id="test_char2", owner=0, controller=0, zone="play"),
         }
         state = GameState(players=players, cards=cards)
-        
+
         # Register +2 strength static effect for player 0's characters
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Get static modifier for character 2
         modifier = get_static_modifier(state, 2, "strength")
         assert modifier == 2
@@ -357,14 +357,14 @@ class TestStaticEffectIntegration:
     def test_static_keyword_affects_keywords_for_instance(self, make_state):
         """Test that static keyword grants are included in keywords_for_instance."""
         state = make_state()
-        
+
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="target", owner=0, controller=0, zone="play")
-        
+
         # Register bodyguard keyword grant
         entry = create_keyword_grant_effect(source_id=1, keyword="bodyguard", target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Check that effect applies
         effects = state.static_effect_registry.get_effects_for_instance(state, 2)
         assert len(effects) == 1
@@ -373,12 +373,12 @@ class TestStaticEffectIntegration:
     def test_static_cost_reduction_in_registry(self, make_state):
         """Test that static cost reduction is registered."""
         state = make_state()
-        
+
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
-        
+
         entry = create_cost_reduction_effect(source_id=1, amount=1, card_type="character")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Check effect is registered
         assert len(state.static_effect_registry.effects) == 1
         assert state.static_effect_registry.effects[0].effect_type == StaticEffectType.COST_REDUCTION
@@ -391,14 +391,14 @@ class TestStaticBlockerClassification:
     def test_static_effect_entry_has_blocker_info(self):
         """Test that static effect entries contain information for blocker classification."""
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=2)
-        
+
         # Entry should have type information for classification
         assert entry.effect_type == StaticEffectType.MODIFY_STRENGTH
-        
+
     def test_cost_reduction_static_effect_classification(self):
         """Test cost reduction static effect classification."""
         entry = create_cost_reduction_effect(source_id=1, amount=1)
-        
+
         assert entry.effect_type == StaticEffectType.COST_REDUCTION
         assert entry.target_mode == "self"
 
@@ -409,71 +409,71 @@ class TestStaticEffectEngineWiring:
     def test_static_quest_restriction_blocks_quest(self, make_state):
         """Test that static quest restriction prevents questing."""
         from lorcana_bot.static_effects import can_quest
-        
+
         state = make_state()
         state.cards[1] = CardInstance(instance_id=1, card_id="test", owner=0, controller=0, zone="play")
-        
+
         # Register quest restriction on card
         entry = create_quest_restriction_effect(source_id=1, target_mode="self")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Card should not be able to quest
         assert can_quest(state, 1) is False
 
     def test_static_challenge_restriction_blocks_challenge(self, make_state):
         """Test that static challenge restriction prevents challenging."""
         from lorcana_bot.static_effects import can_challenge
-        
+
         state = make_state()
         state.cards[1] = CardInstance(instance_id=1, card_id="test", owner=0, controller=0, zone="play")
-        
+
         # Register challenge restriction on card
         entry = create_challenge_restriction_effect(source_id=1, target_mode="self")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Card should not be able to challenge
         assert can_challenge(state, 1) is False
 
     def test_static_lore_modifier_affects_quest(self, make_state):
         """Test that static lore modifier affects lore gained on quest."""
         from lorcana_bot.static_effects import get_static_modifier
-        
+
         state = make_state()
         state.cards[1] = CardInstance(instance_id=1, card_id="test", owner=0, controller=0, zone="play")
-        
+
         # Register +2 lore static effect
         entry = create_modify_stat_effect(source_id=1, stat="lore", amount=2, target_mode="self")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Get static modifier for lore
         modifier = get_static_modifier(state, 1, "lore")
         assert modifier == 2
 
     def test_classification_targeting_matches_items(self, make_state):
         """Test that classification-based targeting correctly targets items.
-        
+
         Note: Classification targeting currently uses placeholder logic.
         For full card type checking, engine access to card_def is needed.
         """
         state = make_state()
-        
+
         # Create cards with different types
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="item_card", owner=0, controller=0, zone="play")
-        
+
         # Register effect targeting items (classification mode)
         entry = create_modify_stat_effect(
-            source_id=1, 
-            stat="strength", 
-            amount=3, 
+            source_id=1,
+            stat="strength",
+            amount=3,
             target_mode="classification",
             target_classification="item"
         )
         state.static_effect_registry.register_effect(entry)
-        
+
         # Effect should apply to item card (id starts with "item")
         effects = state.static_effect_registry.get_effects_for_instance(state, 2)
-        
+
         # Classification targeting should apply based on card_id pattern
         # (Placeholder: matches based on card_id contains target_classification)
         assert len(effects) == 1
@@ -481,22 +481,22 @@ class TestStaticEffectEngineWiring:
     def test_static_effect_removal_on_source_leave_play(self, make_state):
         """Test that static effects are removed when source leaves play."""
         from lorcana_bot.static_effects import get_static_modifier
-        
+
         state = make_state()
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
         state.cards[2] = CardInstance(instance_id=2, card_id="target", owner=0, controller=0, zone="play")
-        
+
         # Register strength modifier
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=5, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Modifier should apply while source is in play
         modifier = get_static_modifier(state, 2, "strength")
         assert modifier == 5
-        
+
         # Source leaves play (moves to discard)
         state.cards[1].zone = "discard"
-        
+
         # Modifier should no longer apply
         modifier = get_static_modifier(state, 2, "strength")
         assert modifier == 0
@@ -505,18 +505,18 @@ class TestStaticEffectEngineWiring:
         """Test that deregister_static_effects_for_card removes all effects from source."""
         state = make_state()
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
-        
+
         # Register multiple static effects from same source
         entry1 = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="self")
         entry2 = create_keyword_grant_effect(source_id=1, keyword="bodyguard", target_mode="self")
         state.static_effect_registry.register_effect(entry1)
         state.static_effect_registry.register_effect(entry2)
-        
+
         assert len(state.static_effect_registry.effects) == 2
-        
+
         # Deregister effects from source
         deregister_static_effects_for_card(state, 1)
-        
+
         assert len(state.static_effect_registry.effects) == 0
 
 
@@ -527,18 +527,18 @@ class TestStaticEffectRegistryClear:
         """Test that clear removes all effects from registry."""
         state = make_state()
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
-        
+
         # Register some effects
         entry1 = create_modify_stat_effect(source_id=1, stat="strength", amount=2)
         entry2 = create_keyword_grant_effect(source_id=1, keyword="bodyguard")
         state.static_effect_registry.register_effect(entry1)
         state.static_effect_registry.register_effect(entry2)
-        
+
         assert len(state.static_effect_registry.effects) == 2
-        
+
         # Clear all effects
         state.static_effect_registry.clear()
-        
+
         assert len(state.static_effect_registry.effects) == 0
 
 
@@ -547,20 +547,20 @@ class TestStaticEffectDeregistrationOnLeavePlay:
 
     def test_banish_eventful_deregisters_static_effects_from_top_card_and_stack(self, make_state):
         """Test that _banish_eventful deregisters static effects from top card and all stacked cards.
-        
+
         When a card with cards_under leaves play, all cards in the stack should have their
         static effects deregistered.
         """
         from lorcana_bot.engine import GameEngine
         from lorcana_bot.cards import CardDatabase, CardDef
         from lorcana_bot.constants import ZONE_PLAY, ZONE_UNDER
-        
+
         # Set up a game engine with cards
         engine = GameEngine(CardDatabase([
             CardDef("base", "Base", "amber", 2, True, "character", 2, 2, 1),
             CardDef("shifted", "Shifted", "amber", 5, True, "character", 3, 4, 1),
         ]))
-        
+
         state = make_state()
         # Create shift stack manually: base card under shifted card
         state.cards[1] = CardInstance(instance_id=1, card_id="base", owner=0, controller=0, zone=ZONE_UNDER)
@@ -569,38 +569,38 @@ class TestStaticEffectDeregistrationOnLeavePlay:
         state.cards[2].cards_under = [1]  # shifted has base under it
         state.players[0].play.append(2)
         state.players[0].under.append(1)
-        
+
         # Register static effects on both cards
         entry_top = create_modify_stat_effect(source_id=2, stat="strength", amount=3, target_mode="your_characters")
         entry_stack = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry_top)
         state.static_effect_registry.register_effect(entry_stack)
-        
+
         # Both cards should have effects registered
         assert len(state.static_effect_registry.effects) == 2
-        
+
         # Banish the stack - should deregister effects from both cards
         engine._banish_eventful(state, 2, actor=0, reason="test")
-        
+
         # All effects should be deregistered
         assert len(state.static_effect_registry.effects) == 0
 
     def test_return_to_hand_eventful_deregisters_static_effects_from_top_card_and_stack(self, make_state):
         """Test that _return_to_hand_eventful deregisters static effects from top card and all stacked cards.
-        
+
         When a card with cards_under returns to hand, all cards in the stack should have their
         static effects deregistered.
         """
         from lorcana_bot.engine import GameEngine
         from lorcana_bot.cards import CardDatabase, CardDef
         from lorcana_bot.constants import ZONE_PLAY, ZONE_UNDER, ZONE_HAND
-        
+
         # Set up a game engine with cards
         engine = GameEngine(CardDatabase([
             CardDef("base", "Base", "amber", 2, True, "character", 2, 2, 1),
             CardDef("shifted", "Shifted", "amber", 5, True, "character", 3, 4, 1),
         ]))
-        
+
         state = make_state()
         # Create shift stack manually: base card under shifted card
         state.cards[1] = CardInstance(instance_id=1, card_id="base", owner=0, controller=0, zone=ZONE_UNDER)
@@ -609,38 +609,38 @@ class TestStaticEffectDeregistrationOnLeavePlay:
         state.cards[2].cards_under = [1]  # shifted has base under it
         state.players[0].play.append(2)
         state.players[0].under.append(1)
-        
+
         # Register static effects on both cards
         entry_top = create_modify_stat_effect(source_id=2, stat="strength", amount=3, target_mode="your_characters")
         entry_stack = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry_top)
         state.static_effect_registry.register_effect(entry_stack)
-        
+
         # Both cards should have effects registered
         assert len(state.static_effect_registry.effects) == 2
-        
+
         # Return to hand - should deregister effects from both cards
         engine._return_to_hand_eventful(state, 2, actor=0)
-        
+
         # All effects should be deregistered
         assert len(state.static_effect_registry.effects) == 0
 
     def test_move_card_eventful_include_stack_deregisters_all_static_effects(self, make_state):
         """Test that _move_card_eventful with include_stack=True deregisters effects from all stack cards.
-        
+
         Moving a stack out of play via _move_card_eventful should deregister effects
         from the top card and all cards_under.
         """
         from lorcana_bot.engine import GameEngine
         from lorcana_bot.cards import CardDatabase, CardDef
         from lorcana_bot.constants import ZONE_PLAY, ZONE_UNDER, ZONE_DISCARD
-        
+
         # Set up a game engine with cards
         engine = GameEngine(CardDatabase([
             CardDef("base", "Base", "amber", 2, True, "character", 2, 2, 1),
             CardDef("shifted", "Shifted", "amber", 5, True, "character", 3, 4, 1),
         ]))
-        
+
         state = make_state()
         # Create shift stack manually: base card under shifted card
         state.cards[1] = CardInstance(instance_id=1, card_id="base", owner=0, controller=0, zone=ZONE_UNDER)
@@ -649,19 +649,19 @@ class TestStaticEffectDeregistrationOnLeavePlay:
         state.cards[2].cards_under = [1]  # shifted has base under it
         state.players[0].play.append(2)
         state.players[0].under.append(1)
-        
+
         # Register static effects on both cards
         entry_top = create_modify_stat_effect(source_id=2, stat="strength", amount=3, target_mode="your_characters")
         entry_stack = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry_top)
         state.static_effect_registry.register_effect(entry_stack)
-        
+
         # Both cards should have effects registered
         assert len(state.static_effect_registry.effects) == 2
-        
+
         # Move the stack to discard with include_stack=True (default)
         engine._move_card_eventful(state, 2, ZONE_DISCARD, actor=0)
-        
+
         # All effects should be deregistered
         assert len(state.static_effect_registry.effects) == 0
 
@@ -673,14 +673,14 @@ class TestStaticEffectIdempotentRegistration:
         """Test that registering the same effect twice does not create duplicates."""
         state = make_state()
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
-        
+
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
-        
+
         # Register the same effect multiple times
         state.static_effect_registry.register_effect(entry)
         state.static_effect_registry.register_effect(entry)
         state.static_effect_registry.register_effect(entry)
-        
+
         # Should only have one effect
         assert len(state.static_effect_registry.effects) == 1
         assert state.static_effect_registry.effects[0] == entry
@@ -689,13 +689,13 @@ class TestStaticEffectIdempotentRegistration:
         """Test that different effects can still be registered."""
         state = make_state()
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
-        
+
         entry1 = create_modify_stat_effect(source_id=1, stat="strength", amount=2)
         entry2 = create_keyword_grant_effect(source_id=1, keyword="bodyguard")
-        
+
         state.static_effect_registry.register_effect(entry1)
         state.static_effect_registry.register_effect(entry2)
-        
+
         assert len(state.static_effect_registry.effects) == 2
 
 
@@ -708,14 +708,14 @@ class TestStaticEffectSourceZONEUNDER:
         # Source card is under another card (shift stack) - not a public source
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play", stack_parent_id=10)
         state.cards[2] = CardInstance(instance_id=2, card_id="target", owner=0, controller=0, zone="play")
-        
+
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=5, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Effect should not apply because source is in ZONE_UNDER
         modifier = get_static_modifier(state, 2, "strength")
         assert modifier == 0
-        
+
         # Effects for instance should be empty
         effects = state.static_effect_registry.get_effects_for_instance(state, 2)
         assert len(effects) == 0
@@ -726,10 +726,10 @@ class TestStaticEffectSourceZONEUNDER:
         # Source card has no stack parent (top of stack)
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play", stack_parent_id=None)
         state.cards[2] = CardInstance(instance_id=2, card_id="target", owner=0, controller=0, zone="play")
-        
+
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=3, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Effect should apply
         modifier = get_static_modifier(state, 2, "strength")
         assert modifier == 3
@@ -739,10 +739,10 @@ class TestStaticEffectSourceZONEUNDER:
         state = make_state()
         state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="discard")
         state.cards[2] = CardInstance(instance_id=2, card_id="target", owner=0, controller=0, zone="play")
-        
+
         entry = create_modify_stat_effect(source_id=1, stat="strength", amount=5, target_mode="your_characters")
         state.static_effect_registry.register_effect(entry)
-        
+
         # Effect should not apply because source is in discard
         modifier = get_static_modifier(state, 2, "strength")
         assert modifier == 0

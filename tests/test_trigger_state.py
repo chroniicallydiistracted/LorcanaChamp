@@ -22,7 +22,7 @@ def simple_engine():
     """Create a minimal engine mock for trigger tests."""
     from lorcana_bot.engine import GameEngine
     from lorcana_bot.cards import CardDatabase, CardDef
-    
+
     cards = [
         CardDef("test_char", "Test Char", "amber", 2, True, "character", 2, 2, 1),
         CardDef("test_char2", "Test Char 2", "amber", 2, True, "character", 2, 2, 1),
@@ -35,7 +35,7 @@ def simple_engine():
 def state_with_cards():
     """Create a game state with cards in play."""
     from lorcana_bot.state import CardInstance, PlayerState
-    
+
     state = GameState(
         players=[PlayerState(), PlayerState()],
         cards={},
@@ -159,7 +159,7 @@ def test_canonical_trigger_event():
         EVENT_INKED,
     )
     from lorcana_bot.state import GameEvent
-    
+
     # String input
     assert canonical_trigger_event("TURN_START") == "start-turn"
     assert canonical_trigger_event("play") == "play"
@@ -171,7 +171,7 @@ def test_canonical_trigger_event():
     assert canonical_trigger_event(EVENT_CARD_READIED) == "ready"
     assert canonical_trigger_event(EVENT_CARD_EXERTED) == "exert"
     assert canonical_trigger_event(EVENT_BANISH_IN_CHALLENGE) == "banish-in-challenge"
-    
+
     # GameEvent input
     event = GameEvent(event_type="QUESTED")
     assert canonical_trigger_event(event) == "quest"
@@ -180,7 +180,7 @@ def test_canonical_trigger_event():
 def test_buffer_trigger_event_hydrates_basic_payload_fields(state_with_cards):
     """Buffering must prefer payload fields over fallback arguments."""
     from lorcana_bot.state import GameEvent
-    
+
     game_event = GameEvent(
         event_type="QUESTED",
         actor=1,
@@ -200,7 +200,7 @@ def test_buffer_trigger_event_hydrates_basic_payload_fields(state_with_cards):
         trigger_source_card_id=2,
         source_card_type="item",
     )
-    
+
     assert pending.event == "quest"
     assert pending.player_id == 0
     assert pending.subject_card_id == 1
@@ -218,7 +218,7 @@ def test_buffer_trigger_event_hydrates_basic_payload_fields(state_with_cards):
 def test_buffer_trigger_event_hydrates_challenge_payload_fields(state_with_cards):
     """Challenge events must preserve attacker, defender, and damage snapshot data."""
     from lorcana_bot.state import GameEvent
-    
+
     game_event = GameEvent(
         event_type="CHALLENGE_STARTED",
         actor=0,
@@ -235,7 +235,7 @@ def test_buffer_trigger_event_hydrates_challenge_payload_fields(state_with_cards
         },
     )
     pending = buffer_trigger_event(state_with_cards, game_event)
-    
+
     assert pending.event == "challenge"
     assert pending.player_id == 0
     assert pending.subject_card_id == 1
@@ -251,7 +251,7 @@ def test_buffer_trigger_event_hydrates_challenge_payload_fields(state_with_cards
 def test_buffer_trigger_event_hydrates_banish_in_challenge_payload_fields(state_with_cards):
     """Banish-in-challenge events must preserve leave-play and challenge context."""
     from lorcana_bot.state import GameEvent
-    
+
     game_event = GameEvent(
         event_type="BANISH_IN_CHALLENGE",
         actor=0,
@@ -266,7 +266,7 @@ def test_buffer_trigger_event_hydrates_banish_in_challenge_payload_fields(state_
         },
     )
     pending = buffer_trigger_event(state_with_cards, game_event)
-    
+
     assert pending.event == "banish-in-challenge"
     assert pending.player_id == 0
     assert pending.subject_card_id == 2
@@ -282,7 +282,7 @@ def test_buffer_trigger_event_hydrates_banish_in_challenge_payload_fields(state_
 def test_buffer_trigger_event_hydrates_ink_payload_fields(state_with_cards):
     """Ink events must preserve source and destination zones."""
     from lorcana_bot.state import GameEvent
-    
+
     game_event = GameEvent(
         event_type="INKED",
         actor=0,
@@ -295,7 +295,7 @@ def test_buffer_trigger_event_hydrates_ink_payload_fields(state_with_cards):
         },
     )
     pending = buffer_trigger_event(state_with_cards, game_event)
-    
+
     assert pending.event == "ink"
     assert pending.subject_card_id == 3
     assert pending.from_zone == "hand"
@@ -307,7 +307,7 @@ def test_buffer_trigger_event_hydrates_ink_payload_fields(state_with_cards):
 def test_buffer_trigger_event_preserves_private_draw_payload(state_with_cards):
     """Draw events must preserve private/public payload fields without losing canonical event data."""
     from lorcana_bot.state import GameEvent
-    
+
     game_event = GameEvent(
         event_type="CARD_DRAWN",
         actor=1,
@@ -318,7 +318,7 @@ def test_buffer_trigger_event_preserves_private_draw_payload(state_with_cards):
         },
     )
     pending = buffer_trigger_event(state_with_cards, game_event)
-    
+
     assert pending.event == "draw"
     assert pending.player_id == 1
     assert pending.payload["count"] == 1
@@ -348,7 +348,7 @@ def test_remove_bag_effect(state_with_cards):
     )
     state_with_cards.bag.append(entry)
     bag_id = entry.id
-    
+
     removed = remove_bag_effect(state_with_cards, bag_id)
     assert removed is not None
     assert removed.id == bag_id

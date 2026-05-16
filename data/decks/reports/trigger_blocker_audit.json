@@ -2439,8 +2439,8 @@
       "appears_in_deck": true,
       "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
       ],
       "canonical_id": "ci_dBq",
       "card_count": 4,
@@ -2460,7 +2460,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Nani - Stage Manager",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -2513,8 +2513,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "amount",
-        "scry_ordering"
+        "scry_ordering",
+        "amount"
       ],
       "target_kinds": [],
       "trigger_event": "play",
@@ -4670,8 +4670,8 @@
       "appears_in_deck": true,
       "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
       ],
       "canonical_id": "ci_dBq",
       "card_count": 4,
@@ -4691,7 +4691,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Nani - Stage Manager",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -4744,8 +4744,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "amount",
-        "scry_ordering"
+        "scry_ordering",
+        "amount"
       ],
       "target_kinds": [],
       "trigger_event": "play",
@@ -4865,8 +4865,8 @@
       "blocker_family": "condition_unsupported",
       "blockers": [
         "unsupported_trigger_condition:has-card-under",
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
       ],
       "canonical_id": "ci_Ab7",
       "card_count": 2,
@@ -4953,8 +4953,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "amount",
-        "scry_ordering"
+        "scry_ordering",
+        "amount"
       ],
       "target_kinds": [],
       "trigger_event": "exert",
@@ -5488,8 +5488,8 @@
       "appears_in_deck": true,
       "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
       ],
       "canonical_id": "ci_dBq",
       "card_count": 4,
@@ -5509,7 +5509,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Nani - Stage Manager",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -5562,8 +5562,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "amount",
-        "scry_ordering"
+        "scry_ordering",
+        "amount"
       ],
       "target_kinds": [],
       "trigger_event": "play",
@@ -7305,8 +7305,8 @@
       "appears_in_deck": true,
       "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
       ],
       "canonical_id": "ci_1sm",
       "card_count": 4,
@@ -7326,7 +7326,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Gramma Tala - Keeper of Ancient Stories",
       "ink": "sapphire",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -7367,8 +7367,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "amount",
-        "scry_ordering"
+        "scry_ordering",
+        "amount"
       ],
       "target_kinds": [],
       "trigger_event": "play",
@@ -7887,8 +7887,8 @@
       "appears_in_deck": true,
       "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
+        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount"
       ],
       "canonical_id": "ci_qwp",
       "card_count": 4,
@@ -7908,7 +7908,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Robin Hood - Sharpshooter",
       "ink": "ruby",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 0,
@@ -7961,8 +7961,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "amount",
-        "scry_ordering"
+        "scry_ordering",
+        "amount"
       ],
       "target_kinds": [],
       "trigger_event": "quest",

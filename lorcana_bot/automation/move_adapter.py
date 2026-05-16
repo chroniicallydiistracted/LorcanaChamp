@@ -79,18 +79,23 @@ def candidate_to_action(candidate: AutomatedActionCandidate) -> Action:
             choice={"bag_id": bag_id, "accept": accept}
         )
     if family == AutomatedActionFamily.RESOLVE_EFFECT:
-        # B7: Map resolveEffect candidates to ACTION_RESOLVE_PENDING_EFFECT
+        # B7/B9: Map resolveEffect candidates to ACTION_RESOLVE_PENDING_EFFECT
+        # B9: Round-trip invariant - capture all pending choice fields
         pending_effect_id = candidate.pending_effect_id or (candidate.metadata.get("pending_effect_id") if candidate.metadata else None)
         choice: dict[str, Any] = {"pending_effect_id": pending_effect_id}
-        
+
         # Handle optional accept/decline
         if candidate.resolve_optional is not None:
             choice["accept"] = candidate.resolve_optional
-        
+
         # Handle target selection
         if candidate.target_instance_id is not None:
             choice["target"] = candidate.target_instance_id
-        
+
+        # B9: Handle targets tuple for multi_target pending requirements
+        if candidate.targets:
+            choice["targets"] = list(candidate.targets)
+
         # Handle choice index
         if candidate.choice_index is not None:
             choice["choice_index"] = candidate.choice_index
@@ -98,10 +103,22 @@ def candidate_to_action(candidate: AutomatedActionCandidate) -> Action:
         if candidate.named_card is not None:
             choice["named_card"] = candidate.named_card
 
+        # B9: Handle amount for amount pending requirements
+        if candidate.amount is not None:
+            choice["amount"] = candidate.amount
+
+        # B9: Handle discard_card_ids for discard_choice pending requirements
+        if candidate.discard_card_ids:
+            choice["discard_card_ids"] = list(candidate.discard_card_ids)
+
+        # B9: Handle enter_play_exerted for enter_play_exerted pending requirements
+        if candidate.enter_play_exerted is not None:
+            choice["enter_play_exerted"] = candidate.enter_play_exerted
+
         for key in ("selected_card_id", "top_cards", "bottom_cards", "destination"):
             if candidate.metadata and key in candidate.metadata:
                 choice[key] = candidate.metadata[key]
-        
+
         return Action(
             ACTION_RESOLVE_PENDING_EFFECT,
             actor=actor,

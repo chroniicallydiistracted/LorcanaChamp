@@ -80,7 +80,7 @@ class TestReplacementEffectRegistry:
             amount=1,
         )
         registry.register_effect(effect)
-        
+
         assert len(registry.effects) == 1
         assert registry.effects[0] == effect
 
@@ -101,9 +101,9 @@ class TestReplacementEffectRegistry:
         )
         registry.register_effect(effect1)
         registry.register_effect(effect2)
-        
+
         registry.deregister_effects_from_source(1)
-        
+
         assert len(registry.effects) == 1
         assert registry.effects[0].source_id == 2
 
@@ -126,11 +126,11 @@ class TestReplacementEffectRegistry:
         )
         registry.register_effect(effect_self)
         registry.register_effect(effect_all)
-        
+
         # Effects that apply to card 1 (source's self)
         effects_on_1 = registry.get_effects_for_instance(simple_state, 1)
         assert len(effects_on_1) == 2  # Both apply to self
-        
+
         # Effects that apply to card 2 (opponent) - only "all_characters" applies
         effects_on_2 = registry.get_effects_for_instance(simple_state, 2)
         assert len(effects_on_2) == 1  # Only "all_characters" applies
@@ -146,13 +146,13 @@ class TestReplacementEffectRegistry:
             once_per_turn=True,
             usage_key="prevent_1",
         )
-        
+
         # First use should succeed
         assert registry.check_and_use_once_per_turn(simple_state, effect, 0) is True
-        
+
         # Second use on same turn should fail
         assert registry.check_and_use_once_per_turn(simple_state, effect, 0) is False
-        
+
         # But on a new turn it should work
         simple_state.turn_number = 2
         assert registry.check_and_use_once_per_turn(simple_state, effect, 0) is True
@@ -167,7 +167,7 @@ class TestReplacementEffectRegistry:
             amount=1,
             once_per_turn=False,
         )
-        
+
         # Multiple uses should all succeed
         assert registry.check_and_use_once_per_turn(simple_state, effect, 0) is True
         assert registry.check_and_use_once_per_turn(simple_state, effect, 0) is True
@@ -180,7 +180,7 @@ class TestDealDamage:
     def test_deal_damage_no_effects(self, simple_state):
         """Test basic damage without replacement effects."""
         event = deal_damage(simple_state, 1, 2, 5)
-        
+
         assert event.original_amount == 5
         assert event.current_amount == 5
         assert event.was_replaced is False
@@ -197,9 +197,9 @@ class TestDealDamage:
             once_per_turn=False,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         event = deal_damage(simple_state, 1, 2, 5)  # Deal 5 to player 0's character
-        
+
         assert event.was_replaced is True
         assert event.current_amount == 3  # 5 - 2 prevented
         assert simple_state.cards[1].damage == 3
@@ -215,9 +215,9 @@ class TestDealDamage:
             once_per_turn=False,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         event = deal_damage(simple_state, 1, 2, 5)
-        
+
         assert event.was_replaced is True
         assert event.current_amount == 0
         assert simple_state.cards[1].damage == 0
@@ -234,12 +234,12 @@ class TestDealDamage:
             usage_key="protector_prevent",
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # First damage
         event1 = deal_damage(simple_state, 1, 2, 5)
         assert event1.was_replaced is True
         assert event1.current_amount == 3
-        
+
         # Second damage same turn - effect exhausted
         event2 = deal_damage(simple_state, 1, 2, 5)
         assert event2.was_replaced is False
@@ -248,7 +248,7 @@ class TestDealDamage:
     def test_deal_damage_tracks_source(self, simple_state):
         """Test that damage event tracks source."""
         event = deal_damage(simple_state, 1, 2, 3, is_challenge=True)
-        
+
         assert event.source_id == 2
         assert event.was_challenge is True
         assert simple_state.cards[1].last_damage_source == 2
@@ -260,12 +260,12 @@ class TestBanishCard:
 
     def test_banish_card_no_effects(self, simple_state):
         """Test basic banish without replacement effects.
-        
+
         Note: banish_card() is now a query function that returns what destination
         should be used. The caller is responsible for performing the actual move.
         """
         event = banish_card(simple_state, 1, 2)
-        
+
         assert event.original_destination == "discard"
         assert event.actual_destination == "discard"
         assert event.was_replaced is False
@@ -274,7 +274,7 @@ class TestBanishCard:
 
     def test_banish_replace_with_return_to_hand(self, simple_state):
         """Test banish replacement to hand.
-        
+
         Note: banish_card() is now a query function - caller must perform the move.
         """
         registry = get_registry(simple_state)
@@ -285,9 +285,9 @@ class TestBanishCard:
             once_per_turn=False,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         event = banish_card(simple_state, 1, 2)
-        
+
         assert event.was_replaced is True
         assert event.actual_destination == "hand"
         # Card stays in play zone - caller must perform the move
@@ -295,13 +295,13 @@ class TestBanishCard:
 
     def test_banish_replace_with_discard(self, simple_state):
         """Test banish replacement to discard (instead of banish to inkwell).
-        
+
         Note: The REPLACE_BANISH_DISCARD effect changes destination from the
         default "discard" to "discard", so was_replaced will be False since
         there's no actual change. This represents replacing banish-to-inkwell
         with banish-to-discard, which has no visible difference when default
         is already discard.
-        
+
         Note: banish_card() is now a query function - caller must perform the move.
         """
         registry = get_registry(simple_state)
@@ -312,9 +312,9 @@ class TestBanishCard:
             once_per_turn=False,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         event = banish_card(simple_state, 1, 2)
-        
+
         # Card goes to discard as expected
         assert event.actual_destination == "discard"
         # Card stays in play zone - caller must perform the move
@@ -338,7 +338,7 @@ class TestCannotBeChallenged:
             target_mode="self",
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Card 1 cannot be challenged
         assert check_cannot_be_challenged(simple_state, 1, 1) is True
         # Card 2 can still be challenged
@@ -354,7 +354,7 @@ class TestCannotBeChallenged:
             target_mode="opposing_characters",
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Card 2 (player 1) is protected from challenges
         assert check_cannot_be_challenged(simple_state, 2, 0) is True
 
@@ -375,7 +375,7 @@ class TestCannotBeTargeted:
             target_mode="self",
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Card 1 cannot be targeted
         assert check_cannot_be_targeted(simple_state, 1, 1) is True
 
@@ -395,15 +395,15 @@ class TestOncePerTurnUsage:
             usage_key="prevent",
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Use the effect
         registry.check_and_use_once_per_turn(simple_state, effect, 0)
         assert "prevent" in registry.usage_ledger
-        
+
         # Move to next turn and cleanup
         simple_state.turn_number = 2
         cleanup_replacement_effects_on_turn_end(simple_state)
-        
+
         # Old turn's usage should be cleared
         assert "prevent" not in registry.usage_ledger
 
@@ -421,11 +421,11 @@ class TestEffectAppliesTo:
             amount=1,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Applies to source
         effects = registry.get_effects_for_instance(simple_state, 1)
         assert len(effects) == 1
-        
+
         # Does not apply to others
         effects = registry.get_effects_for_instance(simple_state, 2)
         assert len(effects) == 0
@@ -440,7 +440,7 @@ class TestEffectAppliesTo:
             amount=1,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Applies to all characters in play
         effects = registry.get_effects_for_instance(simple_state, 1)
         assert len(effects) == 1
@@ -457,10 +457,10 @@ class TestEffectAppliesTo:
             amount=1,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Move source out of play
         simple_state.cards[1].zone = ZONE_DISCARD
-        
+
         # Effect should not apply
         effects = registry.get_effects_for_instance(simple_state, 1)
         assert len(effects) == 0
@@ -478,12 +478,12 @@ class TestReplacementEffectIdempotentRegistration:
             target_mode="self",
             amount=1,
         )
-        
+
         # Register the same effect multiple times
         registry.register_effect(effect)
         registry.register_effect(effect)
         registry.register_effect(effect)
-        
+
         # Should only have one effect
         assert len(registry.effects) == 1
         assert registry.effects[0] == effect
@@ -503,10 +503,10 @@ class TestReplacementEffectIdempotentRegistration:
             target_mode="all_characters",
             amount=2,
         )
-        
+
         registry.register_effect(effect1)
         registry.register_effect(effect2)
-        
+
         assert len(registry.effects) == 2
 
 
@@ -515,7 +515,7 @@ class TestReplacementEffectDeregistrationOnLeavePlay:
 
     def test_banish_eventful_deregisters_replacement_effects_from_top_card_and_stack(self, game_state):
         """Test that _banish_eventful deregisters replacement effects from top card and all stacked cards.
-        
+
         When a card with cards_under leaves play, all cards in the stack should have their
         replacement effects deregistered.
         """
@@ -523,13 +523,13 @@ class TestReplacementEffectDeregistrationOnLeavePlay:
         from lorcana_bot.cards import CardDatabase, CardDef
         from lorcana_bot.constants import ZONE_PLAY, ZONE_UNDER, ZONE_DISCARD
         from lorcana_bot.replacement_effects import ReplacementEffectEntry, ReplacementEffectType
-        
+
         # Set up a game engine with cards
         engine = GameEngine(CardDatabase([
             CardDef("base", "Base", "amber", 2, True, "character", 2, 2, 1),
             CardDef("shifted", "Shifted", "amber", 5, True, "character", 3, 4, 1),
         ]))
-        
+
         # Create shift stack manually: base card under shifted card
         game_state.cards[1] = CardInstance(instance_id=1, card_id="base", owner=0, controller=0, zone=ZONE_UNDER)
         game_state.cards[2] = CardInstance(instance_id=2, card_id="shifted", owner=0, controller=0, zone=ZONE_PLAY)
@@ -537,7 +537,7 @@ class TestReplacementEffectDeregistrationOnLeavePlay:
         game_state.cards[2].cards_under = [1]  # shifted has base under it
         game_state.players[0].play.append(2)
         game_state.players[0].under.append(1)
-        
+
         # Register replacement effects on both cards
         entry_top = ReplacementEffectEntry(
             source_id=2,
@@ -553,19 +553,19 @@ class TestReplacementEffectDeregistrationOnLeavePlay:
         )
         get_registry(game_state).register_effect(entry_top)
         get_registry(game_state).register_effect(entry_stack)
-        
+
         # Both cards should have effects registered
         assert len(get_registry(game_state).effects) == 2
-        
+
         # Banish the stack - should deregister effects from both cards
         engine._banish_eventful(game_state, 2, actor=0, reason="test")
-        
+
         # All effects should be deregistered
         assert len(get_registry(game_state).effects) == 0
 
     def test_return_to_hand_eventful_deregisters_replacement_effects_from_top_card_and_stack(self, game_state):
         """Test that _return_to_hand_eventful deregisters replacement effects from top card and all stacked cards.
-        
+
         When a card with cards_under returns to hand, all cards in the stack should have their
         replacement effects deregistered.
         """
@@ -573,13 +573,13 @@ class TestReplacementEffectDeregistrationOnLeavePlay:
         from lorcana_bot.cards import CardDatabase, CardDef
         from lorcana_bot.constants import ZONE_PLAY, ZONE_UNDER, ZONE_HAND
         from lorcana_bot.replacement_effects import ReplacementEffectEntry, ReplacementEffectType
-        
+
         # Set up a game engine with cards
         engine = GameEngine(CardDatabase([
             CardDef("base", "Base", "amber", 2, True, "character", 2, 2, 1),
             CardDef("shifted", "Shifted", "amber", 5, True, "character", 3, 4, 1),
         ]))
-        
+
         # Create shift stack manually: base card under shifted card
         game_state.cards[1] = CardInstance(instance_id=1, card_id="base", owner=0, controller=0, zone=ZONE_UNDER)
         game_state.cards[2] = CardInstance(instance_id=2, card_id="shifted", owner=0, controller=0, zone=ZONE_PLAY)
@@ -587,7 +587,7 @@ class TestReplacementEffectDeregistrationOnLeavePlay:
         game_state.cards[2].cards_under = [1]  # shifted has base under it
         game_state.players[0].play.append(2)
         game_state.players[0].under.append(1)
-        
+
         # Register replacement effects on both cards
         entry_top = ReplacementEffectEntry(
             source_id=2,
@@ -602,13 +602,13 @@ class TestReplacementEffectDeregistrationOnLeavePlay:
         )
         get_registry(game_state).register_effect(entry_top)
         get_registry(game_state).register_effect(entry_stack)
-        
+
         # Both cards should have effects registered
         assert len(get_registry(game_state).effects) == 2
-        
+
         # Return to hand - should deregister effects from both cards
         engine._return_to_hand_eventful(game_state, 2, actor=0)
-        
+
         # All effects should be deregistered
         assert len(get_registry(game_state).effects) == 0
 
@@ -621,7 +621,7 @@ class TestReplacementEffectSourceZONEUNDER:
         # Create state with source in zone under
         game_state.cards[1] = CardInstance(instance_id=1, card_id="protector", owner=0, controller=0, zone=ZONE_PLAY, stack_parent_id=10)
         game_state.cards[2] = CardInstance(instance_id=2, card_id="character", owner=0, controller=0, zone=ZONE_PLAY)
-        
+
         registry = get_registry(game_state)
         effect = ReplacementEffectEntry(
             source_id=1,  # protector is in zone under
@@ -630,10 +630,10 @@ class TestReplacementEffectSourceZONEUNDER:
             amount=5,
         )
         registry.register_effect(effect)
-        
+
         # Deal damage to the character
         event = deal_damage(game_state, 2, 99, 5)
-        
+
         # Effect should not apply because source is in ZONE_UNDER
         assert event.was_replaced is False
         assert game_state.cards[2].damage == 5
@@ -642,7 +642,7 @@ class TestReplacementEffectSourceZONEUNDER:
         """Test that a source with stack_parent_id=None is treated as active."""
         game_state.cards[1] = CardInstance(instance_id=1, card_id="protector", owner=0, controller=0, zone=ZONE_PLAY, stack_parent_id=None)
         game_state.cards[2] = CardInstance(instance_id=2, card_id="character", owner=0, controller=0, zone=ZONE_PLAY)
-        
+
         registry = get_registry(game_state)
         effect = ReplacementEffectEntry(
             source_id=1,  # protector is top of stack
@@ -651,10 +651,10 @@ class TestReplacementEffectSourceZONEUNDER:
             amount=5,
         )
         registry.register_effect(effect)
-        
+
         # Deal damage to the character
         event = deal_damage(game_state, 2, 99, 5)
-        
+
         # Effect should apply because source is active
         assert event.was_replaced is True
         assert game_state.cards[2].damage == 0
@@ -663,7 +663,7 @@ class TestReplacementEffectSourceZONEUNDER:
         """Test that a source in ZONE_UNDER does not replace banish."""
         game_state.cards[1] = CardInstance(instance_id=1, card_id="ward", owner=0, controller=0, zone=ZONE_PLAY, stack_parent_id=10)
         game_state.cards[2] = CardInstance(instance_id=2, card_id="character", owner=0, controller=0, zone=ZONE_PLAY)
-        
+
         registry = get_registry(game_state)
         effect = ReplacementEffectEntry(
             source_id=1,  # ward is in zone under
@@ -671,10 +671,10 @@ class TestReplacementEffectSourceZONEUNDER:
             target_mode="your_characters",
         )
         registry.register_effect(effect)
-        
+
         # Evaluate banish replacement
         event = banish_card(game_state, 2, 99)
-        
+
         # Effect should not apply because source is in ZONE_UNDER
         assert event.was_replaced is False
         assert event.actual_destination == "discard"
@@ -683,7 +683,7 @@ class TestReplacementEffectSourceZONEUNDER:
         """Test that replacement effects from discarded sources do not apply."""
         game_state.cards[1] = CardInstance(instance_id=1, card_id="protector", owner=0, controller=0, zone=ZONE_DISCARD)
         game_state.cards[2] = CardInstance(instance_id=2, card_id="character", owner=0, controller=0, zone=ZONE_PLAY)
-        
+
         registry = get_registry(game_state)
         effect = ReplacementEffectEntry(
             source_id=1,  # protector is in discard
@@ -692,10 +692,10 @@ class TestReplacementEffectSourceZONEUNDER:
             amount=5,
         )
         registry.register_effect(effect)
-        
+
         # Deal damage
         event = deal_damage(game_state, 2, 99, 5)
-        
+
         # Effect should not apply
         assert event.was_replaced is False
         assert game_state.cards[2].damage == 5
@@ -713,7 +713,7 @@ class TestDamageEvent:
             current_amount=3,
             was_challenge=True,
         )
-        
+
         assert event.target_id == 1
         assert event.source_id == 2
         assert event.original_amount == 5
@@ -732,7 +732,7 @@ class TestDamageEvent:
             was_replaced=True,
             replacement_description="prevent 3 damage",
         )
-        
+
         assert event.was_replaced is True
         assert event.replacement_description == "prevent 3 damage"
 
@@ -746,7 +746,7 @@ class TestBanishEvent:
             target_id=1,
             source_id=2,
         )
-        
+
         assert event.target_id == 1
         assert event.source_id == 2
         assert event.original_destination == "discard"
@@ -763,7 +763,7 @@ class TestBanishEvent:
             was_replaced=True,
             replacement_description="return to hand instead of banish",
         )
-        
+
         assert event.was_replaced is True
         assert event.actual_destination == "hand"
         assert event.replacement_description == "return to hand instead of banish"
@@ -779,7 +779,7 @@ class TestReplacementEffectEntry:
             effect_type=ReplacementEffectType.PREVENT_DAMAGE,
             target_mode="self",
         )
-        
+
         assert effect.identifier == "PREVENT_DAMAGE:5"
 
     def test_frozen_dataclass(self):
@@ -789,7 +789,7 @@ class TestReplacementEffectEntry:
             effect_type=ReplacementEffectType.PREVENT_DAMAGE,
             target_mode="self",
         )
-        
+
         # Should not be able to modify
         with pytest.raises(Exception):  # frozen dataclass
             effect.amount = 10  # type: ignore
@@ -801,7 +801,7 @@ class TestIntegration:
     def test_multiple_prevention_effects(self, simple_state):
         """Test multiple prevention effects stacking."""
         registry = get_registry(simple_state)
-        
+
         # Both effects target card 1
         effect1 = ReplacementEffectEntry(
             source_id=1,
@@ -819,9 +819,9 @@ class TestIntegration:
         )
         register_replacement_effect(simple_state, effect1)
         register_replacement_effect(simple_state, effect2)
-        
+
         event = deal_damage(simple_state, 1, 2, 5)
-        
+
         # Both effects should apply
         assert event.was_replaced is True
         # Total prevention = 2 + 1 = 3, damage dealt = 5 - 3 = 2
@@ -830,7 +830,7 @@ class TestIntegration:
 
     def test_replace_banish_once_per_turn(self, simple_state):
         """Test once-per-turn banish replacement.
-        
+
         Note: banish_card() is now a query function - caller must perform the move.
         """
         registry = get_registry(simple_state)
@@ -842,17 +842,17 @@ class TestIntegration:
             usage_key="save_card",
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # First banish
         event1 = banish_card(simple_state, 1, 2)
         assert event1.was_replaced is True
         assert event1.actual_destination == "hand"
         # Card stays in play - caller must perform move
         assert simple_state.cards[1].zone == ZONE_PLAY
-        
+
         # Reset to play for second test
         simple_state.cards[1].zone = ZONE_PLAY
-        
+
         # Second banish same turn - effect exhausted, goes to discard
         event2 = banish_card(simple_state, 1, 2)
         assert event2.was_replaced is False
@@ -861,11 +861,11 @@ class TestIntegration:
 
     def test_mixed_effect_types(self, simple_state):
         """Test multiple effect types on same target.
-        
+
         Note: banish_card() is now a query function - caller must perform the move.
         """
         registry = get_registry(simple_state)
-        
+
         # Prevent damage effect
         effect1 = ReplacementEffectEntry(
             source_id=3,
@@ -883,12 +883,12 @@ class TestIntegration:
         )
         register_replacement_effect(simple_state, effect1)
         register_replacement_effect(simple_state, effect2)
-        
+
         # Damage should be prevented
         event = deal_damage(simple_state, 1, 2, 5)
         assert event.was_replaced is True
         assert simple_state.cards[1].damage == 3
-        
+
         # Banish should be replaced
         banish_event = banish_card(simple_state, 1, 2)
         assert banish_event.was_replaced is True
@@ -903,21 +903,21 @@ class TestEdgeCases:
     def test_deal_damage_to_nonexistent_card(self, game_state):
         """Test dealing damage to a card that doesn't exist."""
         event = deal_damage(game_state, 999, 1, 5)
-        
+
         # Should not crash, event returned with no modification
         assert event.current_amount == 5
 
     def test_banish_nonexistent_card(self, game_state):
         """Test banishing a card that doesn't exist."""
         event = banish_card(game_state, 999, 1)
-        
+
         # Should not crash, event returned with no modification
         assert event.actual_destination == "discard"
 
     def test_empty_registry(self, simple_state):
         """Test operations with empty registry."""
         event = deal_damage(simple_state, 1, 2, 5)
-        
+
         # No replacement, damage applied directly
         assert event.was_replaced is False
         assert simple_state.cards[1].damage == 5
@@ -933,10 +933,10 @@ class TestEdgeCases:
             once_per_turn=False,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Deal damage to player 1's character
         event = deal_damage(simple_state, 2, 1, 5)
-        
+
         # Effect doesn't apply (opponent's character)
         assert event.was_replaced is False
         assert simple_state.cards[2].damage == 5
@@ -1062,7 +1062,7 @@ class TestParseReplacementEffectsFromSourceDataclasses:
 
 class TestReplacementOrderingAndInactiveSourceSafety:
     """Regression tests for replacement ordering and inactive source safety.
-    
+
     These tests prove:
     1. Banish replacement to hand leaves target in hand (never in discard)
     2. Damage prevention reduces the committed damage amount
@@ -1073,17 +1073,17 @@ class TestReplacementOrderingAndInactiveSourceSafety:
 
     def test_banish_replacement_uses_event_destination(self, simple_state):
         """Test that banish replacement to hand leaves target in hand, never in discard.
-        
+
         This tests replacement ordering: banish_card() is called first to get the
         resolved destination, then _move_card_eventful() uses that destination.
         """
         from lorcana_bot.engine import GameEngine
         from lorcana_bot.cards import CardDatabase, CardDef
-        
+
         engine = GameEngine(CardDatabase([
             CardDef("test_char", "Test Char", "amber", 2, True, "character", 2, 2, 1),
         ]))
-        
+
         registry = get_registry(simple_state)
         effect = ReplacementEffectEntry(
             source_id=3,
@@ -1092,28 +1092,28 @@ class TestReplacementOrderingAndInactiveSourceSafety:
             once_per_turn=False,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Get banish event - should indicate hand destination
         banish_event = banish_card(simple_state, 1, 2)
         assert banish_event.was_replaced is True
         assert banish_event.actual_destination == "hand"
         assert banish_event.original_destination == "discard"
-        
+
         # Card still in play - caller must perform move
         assert simple_state.cards[1].zone == ZONE_PLAY
-        
+
         # Simulate what _banish_eventful does: use the resolved destination
         engine._move_card_eventful(
             simple_state, 1, banish_event.actual_destination, actor=0
         )
-        
+
         # Card should be in hand, not discard
         assert simple_state.cards[1].zone == ZONE_HAND
         assert 1 in simple_state.players[0].hand
 
     def test_damage_prevention_reduces_committed_amount(self, simple_state):
         """Test that damage prevention reduces the committed damage amount.
-        
+
         The prevention is evaluated first, then only the reduced amount
         (current_amount) is committed to state.cards[target].damage.
         """
@@ -1126,10 +1126,10 @@ class TestReplacementOrderingAndInactiveSourceSafety:
             once_per_turn=False,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Deal 5 damage - prevention should reduce to 3
         event = deal_damage(simple_state, 1, 2, 5)
-        
+
         assert event.was_replaced is True
         assert event.original_amount == 5
         assert event.current_amount == 3  # 5 - 2 prevented
@@ -1146,26 +1146,26 @@ class TestReplacementOrderingAndInactiveSourceSafety:
             once_per_turn=False,
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Deal 5 damage - all prevented
         event = deal_damage(simple_state, 1, 2, 5)
-        
+
         assert event.was_replaced is True
         assert event.current_amount == 0
         assert simple_state.cards[1].damage == 0
 
     def test_under_card_prevention_source_does_not_replace(self, simple_state):
         """Test that under-card (inactive) prevention source does not apply.
-        
+
         A source with stack_parent_id set is in ZONE_UNDER and is not an
         active public source. It should not consume its once-per-turn usage.
         """
         registry = get_registry(simple_state)
-        
+
         # Card 3 is under card 10 (inactive)
         simple_state.cards[3].stack_parent_id = 10
         simple_state.cards[3].zone = ZONE_PLAY
-        
+
         effect = ReplacementEffectEntry(
             source_id=3,
             effect_type=ReplacementEffectType.PREVENT_DAMAGE,
@@ -1175,29 +1175,29 @@ class TestReplacementOrderingAndInactiveSourceSafety:
             usage_key="under_card_prevent",
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Deal damage - effect should NOT apply
         event = deal_damage(simple_state, 1, 2, 5)
-        
+
         assert event.was_replaced is False
         assert event.current_amount == 5
         assert simple_state.cards[1].damage == 5
-        
+
         # Once-per-turn usage should NOT be consumed
         assert "under_card_prevent" not in registry.usage_ledger
 
     def test_under_card_banish_replacement_source_does_not_replace(self, simple_state):
         """Test that under-card banish replacement source does not replace banish.
-        
+
         A source in ZONE_UNDER (stack_parent_id set) should not apply its
         replacement effect and should not consume once-per-turn usage.
         """
         registry = get_registry(simple_state)
-        
+
         # Card 3 is under card 10 (inactive)
         simple_state.cards[3].stack_parent_id = 10
         simple_state.cards[3].zone = ZONE_PLAY
-        
+
         effect = ReplacementEffectEntry(
             source_id=3,
             effect_type=ReplacementEffectType.REPLACE_BANISH_RETURN_TO_HAND,
@@ -1206,27 +1206,27 @@ class TestReplacementOrderingAndInactiveSourceSafety:
             usage_key="under_card_banish",
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # Evaluate banish - effect should NOT apply
         event = banish_card(simple_state, 1, 2)
-        
+
         assert event.was_replaced is False
         assert event.actual_destination == "discard"
-        
+
         # Once-per-turn usage should NOT be consumed
         assert "under_card_banish" not in registry.usage_ledger
 
     def test_active_source_does_replace_and_consumes_once_per_turn(self, simple_state):
         """Test that active source (no stack_parent_id) replaces and consumes OPT.
-        
+
         This is the positive test case: when source is active, replacement
         should apply AND once-per-turn should be consumed.
         """
         registry = get_registry(simple_state)
-        
+
         # Card 3 is active (no stack_parent_id)
         simple_state.cards[3].stack_parent_id = None
-        
+
         effect = ReplacementEffectEntry(
             source_id=3,
             effect_type=ReplacementEffectType.PREVENT_DAMAGE,
@@ -1236,17 +1236,17 @@ class TestReplacementOrderingAndInactiveSourceSafety:
             usage_key="active_prevent",
         )
         register_replacement_effect(simple_state, effect)
-        
+
         # First use - effect should apply and consume OPT
         event = deal_damage(simple_state, 1, 2, 5)
-        
+
         assert event.was_replaced is True
         assert event.current_amount == 0
         assert simple_state.cards[1].damage == 0
-        
+
         # Once-per-turn usage SHOULD be consumed
         assert "active_prevent" in registry.usage_ledger
-        
+
         # Second use on same turn - effect should NOT apply (exhausted)
         event2 = deal_damage(simple_state, 1, 2, 5)
         assert event2.was_replaced is False
@@ -1256,14 +1256,14 @@ class TestReplacementOrderingAndInactiveSourceSafety:
     def test_inactive_source_in_discard_does_not_apply(self, game_state):
         """Test that replacement source in discard zone does not apply."""
         registry = get_registry(game_state)
-        
+
         game_state.cards[1] = CardInstance(
             instance_id=1, card_id="protector", owner=0, controller=0, zone=ZONE_DISCARD
         )
         game_state.cards[2] = CardInstance(
             instance_id=2, card_id="character", owner=0, controller=0, zone=ZONE_PLAY
         )
-        
+
         effect = ReplacementEffectEntry(
             source_id=1,  # Source is in discard
             effect_type=ReplacementEffectType.PREVENT_DAMAGE,
@@ -1271,9 +1271,9 @@ class TestReplacementOrderingAndInactiveSourceSafety:
             amount=5,
         )
         registry.register_effect(effect)
-        
+
         event = deal_damage(game_state, 2, 99, 5)
-        
+
         # Effect should not apply
         assert event.was_replaced is False
         assert game_state.cards[2].damage == 5
@@ -1281,7 +1281,7 @@ class TestReplacementOrderingAndInactiveSourceSafety:
     def test_inactive_source_in_hand_does_not_apply(self, game_state):
         """Test that replacement source in hand does not apply."""
         registry = get_registry(game_state)
-        
+
         game_state.cards[1] = CardInstance(
             instance_id=1, card_id="protector", owner=0, controller=0, zone=ZONE_HAND
         )
@@ -1289,7 +1289,7 @@ class TestReplacementOrderingAndInactiveSourceSafety:
             instance_id=2, card_id="character", owner=0, controller=0, zone=ZONE_PLAY
         )
         game_state.players[0].hand.append(1)
-        
+
         effect = ReplacementEffectEntry(
             source_id=1,  # Source is in hand
             effect_type=ReplacementEffectType.PREVENT_DAMAGE,
@@ -1297,9 +1297,9 @@ class TestReplacementOrderingAndInactiveSourceSafety:
             amount=5,
         )
         registry.register_effect(effect)
-        
+
         event = deal_damage(game_state, 2, 99, 5)
-        
+
         # Effect should not apply
         assert event.was_replaced is False
         assert game_state.cards[2].damage == 5

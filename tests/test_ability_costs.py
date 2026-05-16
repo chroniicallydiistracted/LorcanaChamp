@@ -93,7 +93,7 @@ def _make_source_ability(
 
 class TestExertSourceCost:
     """Test exert source cost validation and payment."""
-    
+
     def test_exert_cost_payable_when_source_not_exerted(self):
         """Exert cost should be payable when source is not exerted."""
         state = GameState(
@@ -102,12 +102,12 @@ class TestExertSourceCost:
         )
         state.cards[1].zone = ZONE_PLAY
         state.cards[1].exerted = False
-        
+
         engine = MagicMock(spec=GameEngine)
         card_def = _make_card_def("test", [
             _make_source_ability("exert_ability", costs=[_make_source_cost("exert_source")])
         ])
-        
+
         ability = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -118,11 +118,11 @@ class TestExertSourceCost:
             effects=(),
             condition=None,
         )
-        
+
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
         assert can_pay is True
         assert "not exerted" in reason.lower() or reason == ""
-    
+
     def test_exert_cost_not_payable_when_source_exerted(self):
         """Exert cost should NOT be payable when source is already exerted."""
         state = GameState(
@@ -131,9 +131,9 @@ class TestExertSourceCost:
         )
         state.cards[1].zone = ZONE_PLAY
         state.cards[1].exerted = True
-        
+
         engine = MagicMock(spec=GameEngine)
-        
+
         ability = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -144,11 +144,11 @@ class TestExertSourceCost:
             effects=(),
             condition=None,
         )
-        
+
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
         assert can_pay is False
         assert "exerted" in reason.lower()
-    
+
     def test_exert_cost_payment_exerts_source(self):
         """Paying exert cost should exert the source card."""
         state = GameState(
@@ -157,9 +157,9 @@ class TestExertSourceCost:
         )
         state.cards[1].zone = ZONE_PLAY
         state.cards[1].exerted = False
-        
+
         engine = _eventful_cost_engine()
-        
+
         ability = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -170,9 +170,9 @@ class TestExertSourceCost:
             effects=(),
             condition=None,
         )
-        
+
         pay_cost(state, engine, ability, ability.costs[0])
-        
+
         assert state.cards[1].exerted is True
         event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_CARD_EXERTED)
         assert event.payload["subject_card_id"] == 1
@@ -181,7 +181,7 @@ class TestExertSourceCost:
 
 class TestInkCost:
     """Test ink cost (exert inkwell) validation and payment."""
-    
+
     def test_ink_cost_payable_with_available_ink(self):
         """Ink cost should be payable when player has ready ink."""
         state = GameState(
@@ -199,13 +199,13 @@ class TestInkCost:
         state.cards[2].zone = ZONE_INKWELL
         state.cards[2].exerted = False
         state.cards[3].zone = ZONE_PLAY
-        
+
         engine = MagicMock(spec=GameEngine)
         engine.available_ink.return_value = 2
         engine._exert_eventful.side_effect = (
             lambda state_arg, card_id, **kwargs: setattr(state_arg.cards[card_id], "exerted", True)
         )
-        
+
         ability = ActivatedAbility(
             source_instance_id=3,
             source_card_id="test",
@@ -216,10 +216,10 @@ class TestInkCost:
             effects=(),
             condition=None,
         )
-        
+
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
         assert can_pay is True
-    
+
     def test_ink_cost_not_payable_with_insufficient_ink(self):
         """Ink cost should NOT be payable when player lacks ready ink."""
         state = GameState(
@@ -231,7 +231,7 @@ class TestInkCost:
         state.cards[3].zone = ZONE_PLAY
         engine = MagicMock(spec=GameEngine)
         engine.available_ink.return_value = 0
-        
+
         ability = ActivatedAbility(
             source_instance_id=3,
             source_card_id="test",
@@ -242,10 +242,10 @@ class TestInkCost:
             effects=(),
             condition=None,
         )
-        
+
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
         assert can_pay is False
-    
+
     def test_ink_cost_payment_exerts_ink(self):
         """Paying ink cost should exert the specified amount of ink cards."""
         state = GameState(
@@ -262,13 +262,13 @@ class TestInkCost:
         state.cards[2].zone = ZONE_INKWELL
         state.cards[2].exerted = False
         state.cards[3].zone = ZONE_PLAY
-        
+
         engine = MagicMock(spec=GameEngine)
         engine.available_ink.return_value = 2
         engine._exert_eventful.side_effect = (
             lambda state_arg, card_id, **kwargs: setattr(state_arg.cards[card_id], "exerted", True)
         )
-        
+
         ability = ActivatedAbility(
             source_instance_id=3,
             source_card_id="test",
@@ -279,16 +279,16 @@ class TestInkCost:
             effects=(),
             condition=None,
         )
-        
+
         pay_cost(state, engine, ability, ability.costs[0])
-        
+
         assert state.cards[1].exerted is True
         assert state.cards[2].exerted is True
 
 
 class TestBanishSelfCost:
     """Test banish self cost validation and payment."""
-    
+
     def test_banish_self_cost_payable_in_play(self):
         """Banish self cost should be payable when source is in play."""
         state = GameState(
@@ -296,9 +296,9 @@ class TestBanishSelfCost:
             cards={1: CardInstance(instance_id=1, card_id="test", owner=0, controller=0)},
         )
         state.cards[1].zone = ZONE_PLAY
-        
+
         engine = MagicMock(spec=GameEngine)
-        
+
         ability = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -309,10 +309,10 @@ class TestBanishSelfCost:
             effects=(),
             condition=None,
         )
-        
+
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
         assert can_pay is True
-    
+
     def test_banish_self_cost_not_payable_not_in_play(self):
         """Banish self cost should NOT be payable when source is not in play."""
         state = GameState(
@@ -320,9 +320,9 @@ class TestBanishSelfCost:
             cards={1: CardInstance(instance_id=1, card_id="test", owner=0, controller=0)},
         )
         state.cards[1].zone = ZONE_HAND
-        
+
         engine = MagicMock(spec=GameEngine)
-        
+
         ability = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -333,10 +333,10 @@ class TestBanishSelfCost:
             effects=(),
             condition=None,
         )
-        
+
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
         assert can_pay is False
-    
+
     def test_banish_self_cost_moves_to_discard(self):
         """Paying banish self cost should move source to discard."""
         state = GameState(
@@ -345,9 +345,9 @@ class TestBanishSelfCost:
         )
         state.cards[1].zone = ZONE_PLAY
         state.players[0].play = [1]
-        
+
         engine = _eventful_cost_engine()
-        
+
         ability = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -358,9 +358,9 @@ class TestBanishSelfCost:
             effects=(),
             condition=None,
         )
-        
+
         pay_cost(state, engine, ability, ability.costs[0])
-        
+
         assert state.cards[1].zone == ZONE_DISCARD
         assert 1 not in state.players[0].play
         event = next(event for event in reversed(state.event_log) if event.event_type == EVENT_CHARACTER_BANISHED)
@@ -372,13 +372,13 @@ class TestBanishSelfCost:
 
 class TestDiscardCost:
     """Test discard N cards cost validation and payment.
-    
+
     Per B15, non-random discard costs require a choice prompt (pending cost-selection)
     which is not yet fully supported. So validate_cost_payable returns False for
     non-random discard costs. This is scaffold_only behavior — the cost is blocked
     until pending cost-selection is implemented.
     """
-    
+
     def test_discard_cost_requires_choice_prompt(self):
         """Discard cost requires a choice prompt (scaffold_only per B15)."""
         state = GameState(
@@ -391,9 +391,9 @@ class TestDiscardCost:
         state.players[0].hand = [1, 2]
         state.cards[1].zone = ZONE_HAND
         state.cards[2].zone = ZONE_HAND
-        
+
         engine = MagicMock(spec=GameEngine)
-        
+
         ability = ActivatedAbility(
             source_instance_id=3,
             source_card_id="test",
@@ -404,12 +404,12 @@ class TestDiscardCost:
             effects=(),
             condition=None,
         )
-        
+
         # B15: Non-random discard requires choice prompt — marked scaffold_only
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
         assert can_pay is False
         assert "choice prompt" in reason.lower() or "not yet supported" in reason.lower()
-    
+
     def test_random_discard_cost_payable_with_sufficient_cards(self):
         """Random discard cost is payable when player has enough cards."""
         state = GameState(
@@ -424,9 +424,9 @@ class TestDiscardCost:
         state.cards[1].zone = ZONE_HAND
         state.cards[2].zone = ZONE_HAND
         state.cards[3].zone = ZONE_PLAY
-        
+
         engine = MagicMock(spec=GameEngine)
-        
+
         ability = ActivatedAbility(
             source_instance_id=3,
             source_card_id="test",
@@ -438,7 +438,7 @@ class TestDiscardCost:
             condition=None,
             raw={"random_discard": True},  # B15: Marked as explicitly random
         )
-        
+
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
         assert can_pay is True
 
@@ -479,7 +479,7 @@ class TestDiscardCost:
         assert event.payload["subject_card_id"] == 1
         assert event.payload["source_card_id"] == 3
         assert event.payload["reason"] == "ability_cost"
-    
+
     def test_discard_cost_not_payable_with_insufficient_cards(self):
         """Discard cost should NOT be payable when player lacks cards."""
         state = GameState(
@@ -487,9 +487,9 @@ class TestDiscardCost:
             cards={},
         )
         state.players[0].hand = []
-        
+
         engine = MagicMock(spec=GameEngine)
-        
+
         ability = ActivatedAbility(
             source_instance_id=3,
             source_card_id="test",
@@ -500,14 +500,14 @@ class TestDiscardCost:
             effects=(),
             condition=None,
         )
-        
+
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
         assert can_pay is False
 
 
 class TestOncePerTurn:
     """Test once per turn per source restriction."""
-    
+
     def test_can_use_ability_first_time_this_turn(self):
         """Ability should be usable first time this turn."""
         state = GameState(
@@ -516,7 +516,7 @@ class TestOncePerTurn:
         )
         state.cards[1].zone = ZONE_PLAY
         state.cards[1].used_abilities_this_turn = []
-        
+
         ability = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -527,9 +527,9 @@ class TestOncePerTurn:
             effects=(),
             condition=None,
         )
-        
+
         assert can_use_ability_this_turn(state, ability) is True
-    
+
     def test_cannot_use_ability_second_time_this_turn(self):
         """Ability should NOT be usable after being used this turn."""
         state = GameState(
@@ -538,7 +538,7 @@ class TestOncePerTurn:
         )
         state.cards[1].zone = ZONE_PLAY
         state.cards[1].used_abilities_this_turn = ["1:once_ability"]
-        
+
         ability = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -549,9 +549,9 @@ class TestOncePerTurn:
             effects=(),
             condition=None,
         )
-        
+
         assert can_use_ability_this_turn(state, ability) is False
-    
+
     def test_can_use_different_ability_same_source(self):
         """Different abilities on same source should be independently usable."""
         state = GameState(
@@ -560,7 +560,7 @@ class TestOncePerTurn:
         )
         state.cards[1].zone = ZONE_PLAY
         state.cards[1].used_abilities_this_turn = ["1:ability_1"]
-        
+
         ability_2 = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -571,13 +571,13 @@ class TestOncePerTurn:
             effects=(),
             condition=None,
         )
-        
+
         assert can_use_ability_this_turn(state, ability_2) is True
 
 
 class TestCombinedCosts:
     """Test abilities with multiple costs."""
-    
+
     def test_combined_exert_and_ink_cost(self):
         """Ability with exert + ink costs should require both."""
         state = GameState(
@@ -592,15 +592,15 @@ class TestCombinedCosts:
         state.cards[2].zone = ZONE_INKWELL
         state.cards[2].exerted = False
         state.players[0].inkwell = [2]
-        
+
         engine = MagicMock(spec=GameEngine)
         engine.available_ink.return_value = 1
-        
+
         costs = (
             _make_source_cost("exert_source"),
             _make_source_cost("ink", 1),
         )
-        
+
         ability = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -611,12 +611,12 @@ class TestCombinedCosts:
             effects=(),
             condition=None,
         )
-        
+
         can_pay, payable = validate_ability_costs(state, engine, ability)
         assert can_pay is True
         assert "exert_source" in payable
         assert "ink" in payable
-    
+
     def test_combined_cost_fails_if_one_unpayable(self):
         """Combined cost should fail if any single cost is unpayable."""
         state = GameState(
@@ -627,14 +627,14 @@ class TestCombinedCosts:
         )
         state.cards[1].zone = ZONE_PLAY
         state.cards[1].exerted = True  # Source already exerted
-        
+
         engine = MagicMock(spec=GameEngine)
-        
+
         costs = (
             _make_source_cost("exert_source"),  # Can't pay - source exerted
             _make_source_cost("ink", 1),
         )
-        
+
         ability = ActivatedAbility(
             source_instance_id=1,
             source_card_id="test",
@@ -645,7 +645,7 @@ class TestCombinedCosts:
             effects=(),
             condition=None,
         )
-        
+
         can_pay, payable = validate_ability_costs(state, engine, ability)
         assert can_pay is False
         assert len(payable) == 0  # No costs paid on failure

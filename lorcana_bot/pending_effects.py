@@ -97,32 +97,46 @@ class TargetRequirement:
 # B5.1: Explicit pending requirement kinds for scry/search/reveal/routing
 
 PENDING_REQUIREMENT_KINDS = frozenset({
-    "choice",  # Index-based choice
-    "optional",  # Accept/decline
-    "named_card",  # Name a specific card
-    "amount",  # Choose a numeric amount
-    "destination",  # Choose destination zone
-    "ordering",  # Order cards (top/bottom)
-    "opponent_choice",  # Opponent chooses
-    "scry_ordering",  # Scry: put N on top, rest on bottom
-    "reveal_routing",  # Reveal and route to destination
-    "search_selection",  # Search deck and select card
-    "deck_ordering",  # General deck ordering
+    "choice",
+    "optional",
+    "named_card",
+    "amount",
+    "target",
+    "multi_target",
+    "discard_choice",
+    "destination",
+    "ordering",
+    "opponent_choice",
+    "enter_play_exerted",
+    "scry_ordering",
+    "reveal_routing",
+    "search_selection",
+    "deck_ordering",
 })
 
 SPECIAL_PENDING_REQUIREMENT_KINDS = frozenset({
+    # Microfix 4 special requirements
     "scry_ordering",
     "search_selection",
     "reveal_routing",
     "named_card",
     "destination",
+    # Microfix 9 general pending requirement kinds
+    "amount",
+    "target",
+    "multi_target",
+    "discard_choice",
+    "choice",
+    "optional",
+    "opponent_choice",
+    "enter_play_exerted",
 })
 
 
 @dataclass(slots=True)
 class ScryRequirement:
     """Describes a scry ordering requirement.
-    
+
     For scry N:
     - Look at top N cards of chooser's deck
     - Put any subset on top in chosen order
@@ -138,7 +152,7 @@ class ScryRequirement:
     visibility: str = "private"  # "private" (chooser only) or "public"
     chooser_id: int = 0  # Who is scrying
     deck_owner: int = 0  # Whose deck is being scried
-    
+
     @property
     def requires_input(self) -> bool:
         """Scry requires player to decide ordering."""
@@ -148,7 +162,7 @@ class ScryRequirement:
 @dataclass(slots=True)
 class SearchRequirement:
     """Describes a search deck selection requirement.
-    
+
     For search:
     - Look at cards matching filter in hidden deck
     - Select one/more cards
@@ -165,7 +179,7 @@ class SearchRequirement:
     filter_desc: str | None = None  # Human-readable description of filter
     chooser_id: int = 0  # Who searches
     deck_owner: int = 0  # Whose deck is searched
-    
+
     @property
     def requires_input(self) -> bool:
         """Search requires player to select card(s)."""
@@ -175,7 +189,7 @@ class SearchRequirement:
 @dataclass(slots=True)
 class RevealRoutingRequirement:
     """Describes a reveal and route requirement.
-    
+
     For reveal-and-route:
     - Reveal top card(s) from deck
     - Move to destination or create pending destination choice
@@ -186,7 +200,7 @@ class RevealRoutingRequirement:
     destination: str | None = None  # Fixed destination if deterministic, None if choice required
     destination_options: tuple[str, ...] = ()  # Available destinations if choice required
     chooser_id: int = 0  # Who makes routing choice
-    
+
     @property
     def requires_input(self) -> bool:
         """Routing requires input if destination is not fixed."""
@@ -203,7 +217,7 @@ class DeckOrderingRequirement:
     visibility: str = "private"
     chooser_id: int = 0
     deck_owner: int = 0
-    
+
     @property
     def requires_input(self) -> bool:
         return len(self.card_ids) > 1
@@ -215,7 +229,7 @@ class NamedCardRequirement:
     kind: str = "named_card"
     valid_card_def_ids: tuple[str, ...] = ()  # Valid card definition IDs to name
     chooser_id: int = 0
-    
+
     @property
     def requires_input(self) -> bool:
         return len(self.valid_card_def_ids) > 1
@@ -224,7 +238,7 @@ class NamedCardRequirement:
 @dataclass(slots=True)
 class PendingEffect:
     """A pending effect awaiting player input for target/choice resolution.
-    
+
     This dataclass models Lorcanito's pending action effects with rich metadata
     for comprehensive target selection and multi-step effect resolution.
     """
@@ -244,33 +258,33 @@ class PendingEffect:
     origin: str = "action|bag|activated"  # Where this pending effect originated
     origin_id: str | None = None  # ID of originating bag item / ability
     raw: dict[str, Any] = field(default_factory=dict)
-    
+
     @property
     def current_effect(self) -> EffectDef | None:
         """Get the current effect being resolved."""
         if 0 <= self.current_effect_index < len(self.effects):
             return self.effects[self.current_effect_index]
         return None
-    
+
     @property
     def is_complete(self) -> bool:
         """Check if all effects have been resolved."""
         return self.current_effect_index >= len(self.effects)
-    
+
     @property
     def current_requirement(self) -> TargetRequirement | None:
         """Get the current target requirement."""
         if 0 <= self.current_effect_index < len(self.required_targets):
             return self.required_targets[self.current_effect_index]
         return None
-    
+
     @property
     def requires_choice_input(self) -> bool:
         """Check if the current effect requires a choice (index)."""
         if not self.choice_options:
             return False
         return self.current_requirement is None or self.current_requirement.kind == "choice_index"
-    
+
     @property
     def requires_target_input(self) -> bool:
         """Check if the current effect requires a target selection."""
@@ -292,13 +306,18 @@ def create_pending_effect(
 ) -> PendingEffect:
     """Create a new pending effect and add it to the game state."""
     pending_id = f"pe_{state.next_bag_id()}"
-    
+
     # Analyze effects to determine target requirements
     requirements = _analyze_effect_requirements(effects)
-    
+
     # Collect choice options if needed
     choice_options = _collect_choice_options(state, effects, controller_id, source_id)
-    
+
+    # Build raw dict with requirement_kind if not provided
+    final_raw = dict(raw) if raw is not None else {}
+    if "requirement_kind" not in final_raw and optional:
+        final_raw["requirement_kind"] = "optional"
+
     pending = PendingEffect(
         id=pending_id,
         controller_id=controller_id,
@@ -311,9 +330,9 @@ def create_pending_effect(
         optional=optional,
         origin=origin,
         origin_id=origin_id,
-        raw=raw or {},
+        raw=final_raw,
     )
-    
+
     state.pending_effects.append(pending)
     return pending
 
@@ -321,22 +340,22 @@ def create_pending_effect(
 def _analyze_effect_requirements(effects: tuple[EffectDef, ...]) -> list[TargetRequirement]:
     """Analyze effects to determine target requirements."""
     requirements = []
-    
+
     for effect in effects:
         requirement = _analyze_single_effect_requirement(effect)
         if requirement:
             requirements.append(requirement)
-    
+
     return requirements
 
 
 def _analyze_single_effect_requirement(effect: EffectDef) -> TargetRequirement | None:
     """Analyze a single effect to determine its target requirement."""
     target = effect.target
-    
+
     if target is None:
         return None
-    
+
     # CHOSEN targets require player selection
     if target in {"chosen_character", "chosen_card"}:
         return TargetRequirement(
@@ -345,7 +364,7 @@ def _analyze_single_effect_requirement(effect: EffectDef) -> TargetRequirement |
             max_targets=1,
             card_type="character",
         )
-    
+
     if target == "chosen_opposing_character":
         return TargetRequirement(
             kind="chosen_opposing_character",
@@ -354,7 +373,7 @@ def _analyze_single_effect_requirement(effect: EffectDef) -> TargetRequirement |
             card_type="character",
             owner_filter="opponent",
         )
-    
+
     if target == "chosen_damaged_character":
         return TargetRequirement(
             kind="chosen_damaged_character",
@@ -363,7 +382,7 @@ def _analyze_single_effect_requirement(effect: EffectDef) -> TargetRequirement |
             card_type="character",
             must_be_damaged=True,
         )
-    
+
     if target == "chosen_item":
         return TargetRequirement(
             kind="chosen_item",
@@ -371,7 +390,7 @@ def _analyze_single_effect_requirement(effect: EffectDef) -> TargetRequirement |
             max_targets=1,
             card_type="item",
         )
-    
+
     if target == "chosen_location":
         return TargetRequirement(
             kind="chosen_location",
@@ -379,14 +398,14 @@ def _analyze_single_effect_requirement(effect: EffectDef) -> TargetRequirement |
             max_targets=1,
             card_type="location",
         )
-    
+
     if target == "chosen_player":
         return TargetRequirement(
             kind="chosen_player",
             min_targets=1,
             max_targets=1,
         )
-    
+
     return None
 
 
@@ -398,7 +417,7 @@ def _collect_choice_options(
 ) -> list[Any]:
     """Collect available choice options for choice-type effects."""
     options = []
-    
+
     for effect in effects:
         if effect.kind == "choice":
             # Choice effects - the player picks which branch to execute
@@ -408,7 +427,7 @@ def _collect_choice_options(
             # Optional effects - the player can accept or decline
             # No specific options needed, just the boolean accept/decline
             pass
-    
+
     return options
 
 
@@ -493,13 +512,13 @@ def get_valid_targets_for_requirement(
     engine: "GameEngine | None" = None,  # type: ignore[name-defined]
 ) -> list[int]:
     """Get valid target instance IDs for a target requirement.
-    
+
     Applies normal targeting rules:
     - Ward protects opposing targets (requires engine)
     - Only public board targets are valid
     - Damaged targets must have damage > 0
     - Opposing targets must be opponent of chooser
-    
+
     Args:
         state: The game state
         requirement: The target requirement
@@ -507,9 +526,9 @@ def get_valid_targets_for_requirement(
         engine: Optional engine for keyword checking. If None, skip Ward checks.
     """
     from lorcana_bot.constants import KEYWORD_WARD, ZONE_PLAY, CARD_CHARACTER, CARD_ITEM, CARD_LOCATION
-    
+
     valid_targets: list[int] = []
-    
+
     # Determine which players to search
     if requirement.owner_filter == "opponent":
         search_players = (state.opponent(chooser_id),)
@@ -517,19 +536,19 @@ def get_valid_targets_for_requirement(
         search_players = (chooser_id,)
     else:
         search_players = (chooser_id, state.opponent(chooser_id))
-    
+
     # Determine card type filter
     card_type = requirement.card_type
-    
+
     # Search each player's play area
     for player in search_players:
         for instance_id in state.players[player].play:
             inst = state.cards[instance_id]
-            
+
             # Must be in play
             if inst.zone != ZONE_PLAY:
                 continue
-            
+
             # Check card type filter (skip if no engine available)
             if engine is not None and card_type:
                 try:
@@ -539,22 +558,22 @@ def get_valid_targets_for_requirement(
                 except KeyError:
                     # Card not in database - skip this validation
                     pass
-            
+
             # Check damaged filter
             if requirement.must_be_damaged and inst.damage == 0:
                 continue
-            
+
             # Check exerted filter
             if requirement.must_be_exerted and not inst.exerted:
                 continue
-            
+
             # Apply Ward protection for opposing targets (requires engine)
             if engine is not None:
                 try:
                     if requirement.kind == "chosen_opposing_character":
                         if player != chooser_id and engine.has_keyword(state, instance_id, KEYWORD_WARD):
                             continue
-                    
+
                     # Also apply Ward protection for general chosen targets when targeting opponent
                     if requirement.kind == "chosen_character" and player != chooser_id:
                         if engine.has_keyword(state, instance_id, KEYWORD_WARD):
@@ -562,9 +581,9 @@ def get_valid_targets_for_requirement(
                 except KeyError:
                     # Card not in database - skip Ward check
                     pass
-            
+
             valid_targets.append(instance_id)
-    
+
     return valid_targets
 
 
@@ -583,7 +602,7 @@ def get_pending_effect_by_id(state: GameState, pending_id: str) -> PendingEffect
 
 def get_next_pending_effect_chooser(state: GameState) -> int | None:
     """Get the player ID who should act on the next pending effect.
-    
+
     Returns the chooser_id of the first incomplete pending effect,
     or None if there are no pending effects.
     """
@@ -627,10 +646,10 @@ def create_scry_pending_effect(
     origin: str = "scry",
 ) -> PendingEffect:
     """Create a scry pending effect with proper requirement tracking.
-    
+
     This stores the top N card IDs privately for the chooser to order.
     Cards are NOT moved until resolution provides the ordering.
-    
+
     Args:
         state: Game state
         controller_id: Who controls the effect
@@ -639,7 +658,7 @@ def create_scry_pending_effect(
         source_card_id: Card definition ID
         amount: How many cards to scry
         origin: Origin string for tracking
-    
+
     Returns:
         PendingEffect with ScryRequirement in raw
     """
@@ -647,7 +666,7 @@ def create_scry_pending_effect(
     deck_owner = chooser_id
     deck = state.players[deck_owner].deck
     candidate_ids = tuple(deck[:min(amount, len(deck))])
-    
+
     scry_req = ScryRequirement(
         kind="scry_ordering",
         amount=amount,
@@ -659,10 +678,10 @@ def create_scry_pending_effect(
         chooser_id=chooser_id,
         deck_owner=deck_owner,
     )
-    
+
     # Create the pending effect with empty effects (resolved via scry_req)
     pending_id = f"pe_{state.next_bag_id()}"
-    
+
     pending = PendingEffect(
         id=pending_id,
         controller_id=controller_id,
@@ -680,7 +699,7 @@ def create_scry_pending_effect(
             "requirement_kind": "scry_ordering",
         },
     )
-    
+
     state.pending_effects.append(pending)
     return pending
 
@@ -700,9 +719,9 @@ def create_search_pending_effect(
     origin: str = "search_deck",
 ) -> PendingEffect:
     """Create a search pending effect with proper requirement tracking.
-    
+
     Candidate IDs are private to the chooser - opponent should not see them.
-    
+
     Args:
         state: Game state
         controller_id: Who controls the effect
@@ -715,7 +734,7 @@ def create_search_pending_effect(
         filter_desc: Human-readable filter description
         max_select: Maximum cards to select
         origin: Origin string for tracking
-    
+
     Returns:
         PendingEffect with SearchRequirement in raw
     """
@@ -731,9 +750,9 @@ def create_search_pending_effect(
         chooser_id=chooser_id,
         deck_owner=chooser_id,
     )
-    
+
     pending_id = f"pe_{state.next_bag_id()}"
-    
+
     pending = PendingEffect(
         id=pending_id,
         controller_id=controller_id,
@@ -751,7 +770,7 @@ def create_search_pending_effect(
             "requirement_kind": "search_selection",
         },
     )
-    
+
     state.pending_effects.append(pending)
     return pending
 
@@ -770,10 +789,10 @@ def create_reveal_routing_pending_effect(
     origin: str = "reveal_and_route",
 ) -> PendingEffect:
     """Create a reveal-and-route pending effect with explicit routing.
-    
+
     If destination is fixed, can auto-route. If destination is None,
     creates a pending choice.
-    
+
     Args:
         state: Game state
         controller_id: Who controls the effect
@@ -785,7 +804,7 @@ def create_reveal_routing_pending_effect(
         destination_options: Available destinations if choice required
         reveal_policy: "public" or "private"
         origin: Origin string for tracking
-    
+
     Returns:
         PendingEffect with RevealRoutingRequirement in raw
     """
@@ -797,9 +816,9 @@ def create_reveal_routing_pending_effect(
         destination_options=destination_options,
         chooser_id=chooser_id,
     )
-    
+
     pending_id = f"pe_{state.next_bag_id()}"
-    
+
     pending = PendingEffect(
         id=pending_id,
         controller_id=controller_id,
@@ -817,7 +836,7 @@ def create_reveal_routing_pending_effect(
             "requirement_kind": "reveal_routing",
         },
     )
-    
+
     state.pending_effects.append(pending)
     return pending
 
@@ -862,6 +881,78 @@ def create_named_card_pending_effect(
     return pending
 
 
+def create_discard_choice_pending_effect(
+    state: GameState,
+    *,
+    controller_id: int,
+    chooser_id: int,
+    source_id: int | None,
+    source_card_id: str | None,
+    target_player_id: int,
+    candidate_ids: tuple[int, ...],
+    min_select: int,
+    max_select: int,
+    origin: str = "discard_choice",
+    origin_id: str | None = None,
+    raw: dict[str, Any] | None = None,
+) -> PendingEffect:
+    """Create a discard-choice pending effect for explicit card selection.
+
+    This creates a pending effect that requires the chooser to select cards
+    from a target player's hand for discard. The selection is validated and
+    then applied through GameEngine._discard_eventful.
+
+    Args:
+        state: Game state
+        controller_id: Who controls the effect (effect's actor)
+        chooser_id: Who makes the discard selection
+        source_id: Card instance triggering discard
+        source_card_id: Card definition ID
+        target_player_id: Whose hand to discard from
+        candidate_ids: Card instance IDs available for discard
+        min_select: Minimum cards to select
+        max_select: Maximum cards to select
+        origin: Origin string for tracking
+        origin_id: ID of originating ability/bag item
+        raw: Additional raw metadata
+
+    Returns:
+        PendingEffect with discard_choice requirement_kind
+    """
+    pending_id = f"pe_{state.next_bag_id()}"
+
+    # Build raw metadata for discard choice
+    final_raw = dict(raw) if raw is not None else {}
+    final_raw.update({
+        "requirement_kind": "discard_choice",
+        "discard_candidates": candidate_ids,
+        "min_discard": min_select,
+        "max_discard": max_select,
+        "target_player_id": target_player_id,
+        "candidate_ids": candidate_ids,  # Also store as candidate_ids for compatibility
+        "min_targets": min_select,
+        "max_targets": max_select,
+    })
+
+    pending = PendingEffect(
+        id=pending_id,
+        controller_id=controller_id,
+        chooser_id=chooser_id,
+        source_id=source_id,
+        source_card_id=source_card_id,
+        effects=(),  # No effects - resolved via discard_card_ids
+        required_targets=(),
+        choice_options=candidate_ids,  # Available card IDs for discard
+        optional=False,
+        origin=origin,
+        origin_id=origin_id,
+        raw=final_raw,
+    )
+
+    state.pending_effects.append(pending)
+    return pending
+
+
 def resolve_scry_ordering(
     state: GameState,
     pending_id: str,
@@ -871,24 +962,24 @@ def resolve_scry_ordering(
     engine: GameEngine | None = None,
 ) -> None:
     """Resolve a scry pending effect with ordering.
-    
+
     Args:
         state: Game state
         pending_id: Pending effect ID
         top_cards: Card IDs to put on top (in order)
         bottom_cards: Card IDs to put on bottom (in order)
-    
+
     Raises:
         ValueError: If card IDs are not valid scry candidates or counts don't match
     """
     pe = get_pending_effect_by_id(state, pending_id)
     if pe is None:
         raise ValueError(f"Pending effect {pending_id} not found")
-    
+
     req = pe.raw.get("requirement")
     if not isinstance(req, ScryRequirement):
         raise ValueError(f"Pending effect {pending_id} is not a scry")
-    
+
     # Validate: top + bottom must equal the number of cards actually seen
     expected_count = len(req.candidate_ids)
     if len(top_cards) + len(bottom_cards) != expected_count:
@@ -896,7 +987,7 @@ def resolve_scry_ordering(
             f"Scry ordering count mismatch: expected {expected_count}, "
             f"got {len(top_cards)} top + {len(bottom_cards)} bottom"
         )
-    
+
     # Validate all cards are valid candidates and each candidate appears once
     all_ordered = top_cards + bottom_cards
     for cid in all_ordered:
@@ -906,21 +997,21 @@ def resolve_scry_ordering(
         raise ValueError("Scry ordering cannot include duplicate cards")
     if set(all_ordered) != set(req.candidate_ids):
         raise ValueError("Scry ordering must include each scry candidate exactly once")
-    
+
     # Apply ordering: rebuild deck with new order
     player_deck = state.players[req.deck_owner].deck
-    
+
     # Remove all scried cards from deck
     for cid in req.candidate_ids:
         if cid in player_deck:
             player_deck.remove(cid)
-    
+
     # Put top cards on top (in order)
     player_deck[0:0] = list(top_cards)
-    
+
     # Put bottom cards on bottom (in order)
     player_deck.extend(list(bottom_cards))
-    
+
     # Emit private scry event with no identity leak.
     _emit_pending_event(
         state,
@@ -946,27 +1037,27 @@ def resolve_search_selection(
     engine: GameEngine | None = None,
 ) -> None:
     """Resolve a search pending effect with card selection.
-    
+
     Args:
         state: Game state
         pending_id: Pending effect ID
         selected_card_id: Card ID selected from deck
-    
+
     Raises:
         ValueError: If card is not a valid search candidate
     """
     pe = get_pending_effect_by_id(state, pending_id)
     if pe is None:
         raise ValueError(f"Pending effect {pending_id} not found")
-    
+
     req = pe.raw.get("requirement")
     if not isinstance(req, SearchRequirement):
         raise ValueError(f"Pending effect {pending_id} is not a search")
-    
+
     # Validate selection
     if selected_card_id not in req.candidate_ids:
         raise ValueError(f"Card {selected_card_id} is not a valid search candidate")
-    
+
     # Move card to destination through the engine event boundary when available.
     _move_pending_card(
         state,
@@ -976,14 +1067,14 @@ def resolve_search_selection(
         actor=req.chooser_id,
         source_id=pe.source_id,
     )
-    
+
     # Shuffle if required
     if req.shuffle_after:
         import random
         state.shuffle_counter += 1
         rng = random.Random(f"{state.seed}:search_shuffle:{req.deck_owner}:{state.shuffle_counter}")
         rng.shuffle(state.players[req.deck_owner].deck)
-    
+
     # Emit private search event without leaking hidden filter details.
     _emit_pending_event(
         state,
@@ -1008,23 +1099,23 @@ def resolve_reveal_routing(
     engine: GameEngine | None = None,
 ) -> None:
     """Resolve a reveal routing pending effect.
-    
+
     Args:
         state: Game state
         pending_id: Pending effect ID
         destination: Chosen destination if not fixed
-    
+
     Raises:
         ValueError: If destination is required but not provided
     """
     pe = get_pending_effect_by_id(state, pending_id)
     if pe is None:
         raise ValueError(f"Pending effect {pending_id} not found")
-    
+
     req = pe.raw.get("requirement")
     if not isinstance(req, RevealRoutingRequirement):
         raise ValueError(f"Pending effect {pending_id} is not a reveal routing")
-    
+
     # Determine final destination
     final_dest = destination if destination else req.destination
     if final_dest is None:
@@ -1033,12 +1124,12 @@ def resolve_reveal_routing(
         raise ValueError(f"Destination {final_dest!r} does not match fixed destination {req.destination!r}")
     if req.destination is None and req.destination_options and final_dest not in req.destination_options:
         raise ValueError(f"Destination {final_dest!r} is not valid for pending effect {pending_id}")
-    
+
     # Reveal and move cards
     for cid in req.card_ids:
         # Mark as revealed
         state.cards[cid].revealed = True
-        
+
         # Emit reveal event through the engine diagnostic boundary when available.
         _emit_pending_event(
             state,
@@ -1053,7 +1144,7 @@ def resolve_reveal_routing(
                 "reveal_policy": req.reveal_policy,
             },
         )
-        
+
         # Move to destination
         _move_pending_card(
             state,
@@ -1145,5 +1236,365 @@ def resolve_destination_choice(
         payload={
             "pending_effect_id": pending_id,
             "destination": destination,
+        },
+    )
+
+
+# =============================================================================
+# Shared resolution_input helpers and general requirement resolvers
+# Inspired by Lorcanito's PendingActionResolutionInput normalization
+# =============================================================================
+
+def get_resolution_input(pe: PendingEffect) -> dict[str, Any]:
+    """Get the resolution_input dict from a pending effect, creating it if needed.
+
+    Returns pe.raw["resolution_input"], normalized to {} if missing.
+    """
+    return pe.raw.setdefault("resolution_input", {})
+
+
+def set_resolution_input(pe: PendingEffect, key: str, value: Any) -> None:
+    """Set a key in the resolution_input dict of a pending effect."""
+    get_resolution_input(pe)[key] = value
+
+
+def _get_amount_bounds(pe: PendingEffect) -> tuple[int | None, int | None, tuple[int, ...]]:
+    """Extract min/max/options for amount validation from pe or pe.raw['requirement']."""
+    req = pe.raw.get("requirement")
+    min_amount: int | None = pe.raw.get("min_amount", pe.raw.get("min"))  # type: ignore[assignment]
+    max_amount: int | None = pe.raw.get("max_amount", pe.raw.get("max"))  # type: ignore[assignment]
+    amount_options: tuple[int, ...] = pe.raw.get("amount_options") or pe.raw.get("options") or ()  # type: ignore[assignment]
+    if min_amount is None and hasattr(req, "min_amount"):
+        min_amount = req.min_amount  # type: ignore[assignment]
+    if min_amount is None and hasattr(req, "min"):
+        min_amount = req.min  # type: ignore[assignment]
+    if max_amount is None and hasattr(req, "max_amount"):
+        max_amount = req.max_amount  # type: ignore[assignment]
+    if max_amount is None and hasattr(req, "max"):
+        max_amount = req.max  # type: ignore[assignment]
+    if not amount_options and hasattr(req, "amount_options"):
+        amount_options = req.amount_options  # type: ignore[assignment]
+    if not amount_options and hasattr(req, "options"):
+        amount_options = req.options  # type: ignore[assignment]
+    return min_amount, max_amount, tuple(amount_options)
+
+
+def _get_target_bounds(pe: PendingEffect) -> tuple[int | None, int | None, tuple[int, ...]]:
+    """Extract min/max targets and candidate IDs for target validation."""
+    req = pe.raw.get("requirement")
+    min_targets: int | None = pe.raw.get("min_targets")  # type: ignore[assignment]
+    max_targets: int | None = pe.raw.get("max_targets")  # type: ignore[assignment]
+    candidate_ids: tuple[int, ...] = pe.raw.get("candidate_ids") or ()  # type: ignore[assignment]
+    if min_targets is None and hasattr(req, "min_targets"):
+        min_targets = req.min_targets  # type: ignore[assignment]
+    if max_targets is None and hasattr(req, "max_targets"):
+        max_targets = req.max_targets  # type: ignore[assignment]
+    if not candidate_ids and hasattr(req, "candidate_ids"):
+        candidate_ids = req.candidate_ids  # type: ignore[assignment]
+    return min_targets, max_targets, tuple(candidate_ids)
+
+
+def _validate_amount(pe: PendingEffect, amount: int) -> None:
+    """Validate an amount choice against pe constraints."""
+    min_amt, max_amt, options = _get_amount_bounds(pe)
+    if options and amount not in options:
+        raise ValueError(f"Amount {amount} is not in allowed options {options!r}")
+    if min_amt is not None and amount < min_amt:
+        raise ValueError(f"Amount {amount} is below minimum {min_amt}")
+    if max_amt is not None and amount > max_amt:
+        raise ValueError(f"Amount {amount} is above maximum {max_amt}")
+
+
+def _validate_targets(state: GameState, pe: PendingEffect, targets: tuple[int, ...]) -> None:
+    """Validate a target selection against pe constraints."""
+    # All IDs must exist in state.cards
+    for tid in targets:
+        if tid not in state.cards:
+            raise ValueError(f"Target card {tid} does not exist")
+    # Check count bounds
+    min_tgt, max_tgt, candidates = _get_target_bounds(pe)
+    if min_tgt is not None and len(targets) < min_tgt:
+        raise ValueError(f"Target count {len(targets)} is below minimum {min_tgt}")
+    if max_tgt is not None and len(targets) > max_tgt:
+        raise ValueError(f"Target count {len(targets)} is above maximum {max_tgt}")
+    # If candidates are specified, all chosen must be in candidates
+    if candidates:
+        for tid in targets:
+            if tid not in candidates:
+                raise ValueError(f"Target {tid} is not a valid candidate")
+
+
+def _validate_discard(state: GameState, pe: PendingEffect, card_ids: tuple[int, ...]) -> None:
+    """Validate a discard choice against pe constraints."""
+    for cid in card_ids:
+        if cid not in state.cards:
+            raise ValueError(f"Discard card {cid} does not exist")
+    candidate_ids = pe.raw.get("discard_candidates") or pe.raw.get("candidate_ids") or ()
+    if candidate_ids:
+        for cid in card_ids:
+            if cid not in candidate_ids:
+                raise ValueError(f"Card {cid} is not a valid discard candidate")
+    min_discard = pe.raw.get("min_discard") or pe.raw.get("min_targets")
+    max_discard = pe.raw.get("max_discard") or pe.raw.get("max_targets")
+    if min_discard is not None and len(card_ids) < min_discard:
+        raise ValueError(f"Discard count {len(card_ids)} is below minimum {min_discard}")
+    if max_discard is not None and len(card_ids) > max_discard:
+        raise ValueError(f"Discard count {len(card_ids)} is above maximum {max_discard}")
+
+
+def resolve_amount_choice(
+    state: GameState,
+    pending_id: str,
+    amount: int,
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a pending amount-choice requirement.
+
+    Validates that amount is an integer and within min/max/options bounds,
+    then writes into pe.raw["amount"] and pe.raw["resolution_input"]["amount"].
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    if not isinstance(amount, int):
+        raise ValueError(f"Amount must be an integer, got {type(amount).__name__}")
+
+    _validate_amount(pe, amount)
+
+    pe.raw["amount"] = amount
+    pe.raw.setdefault("resolution_input", {})["amount"] = amount
+    _emit_pending_event(
+        state,
+        engine,
+        "AMOUNT_CHOSEN",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=None,
+        payload={
+            "pending_effect_id": pending_id,
+            "amount": amount,
+        },
+    )
+
+
+def resolve_target_selection(
+    state: GameState,
+    pending_id: str,
+    targets: tuple[int, ...],
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a pending single-target requirement.
+
+    Validates that all targets exist and count is within bounds,
+    then writes into pe.selected_targets and pe.raw["resolution_input"]["targets"].
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    _validate_targets(state, pe, targets)
+
+    pe.selected_targets = targets
+    pe.raw.setdefault("resolution_input", {})["targets"] = targets
+    _emit_pending_event(
+        state,
+        engine,
+        "TARGET_SELECTED",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=targets[0] if targets else None,
+        payload={
+            "pending_effect_id": pending_id,
+            "targets": list(targets),
+        },
+    )
+
+
+def resolve_multi_target_selection(
+    state: GameState,
+    pending_id: str,
+    targets: tuple[int, ...],
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a pending multi-target requirement.
+
+    Validates that all targets exist and count is within bounds,
+    then writes into pe.selected_targets and pe.raw["resolution_input"]["targets"].
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    _validate_targets(state, pe, targets)
+
+    pe.selected_targets = targets
+    pe.raw.setdefault("resolution_input", {})["targets"] = targets
+    _emit_pending_event(
+        state,
+        engine,
+        "MULTI_TARGET_SELECTED",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=targets[0] if targets else None,
+        payload={
+            "pending_effect_id": pending_id,
+            "targets": list(targets),
+        },
+    )
+
+
+def resolve_discard_choice(
+    state: GameState,
+    pending_id: str,
+    card_ids: tuple[int, ...],
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a pending discard-choice requirement.
+
+    Validates that all card IDs exist and count is within bounds,
+    then writes into pe.raw["discard_card_ids"] and pe.raw["resolution_input"]["targets"].
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    _validate_discard(state, pe, card_ids)
+
+    pe.raw["discard_card_ids"] = card_ids
+    pe.raw.setdefault("resolution_input", {})["targets"] = card_ids
+    _emit_pending_event(
+        state,
+        engine,
+        "DISCARD_CHOSEN",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=card_ids[0] if card_ids else None,
+        payload={
+            "pending_effect_id": pending_id,
+            "card_ids": list(card_ids),
+        },
+    )
+
+
+def resolve_choice_index(
+    state: GameState,
+    pending_id: str,
+    choice_index: int,
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a pending index-choice requirement.
+
+    Validates that choice_index is an integer in range of available options,
+    then writes into pe.selected_choice and pe.raw["resolution_input"]["choice_index"].
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    if not isinstance(choice_index, int):
+        raise ValueError(f"Choice index must be an integer, got {type(choice_index).__name__}")
+
+    # Validate against available options if present. Options may be labels/objects,
+    # so choice_index is an index into the option list, not necessarily a member value.
+    options = (
+        pe.choice_options
+        or pe.raw.get("choice_options")
+        or pe.raw.get("options")
+        or ()
+    )
+    if options and (choice_index < 0 or choice_index >= len(options)):
+        raise ValueError(f"Choice index {choice_index} is out of range for {len(options)} options")
+
+    pe.selected_choice = choice_index
+    pe.raw.setdefault("resolution_input", {})["choice_index"] = choice_index
+    _emit_pending_event(
+        state,
+        engine,
+        "CHOICE_INDEX_CHOSEN",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=None,
+        payload={
+            "pending_effect_id": pending_id,
+            "choice_index": choice_index,
+        },
+    )
+
+
+def resolve_optional_choice(
+    state: GameState,
+    pending_id: str,
+    accepted: bool,
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a pending optional accept/decline requirement.
+
+    Validates that accepted is a boolean,
+    then writes into pe.accepted and pe.raw["resolution_input"]["resolve_optional"].
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    if not isinstance(accepted, bool):
+        raise ValueError(f"Accepted must be a boolean, got {type(accepted).__name__}")
+
+    pe.accepted = accepted
+    pe.raw.setdefault("resolution_input", {})["resolve_optional"] = accepted
+    _emit_pending_event(
+        state,
+        engine,
+        "OPTIONAL_RESOLVED",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=None,
+        payload={
+            "pending_effect_id": pending_id,
+            "accepted": accepted,
+        },
+    )
+
+
+def resolve_enter_play_exerted_choice(
+    state: GameState,
+    pending_id: str,
+    enter_play_exerted: bool,
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a pending enter-play-exerted choice.
+
+    Validates that enter_play_exerted is a boolean,
+    then writes into pe.raw["enter_play_exerted"] and
+    pe.raw["resolution_input"]["enter_play_exerted"].
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    if not isinstance(enter_play_exerted, bool):
+        raise ValueError(
+            f"enter_play_exerted must be a boolean, got {type(enter_play_exerted).__name__}"
+        )
+
+    pe.raw["enter_play_exerted"] = enter_play_exerted
+    pe.raw.setdefault("resolution_input", {})["enter_play_exerted"] = enter_play_exerted
+    _emit_pending_event(
+        state,
+        engine,
+        "ENTER_PLAY_EXERTED_CHOSEN",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=None,
+        payload={
+            "pending_effect_id": pending_id,
+            "enter_play_exerted": enter_play_exerted,
         },
     )

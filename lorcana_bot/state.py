@@ -19,7 +19,7 @@ def _default_static_effect_registry() -> StaticEffectRegistry:
 
 def _default_replacement_effect_registry() -> "ReplacementEffectRegistry":
     """Factory for default replacement effect registry.
-    
+
     Import is done lazily to avoid circular imports. The actual class
     is defined in replacement_effects.py.
     """
@@ -87,7 +87,7 @@ class PlayerState:
 @dataclass(slots=True)
 class PendingTriggeredEvent:
     """Buffered trigger event waiting for resolution boundary.
-    
+
     This dataclass mirrors Lorcanito's PendingTriggeredEvent with rich payload
     data for comprehensive trigger matching across SELF, YOU, OPPONENT, and
     challenge/banish/ink contexts.
@@ -111,19 +111,19 @@ class PendingTriggeredEvent:
     event_snapshot: dict[str, Any] = field(default_factory=dict)
     # Extended payload (Lorcanito-aligned event-specific data)
     payload: dict[str, Any] = field(default_factory=dict)
-    
+
     @property
     def card_played(self) -> dict[str, Any] | None:
         """Get CardPlayedPayload if this event has play data."""
         return self.payload.get("card_played")
-    
+
     @property
     def damage_dealt(self) -> int | dict[str, Any] | None:
         """Get damage information, preferring normalized event_snapshot over raw payload."""
         if self.event_snapshot and "damage_dealt" in self.event_snapshot:
             return self.event_snapshot["damage_dealt"]
         return self.payload.get("damage_dealt")
-    
+
     @property
     def lore_gained(self) -> int | None:
         """Get lore gained from quest/lore events, preferring normalized event_snapshot over raw payload."""
@@ -168,7 +168,7 @@ class BagEffectEntry:
     def event_type(self) -> str | None:
         """Get the canonical trigger event from the pending event."""
         return self.event.event if self.event else None
-    
+
     @property
     def optional(self) -> bool:
         """Check if this bag entry is optional (for trigger decline)."""
@@ -229,7 +229,7 @@ class GameState:
     trigger_occurrences: dict[str, int] = field(default_factory=dict)
     trigger_resolutions: dict[str, int] = field(default_factory=dict)
     event_counter: int = 0  # For deterministic event IDs
-    
+
     # B3: Pending effect layer for target/choice resolution
     pending_effects: list[PendingEffect] = field(default_factory=list)
     pending_effect_next_seq: int = 1

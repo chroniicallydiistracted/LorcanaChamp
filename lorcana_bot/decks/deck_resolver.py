@@ -411,14 +411,14 @@ def _unsupported_blockers(card: CardDef | None) -> tuple[str, ...]:
     if not card:
         return ("missing_carddef_status",)
     blockers: set[str] = set()
-    
+
     # B2-FIX: Classify triggers more specifically instead of just broad unsupported_trigger
     if card.source_triggers:
         # Check if any triggers can be projected as executable
         projected_triggers = card.triggers  # These are already projected TriggerDefs
         executable_triggers = len(projected_triggers)
         total_triggers = len(card.source_triggers)
-        
+
         # If all triggers are executable, don't add any blocker
         # If some are executable, add specific blocker for unprojected ones
         if total_triggers > 0:
@@ -427,9 +427,9 @@ def _unsupported_blockers(card: CardDef | None) -> tuple[str, ...]:
                 for trigger in card.source_triggers:
                     reason = _trigger_blocker_reason(trigger)
                     blockers.add(reason)
-            # If some triggers are executable, those are already projected, 
+            # If some triggers are executable, those are already projected,
             # and we only count the unexecutable ones
-    
+
     if card.source_static_abilities:
         blockers.add("unsupported_static_effect")
     if card.source_replacement_abilities:
@@ -466,40 +466,40 @@ def _unsupported_blockers(card: CardDef | None) -> tuple[str, ...]:
 def _trigger_blocker_reason(trigger) -> str:
     """Determine specific blocker reason for a trigger."""
     from lorcana_bot.card_logic import SourceTriggerDef
-    
+
     if not isinstance(trigger, SourceTriggerDef):
         return "unsupported_trigger"
-    
+
     # Check event type
     event = getattr(trigger, 'event', None)
     if event:
         supported_events = {"play", "quest", "challenge", "banish", "start-turn", "end-turn", "ink", "move"}
         if event not in supported_events:
             return f"unsupported_trigger_event:{event}"
-    
+
     # Check condition
     condition = getattr(trigger, 'condition', None) or getattr(trigger, 'raw', {}).get('condition')
     if condition:
         condition_kind = condition.get('kind') or condition.get('type') if isinstance(condition, dict) else None
         if condition_kind:
-            supported_conditions = {"always", "your-turn", "opponent-turn", "during-turn", 
+            supported_conditions = {"always", "your-turn", "opponent-turn", "during-turn",
                                     "has-character-count", "has-item-count", "has-location-count",
                                     "has-character-with-keyword", "has-character-with-classification",
                                     "has-named-character", "is-exerted", "exerted", "has-any-damage",
                                     "no-damage", "self-has-damage", "inkwell-count", "and", "or", "not"}
             if condition_kind not in supported_conditions:
                 return f"unsupported_trigger_condition:{condition_kind}"
-    
+
     # Check target (on filter)
     on_value = getattr(trigger, 'on', None)
     if on_value:
-        supported_on = {"SELF", "YOU", "CONTROLLER", "OPPONENT", "YOUR_CHARACTERS", 
+        supported_on = {"SELF", "YOU", "CONTROLLER", "OPPONENT", "YOUR_CHARACTERS",
                         "YOUR_OTHER_CHARACTERS", "OPPOSING_CHARACTERS", "ANY_CHARACTER"}
         if isinstance(on_value, str) and on_value not in supported_on:
             return f"unsupported_trigger_on:{on_value}"
         elif isinstance(on_value, dict):
             return "unsupported_trigger_on:complex_filter"
-    
+
     # Check for unsupported resolution requirements (chosen targets, scry, etc.)
     raw = getattr(trigger, 'raw', {})
     if raw:
@@ -515,12 +515,12 @@ def _trigger_blocker_reason(trigger) -> str:
                     selector = target.get('selector') or target.get('type')
                     if selector in {'chosen', 'CHOSEN_CHARACTER', 'CHOSEN_OPPOSING_CHARACTER', 'CHOSEN_DAMAGED_CHARACTER'}:
                         return f"unsupported_trigger_target:{selector}"
-    
+
     # Check execution status
     exec_status = getattr(trigger, 'execution_status', None)
     if exec_status == ExecutionStatus.UNSUPPORTED_TRIGGER:
         return "unsupported_trigger_not_projected"
-    
+
     # Default to general unsupported trigger
     return "unsupported_trigger"
 

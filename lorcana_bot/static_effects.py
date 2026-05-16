@@ -42,12 +42,12 @@ class StaticEffectType(Enum):
 
 def _is_active_public_source(state: GameState, source_id: int) -> bool:
     """Check if a card is an active public source for static/replacement effects.
-    
+
     A card is an active public source only when:
     - It exists in game state
     - It is in the play zone (ZONE_PLAY)
     - It is a top-level card (stack_parent_id is None), not under a shifted card
-    
+
     Cards in ZONE_UNDER (shifted stack) are stored as stack metadata and are not
     active public sources.
     """
@@ -76,34 +76,34 @@ class StaticEffectEntry:
     cost_reduction_card_type: str | None = None  # None means all card types
     # Restrictions
     restriction_type: str | None = None  # "cannot_quest", "cannot_challenge"
-    
+
     def applies_to(self, state: GameState, instance_id: int) -> bool:
         """Check if this static effect applies to a given card instance."""
         # Get the target card
         inst = state.cards.get(instance_id)
         if inst is None:
             return False
-        
+
         # Check if source is an active public source (in play zone, not under shift stack)
         source_inst = state.cards.get(self.source_id)
         if source_inst is None or source_inst.zone != "play" or source_inst.stack_parent_id is not None:
             return False
-        
+
         # Determine target based on target_mode
         if self.target_mode == "self":
             return instance_id == self.source_id
-        
+
         source_controller = source_inst.controller
-        
+
         if self.target_mode == "your_characters":
             return inst.controller == source_controller and inst.zone == "play"
-        
+
         if self.target_mode == "opposing_characters":
             return inst.controller != source_controller and inst.zone == "play"
-        
+
         if self.target_mode == "all_characters":
             return inst.zone == "play"
-        
+
         if self.target_mode == "classification":
             # For classification-based targeting, we need to check card type
             from .constants import CARD_CHARACTER, CARD_ITEM, CARD_LOCATION
@@ -117,37 +117,37 @@ class StaticEffectEntry:
                 return bool(inst.zone == "play" and inst.card_id)
             # Could be a more specific classification filter
             return bool(inst.zone == "play" and inst.card_id)
-        
+
         return False
 
 
 @dataclass
 class StaticEffectRegistry:
     """Registry of active static effects in the game state.
-    
+
     This registry maintains a list of static effect entries that are
     currently active. Effects are automatically registered when a card
     enters play and deregistered when the card leaves play.
     """
     effects: list[StaticEffectEntry] = field(default_factory=list)
-    
+
     def register_effect(self, entry: StaticEffectEntry) -> None:
         """Add a static effect to the registry if not already present.
-        
+
         Idempotent registration prevents duplicate effects from repeated
         lifecycle registration (e.g., on card re-entry to play).
         """
         if entry not in self.effects:
             self.effects.append(entry)
-    
+
     def deregister_effects_from_source(self, source_id: int) -> None:
         """Remove all static effects from a specific source card."""
         self.effects = [e for e in self.effects if e.source_id != source_id]
-    
+
     def get_effects_for_instance(self, state: GameState, instance_id: int) -> list[StaticEffectEntry]:
         """Get all static effects that apply to a specific card instance."""
         return [e for e in self.effects if e.applies_to(state, instance_id)]
-    
+
     def clear(self) -> None:
         """Clear all effects (used when game ends or resets)."""
         self.effects.clear()
@@ -162,12 +162,12 @@ def get_registry(state: GameState) -> StaticEffectRegistry:
 
 def effective_strength(state: GameState, instance_id: int, card_def) -> int:
     """Calculate effective strength for a card instance.
-    
+
     Combines:
     - Printed strength from card definition
     - Static modifiers from active static effects
     - Temporary modifiers from CardInstance
-    
+
     Args:
         state: Game state
         instance_id: Card instance ID
@@ -176,20 +176,20 @@ def effective_strength(state: GameState, instance_id: int, card_def) -> int:
     inst = state.cards.get(instance_id)
     if inst is None:
         return 0
-    
+
     # Get printed strength from card definition
     base = int(card_def.strength or 0)
-    
+
     # Get static modifiers
     registry = get_registry(state)
     modifier = 0
     for effect in registry.get_effects_for_instance(state, instance_id):
         if effect.effect_type == StaticEffectType.MODIFY_STRENGTH:
             modifier += effect.amount
-    
+
     # Add temporary modifiers from instance state
     temp_modifier = inst.temporary_modifiers.get("strength", 0)
-    
+
     return max(0, base + modifier + temp_modifier)
 
 
@@ -198,26 +198,26 @@ def effective_willpower(state: GameState, instance_id: int, card_def) -> int:
     inst = state.cards.get(instance_id)
     if inst is None:
         return 0
-    
+
     # Get printed willpower from card definition
     base = int(card_def.willpower or 0)
-    
+
     # Get static modifiers
     registry = get_registry(state)
     modifier = 0
     for effect in registry.get_effects_for_instance(state, instance_id):
         if effect.effect_type == StaticEffectType.MODIFY_WILLPOWER:
             modifier += effect.amount
-    
+
     # Add temporary modifiers
     temp_modifier = inst.temporary_modifiers.get("willpower", 0)
-    
+
     return max(0, base + modifier + temp_modifier)
 
 
 def keywords_for_instance(state: GameState, instance_id: int) -> tuple[str, ...]:
     """Get all keywords that apply to a card instance.
-    
+
     Combines:
     - Printed keywords from card definition
     - Keywords granted by static effects
@@ -226,18 +226,18 @@ def keywords_for_instance(state: GameState, instance_id: int) -> tuple[str, ...]
     inst = state.cards.get(instance_id)
     if inst is None:
         return ()
-    
+
     keywords: set[str] = set()
-    
+
     # Get static keyword grants
     registry = get_registry(state)
     for effect in registry.get_effects_for_instance(state, instance_id):
         if effect.effect_type == StaticEffectType.GRANT_KEYWORD and effect.keyword:
             keywords.add(effect.keyword)
-    
+
     # Get temporary keywords from instance state
     keywords.update(inst.temporary_keywords)
-    
+
     return tuple(sorted(keywords))
 
 
@@ -245,7 +245,7 @@ def static_cost_reductions(state: GameState, player: int) -> list[dict[str, Any]
     """Get all static cost reductions for a player."""
     registry = get_registry(state)
     reductions: list[dict[str, Any]] = []
-    
+
     # Add static cost reductions from effects
     for effect in registry.effects:
         source_inst = state.cards.get(effect.source_id)
@@ -254,14 +254,14 @@ def static_cost_reductions(state: GameState, player: int) -> list[dict[str, Any]
             continue
         if source_inst.zone != "play" or source_inst.stack_parent_id is not None:
             continue
-        
+
         if effect.effect_type == StaticEffectType.COST_REDUCTION:
             reductions.append({
                 "amount": effect.cost_reduction_amount,
                 "card_type": effect.cost_reduction_card_type,
                 "source_id": effect.source_id,
             })
-    
+
     return reductions
 
 
@@ -270,13 +270,13 @@ def can_quest(state: GameState, instance_id: int) -> bool:
     inst = state.cards.get(instance_id)
     if inst is None:
         return False
-    
+
     # Check static quest restrictions
     registry = get_registry(state)
     for effect in registry.get_effects_for_instance(state, instance_id):
         if effect.effect_type == StaticEffectType.QUEST_RESTRICTION:
             return False
-    
+
     return True
 
 
@@ -285,13 +285,13 @@ def can_challenge(state: GameState, instance_id: int) -> bool:
     inst = state.cards.get(instance_id)
     if inst is None:
         return False
-    
+
     # Check static challenge restrictions
     registry = get_registry(state)
     for effect in registry.get_effects_for_instance(state, instance_id):
         if effect.effect_type == StaticEffectType.CHALLENGE_RESTRICTION:
             return False
-    
+
     return True
 
 
@@ -313,7 +313,7 @@ def create_modify_stat_effect(
         effect_type = StaticEffectType.MODIFY_LORE
     else:
         raise ValueError(f"Unknown stat: {stat}")
-    
+
     return StaticEffectEntry(
         source_id=source_id,
         effect_type=effect_type,
