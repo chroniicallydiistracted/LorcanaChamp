@@ -541,6 +541,88 @@ class TestStaticEffectRegistryClear:
         assert len(state.static_effect_registry.effects) == 0
 
 
+class TestStaticEffectIdempotentRegistration:
+    """Tests for idempotent static effect registration."""
+
+    def test_duplicate_registration_does_not_create_duplicates(self, make_state):
+        """Test that registering the same effect twice does not create duplicates."""
+        state = make_state()
+        state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
+        
+        entry = create_modify_stat_effect(source_id=1, stat="strength", amount=2, target_mode="your_characters")
+        
+        # Register the same effect multiple times
+        state.static_effect_registry.register_effect(entry)
+        state.static_effect_registry.register_effect(entry)
+        state.static_effect_registry.register_effect(entry)
+        
+        # Should only have one effect
+        assert len(state.static_effect_registry.effects) == 1
+        assert state.static_effect_registry.effects[0] == entry
+
+    def test_different_effects_can_be_registered(self, make_state):
+        """Test that different effects can still be registered."""
+        state = make_state()
+        state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play")
+        
+        entry1 = create_modify_stat_effect(source_id=1, stat="strength", amount=2)
+        entry2 = create_keyword_grant_effect(source_id=1, keyword="bodyguard")
+        
+        state.static_effect_registry.register_effect(entry1)
+        state.static_effect_registry.register_effect(entry2)
+        
+        assert len(state.static_effect_registry.effects) == 2
+
+
+class TestStaticEffectSourceZONEUNDER:
+    """Tests for static effects from sources in ZONE_UNDER (shift stack)."""
+
+    def test_source_in_zone_under_gives_no_modifiers(self, make_state):
+        """Test that a source in ZONE_UNDER does not provide static modifiers."""
+        state = make_state()
+        # Source card is under another card (shift stack) - not a public source
+        state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play", stack_parent_id=10)
+        state.cards[2] = CardInstance(instance_id=2, card_id="target", owner=0, controller=0, zone="play")
+        
+        entry = create_modify_stat_effect(source_id=1, stat="strength", amount=5, target_mode="your_characters")
+        state.static_effect_registry.register_effect(entry)
+        
+        # Effect should not apply because source is in ZONE_UNDER
+        modifier = get_static_modifier(state, 2, "strength")
+        assert modifier == 0
+        
+        # Effects for instance should be empty
+        effects = state.static_effect_registry.get_effects_for_instance(state, 2)
+        assert len(effects) == 0
+
+    def test_source_with_no_stack_parent_id_is_active(self, make_state):
+        """Test that a source with stack_parent_id=None is treated as active."""
+        state = make_state()
+        # Source card has no stack parent (top of stack)
+        state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="play", stack_parent_id=None)
+        state.cards[2] = CardInstance(instance_id=2, card_id="target", owner=0, controller=0, zone="play")
+        
+        entry = create_modify_stat_effect(source_id=1, stat="strength", amount=3, target_mode="your_characters")
+        state.static_effect_registry.register_effect(entry)
+        
+        # Effect should apply
+        modifier = get_static_modifier(state, 2, "strength")
+        assert modifier == 3
+
+    def test_source_in_discard_does_not_apply(self, make_state):
+        """Test that a source in discard zone does not provide static modifiers."""
+        state = make_state()
+        state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone="discard")
+        state.cards[2] = CardInstance(instance_id=2, card_id="target", owner=0, controller=0, zone="play")
+        
+        entry = create_modify_stat_effect(source_id=1, stat="strength", amount=5, target_mode="your_characters")
+        state.static_effect_registry.register_effect(entry)
+        
+        # Effect should not apply because source is in discard
+        modifier = get_static_modifier(state, 2, "strength")
+        assert modifier == 0
+
+
 class TestParseStaticEffectsFromSourceDataclasses:
     """Tests for parsing static effects from Lorcanito source dataclasses."""
 

@@ -466,6 +466,138 @@ class TestEffectAppliesTo:
         assert len(effects) == 0
 
 
+class TestReplacementEffectIdempotentRegistration:
+    """Tests for idempotent replacement effect registration."""
+
+    def test_duplicate_registration_does_not_create_duplicates(self, simple_state):
+        """Test that registering the same replacement effect twice does not create duplicates."""
+        registry = get_registry(simple_state)
+        effect = ReplacementEffectEntry(
+            source_id=1,
+            effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+            target_mode="self",
+            amount=1,
+        )
+        
+        # Register the same effect multiple times
+        registry.register_effect(effect)
+        registry.register_effect(effect)
+        registry.register_effect(effect)
+        
+        # Should only have one effect
+        assert len(registry.effects) == 1
+        assert registry.effects[0] == effect
+
+    def test_different_effects_can_be_registered(self, simple_state):
+        """Test that different effects can still be registered."""
+        registry = get_registry(simple_state)
+        effect1 = ReplacementEffectEntry(
+            source_id=1,
+            effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+            target_mode="self",
+            amount=1,
+        )
+        effect2 = ReplacementEffectEntry(
+            source_id=1,
+            effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+            target_mode="all_characters",
+            amount=2,
+        )
+        
+        registry.register_effect(effect1)
+        registry.register_effect(effect2)
+        
+        assert len(registry.effects) == 2
+
+
+class TestReplacementEffectSourceZONEUNDER:
+    """Tests for replacement effects from sources in ZONE_UNDER (shift stack)."""
+
+    def test_source_in_zone_under_does_not_prevent_damage(self, game_state):
+        """Test that a source in ZONE_UNDER does not prevent damage."""
+        # Create state with source in zone under
+        game_state.cards[1] = CardInstance(instance_id=1, card_id="protector", owner=0, controller=0, zone=ZONE_PLAY, stack_parent_id=10)
+        game_state.cards[2] = CardInstance(instance_id=2, card_id="character", owner=0, controller=0, zone=ZONE_PLAY)
+        
+        registry = get_registry(game_state)
+        effect = ReplacementEffectEntry(
+            source_id=1,  # protector is in zone under
+            effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+            target_mode="your_characters",
+            amount=5,
+        )
+        registry.register_effect(effect)
+        
+        # Deal damage to the character
+        event = deal_damage(game_state, 2, 99, 5)
+        
+        # Effect should not apply because source is in ZONE_UNDER
+        assert event.was_replaced is False
+        assert game_state.cards[2].damage == 5
+
+    def test_source_with_no_stack_parent_id_is_active(self, game_state):
+        """Test that a source with stack_parent_id=None is treated as active."""
+        game_state.cards[1] = CardInstance(instance_id=1, card_id="protector", owner=0, controller=0, zone=ZONE_PLAY, stack_parent_id=None)
+        game_state.cards[2] = CardInstance(instance_id=2, card_id="character", owner=0, controller=0, zone=ZONE_PLAY)
+        
+        registry = get_registry(game_state)
+        effect = ReplacementEffectEntry(
+            source_id=1,  # protector is top of stack
+            effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+            target_mode="your_characters",
+            amount=5,
+        )
+        registry.register_effect(effect)
+        
+        # Deal damage to the character
+        event = deal_damage(game_state, 2, 99, 5)
+        
+        # Effect should apply because source is active
+        assert event.was_replaced is True
+        assert game_state.cards[2].damage == 0
+
+    def test_source_in_zone_under_does_not_replace_banish(self, game_state):
+        """Test that a source in ZONE_UNDER does not replace banish."""
+        game_state.cards[1] = CardInstance(instance_id=1, card_id="ward", owner=0, controller=0, zone=ZONE_PLAY, stack_parent_id=10)
+        game_state.cards[2] = CardInstance(instance_id=2, card_id="character", owner=0, controller=0, zone=ZONE_PLAY)
+        
+        registry = get_registry(game_state)
+        effect = ReplacementEffectEntry(
+            source_id=1,  # ward is in zone under
+            effect_type=ReplacementEffectType.REPLACE_BANISH_RETURN_TO_HAND,
+            target_mode="your_characters",
+        )
+        registry.register_effect(effect)
+        
+        # Evaluate banish replacement
+        event = banish_card(game_state, 2, 99)
+        
+        # Effect should not apply because source is in ZONE_UNDER
+        assert event.was_replaced is False
+        assert event.actual_destination == "discard"
+
+    def test_replacement_effect_not_applies_when_source_in_discard(self, game_state):
+        """Test that replacement effects from discarded sources do not apply."""
+        game_state.cards[1] = CardInstance(instance_id=1, card_id="protector", owner=0, controller=0, zone=ZONE_DISCARD)
+        game_state.cards[2] = CardInstance(instance_id=2, card_id="character", owner=0, controller=0, zone=ZONE_PLAY)
+        
+        registry = get_registry(game_state)
+        effect = ReplacementEffectEntry(
+            source_id=1,  # protector is in discard
+            effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+            target_mode="your_characters",
+            amount=5,
+        )
+        registry.register_effect(effect)
+        
+        # Deal damage
+        event = deal_damage(game_state, 2, 99, 5)
+        
+        # Effect should not apply
+        assert event.was_replaced is False
+        assert game_state.cards[2].damage == 5
+
+
 class TestDamageEvent:
     """Test DamageEvent dataclass."""
 

@@ -39,6 +39,27 @@ class ReplacementEffectType(Enum):
     CANNOT_BE_TARGETED = auto()
 
 
+def _is_active_public_source(state: GameState, source_id: int) -> bool:
+    """Check if a card is an active public source for static/replacement effects.
+    
+    A card is an active public source only when:
+    - It exists in game state
+    - It is in the play zone (ZONE_PLAY)
+    - It is a top-level card (stack_parent_id is None), not under a shifted card
+    
+    Cards in ZONE_UNDER (shifted stack) are stored as stack metadata and are not
+    active public sources.
+    """
+    from .constants import ZONE_PLAY
+
+    source_inst = state.cards.get(source_id)
+    return (
+        source_inst is not None
+        and source_inst.zone == ZONE_PLAY
+        and source_inst.stack_parent_id is None
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class ReplacementEffectEntry:
     """A single replacement effect from a source card."""
@@ -71,8 +92,13 @@ class ReplacementEffectRegistry:
     usage_ledger: dict[str, dict[str, Any]] = field(default_factory=dict)
     
     def register_effect(self, entry: ReplacementEffectEntry) -> None:
-        """Add a replacement effect to the registry."""
-        self.effects.append(entry)
+        """Add a replacement effect to the registry if not already present.
+        
+        Idempotent registration prevents duplicate effects from repeated
+        lifecycle registration (e.g., on card re-entry to play).
+        """
+        if entry not in self.effects:
+            self.effects.append(entry)
     
     def deregister_effects_from_source(self, source_id: int) -> None:
         """Remove all replacement effects from a specific source card."""
@@ -88,8 +114,9 @@ class ReplacementEffectRegistry:
         if inst is None:
             return False
         
+        # Check if source is an active public source (in play zone, not under shift stack)
         source_inst = state.cards.get(effect.source_id)
-        if source_inst is None or source_inst.zone != "play":
+        if source_inst is None or source_inst.zone != "play" or source_inst.stack_parent_id is not None:
             return False
         
         if effect.target_mode == "self":

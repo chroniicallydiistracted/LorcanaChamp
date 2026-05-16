@@ -40,6 +40,27 @@ class StaticEffectType(Enum):
     CHALLENGE_RESTRICTION = auto()
 
 
+def _is_active_public_source(state: GameState, source_id: int) -> bool:
+    """Check if a card is an active public source for static/replacement effects.
+    
+    A card is an active public source only when:
+    - It exists in game state
+    - It is in the play zone (ZONE_PLAY)
+    - It is a top-level card (stack_parent_id is None), not under a shifted card
+    
+    Cards in ZONE_UNDER (shifted stack) are stored as stack metadata and are not
+    active public sources.
+    """
+    from .constants import ZONE_PLAY
+
+    source_inst = state.cards.get(source_id)
+    return (
+        source_inst is not None
+        and source_inst.zone == ZONE_PLAY
+        and source_inst.stack_parent_id is None
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class StaticEffectEntry:
     """A single static effect from a source card."""
@@ -63,9 +84,9 @@ class StaticEffectEntry:
         if inst is None:
             return False
         
-        # Check if source is still in play
+        # Check if source is an active public source (in play zone, not under shift stack)
         source_inst = state.cards.get(self.source_id)
-        if source_inst is None or source_inst.zone != "play":
+        if source_inst is None or source_inst.zone != "play" or source_inst.stack_parent_id is not None:
             return False
         
         # Determine target based on target_mode
@@ -89,13 +110,13 @@ class StaticEffectEntry:
             from .engine import GameEngine
             # We'll need to check the card type
             if self.target_classification == "character":
-                return inst.zone == "play" and inst.card_id  # Simple check
+                return bool(inst.zone == "play" and inst.card_id)  # Simple check
             if self.target_classification == "item":
-                return inst.zone == "play" and inst.card_id
+                return bool(inst.zone == "play" and inst.card_id)
             if self.target_classification == "location":
-                return inst.zone == "play" and inst.card_id
+                return bool(inst.zone == "play" and inst.card_id)
             # Could be a more specific classification filter
-            return inst.zone == "play" and inst.card_id
+            return bool(inst.zone == "play" and inst.card_id)
         
         return False
 
@@ -111,8 +132,13 @@ class StaticEffectRegistry:
     effects: list[StaticEffectEntry] = field(default_factory=list)
     
     def register_effect(self, entry: StaticEffectEntry) -> None:
-        """Add a static effect to the registry."""
-        self.effects.append(entry)
+        """Add a static effect to the registry if not already present.
+        
+        Idempotent registration prevents duplicate effects from repeated
+        lifecycle registration (e.g., on card re-entry to play).
+        """
+        if entry not in self.effects:
+            self.effects.append(entry)
     
     def deregister_effects_from_source(self, source_id: int) -> None:
         """Remove all static effects from a specific source card."""
@@ -223,9 +249,10 @@ def static_cost_reductions(state: GameState, player: int) -> list[dict[str, Any]
     # Add static cost reductions from effects
     for effect in registry.effects:
         source_inst = state.cards.get(effect.source_id)
+        # Only include if source is an active public source (not under shift stack)
         if source_inst is None or source_inst.controller != player:
             continue
-        if source_inst.zone != "play":
+        if source_inst.zone != "play" or source_inst.stack_parent_id is not None:
             continue
         
         if effect.effect_type == StaticEffectType.COST_REDUCTION:
