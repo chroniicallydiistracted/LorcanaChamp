@@ -55,6 +55,7 @@ class TargetSelectionAvailability:
     player_candidate_count: int
     min_selections: int
     max_selections: int
+    allows_explicit_empty_target_selection: bool
     can_satisfy_required_selection: bool
     requires_explicit_target_selection: bool
     should_auto_reject_for_no_valid_targets: bool
@@ -81,6 +82,8 @@ Cards in ZONE_UNDER or with stack_parent_id are not public play candidates.
 Cards not in allowed zones are excluded.
 Duplicate target IDs are rejected unless descriptor explicitly allows duplicates.
 min_count/max_count drive availability; max_count=None means all/unbounded candidates.
+`allow_duplicate_targets=True` allows duplicate candidate slots and can satisfy multi-target minimums with one legal candidate.
+Chosen selectors require explicit target selection even when `min_count=0`; empty "up to" selections carry `allows_explicit_empty_target_selection=True`.
 Protections preserve TargetCandidate kind/id/controller/zone values for candidates that remain legal.
 Protection filtering must operate on candidate tuples returned by Brief 2 helpers; do not re-resolve context selectors by reading raw IDs directly.
 ```

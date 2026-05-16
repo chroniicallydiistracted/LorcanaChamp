@@ -204,6 +204,8 @@ Relevant Lorcanito concepts:
 ActionSelectionZone is exactly deck, hand, play, discard, inkwell, limbo.
 ResolvedTargetQuery distinguishes card IDs from player IDs.
 Target availability computes candidate counts, card/player candidate counts, min/max, and whether explicit selection is required.
+Target availability also carries `allowsExplicitEmptyTargetSelection`; in Python this is `allows_explicit_empty_target_selection`.
+Duplicate-allowed target requirements can satisfy a multi-target minimum with one candidate; in Python this is `TargetDescriptor.allow_duplicate_targets`.
 SlottedTargetInput preserves structured multi-slot choices and can be flattened deterministically.
 ```
 

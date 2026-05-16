@@ -17,6 +17,9 @@ from lorcana_bot.targeting import (
     TargetCandidate,
     TargetDescriptor,
     TargetQueryContext,
+    TargetSelectionAvailability,
+    analyze_target_selection_availability,
+    apply_target_protections,
     infer_candidate_zones,
     is_card_target_candidate,
     is_player_target_candidate,
@@ -1042,3 +1045,390 @@ class TestZoneUnderExclusion:
         result = resolve_candidate_card_ids(state, engine, desc, ctx)
         assert play in result
         assert under not in result
+
+
+# ---------------------------------------------------------------------------
+# Brief 3: Availability and protection tests
+# ---------------------------------------------------------------------------
+
+
+class TestTargetSelectionAvailability:
+    """Tests for TargetSelectionAvailability dataclass and analyze function."""
+
+    def test_availability_dataclass_fields(self):
+        avail = TargetSelectionAvailability(
+            candidate_count=5,
+            card_candidate_count=3,
+            player_candidate_count=2,
+            min_selections=1,
+            max_selections=1,
+            allows_explicit_empty_target_selection=False,
+            can_satisfy_required_selection=True,
+            requires_explicit_target_selection=True,
+            should_auto_reject_for_no_valid_targets=False,
+        )
+        assert avail.candidate_count == 5
+        assert avail.card_candidate_count == 3
+        assert avail.player_candidate_count == 2
+        assert avail.min_selections == 1
+        assert avail.max_selections == 1
+        assert avail.allows_explicit_empty_target_selection is False
+        assert avail.can_satisfy_required_selection is True
+        assert avail.requires_explicit_target_selection is True
+        assert avail.should_auto_reject_for_no_valid_targets is False
+
+    def test_chosen_character_with_candidates_satisfied(self):
+        desc = normalize_target_descriptor("chosen_character")
+        candidates = (
+            TargetCandidate(kind="card", id=1, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=2, controller=1, zone=ZONE_PLAY),
+        )
+        avail = analyze_target_selection_availability(desc, candidates)
+
+        assert avail.candidate_count == 2
+        assert avail.card_candidate_count == 2
+        assert avail.player_candidate_count == 0
+        assert avail.min_selections == 1
+        assert avail.max_selections == 1
+        assert avail.can_satisfy_required_selection is True
+        assert avail.requires_explicit_target_selection is True
+        assert avail.should_auto_reject_for_no_valid_targets is False
+
+    def test_chosen_character_with_no_candidates_auto_rejects(self):
+        desc = normalize_target_descriptor("chosen_character")
+        avail = analyze_target_selection_availability(desc, ())
+
+        assert avail.candidate_count == 0
+        assert avail.can_satisfy_required_selection is False
+        assert avail.requires_explicit_target_selection is True
+        assert avail.should_auto_reject_for_no_valid_targets is True
+
+    def test_chosen_character_optional_does_not_auto_reject(self):
+        desc = normalize_target_descriptor("chosen_character")
+        avail = analyze_target_selection_availability(desc, (), is_optional=True)
+
+        assert avail.candidate_count == 0
+        assert avail.should_auto_reject_for_no_valid_targets is False
+
+    def test_your_characters_not_explicit_selection(self):
+        desc = normalize_target_descriptor("your_characters")
+        candidates = (TargetCandidate(kind="card", id=1, controller=0, zone=ZONE_PLAY),)
+        avail = analyze_target_selection_availability(desc, candidates)
+
+        assert avail.requires_explicit_target_selection is False
+        assert avail.should_auto_reject_for_no_valid_targets is False
+
+    def test_player_only_candidates(self):
+        desc = normalize_target_descriptor("chosen_player")
+        candidates = (
+            TargetCandidate(kind="player", id=0),
+            TargetCandidate(kind="player", id=1),
+        )
+        avail = analyze_target_selection_availability(desc, candidates)
+
+        assert avail.candidate_count == 2
+        assert avail.card_candidate_count == 0
+        assert avail.player_candidate_count == 2
+        assert avail.can_satisfy_required_selection is True
+
+    def test_mixed_card_and_player_candidates(self):
+        desc = normalize_target_descriptor("chosen_player")
+        candidates = (
+            TargetCandidate(kind="card", id=1, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="player", id=0),
+            TargetCandidate(kind="player", id=1),
+        )
+        avail = analyze_target_selection_availability(desc, candidates)
+
+        assert avail.candidate_count == 3
+        assert avail.card_candidate_count == 1
+        assert avail.player_candidate_count == 2
+
+    def test_max_count_none_means_unbounded(self):
+        desc = normalize_target_descriptor("your_characters")
+        candidates = tuple(TargetCandidate(kind="card", id=i, controller=0, zone=ZONE_PLAY) for i in range(10))
+        avail = analyze_target_selection_availability(desc, candidates)
+
+        assert avail.max_selections == 10  # unbounded = total candidates
+        assert avail.can_satisfy_required_selection is True
+
+    def test_min_count_zero(self):
+        desc = TargetDescriptor(selector="chosen_card", min_count=0, max_count=1, zones=(ZONE_PLAY,), owner="any")
+        avail = analyze_target_selection_availability(desc, ())
+
+        assert avail.min_selections == 0
+        assert avail.allows_explicit_empty_target_selection is True
+        assert avail.can_satisfy_required_selection is True
+        assert avail.requires_explicit_target_selection is True
+        assert avail.should_auto_reject_for_no_valid_targets is True
+
+    def test_min_count_greater_than_candidates_cannot_satisfy(self):
+        desc = TargetDescriptor(selector="chosen_character", min_count=3, max_count=3, zones=(ZONE_PLAY,), card_types=(CARD_CHARACTER,), owner="any")
+        candidates = (
+            TargetCandidate(kind="card", id=1, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=2, controller=1, zone=ZONE_PLAY),
+        )
+        avail = analyze_target_selection_availability(desc, candidates)
+
+        assert avail.candidate_count == 2
+        assert avail.min_selections == 3
+        assert avail.can_satisfy_required_selection is False
+        assert avail.should_auto_reject_for_no_valid_targets is True
+
+    def test_duplicate_allowed_requirement_can_satisfy_with_one_candidate(self):
+        desc = TargetDescriptor(
+            selector="chosen_character",
+            min_count=3,
+            max_count=3,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            allow_duplicate_targets=True,
+        )
+        candidates = (TargetCandidate(kind="card", id=1, controller=0, zone=ZONE_PLAY),)
+        avail = analyze_target_selection_availability(desc, candidates)
+
+        assert avail.candidate_count == 1
+        assert avail.can_satisfy_required_selection is True
+        assert avail.should_auto_reject_for_no_valid_targets is False
+
+
+class TestApplyTargetProtections:
+    """Tests for apply_target_protections."""
+
+    def test_zone_under_cards_excluded(self, engine, state):
+        play = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+        under = put_card(state, engine, 0, "Amber Guard", ZONE_UNDER, exclude=frozenset({play}))
+
+        candidates = (
+            TargetCandidate(kind="card", id=play, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=under, controller=0, zone=ZONE_UNDER),
+        )
+        desc = normalize_target_descriptor("chosen_card")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert len(result) == 1
+        assert result[0].id == play
+
+    def test_stack_parent_id_cards_excluded(self, engine, state):
+        parent = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+        child = put_card(state, engine, 0, "Amber Guard", ZONE_PLAY, exclude=frozenset({parent}))
+        state.cards[child].stack_parent_id = parent
+
+        candidates = (
+            TargetCandidate(kind="card", id=parent, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=child, controller=0, zone=ZONE_PLAY),
+        )
+        desc = normalize_target_descriptor("chosen_card")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert len(result) == 1
+        assert result[0].id == parent
+
+    def test_ward_blocks_chosen_opposing(self, engine, state):
+        """Opposing Ward cards cannot be chosen by opponent effects."""
+        own = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+        # Amber Guard has BODYGUARD, not WARD. Use Emerald Scout (EVASIVE) - no Ward either.
+        # We need to give a card Ward via temporary_keywords.
+        opp = put_card(state, engine, 1, "Ruby Charger", ZONE_PLAY)
+        state.cards[opp].temporary_keywords = ["WARD"]
+
+        candidates = (
+            TargetCandidate(kind="card", id=own, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=opp, controller=1, zone=ZONE_PLAY),
+        )
+        desc = normalize_target_descriptor("chosen_character")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        result_ids = [c.id for c in result]
+        assert own in result_ids
+        assert opp not in result_ids
+
+    def test_ward_does_not_block_own_cards(self, engine, state):
+        """Ward only blocks opponent's chosen effects, not your own."""
+        own = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+        state.cards[own].temporary_keywords = ["WARD"]
+
+        candidates = (TargetCandidate(kind="card", id=own, controller=0, zone=ZONE_PLAY),)
+        desc = normalize_target_descriptor("chosen_character")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert len(result) == 1
+        assert result[0].id == own
+
+    def test_ward_does_not_block_non_chosen_selectors(self, engine, state):
+        """Ward only blocks 'chosen' selectors, not 'all' or 'your' selectors."""
+        opp = put_card(state, engine, 1, "Ruby Charger", ZONE_PLAY)
+        state.cards[opp].temporary_keywords = ["WARD"]
+
+        candidates = (TargetCandidate(kind="card", id=opp, controller=1, zone=ZONE_PLAY),)
+        desc = normalize_target_descriptor("all_characters")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert len(result) == 1
+        assert result[0].id == opp
+
+    def test_cannot_be_targeted_replacement_effect_blocks_candidate(self, engine, state):
+        from lorcana_bot.replacement_effects import (
+            ReplacementEffectEntry,
+            ReplacementEffectType,
+            register_replacement_effect,
+        )
+
+        protected = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+        open_target = put_card(state, engine, 0, "Amber Guard", ZONE_PLAY, exclude=frozenset({protected}))
+        register_replacement_effect(
+            state,
+            ReplacementEffectEntry(
+                source_id=protected,
+                effect_type=ReplacementEffectType.CANNOT_BE_TARGETED,
+                target_mode="self",
+            ),
+        )
+
+        candidates = (
+            TargetCandidate(kind="card", id=protected, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=open_target, controller=0, zone=ZONE_PLAY),
+        )
+        desc = normalize_target_descriptor("chosen_character")
+        ctx = TargetQueryContext(actor=1)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert tuple(c.id for c in result) == (open_target,)
+
+    def test_duplicate_candidates_rejected(self, engine, state):
+        card = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+
+        candidates = (
+            TargetCandidate(kind="card", id=card, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=card, controller=0, zone=ZONE_PLAY),
+        )
+        desc = normalize_target_descriptor("chosen_card")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert len(result) == 1
+
+    def test_duplicate_candidates_preserved_when_descriptor_allows_duplicates(self, engine, state):
+        card = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+
+        candidates = (
+            TargetCandidate(kind="card", id=card, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=card, controller=0, zone=ZONE_PLAY),
+        )
+        desc = TargetDescriptor(selector="chosen_card", zones=(ZONE_PLAY,), allow_duplicate_targets=True)
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert tuple(c.id for c in result) == (card, card)
+
+    def test_protection_rechecks_descriptor_zone(self, engine, state):
+        play_card = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+        hand_card = put_card(state, engine, 0, "Amber Guard", ZONE_HAND, exclude=frozenset({play_card}))
+
+        candidates = (
+            TargetCandidate(kind="card", id=play_card, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=hand_card, controller=0, zone=ZONE_HAND),
+        )
+        desc = TargetDescriptor(selector="chosen_card", zones=(ZONE_PLAY,))
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert tuple(c.id for c in result) == (play_card,)
+
+    def test_player_candidates_pass_through(self, engine, state):
+        candidates = (
+            TargetCandidate(kind="player", id=0),
+            TargetCandidate(kind="player", id=1),
+        )
+        desc = normalize_target_descriptor("chosen_player")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert len(result) == 2
+        assert result[0].kind == "player"
+        assert result[1].kind == "player"
+
+    def test_mixed_candidates_protections(self, engine, state):
+        own = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+        opp_ward = put_card(state, engine, 1, "Ruby Charger", ZONE_PLAY)
+        state.cards[opp_ward].temporary_keywords = ["WARD"]
+        under = put_card(state, engine, 0, "Amber Guard", ZONE_UNDER, exclude=frozenset({own}))
+
+        candidates = (
+            TargetCandidate(kind="card", id=own, controller=0, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=opp_ward, controller=1, zone=ZONE_PLAY),
+            TargetCandidate(kind="card", id=under, controller=0, zone=ZONE_UNDER),
+            TargetCandidate(kind="player", id=0),
+            TargetCandidate(kind="player", id=1),
+        )
+        desc = normalize_target_descriptor("chosen_character")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        result_ids = [(c.kind, c.id) for c in result]
+        assert ("card", own) in result_ids
+        assert ("card", opp_ward) not in result_ids  # Ward blocked
+        assert ("card", under) not in result_ids  # ZONE_UNDER
+        assert ("player", 0) in result_ids
+        assert ("player", 1) in result_ids
+
+    def test_protection_preserves_candidate_fields(self, engine, state):
+        card = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+
+        candidates = (TargetCandidate(kind="card", id=card, controller=0, zone=ZONE_PLAY),)
+        desc = normalize_target_descriptor("chosen_card")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert len(result) == 1
+        assert result[0].kind == "card"
+        assert result[0].id == card
+        assert result[0].controller == 0
+        assert result[0].zone == ZONE_PLAY
+
+    def test_empty_candidates_returns_empty(self, engine, state):
+        desc = normalize_target_descriptor("chosen_character")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, (), desc, ctx)
+        assert result == ()
+
+    def test_nonexistent_card_filtered_out(self, engine, state):
+        candidates = (TargetCandidate(kind="card", id=999999, controller=0, zone=ZONE_PLAY),)
+        desc = normalize_target_descriptor("chosen_card")
+        ctx = TargetQueryContext(actor=0)
+
+        result = apply_target_protections(state, engine, candidates, desc, ctx)
+        assert result == ()
+
+    def test_context_derived_candidates_stay_validated_after_protection(self, engine, state):
+        """Context selectors that go through Brief 2 validation must also
+        pass protection filtering."""
+        source = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+        opp_ward = put_card(state, engine, 1, "Ruby Charger", ZONE_PLAY)
+        state.cards[opp_ward].temporary_keywords = ["WARD"]
+
+        # Resolve via chosen_card (includes both), then protect with chosen_character
+        desc = normalize_target_descriptor("chosen_character")
+        ctx = TargetQueryContext(actor=0, source_id=source)
+
+        raw_candidates = resolve_candidate_targets(state, engine, desc, ctx)
+        protected = apply_target_protections(state, engine, raw_candidates, desc, ctx)
+
+        protected_ids = [c.id for c in protected if c.kind == "card"]
+        assert source in protected_ids
+        assert opp_ward not in protected_ids  # Ward blocked
+
+    def test_unknown_allow_players_selector_still_returns_no_players_after_protection(self, state, engine):
+        desc = TargetDescriptor(selector="unsupported_player_selector", allow_players=True)
+        ctx = TargetQueryContext(actor=0)
+
+        candidates = resolve_candidate_targets(state, engine, desc, ctx)
+        protected = apply_target_protections(state, engine, candidates, desc, ctx)
+
+        assert protected == ()

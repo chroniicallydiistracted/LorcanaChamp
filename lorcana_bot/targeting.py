@@ -4,6 +4,8 @@ This module owns the normalized Python shape for target descriptors and the
 small helpers that later engine, pending-effect, and effect-resolution code can
 share.  Brief 2 adds candidate resolution (card/player enumeration) and filter
 application so that callers can obtain valid target IDs from a descriptor.
+Brief 3 adds target selection availability analysis and protection filtering
+(Ward, cannot-be-targeted, non-public stack exclusions, duplicate rejection).
 """
 
 from __future__ import annotations
@@ -54,6 +56,7 @@ class TargetDescriptor:
     exclude_self: bool = False
     exclude_trigger_subject: bool = False
     allow_players: bool = False
+    allow_duplicate_targets: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -329,6 +332,10 @@ def normalize_target_descriptor(raw: Any) -> TargetDescriptor | None:
                 raw.get("exclude_trigger_subject", base.exclude_trigger_subject),
             )),
             allow_players=bool(raw.get("allowPlayers", raw.get("allow_players", base.allow_players))),
+            allow_duplicate_targets=bool(raw.get(
+                "allowDuplicateTargets",
+                raw.get("allow_duplicate_targets", base.allow_duplicate_targets),
+            )),
         )
 
     # Handle tuple/list of selectors
@@ -1018,3 +1025,197 @@ def _apply_filter(
                 return False
 
     return True
+
+
+# ---------------------------------------------------------------------------
+# Brief 3: Target selection availability and protection filtering
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class TargetSelectionAvailability:
+    """Lorcanito-aligned availability analysis for a target selection.
+
+    Mirrors the ``TargetSelectionAvailability`` type from
+    ``target-availability.ts`` (lines 28-38).
+    """
+    candidate_count: int
+    card_candidate_count: int
+    player_candidate_count: int
+    min_selections: int
+    max_selections: int
+    allows_explicit_empty_target_selection: bool
+    can_satisfy_required_selection: bool
+    requires_explicit_target_selection: bool
+    should_auto_reject_for_no_valid_targets: bool
+
+
+def analyze_target_selection_availability(
+    descriptor: TargetDescriptor,
+    candidates: tuple[TargetCandidate, ...],
+    *,
+    is_optional: bool = False,
+) -> TargetSelectionAvailability:
+    """Analyze whether a target selection can be satisfied.
+
+    Computes candidate counts, min/max selections, and whether the
+    selection requires explicit player action or can be auto-rejected.
+
+    Args:
+        descriptor: The target descriptor defining the selection requirements.
+        candidates: The resolved (post-protection) candidate tuple.
+        is_optional: Whether the effect/ability is optional.  Optional effects
+            never auto-reject for no valid targets.
+
+    Returns:
+        A ``TargetSelectionAvailability`` snapshot.
+    """
+    card_count = sum(1 for c in candidates if c.kind == "card")
+    player_count = sum(1 for c in candidates if c.kind == "player")
+    total = card_count + player_count
+
+    min_sel = max(0, descriptor.min_count)
+    max_sel = max(0, descriptor.max_count) if descriptor.max_count is not None else total
+
+    # Chosen selectors require explicit player selection even when they are
+    # "up to" selections with min_count=0.
+    requires_explicit = descriptor.selector.startswith("chosen")
+    allows_empty = requires_explicit and min_sel == 0
+
+    # Can satisfy: either no explicit selection is needed, no minimum is
+    # required, or enough distinct candidates exist. Duplicate-allowed target
+    # selections can satisfy a multi-target minimum with one candidate.
+    can_satisfy = (
+        not requires_explicit
+        or min_sel <= 0
+        or (total > 0 and (descriptor.allow_duplicate_targets or total >= min_sel))
+    )
+
+    # Auto-reject when the effect is mandatory, requires explicit selection,
+    # and cannot be satisfied.
+    auto_reject = (
+        not is_optional
+        and requires_explicit
+        and (total == 0 or not can_satisfy)
+    )
+
+    return TargetSelectionAvailability(
+        candidate_count=total,
+        card_candidate_count=card_count,
+        player_candidate_count=player_count,
+        min_selections=min_sel,
+        max_selections=max_sel,
+        allows_explicit_empty_target_selection=allows_empty,
+        can_satisfy_required_selection=can_satisfy,
+        requires_explicit_target_selection=requires_explicit,
+        should_auto_reject_for_no_valid_targets=auto_reject,
+    )
+
+
+def apply_target_protections(
+    state: GameState,
+    engine: GameEngine,
+    candidates: tuple[TargetCandidate, ...],
+    descriptor: TargetDescriptor,
+    context: TargetQueryContext,
+    *,
+    source_id: int | None = None,
+) -> tuple[TargetCandidate, ...]:
+    """Filter *candidates* through protection rules.
+
+    Removes candidates that are:
+    - In ZONE_UNDER or have a stack_parent_id (non-public shifted-stack cards).
+    - Protected by Ward (opposing cards cannot be chosen by opponent effects).
+    - Protected by cannot-be-targeted replacement effects.
+    - Duplicate IDs (only the first occurrence is kept).
+
+    Card candidates that fail protection are silently dropped.  Player
+    candidates are never affected by card-level protections.
+
+    This function operates on the candidate tuple returned by Brief 2
+    helpers; it does **not** re-resolve context selectors.
+
+    Args:
+        state: Current game state.
+        engine: GameEngine for keyword and replacement-effect lookups.
+        candidates: Candidates from ``resolve_candidate_targets()``.
+        descriptor: The target descriptor.
+        context: The query context (for actor identification).
+        source_id: The source card triggering the targeting requirement.
+            Defaults to ``context.source_id`` when *None*.
+
+    Returns:
+        A filtered tuple of ``TargetCandidate`` with protections applied.
+    """
+    if source_id is None:
+        source_id = context.source_id
+
+    actor = context.actor
+    seen_ids: set[tuple[str, int]] = set()
+    results: list[TargetCandidate] = []
+
+    for cand in candidates:
+        key = (cand.kind, cand.id)
+
+        # --- duplicate rejection ---
+        if key in seen_ids and not descriptor.allow_duplicate_targets:
+            continue
+        seen_ids.add(key)
+
+        # Player candidates pass through unaffected
+        if cand.kind == "player":
+            results.append(cand)
+            continue
+
+        # --- card-level protections ---
+        cid = cand.id
+        inst = state.cards.get(cid)
+
+        # Card no longer exists
+        if inst is None:
+            continue
+
+        # Non-public shifted-stack cards
+        if inst.zone == ZONE_UNDER:
+            continue
+        if getattr(inst, "stack_parent_id", None) is not None:
+            continue
+        if descriptor.zones and inst.zone not in descriptor.zones:
+            continue
+
+        # Ward protection: opposing Ward cards cannot be chosen by
+        # opponent effects.  Ward only blocks "chosen" selectors.
+        if (
+            descriptor.selector.startswith("chosen")
+            and engine is not None
+            and inst.controller != actor
+            and engine.has_keyword(state, cid, "WARD")
+        ):
+            continue
+
+        # Cannot-be-targeted protection
+        if _is_protected_from_targeting(state, cid, actor, source_id):
+            continue
+
+        results.append(cand)
+
+    return tuple(results)
+
+
+def _is_protected_from_targeting(
+    state: GameState,
+    target_id: int,
+    caster_controller: int,
+    source_id: int | None,
+) -> bool:
+    """Check if a card is protected from targeting.
+
+    Delegates to the replacement-effect registry's
+    ``check_cannot_be_targeted`` when available.  Returns False if the
+    registry is not present or has no applicable effects.
+    """
+    try:
+        from .replacement_effects import check_cannot_be_targeted
+        return check_cannot_be_targeted(state, target_id, caster_controller)
+    except (ImportError, AttributeError):
+        return False
