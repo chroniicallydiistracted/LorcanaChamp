@@ -3,9 +3,13 @@
 Goal:
 Implement card/player target candidate resolution and core filters in `lorcana_bot/targeting.py`.
 
+Required shared context:
+Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making changes.
+
 This brief depends on Brief 1.
 Do not integrate into `engine.py` yet.
 Do not implement slotted targets yet.
+Do not implement Ward/cannot-be-targeted protection filtering here; that is Brief 3.
 
 ---
 
@@ -17,6 +21,24 @@ Do not implement slotted targets yet.
 ```text
 The targeting foundation can normalize descriptors, but it does not yet resolve
 candidate card/player IDs or apply card filters.
+```
+
+Existing Brief 1 baseline to preserve:
+```python
+ACTION_SELECTION_ZONES = (ZONE_DECK, ZONE_HAND, ZONE_PLAY, ZONE_DISCARD, ZONE_INKWELL, ZONE_LIMBO)
+
+class TargetDescriptor:
+    selector: str
+    min_count: int = 1
+    max_count: int | None = 1
+    zones: tuple[str, ...] = (ZONE_PLAY,)
+    card_types: tuple[str, ...] = ()
+    owner: str | None = None
+    controller: str | None = None
+    filters: tuple[dict[str, Any], ...] = ()
+    exclude_self: bool = False
+    exclude_trigger_subject: bool = False
+    allow_players: bool = False
 ```
 
 Scattered current logic:
@@ -39,8 +61,19 @@ def resolve_candidate_targets(
 ) -> tuple[TargetCandidate, ...]: ...
 
 
-def resolve_candidate_card_ids(...) -> tuple[int, ...]: ...
-def resolve_candidate_player_ids(...) -> tuple[int, ...]: ...
+def resolve_candidate_card_ids(
+    state: GameState,
+    engine: GameEngine,
+    descriptor: TargetDescriptor,
+    context: TargetQueryContext,
+) -> tuple[int, ...]: ...
+
+
+def resolve_candidate_player_ids(
+    state: GameState,
+    descriptor: TargetDescriptor,
+    context: TargetQueryContext,
+) -> tuple[int, ...]: ...
 ```
 
 Candidate selection support:
@@ -58,7 +91,8 @@ context_targets
 you/controller
 opponent
 each_player
-zones: play, hand, discard, deck, inkwell
+zones: deck, hand, play, discard, inkwell, limbo
+ZONE_UNDER must stay excluded from public candidate resolution
 ```
 
 Filter support:
@@ -78,6 +112,16 @@ exclude_self
 exclude_trigger_subject
 ```
 
+Field aliases to accept in descriptors and filters:
+```text
+card_type/cardType/card_types/cardTypes
+classification/classifications
+keyword/keywords
+ink/color
+owner/controller
+location_instance_id/locationInstanceId/at_location/atLocation
+```
+
 Use existing engine methods where available:
 
 ```text
@@ -92,6 +136,7 @@ engine.effective_strength/willpower/lore when needed by filters
 * **Action:** `EXPAND`
 * **Delta Description:** Add candidate resolution functions to `targeting.py`.
 * **Delta Description:** Add filter tests covering card type, classification, keyword, ink, damaged, exerted, owner/controller, and location association.
+* **Delta Description:** Extend existing Brief 1 helpers where useful; do not duplicate the same selector logic in a new parallel path.
 * **Delta Description:** Do not change engine legal actions yet.
 
 ### 4. Lorcanito Source Reference (The Authority)
@@ -122,6 +167,9 @@ Expected:
 - `resolve_candidate_targets()` returns card and player candidates.
 - Filters are covered by focused tests.
 - Existing engine behavior unchanged.
+- `chosen_card` can return character, item, or location card candidates when filters allow.
+- `chosen_character` remains character-only.
+- `ZONE_UNDER` cards remain excluded.
 
 ### 6. Final Response Requirements
 

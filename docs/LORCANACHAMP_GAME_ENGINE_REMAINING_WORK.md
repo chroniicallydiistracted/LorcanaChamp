@@ -725,6 +725,15 @@ docs/agent_work/microfix_9/MICROFIX_9_BRIEF_7_CONSOLIDATION_AND_REPORT_AUDIT.md
 
 **Current highest-priority next action.**
 
+Brief 1 foundation has been completed in code:
+
+```text
+lorcana_bot/targeting.py
+tests/test_targeting.py
+```
+
+Remaining Microfix 10 work starts at Brief 2 and must preserve the shared targeting invariants in `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md`.
+
 ## Problem
 
 Target support is split across simplified helpers. Lorcanito uses target DSL normalization, target availability, slotted target selection, filter evaluation, ward/cannot-be-targeted, and current/effect/context target sets.
@@ -775,6 +784,7 @@ python3 -m pytest -q
 ## Agent Work Briefs
 
 ```text
+docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md
 docs/agent_work/microfix_10/MICROFIX_10_BRIEF_1_TARGETING_FOUNDATION.md
 docs/agent_work/microfix_10/MICROFIX_10_BRIEF_2_CANDIDATE_RESOLUTION_AND_FILTERS.md
 docs/agent_work/microfix_10/MICROFIX_10_BRIEF_3_SELECTION_AVAILABILITY_AND_PROTECTIONS.md

@@ -3,6 +3,9 @@
 Goal:
 Use the targeting service for normal action-card target enumeration and validation in `GameEngine`.
 
+Required shared context:
+Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making changes.
+
 This brief depends on Briefs 1-3.
 Do not modify pending target enumeration yet; that is Brief 5.
 Do not implement slotted targets yet.
@@ -43,6 +46,15 @@ legal_actions() for ACTION_PLAY_CARD emits target actions from the service.
 apply_action(validate=True) continues to reject illegal target actions.
 ```
 
+Expected integration shape:
+```text
+Build TargetDescriptor objects with normalize_target_descriptor()/normalize_target_descriptors().
+Build TargetQueryContext(actor=player, source_id=source).
+Call resolve_candidate_targets() or resolve_candidate_card_ids()/resolve_candidate_player_ids().
+Apply Brief 3 availability/protection helpers before emitting legal actions.
+Keep ACTION_CHALLENGE and location movement target logic unchanged in this brief.
+```
+
 Integration rules:
 
 ```text
@@ -52,6 +64,7 @@ Ward and cannot-be-targeted are honored through targeting service.
 ZONE_UNDER cards are excluded.
 Items and locations can be selected when the effect target asks for them.
 Existing challenge targets remain unchanged in this brief.
+Unsupported/unknown target descriptors must not create broad fallback targets.
 ```
 
 ### 3. Fixes Needed
@@ -60,6 +73,7 @@ Existing challenge targets remain unchanged in this brief.
 * **Delta Description:** Replace direct target enumeration in `_effect_targets_for_card()` with targeting service calls.
 * **Delta Description:** Keep fallback behavior for unsupported descriptors conservative: no target actions rather than broad illegal targets.
 * **Delta Description:** Add engine-path tests for action-card targets.
+* **Delta Description:** Do not revise pending target/multi_target branches in this brief.
 
 ### 4. Lorcanito Source Reference (The Authority)
 

@@ -3,6 +3,9 @@
 Goal:
 Use the targeting service inside `EffectResolver` for target aliases, collections, player targets, and current/context target sets.
 
+Required shared context:
+Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making changes.
+
 This brief depends on Briefs 1-5.
 Do not add new effect kinds here.
 
@@ -43,6 +46,20 @@ context.current_targets and future context_targets are honored.
 event_source/event_target/trigger_subject continue to work.
 ```
 
+Expected integration shape:
+```text
+Translate effect.target strings/dicts through normalize_target_descriptor().
+Build TargetQueryContext from EffectResolutionContext:
+  actor=context.actor
+  source_id=context.source
+  event_payload=context.event_payload
+  current_targets=context.current_targets
+  context_targets=tuple from context if present, otherwise ()
+Use resolve_candidate_card_ids() for card-targeting effect aliases and collections.
+Use resolve_candidate_player_ids() for player aliases.
+Preserve existing explicit selected target behavior: pending-selected target remains the first target where existing effects expect one.
+```
+
 Required behavior:
 
 ```text
@@ -51,6 +68,7 @@ multi-target pending sets current_targets and effects can consume all selected t
 for_each collections use targeting service candidates.
 player target aliases resolve consistently.
 Unsupported descriptors raise EffectResolutionError with a clear message.
+No direct state mutation paths should be changed; Microfix 8 eventful-helper routing remains intact.
 ```
 
 ### 3. Fixes Needed
@@ -59,6 +77,7 @@ Unsupported descriptors raise EffectResolutionError with a clear message.
 * **Delta Description:** Replace duplicated target alias logic in `EffectResolver` with targeting service calls.
 * **Delta Description:** Add tests for current_targets, trigger_subject, event_target fallback, all/your/opposing character collections, and player targets.
 * **Delta Description:** Keep existing effect eventful-helper behavior unchanged.
+* **Delta Description:** This is the highest-risk Microfix 10 brief; prefer small helper functions and targeted tests over broad rewrites.
 
 ### 4. Lorcanito Source Reference (The Authority)
 

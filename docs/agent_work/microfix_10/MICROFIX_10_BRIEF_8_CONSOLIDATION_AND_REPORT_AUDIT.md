@@ -3,6 +3,9 @@
 Goal:
 Run the final Microfix 10 audit after Briefs 1-7. Mark Microfix 10 complete only if action, pending, effect, and automation target paths use the central targeting service and the report recommendation moves or is explained.
 
+Required shared context:
+Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making changes.
+
 This brief may include small fixes only if the audit exposes a concrete missed Microfix 10 route.
 Do not start Microfix 11 trigger event expansion here.
 
@@ -39,6 +42,7 @@ docs/LORCANACHAMP_GAME_ENGINE_REMAINING_WORK.md
 7. Current/context targets are honored.
 8. Slotted target input validates, flattens, and round-trips through pending/automation.
 9. Existing Microfix 9 pending tests still pass.
+10. Brief 1 foundation invariants still hold: `chosen_card` is distinct from `chosen_character`, `max_count=None` means unbounded/all, and `ZONE_UNDER` is not an action-selection zone.
 ```
 
 ### 3. Fixes Needed
@@ -48,6 +52,7 @@ docs/LORCANACHAMP_GAME_ENGINE_REMAINING_WORK.md
 * **Delta Description:** Run targeted and full test suites.
 * **Delta Description:** Run real-deck/report scripts and record whether `target_choice_prompts` decreases.
 * **Delta Description:** If everything passes, update `docs/LORCANACHAMP_GAME_ENGINE_REMAINING_WORK.md` by marking Microfix 10 complete and making Microfix 11 the current highest-priority next action.
+* **Delta Description:** If the report does not move because projection/import mapping still emits unsupported target descriptors, document that as Microfix 15/importer work instead of forcing mapper changes into Microfix 10.
 
 ### 4. Lorcanito Source Reference (The Authority)
 

@@ -3,6 +3,9 @@
 Goal:
 Use the targeting service for pending `target` and `multi_target` requirements created by Microfix 9.
 
+Required shared context:
+Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making changes.
+
 This brief depends on Briefs 1-4.
 Do not implement slotted targets yet.
 
@@ -50,6 +53,15 @@ raw["target"] / raw["target_descriptor"] / raw["target_dsl"] are accepted descri
 raw candidate_ids still act as a narrowing set.
 ```
 
+Expected integration shape:
+```text
+Convert TargetRequirement fields into TargetDescriptor only when no richer raw descriptor is present.
+Use TargetQueryContext(actor=chooser_id, source_id=source_id when available).
+Accept descriptor sources from pe.raw["target"], pe.raw["target_descriptor"], pe.raw["target_dsl"], pe.raw["selector"], and requirement fields.
+Treat raw candidate_ids as an intersection/narrowing list after central candidate resolution.
+Continue storing chosen target tuples through Microfix 9 resolution_input behavior.
+```
+
 Behavior:
 
 ```text
@@ -58,6 +70,7 @@ multi_target emits combinations respecting min/max after filtering.
 chosen_player pending can emit player targets.
 Ward/cannot-be-targeted protections are honored.
 Cards in ZONE_UNDER are excluded.
+chosen_card, chosen_item, chosen_location, chosen_player, and multi_target descriptors follow the same interpretation as action-card targeting.
 ```
 
 ### 3. Fixes Needed
@@ -67,6 +80,7 @@ Cards in ZONE_UNDER are excluded.
 * **Delta Description:** Use targeting service from pending legal-action branches.
 * **Delta Description:** Preserve Microfix 9 raw candidate behavior as an additional candidate filter.
 * **Delta Description:** Add pending tests for target, multi-target, player targets, Ward, and `ZONE_UNDER`.
+* **Delta Description:** Do not add slotted_targets support in this brief.
 
 ### 4. Lorcanito Source Reference (The Authority)
 

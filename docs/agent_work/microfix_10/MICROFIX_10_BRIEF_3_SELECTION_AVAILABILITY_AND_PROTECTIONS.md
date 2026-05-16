@@ -3,6 +3,9 @@
 Goal:
 Add target availability analysis and protection rules: min/max selections, Ward, cannot-be-targeted, and non-public shifted-stack exclusions.
 
+Required shared context:
+Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making changes.
+
 This brief depends on Briefs 1-2.
 Do not integrate into `engine.py` yet except importing helpers in tests if needed.
 
@@ -16,7 +19,7 @@ Do not integrate into `engine.py` yet except importing helpers in tests if neede
 ```text
 No central TargetSelectionAvailability equivalent exists.
 Ward/cannot-be-targeted checks are split between engine and pending_effects.
-ZONE_UNDER/public-play exclusions are not centralized in target analysis.
+Brief 1 already excludes cards with stack_parent_id in is_card_target_candidate(); this brief must preserve that behavior and ensure availability/protection filtering also excludes non-public shifted-stack cards.
 ```
 
 Current scattered checks:
@@ -46,7 +49,13 @@ class TargetSelectionAvailability:
 
 
 def analyze_target_selection_availability(...) -> TargetSelectionAvailability: ...
-def apply_target_protections(...) -> tuple[TargetCandidate, ...]: ...
+def apply_target_protections(
+    state: GameState,
+    engine: GameEngine,
+    candidates: tuple[TargetCandidate, ...],
+    descriptor: TargetDescriptor,
+    context: TargetQueryContext,
+) -> tuple[TargetCandidate, ...]: ...
 ```
 
 Protection behavior:
@@ -57,7 +66,7 @@ check_cannot_be_targeted() restrictions exclude illegal card candidates.
 Cards in ZONE_UNDER or with stack_parent_id are not public play candidates.
 Cards not in allowed zones are excluded.
 Duplicate target IDs are rejected unless descriptor explicitly allows duplicates.
-min_count/max_count drive availability.
+min_count/max_count drive availability; max_count=None means all/unbounded candidates.
 ```
 
 ### 3. Fixes Needed
@@ -66,6 +75,7 @@ min_count/max_count drive availability.
 * **Delta Description:** Add availability dataclass and analysis function.
 * **Delta Description:** Add protection filtering to candidate resolution.
 * **Delta Description:** Add tests for Ward, cannot-be-targeted, `ZONE_UNDER`, min/max, empty required selections, and duplicate rejection.
+* **Delta Description:** Do not move legal-action integration into this brief; engine usage starts in Brief 4.
 
 ### 4. Lorcanito Source Reference (The Authority)
 
@@ -97,6 +107,7 @@ Expected:
 - Ward and cannot-be-targeted protections are centralized.
 - Cards under shifted stacks are not candidates.
 - Availability tests pass.
+- Existing Brief 1 and Brief 2 targeting tests still pass without weakening assertions.
 
 ### 6. Final Response Requirements
 

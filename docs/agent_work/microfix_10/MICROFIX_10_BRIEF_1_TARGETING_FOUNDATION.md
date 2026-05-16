@@ -3,16 +3,26 @@
 Goal:
 Create the Python targeting-service foundation in `lorcana_bot/targeting.py`: normalized descriptors, candidate/result dataclasses, zone helpers, and lightweight selector/filter parsing.
 
+Required shared context:
+Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making changes.
+
 Do not integrate the service into `engine.py` in this brief.
 Do not change pending effects in this brief.
 Do not implement trigger expansion from Microfix 11.
+
+Status:
+This brief was completed by Codex before downstream agent work. Treat the implemented files as the baseline for Briefs 2-8:
+```text
+lorcana_bot/targeting.py
+tests/test_targeting.py
+```
 
 ---
 
 ### 1. Current Missing Or Incomplete Code
 
 * **File Path:** `lorcana_bot/targeting.py`
-* **Line Range:** `File missing`
+* **Line Range:** `Pre-Brief-1 baseline`
 * **Snippet:**
 ```text
 No central targeting service exists.
@@ -44,7 +54,7 @@ def get_valid_targets_for_requirement(...):
 class TargetDescriptor:
     selector: str
     min_count: int = 1
-    max_count: int = 1
+    max_count: int | None = 1
     zones: tuple[str, ...] = (ZONE_PLAY,)
     card_types: tuple[str, ...] = ()
     owner: str | None = None
@@ -142,6 +152,8 @@ Expected:
 - `lorcana_bot/targeting.py` exists.
 - Alias normalization tests pass.
 - No `engine.py` changes in this brief.
+- `chosen_card` remains distinct from `chosen_character`.
+- `max_count=None` represents unbounded/all selectors.
 
 ### 6. Final Response Requirements
 

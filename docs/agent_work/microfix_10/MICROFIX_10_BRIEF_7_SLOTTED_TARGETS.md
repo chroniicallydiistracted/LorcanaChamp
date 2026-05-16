@@ -3,6 +3,9 @@
 Goal:
 Add Python slotted-target support for multi-slot effects such as move-damage, move-to-location, shift-and-choose, and banish-and-play.
 
+Required shared context:
+Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making changes.
+
 This brief depends on Briefs 1-6.
 Do not implement the full rules for those effects unless already present; this brief is about input shape, validation, flattening, and pending/automation preservation.
 
@@ -42,6 +45,14 @@ def flatten_slotted_targets(value: dict[str, Any]) -> tuple[int, ...]: ...
 def validate_slotted_targets(state, value, descriptor_by_slot=None) -> None: ...
 ```
 
+Required flattening order:
+```text
+move-damage: from, to
+move-to-location: subject, location
+shift-and-choose: chosenCard
+banish-and-play: banish, play
+```
+
 Integration:
 
 ```text
@@ -49,6 +60,7 @@ pending_effects stores raw["resolution_input"]["slotted_targets"].
 engine._apply_resolve_pending_effect() can accept choice["slotted_targets"] for target/multi_target requirements.
 automation candidates preserve slotted_targets in metadata and move_adapter writes it back.
 flat targets remain supported.
+Flattened slotted target IDs should also populate or validate against flat targets where existing code expects tuple[int, ...].
 ```
 
 ### 3. Fixes Needed
@@ -58,6 +70,7 @@ flat targets remain supported.
 * **Delta Description:** Add pending apply support for `slotted_targets`.
 * **Delta Description:** Add automation round-trip support.
 * **Delta Description:** Add tests for each slotted kind and flattening order.
+* **Delta Description:** Do not implement new card effects solely to demonstrate slotted targets.
 
 ### 4. Lorcanito Source Reference (The Authority)
 
