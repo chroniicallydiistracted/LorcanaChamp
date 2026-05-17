@@ -84,19 +84,11 @@
   "by_primary_blocker_copies": [
     {
       "blocker": "unsupported_trigger_resolution_requirement:amount",
-      "copies": 79,
+      "copies": 99,
       "deck_presence": 11,
       "example_cards": [],
       "recommended_engine_work": "target_choice_prompts",
-      "unique_cards": 11
-    },
-    {
-      "blocker": "unsupported_trigger_resolution_requirement:scry_ordering",
-      "copies": 20,
-      "deck_presence": 5,
-      "example_cards": [],
-      "recommended_engine_work": "scry_search_reveal",
-      "unique_cards": 3
+      "unique_cards": 14
     },
     {
       "blocker": "unsupported_trigger_event:banish-in-challenge",
@@ -187,8 +179,7 @@
         "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_condition:turn-metric",
         "unsupported_trigger_event:banish-in-challenge",
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
+        "unsupported_trigger_resolution_requirement:amount"
       ],
       "copies": 124,
       "deck_presence": 11,
@@ -212,7 +203,7 @@
     {
       "blockers": [
         "unsupported_trigger_condition:has-card-under",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
+        "unsupported_trigger_resolution_requirement:amount"
       ],
       "copies": 22,
       "deck_presence": 5,

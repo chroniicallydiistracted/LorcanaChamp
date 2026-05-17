@@ -1,7 +1,7 @@
 # LorcanaChamp Engine Parity Roadmap
 
-**Audit date:** 2026-05-16
-**Audit target:** current LorcanaChamp workspace after Microfix 7 lifecycle hardening
+**Audit date:** 2026-05-17
+**Audit target:** current LorcanaChamp workspace after Microfix 10 targeting service parity
 **Reference authority:** `lorcanito-full-src-code/packages/lorcana` and `references/lorcana-simulator`
 **Goal:** migrate Lorcanito's rules, card logic, game state, and automation behavior into Python with enough 1:1 fidelity to support teacher-bot creation and LorcanaChamp ML training.
 
@@ -31,6 +31,11 @@ python3 scripts/report_lorcanito_source_mapping.py --source-json data/lorcanito_
 Observed baseline test state from the original roadmap audit:
 
 - `516 tests collected`
+- Full pytest suite passes.
+
+Observed current test state after Microfix 10:
+
+- Targeting, pending-effect, EffectResolver, and automation pending suites pass.
 - Full pytest suite passes.
 
 Observed real-deck report state:
@@ -76,6 +81,8 @@ unsupported_trigger_event:leave-play: 7 copies, 1 unique, 2 decks
 unsupported_trigger_on:CHARACTERS_HERE: 4 copies, 1 unique, 1 deck
 unsupported_trigger_on:complex_filter:filters: 4 copies, 1 unique, 1 deck
 ```
+
+The report still recommends `target_choice_prompts` with 124 affected copies. The dominant blocker is now `unsupported_trigger_resolution_requirement:amount`; central runtime targeting is implemented, so the remaining report movement depends on trigger projection/importer/report classification work rather than another Microfix 10 targeting route.
 
 Source mapping report:
 
@@ -723,16 +730,26 @@ docs/agent_work/microfix_9/MICROFIX_9_BRIEF_7_CONSOLIDATION_AND_REPORT_AUDIT.md
 
 ## Status
 
-**Current highest-priority next action.**
+**Completed 2026-05-17.**
 
-Brief 1 foundation has been completed in code:
+Briefs 1-8 have been completed in code:
 
 ```text
 lorcana_bot/targeting.py
+lorcana_bot/engine.py
+lorcana_bot/pending_effects.py
+lorcana_bot/effects.py
+lorcana_bot/automation/candidates.py
+lorcana_bot/automation/candidate_enumerator.py
+lorcana_bot/automation/candidate_validator.py
+lorcana_bot/automation/move_adapter.py
 tests/test_targeting.py
+tests/test_pending_effects.py
+tests/test_effects.py
+tests/test_automation_pending_effects.py
 ```
 
-Remaining Microfix 10 work starts at Brief 2 and must preserve the shared targeting invariants in `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md`.
+Target interpretation is now centralized through `lorcana_bot/targeting.py` for action legal-action enumeration, pending target resolution, EffectResolver target aliases, automation round-trip, current/context targets, and slotted target input preservation. The real-deck reports still recommend `target_choice_prompts`, but the top blocker is `unsupported_trigger_resolution_requirement:amount`; that remaining report movement belongs to trigger projection/importer/report classification work rather than another Microfix 10 runtime targeting route.
 
 ## Problem
 
@@ -778,6 +795,10 @@ packages/lorcana/lorcana-engine/src/targeting/slotted-targets.ts
 ```bash
 python3 -m pytest tests/test_targeting.py -q
 python3 -m pytest tests/test_pending_effects.py -q
+python3 -m pytest tests/test_effects.py -q
+python3 -m pytest tests/test_automation_pending_effects.py -q
+python3 scripts/report_trigger_blockers.py --print-summary
+python3 scripts/report_real_deck_mapping_coverage.py --resolved-deck-dir data/decks/resolved/real_core --out /tmp/real_deck_suite_mapping_coverage.json --print-summary
 python3 -m pytest -q
 ```
 
@@ -801,7 +822,9 @@ docs/agent_work/microfix_10/MICROFIX_10_BRIEF_8_CONSOLIDATION_AND_REPORT_AUDIT.m
 
 ## Status
 
-Partial.
+**Current highest-priority next action.**
+
+Partial runtime and projection support exists, but this is now the next parity blocker after Microfix 10.
 
 ## Problem
 
@@ -1230,7 +1253,7 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 - [x] Microfix 7: Static/replacement lifecycle hardening.
 - [x] Microfix 8: EffectResolver mutation centralization.
 - [x] Microfix 9: Pending resolution generalization.
-- [ ] Microfix 10: Targeting service parity.
+- [x] Microfix 10: Targeting service parity.
 - [ ] Microfix 11: Trigger event expansion and bag/pending interaction.
 - [ ] Microfix 12: Condition evaluator and turn metrics.
 - [ ] Microfix 13: Scry/search/reveal privacy and routing.
@@ -1244,6 +1267,6 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 
 ## Current Highest-Priority Next Action
 
-Implement Microfix 10: Targeting service parity.
+Implement Microfix 11: Trigger event expansion and bag/pending interaction.
 
-Reason: Microfix 9 is now complete with all 9 requirement kinds covered (amount, target, multi_target, discard_choice, choice, optional, opponent_choice, enter_play_exerted, plus special kinds), legal_actions() and _apply_resolve_pending_effect() coverage, resolution_input writing, discard_choice suspend/resolve, bag-origin pending continuation, and automation candidate round-trip. The highest trigger blocker report is now `target_choice_prompts` (124 copies). Microfix 10 implements a complete Python targeting service for card/player distinction, chosen/all/up-to-N targets, min/max counts, filters (damaged/exerted/type/classification/keyword/ink), Ward/cannot-be-targeted rules, location targets, and slotted targets for multi-step effects.
+Reason: Microfix 10 is complete with centralized action, pending, EffectResolver, automation, current/context, protection, player/card, and slotted-target routing. The blocker reports still recommend `target_choice_prompts` with 124 affected copies, but the dominant blocker is `unsupported_trigger_resolution_requirement:amount`, followed by missing trigger events such as `banish-in-challenge`, `put-card-under`, `draw`, and `leave-play`. The next implementation work should expand trigger projection/runtime event support and bag-to-pending interaction. Any remaining report-only classification that continues to label supported runtime targeting as unsupported belongs to Microfix 15 report truthfulness.

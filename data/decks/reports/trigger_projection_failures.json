@@ -397,8 +397,8 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_resolution_requirement:scry_ordering",
-        "unsupported_trigger_resolution_requirement:amount"
+        "unsupported_trigger_resolution_requirement:amount",
+        "unsupported_trigger_resolution_requirement:scry_ordering"
       ],
       "full_name": "Nani - Stage Manager",
       "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
@@ -407,8 +407,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "scry_ordering",
-        "amount"
+        "amount",
+        "scry_ordering"
       ],
       "source_file": "",
       "target_kinds": [],
@@ -674,8 +674,8 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_resolution_requirement:scry_ordering",
-        "unsupported_trigger_resolution_requirement:amount"
+        "unsupported_trigger_resolution_requirement:amount",
+        "unsupported_trigger_resolution_requirement:scry_ordering"
       ],
       "full_name": "Nani - Stage Manager",
       "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
@@ -684,8 +684,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "scry_ordering",
-        "amount"
+        "amount",
+        "scry_ordering"
       ],
       "source_file": "",
       "target_kinds": [],
@@ -737,8 +737,8 @@
       ],
       "failure_reasons": [
         "unsupported_trigger_condition:has-card-under",
-        "unsupported_trigger_resolution_requirement:scry_ordering",
-        "unsupported_trigger_resolution_requirement:amount"
+        "unsupported_trigger_resolution_requirement:amount",
+        "unsupported_trigger_resolution_requirement:scry_ordering"
       ],
       "full_name": "Bambi - Ethereal Fawn",
       "raw_snippet": "{'event': 'exert', 'on': 'SELF', 'restrictions': [{'type': 'during-turn', 'whose': 'your'}], 'timing': 'whenever'}",
@@ -748,8 +748,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "scry_ordering",
-        "amount"
+        "amount",
+        "scry_ordering"
       ],
       "source_file": "",
       "target_kinds": [],
@@ -826,8 +826,8 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_resolution_requirement:scry_ordering",
-        "unsupported_trigger_resolution_requirement:amount"
+        "unsupported_trigger_resolution_requirement:amount",
+        "unsupported_trigger_resolution_requirement:scry_ordering"
       ],
       "full_name": "Nani - Stage Manager",
       "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
@@ -836,8 +836,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "scry_ordering",
-        "amount"
+        "amount",
+        "scry_ordering"
       ],
       "source_file": "",
       "target_kinds": [],
@@ -1048,8 +1048,8 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_resolution_requirement:scry_ordering",
-        "unsupported_trigger_resolution_requirement:amount"
+        "unsupported_trigger_resolution_requirement:amount",
+        "unsupported_trigger_resolution_requirement:scry_ordering"
       ],
       "full_name": "Gramma Tala - Keeper of Ancient Stories",
       "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
@@ -1058,8 +1058,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "scry_ordering",
-        "amount"
+        "amount",
+        "scry_ordering"
       ],
       "source_file": "",
       "target_kinds": [],
@@ -1108,8 +1108,8 @@
         "scry"
       ],
       "failure_reasons": [
-        "unsupported_trigger_resolution_requirement:scry_ordering",
-        "unsupported_trigger_resolution_requirement:amount"
+        "unsupported_trigger_resolution_requirement:amount",
+        "unsupported_trigger_resolution_requirement:scry_ordering"
       ],
       "full_name": "Robin Hood - Sharpshooter",
       "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
@@ -1118,8 +1118,8 @@
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "scry_ordering",
-        "amount"
+        "amount",
+        "scry_ordering"
       ],
       "source_file": "",
       "target_kinds": [],
@@ -1540,8 +1540,8 @@
           "scry"
         ],
         "failure_reasons": [
-          "unsupported_trigger_resolution_requirement:scry_ordering",
-          "unsupported_trigger_resolution_requirement:amount"
+          "unsupported_trigger_resolution_requirement:amount",
+          "unsupported_trigger_resolution_requirement:scry_ordering"
         ],
         "full_name": "Nani - Stage Manager",
         "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
@@ -1550,8 +1550,8 @@
           "target_choice_prompts"
         ],
         "resolution_requirements": [
-          "scry_ordering",
-          "amount"
+          "amount",
+          "scry_ordering"
         ],
         "source_file": "",
         "target_kinds": [],
@@ -1570,8 +1570,8 @@
           "scry"
         ],
         "failure_reasons": [
-          "unsupported_trigger_resolution_requirement:scry_ordering",
-          "unsupported_trigger_resolution_requirement:amount"
+          "unsupported_trigger_resolution_requirement:amount",
+          "unsupported_trigger_resolution_requirement:scry_ordering"
         ],
         "full_name": "Nani - Stage Manager",
         "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
@@ -1580,8 +1580,8 @@
           "target_choice_prompts"
         ],
         "resolution_requirements": [
-          "scry_ordering",
-          "amount"
+          "amount",
+          "scry_ordering"
         ],
         "source_file": "",
         "target_kinds": [],
@@ -1600,8 +1600,8 @@
           "scry"
         ],
         "failure_reasons": [
-          "unsupported_trigger_resolution_requirement:scry_ordering",
-          "unsupported_trigger_resolution_requirement:amount"
+          "unsupported_trigger_resolution_requirement:amount",
+          "unsupported_trigger_resolution_requirement:scry_ordering"
         ],
         "full_name": "Nani - Stage Manager",
         "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
@@ -1610,8 +1610,8 @@
           "target_choice_prompts"
         ],
         "resolution_requirements": [
-          "scry_ordering",
-          "amount"
+          "amount",
+          "scry_ordering"
         ],
         "source_file": "",
         "target_kinds": [],
@@ -1659,8 +1659,8 @@
           "scry"
         ],
         "failure_reasons": [
-          "unsupported_trigger_resolution_requirement:scry_ordering",
-          "unsupported_trigger_resolution_requirement:amount"
+          "unsupported_trigger_resolution_requirement:amount",
+          "unsupported_trigger_resolution_requirement:scry_ordering"
         ],
         "full_name": "Gramma Tala - Keeper of Ancient Stories",
         "raw_snippet": "{'event': 'play', 'on': 'SELF', 'timing': 'when'}",
@@ -1669,8 +1669,8 @@
           "target_choice_prompts"
         ],
         "resolution_requirements": [
-          "scry_ordering",
-          "amount"
+          "amount",
+          "scry_ordering"
         ],
         "source_file": "",
         "target_kinds": [],
@@ -1689,8 +1689,8 @@
           "scry"
         ],
         "failure_reasons": [
-          "unsupported_trigger_resolution_requirement:scry_ordering",
-          "unsupported_trigger_resolution_requirement:amount"
+          "unsupported_trigger_resolution_requirement:amount",
+          "unsupported_trigger_resolution_requirement:scry_ordering"
         ],
         "full_name": "Robin Hood - Sharpshooter",
         "raw_snippet": "{'event': 'quest', 'on': 'SELF', 'timing': 'whenever'}",
@@ -1699,8 +1699,8 @@
           "target_choice_prompts"
         ],
         "resolution_requirements": [
-          "scry_ordering",
-          "amount"
+          "amount",
+          "scry_ordering"
         ],
         "source_file": "",
         "target_kinds": [],

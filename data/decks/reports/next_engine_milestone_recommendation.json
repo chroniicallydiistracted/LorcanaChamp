@@ -19,7 +19,6 @@
       "notes": "",
       "representative_blockers": [
         "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering",
         "unsupported_trigger_condition:has-card-under",
         "unsupported_trigger_event:banish-in-challenge",
         "unsupported_trigger_condition:turn-metric"
@@ -52,7 +51,7 @@
       "milestone": "scry_search_reveal",
       "notes": "",
       "representative_blockers": [
-        "unsupported_trigger_resolution_requirement:scry_ordering",
+        "unsupported_trigger_resolution_requirement:amount",
         "unsupported_trigger_condition:has-card-under"
       ],
       "representative_cards": [],
