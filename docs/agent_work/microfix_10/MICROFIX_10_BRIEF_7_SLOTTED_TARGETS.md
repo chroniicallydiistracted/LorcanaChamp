@@ -8,6 +8,9 @@ Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making cha
 
 This brief depends on Briefs 1-6.
 Do not implement the full rules for those effects unless already present; this brief is about input shape, validation, flattening, and pending/automation preservation.
+Brief 6 is complete: effect resolution now has `current_targets` and
+`context_targets`. Slotted input should preserve the original structured slots
+while also exposing flattened `targets` for those existing resolution fields.
 
 ---
 
@@ -75,7 +78,7 @@ Flattened slotted target IDs should also populate or validate against flat targe
 ### 4. Lorcanito Source Reference (The Authority)
 
 * **Reference File:** `lorcanito-full-src-code/packages/lorcana/lorcana-engine/src/targeting/slotted-targets.ts`
-* **Line Range:** `Lines 15-43 and 87-102`
+* **Line Range:** `Lines 15-68 and 87-102`
 * **Logic Context:**
 ```typescript
 export type SlottedTargetInput =

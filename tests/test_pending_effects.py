@@ -3,7 +3,7 @@
 import pytest
 
 from lorcana_bot.engine import GameEngine
-from lorcana_bot.cards import CardDatabase, CardDef, EffectDef
+from lorcana_bot.cards import CardDatabase, CardDef, DEMO_FEATURE_CARD_IDS, EffectDef
 from lorcana_bot.effect_types import EffectResolutionContext
 from lorcana_bot.automation.actor_resolution import resolve_current_actor
 from lorcana_bot.state import Action, CardInstance, GameState, PlayerState
@@ -19,6 +19,7 @@ from lorcana_bot.pending_effects import (
     get_pending_effects_for_chooser,
     get_valid_targets_for_requirement,
     resolve_pending_effect_optional,
+    resolve_slotted_target_selection,
     complete_pending_effect,
     has_pending_effects,
     get_pending_effect_by_id,
@@ -29,6 +30,7 @@ from lorcana_bot.constants import (
     ZONE_DECK,
     ZONE_HAND,
     ZONE_PLAY,
+    ZONE_UNDER,
 )
 
 
@@ -524,7 +526,7 @@ def sample_game_state():
         for _ in range(10):
             inst = CardInstance(
                 instance_id=next_id,
-                card_id=f"test_card_{next_id}",
+                card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
                 owner=player,
                 controller=player,
             )
@@ -803,8 +805,8 @@ class TestRequirementKindLegalActions:
     @pytest.fixture
     def engine(self):
         from lorcana_bot.engine import GameEngine
-        from lorcana_bot.cards import CardDatabase
-        db = CardDatabase([])
+        from lorcana_bot.cards import load_demo_database
+        db = load_demo_database()
         return GameEngine(db)
 
     @pytest.fixture
@@ -823,7 +825,7 @@ class TestRequirementKindLegalActions:
         cid = 1
         state.cards[cid] = CardInstance(
             instance_id=cid,
-            card_id="test_card_1",
+            card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
             owner=0,
             controller=0,
         )
@@ -837,6 +839,7 @@ class TestRequirementKindLegalActions:
         source_id: int = 1,
         requirement_kind: str = "target",
         raw: dict = None,
+        required_targets: tuple[TargetRequirement, ...] = (),
         optional: bool = False,
         accepted: bool | None = None,
     ):
@@ -854,6 +857,7 @@ class TestRequirementKindLegalActions:
             source_id=source_id,
             source_card_id=None,
             effects=(),
+            required_targets=required_targets,
             optional=optional,
             accepted=accepted,
             raw=raw,
@@ -958,22 +962,27 @@ class TestRequirementKindLegalActions:
 
         # Create player 0 character in play
         cid = 10
-        state.cards[cid] = type('CardInstance', (), {
-            'instance_id': cid,
-            'card_id': 1001,
-            'owner': 0,
-            'controller': 0,
-            'zone': 'play',
-            'exerted': False,
-        })()
+        state.cards[cid] = CardInstance(
+            instance_id=cid,
+            card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+            owner=0,
+            controller=0,
+            zone=ZONE_PLAY,
+        )
         state.players[0].play.append(cid)
 
         # Create target pending effect with explicit candidate_ids
         raw = {
             "requirement_kind": "target",
             "candidate_ids": [cid],
+            "target": "chosen_character",
         }
-        self._create_pending_effect(state, requirement_kind="target", raw=raw)
+        self._create_pending_effect(
+            state,
+            requirement_kind="target",
+            required_targets=(TargetRequirement(kind="chosen_character", card_type="character"),),
+            raw=raw,
+        )
 
         actions = engine.legal_actions(state, 0)
         resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
@@ -1006,14 +1015,13 @@ class TestRequirementKindLegalActions:
         # Create player 0 characters in play
         cids = [11, 12, 13]
         for cid in cids:
-            state.cards[cid] = type('CardInstance', (), {
-                'instance_id': cid,
-                'card_id': 1001,
-                'owner': 0,
-                'controller': 0,
-                'zone': 'play',
-                'exerted': False,
-            })()
+            state.cards[cid] = CardInstance(
+                instance_id=cid,
+                card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+                owner=0,
+                controller=0,
+                zone=ZONE_PLAY,
+            )
             state.players[0].play.append(cid)
 
         # Create multi_target pending effect with min_targets=1, max_targets=2
@@ -1025,9 +1033,15 @@ class TestRequirementKindLegalActions:
         raw = {
             "requirement_kind": "multi_target",
             "candidate_ids": cids,
+            "target": {"selector": "chosen_character", "min_count": 1, "max_count": 2},
             "requirement": MockRequirement(),
         }
-        self._create_pending_effect(state, requirement_kind="multi_target", raw=raw)
+        self._create_pending_effect(
+            state,
+            requirement_kind="multi_target",
+            required_targets=(TargetRequirement(kind="chosen_character", min_targets=1, max_targets=2, card_type="character"),),
+            raw=raw,
+        )
 
         actions = engine.legal_actions(state, 0)
         resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
@@ -1048,13 +1062,13 @@ class TestRequirementKindLegalActions:
         # Create player 0 cards in hand
         hand_cids = [21, 22, 23]
         for cid in hand_cids:
-            state.cards[cid] = type('CardInstance', (), {
-                'instance_id': cid,
-                'card_id': 1001 + cid,
-                'owner': 0,
-                'controller': 0,
-                'zone': 'hand',
-            })()
+            state.cards[cid] = CardInstance(
+                instance_id=cid,
+                card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+                owner=0,
+                controller=0,
+                zone=ZONE_HAND,
+            )
             state.players[0].hand.append(cid)
 
         # Create discard_choice pending effect with min_cards=1, max_cards=2
@@ -1088,13 +1102,14 @@ class TestRequirementKindLegalActions:
         all_cids = hand_cids + play_cids
 
         for cid in all_cids:
-            state.cards[cid] = type('CardInstance', (), {
-                'instance_id': cid,
-                'card_id': 1001 + cid,
-                'owner': 0,
-                'controller': 0,
-                'zone': 'hand' if cid in hand_cids else 'play',
-            })()
+            zone = ZONE_HAND if cid in hand_cids else ZONE_PLAY
+            state.cards[cid] = CardInstance(
+                instance_id=cid,
+                card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+                owner=0,
+                controller=0,
+                zone=zone,
+            )
             if cid in hand_cids:
                 state.players[0].hand.append(cid)
             else:
@@ -1219,25 +1234,27 @@ class TestRequirementKindLegalActions:
 
         # Create target for player 1
         cid = 40
-        state.cards[cid] = type('CardInstance', (), {
-            'instance_id': cid,
-            'card_id': 1001,
-            'owner': 1,
-            'controller': 1,
-            'zone': 'play',
-        })()
+        state.cards[cid] = CardInstance(
+            instance_id=cid,
+            card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+            owner=1,
+            controller=1,
+            zone=ZONE_PLAY,
+        )
         state.players[1].play.append(cid)
 
         raw = {
             "requirement_kind": "opponent_choice",
             "choice_type": "target",
             "candidate_ids": [cid],
+            "target": "chosen_character",
         }
         self._create_pending_effect(
             state,
             chooser_id=1,
             controller_id=0,
             requirement_kind="opponent_choice",
+            required_targets=(TargetRequirement(kind="chosen_character", card_type="character"),),
             raw=raw,
         )
 
@@ -1719,13 +1736,13 @@ class TestDiscardChoicePendingEffect:
         state, engine = state_with_hand
 
         # Add some cards to play
-        state.cards[201] = type('CardInstance', (), {
-            'instance_id': 201,
-            'card_id': 'play_card',
-            'owner': 0,
-            'controller': 0,
-            'zone': ZONE_PLAY,
-        })()
+        state.cards[201] = CardInstance(
+            instance_id=201,
+            card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+            owner=0,
+            controller=0,
+            zone=ZONE_PLAY,
+        )
         state.players[0].play.append(201)
 
         # Create pending effect including a play card
@@ -1760,3 +1777,502 @@ class TestDiscardChoicePendingEffect:
             card_ids = action.choice.get("discard_card_ids")
             if card_ids:
                 assert card_ids[0] in [101, 102]  # Not 201 (play card)
+
+
+# =============================================================================
+# B5: Pending targeting integration regression tests
+# =============================================================================
+
+class TestPendingTargetingIntegration:
+    """Regression tests for Brief 5: pending targeting integration."""
+
+    def _make_engine_with_real_cards(self):
+        """Create an engine with real card database for targeting service tests."""
+        from lorcana_bot.cards import load_demo_database
+        db = load_demo_database()
+        return GameEngine(db)
+
+    def _make_state_with_real_cards(self, engine):
+        """Create a state with real cards in play for targeting tests."""
+        from lorcana_bot.cards import make_demo_deck
+        pool = [
+            "Amber Recruit", "Amber Guard", "Amber Storyteller",
+            "Amethyst Scholar", "Amethyst Insight", "Steel Bruiser",
+            "Emerald Scout", "Ruby Charger", "Steel Cannon", "Sapphire Helper",
+        ]
+        deck0 = make_demo_deck(pool, size=50)
+        deck1 = make_demo_deck(pool, size=50)
+        state = engine.setup_game([deck0, deck1], seed=42)
+        return state
+
+    def _put_card_in_play(self, state, engine, player, full_name, *, exerted=False, damage=0):
+        """Put a named card into a player's play area."""
+        from tests.conftest import put_card
+        return put_card(state, engine, player, full_name, ZONE_PLAY, exerted=exerted, damage=damage)
+
+    def test_get_valid_targets_delegates_to_targeting_service(self, engine, state):
+        """Test 1: get_valid_targets_for_requirement() delegates to targeting service and preserves list[int] API."""
+        # Put a character in play
+        cid = self._put_card_in_play(state, engine, 1, "Amber Guard")
+        requirement = TargetRequirement(kind="chosen_character", min_targets=1, max_targets=1, card_type="character")
+        result = get_valid_targets_for_requirement(state, requirement, 0, engine)
+        assert isinstance(result, list)
+        assert all(isinstance(x, int) for x in result)
+        assert cid in result
+
+    def test_chosen_item_emits_only_item_resolve_actions(self, engine, state):
+        """Test 2: Pending target requirement for chosen_item emits only item card resolve actions."""
+        # Put an item in play
+        item_cid = 9001
+        inst = CardInstance(instance_id=item_cid, card_id=DEMO_FEATURE_CARD_IDS["item"], owner=1, controller=1, zone=ZONE_PLAY)
+        state.cards[item_cid] = inst
+        state.players[1].play.append(item_cid)
+
+        # Also put a character in play to ensure it's excluded
+        char_cid = self._put_card_in_play(state, engine, 1, "Amber Guard")
+
+        pe = PendingEffect(
+            id="pe_test_item",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(TargetRequirement(kind="chosen_item", min_targets=1, max_targets=1, card_type="item"),),
+            raw={"requirement_kind": "target"},
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        # Should only have the item as target, not the character
+        target_ids = set()
+        for a in resolve_actions:
+            targets = a.choice.get("targets")
+            if targets:
+                target_ids.update(targets)
+        assert item_cid in target_ids
+        assert char_cid not in target_ids
+
+    def test_chosen_location_emits_only_location_resolve_actions(self, engine, state):
+        """Test 3: Pending target requirement for chosen_location emits only location card resolve actions."""
+        # Put a location in play
+        location_cid = 9002
+        inst = CardInstance(instance_id=location_cid, card_id=DEMO_FEATURE_CARD_IDS["location"], owner=1, controller=1, zone=ZONE_PLAY)
+        state.cards[location_cid] = inst
+        state.players[1].play.append(location_cid)
+
+        # Also put a character in play
+        char_cid = self._put_card_in_play(state, engine, 1, "Amber Guard")
+
+        pe = PendingEffect(
+            id="pe_test_loc",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(TargetRequirement(kind="chosen_location", min_targets=1, max_targets=1, card_type="location"),),
+            raw={"requirement_kind": "target"},
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        target_ids = set()
+        for a in resolve_actions:
+            targets = a.choice.get("targets")
+            if targets:
+                target_ids.update(targets)
+        assert location_cid in target_ids
+        assert char_cid not in target_ids
+
+    def test_chosen_damaged_character_emits_only_damaged_resolve_actions(self, engine, state):
+        """Test 4: Pending target requirement for chosen_damaged_character emits only damaged character resolve actions."""
+        # Put a damaged character in play
+        damaged_cid = self._put_card_in_play(state, engine, 1, "Amber Guard", damage=2)
+        # Put an undamaged character in play
+        healthy_cid = self._put_card_in_play(state, engine, 1, "Amber Recruit")
+
+        pe = PendingEffect(
+            id="pe_test_damaged",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(TargetRequirement(kind="chosen_damaged_character", min_targets=1, max_targets=1, must_be_damaged=True),),
+            raw={"requirement_kind": "target"},
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        target_ids = set()
+        for a in resolve_actions:
+            targets = a.choice.get("targets")
+            if targets:
+                target_ids.update(targets)
+        assert damaged_cid in target_ids
+        assert healthy_cid not in target_ids
+
+    def test_pending_opposing_target_excludes_ward(self, engine, state):
+        """Test 5: Pending explicit opposing target excludes a Ward card."""
+        # Put an opposing character with Ward in play
+        ward_cid = self._put_card_in_play(state, engine, 1, "Amber Guard")
+        # Grant Ward (temporary_keywords is a list)
+        state.cards[ward_cid].temporary_keywords.append("WARD")
+
+        # Put an opposing character without Ward
+        normal_cid = self._put_card_in_play(state, engine, 1, "Amber Recruit")
+
+        pe = PendingEffect(
+            id="pe_test_ward",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(TargetRequirement(kind="chosen_opposing_character", min_targets=1, max_targets=1, owner_filter="opponent"),),
+            raw={"requirement_kind": "target"},
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        target_ids = set()
+        for a in resolve_actions:
+            targets = a.choice.get("targets")
+            if targets:
+                target_ids.update(targets)
+        assert ward_cid not in target_ids
+        assert normal_cid in target_ids
+
+    def test_pending_target_excludes_zone_under_and_stack_parent(self, engine, state):
+        """Test 6: Pending target excludes a ZONE_UNDER card and a card with stack_parent_id."""
+        # Put a normal character in play
+        normal_cid = self._put_card_in_play(state, engine, 1, "Amber Guard")
+
+        # Put a card in ZONE_UNDER
+        under_cid = self._put_card_in_play(state, engine, 1, "Amber Recruit")
+        state.move_card(under_cid, ZONE_UNDER, controller=1)
+
+        # Put a card with stack_parent_id in play
+        stacked_cid = self._put_card_in_play(state, engine, 1, "Amber Storyteller")
+        state.cards[stacked_cid].stack_parent_id = normal_cid
+
+        pe = PendingEffect(
+            id="pe_test_under",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(TargetRequirement(kind="chosen_character", min_targets=1, max_targets=1, card_type="character"),),
+            raw={"requirement_kind": "target"},
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        target_ids = set()
+        for a in resolve_actions:
+            targets = a.choice.get("targets")
+            if targets:
+                target_ids.update(targets)
+        assert normal_cid in target_ids
+        assert under_cid not in target_ids
+        assert stacked_cid not in target_ids
+
+    def test_raw_candidate_ids_narrow_targeting_service(self, engine, state):
+        """Test 7: Raw candidate_ids narrow targeting-service card candidates; invalid/raw protected candidates are filtered out."""
+        # Put two characters in play
+        cid1 = self._put_card_in_play(state, engine, 1, "Amber Guard")
+        cid2 = self._put_card_in_play(state, engine, 1, "Amber Recruit")
+
+        # Create pending effect with candidate_ids narrowed to only cid1
+        pe = PendingEffect(
+            id="pe_test_narrow",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(TargetRequirement(kind="chosen_character", min_targets=1, max_targets=1, card_type="character"),),
+            raw={
+                "requirement_kind": "target",
+                "candidate_ids": [cid1],
+            },
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        target_ids = set()
+        for a in resolve_actions:
+            targets = a.choice.get("targets")
+            if targets:
+                target_ids.update(targets)
+        assert cid1 in target_ids
+        assert cid2 not in target_ids
+
+    def test_multi_target_enumerates_combinations(self, engine, state):
+        """Test 8: multi_target enumerates card combinations after filtering and respects min/max."""
+        # Put three characters in play
+        cid1 = self._put_card_in_play(state, engine, 1, "Amber Guard")
+        cid2 = self._put_card_in_play(state, engine, 1, "Amber Recruit")
+        cid3 = self._put_card_in_play(state, engine, 1, "Amber Storyteller")
+
+        pe = PendingEffect(
+            id="pe_test_multi",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(),
+            raw={
+                "requirement_kind": "multi_target",
+                "target": "chosen_character",
+                "candidate_ids": [cid1, cid2, cid3],
+                "min_targets": 2,
+                "max_targets": 2,
+            },
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        # Should have C(3,2) = 3 combinations from the 3 specified candidate_ids
+        combos = set()
+        for a in resolve_actions:
+            targets = a.choice.get("targets")
+            if targets:
+                combos.add(tuple(sorted(targets)))
+        # The 3 specific combinations of our 3 cards
+        expected = {
+            tuple(sorted((cid1, cid2))),
+            tuple(sorted((cid1, cid3))),
+            tuple(sorted((cid2, cid3))),
+        }
+        assert expected.issubset(combos)
+
+    def test_chosen_player_emits_player_target_actions(self, engine, state):
+        """Test 9: chosen_player pending emits player target actions with Action.target is None and choice["player_targets"]."""
+        pe = PendingEffect(
+            id="pe_test_player",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(TargetRequirement(kind="chosen_player", min_targets=1, max_targets=1),),
+            raw={"requirement_kind": "target"},
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        # Should have player target actions
+        player_target_actions = [a for a in resolve_actions if a.choice.get("target_kind") == "player"]
+        assert len(player_target_actions) >= 1
+        for a in player_target_actions:
+            assert a.target is None
+            assert "player_targets" in a.choice
+            assert a.choice["player_targets"][0] in (0, 1)
+
+    def test_chosen_player_resolution_writes_player_targets(self, engine, state):
+        """Test 10: Applying chosen_player writes player_targets and resumes effects with context.choice."""
+        pe = PendingEffect(
+            id="pe_test_player_resolve",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(EffectDef(kind="gain_lore", target="chosen_player", amount=2),),
+            required_targets=(TargetRequirement(kind="chosen_player", min_targets=1, max_targets=1),),
+            raw={"requirement_kind": "target"},
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        player_action = next(
+            (
+                a for a in resolve_actions
+                if a.choice.get("target_kind") == "player" and a.choice.get("player") == 1
+            ),
+            None,
+        )
+        assert player_action is not None
+
+        new_state = engine.apply_action(state, player_action)
+        # The pending effect should be completed
+        assert not has_pending_effects(new_state)
+        assert new_state.players[1].lore == 2
+        assert new_state.players[0].lore == 0
+
+    def test_raw_candidate_ids_without_descriptor_fail_closed(self, engine, state):
+        """Raw candidate IDs do not bypass the targeting service when no descriptor exists."""
+        cid = self._put_card_in_play(state, engine, 1, "Amber Guard")
+        pe = PendingEffect(
+            id="pe_test_raw_only",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(),
+            raw={
+                "requirement_kind": "target",
+                "candidate_ids": [cid],
+            },
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        target_actions = [a for a in resolve_actions if a.choice.get("targets")]
+        assert target_actions == []
+
+    def test_target_style_opponent_choice_uses_targeting_service(self, engine, state):
+        """Test 11: target-style opponent_choice uses the same helper and filters out protected/invalid candidates."""
+        # Put characters in play
+        cid1 = self._put_card_in_play(state, engine, 1, "Amber Guard")
+        # Give one Ward (temporary_keywords is a list)
+        state.cards[cid1].temporary_keywords.append("WARD")
+        cid2 = self._put_card_in_play(state, engine, 1, "Amber Recruit")
+
+        pe = PendingEffect(
+            id="pe_test_opp_choice",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(),
+            raw={
+                "requirement_kind": "opponent_choice",
+                "choice_type": "target",
+                "target": "chosen_character",
+            },
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        target_ids = set()
+        for a in resolve_actions:
+            targets = a.choice.get("targets")
+            if targets:
+                target_ids.update(targets)
+        # Ward card should be excluded
+        assert cid1 not in target_ids
+        assert cid2 in target_ids
+
+    def test_unknown_descriptor_emits_no_broad_fallback(self, engine, state):
+        """Test 12: Unknown pending target descriptor emits no broad fallback target actions."""
+        # Put characters in play
+        self._put_card_in_play(state, engine, 1, "Amber Guard")
+
+        pe = PendingEffect(
+            id="pe_test_unknown",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(),
+            raw={
+                "requirement_kind": "target",
+                "target": "completely_unknown_descriptor_xyz",
+            },
+        )
+        state.pending_effects.append(pe)
+
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
+        # Should have no target actions (fail closed)
+        target_actions = [a for a in resolve_actions if a.choice.get("targets")]
+        assert len(target_actions) == 0
+
+    def test_no_player_id_in_selected_targets(self, engine, state):
+        """Verify that player IDs are never stored in PendingEffect.selected_targets."""
+        from lorcana_bot.pending_effects import resolve_player_target_selection
+        pe = PendingEffect(
+            id="pe_test_separation",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(),
+            raw={"requirement_kind": "target"},
+        )
+        state.pending_effects.append(pe)
+
+        resolve_player_target_selection(state, "pe_test_separation", (1,), engine=engine)
+        assert pe.selected_targets == ()  # Card targets remain empty
+        assert pe.selected_player_targets == (1,)
+        assert pe.raw["resolution_input"]["player_targets"] == (1,)
+
+    def test_slotted_target_selection_stores_structured_and_flat_targets(self, engine, state):
+        """Slotted pending input preserves slots and also exposes flat targets."""
+        from_id = self._put_card_in_play(state, engine, 0, "Amber Guard", damage=2)
+        to_id = self._put_card_in_play(state, engine, 1, "Amber Recruit")
+        pe = PendingEffect(
+            id="pe_test_slotted",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(),
+            required_targets=(),
+            raw={"requirement_kind": "multi_target", "min_targets": 2, "max_targets": 2},
+        )
+        state.pending_effects.append(pe)
+
+        resolve_slotted_target_selection(
+            state,
+            "pe_test_slotted",
+            {"kind": "move-damage", "from": [from_id], "to": [to_id]},
+            engine=engine,
+        )
+
+        assert pe.selected_targets == (from_id, to_id)
+        assert pe.raw["resolution_input"]["targets"] == (from_id, to_id)
+        assert pe.raw["resolution_input"]["slotted_targets"] == {
+            "kind": "move-damage",
+            "from": (from_id,),
+            "to": (to_id,),
+        }
+
+    def test_engine_apply_accepts_slotted_targets_for_multi_target_pending(self, engine, state):
+        """Engine target application accepts slotted_targets and resumes with flat current_targets."""
+        from_id = self._put_card_in_play(state, engine, 0, "Amber Guard", damage=2)
+        to_id = self._put_card_in_play(state, engine, 1, "Amber Recruit")
+        pe = PendingEffect(
+            id="pe_test_slotted_apply",
+            controller_id=0,
+            chooser_id=0,
+            source_id=None,
+            source_card_id=None,
+            effects=(EffectDef(kind="deal_damage", amount=1, target="chosen_character"),),
+            required_targets=(),
+            raw={"requirement_kind": "multi_target", "min_targets": 2, "max_targets": 2},
+        )
+        state.pending_effects.append(pe)
+
+        action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            choice={
+                "pending_effect_id": "pe_test_slotted_apply",
+                "slotted_targets": {"kind": "move-damage", "from": [from_id], "to": [to_id]},
+            },
+        )
+        new_state = engine.apply_action(state, action, validate=False)
+
+        assert new_state.cards[from_id].damage == 3
+        assert new_state.cards[to_id].damage == 1
+        assert not has_pending_effects(new_state)

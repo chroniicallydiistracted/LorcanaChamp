@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from lorcana_bot.cards import DEMO_FEATURE_CARD_IDS
 from lorcana_bot.constants import (
     CARD_CHARACTER,
     CARD_ITEM,
@@ -13,6 +14,7 @@ from lorcana_bot.constants import (
     ZONE_PLAY,
     ZONE_UNDER,
 )
+from lorcana_bot.state import CardInstance
 from lorcana_bot.targeting import (
     TargetCandidate,
     TargetDescriptor,
@@ -20,14 +22,18 @@ from lorcana_bot.targeting import (
     TargetSelectionAvailability,
     analyze_target_selection_availability,
     apply_target_protections,
+    flatten_slotted_targets,
     infer_candidate_zones,
     is_card_target_candidate,
     is_player_target_candidate,
+    is_slotted_target_input,
+    normalize_slotted_target_input,
     normalize_target_descriptor,
     normalize_target_descriptors,
     resolve_candidate_card_ids,
     resolve_candidate_player_ids,
     resolve_candidate_targets,
+    validate_slotted_targets,
 )
 from tests.conftest import find_card, put_card
 
@@ -117,6 +123,66 @@ def test_normalize_target_descriptors_flattens_valid_entries():
     descriptors = normalize_target_descriptors(["chosen_character", None, {"selector": "opponent"}])
 
     assert tuple(desc.selector for desc in descriptors) == ("chosen_character", "opponent")
+
+
+def test_slotted_target_input_guard_requires_known_kind_and_slot_arrays():
+    assert is_slotted_target_input({"kind": "move-damage", "from": [1], "to": [2]})
+    assert is_slotted_target_input({"kind": "move-to-location", "subject": [1], "location": [2]})
+    assert is_slotted_target_input({"kind": "shift-and-choose", "chosenCard": [1]})
+    assert is_slotted_target_input({"kind": "banish-and-play", "banish": [1], "play": [2]})
+    assert not is_slotted_target_input({"kind": "move-damage", "from": [1]})
+    assert not is_slotted_target_input({"kind": "unknown", "from": [1], "to": [2]})
+    assert not is_slotted_target_input(["move-damage", [1], [2]])
+
+
+def test_flatten_slotted_targets_uses_lorcanito_slot_order():
+    assert flatten_slotted_targets({"kind": "move-damage", "from": [1, 2], "to": [3]}) == (1, 2, 3)
+    assert flatten_slotted_targets({"kind": "move-to-location", "subject": [4], "location": [5]}) == (4, 5)
+    assert flatten_slotted_targets({"kind": "shift-and-choose", "chosenCard": [6]}) == (6,)
+    assert flatten_slotted_targets({"kind": "banish-and-play", "banish": [7], "play": [8, 9]}) == (7, 8, 9)
+
+
+def test_normalize_slotted_target_input_preserves_kind_and_tuple_slots():
+    normalized = normalize_slotted_target_input({"kind": "move-damage", "from": [1], "to": (2,)})
+
+    assert normalized == {"kind": "move-damage", "from": (1,), "to": (2,)}
+
+
+def test_validate_slotted_targets_checks_existence_and_slot_descriptors(engine, state):
+    subject = put_card(state, engine, 0, "Amber Guard", ZONE_PLAY)
+    location = max(state.cards) + 1
+    state.cards[location] = CardInstance(
+        instance_id=location,
+        card_id=DEMO_FEATURE_CARD_IDS["location"],
+        owner=0,
+        controller=0,
+        zone=ZONE_PLAY,
+    )
+    state.players[0].play.append(location)
+    hand_card = put_card(state, engine, 0, "Amber Recruit", ZONE_HAND)
+
+    validate_slotted_targets(
+        state,
+        {"kind": "move-to-location", "subject": [subject], "location": [location]},
+        descriptor_by_slot={
+            "subject": normalize_target_descriptor("chosen_character"),
+            "location": normalize_target_descriptor("chosen_location"),
+        },
+        actor=0,
+        engine=engine,
+    )
+
+    with pytest.raises(ValueError):
+        validate_slotted_targets(state, {"kind": "shift-and-choose", "chosenCard": [999]})
+
+    with pytest.raises(ValueError):
+        validate_slotted_targets(
+            state,
+            {"kind": "move-to-location", "subject": [hand_card], "location": [location]},
+            descriptor_by_slot={"subject": normalize_target_descriptor("chosen_character")},
+            actor=0,
+            engine=engine,
+        )
 
 
 def test_target_candidate_and_context_dataclasses_are_stable_shapes():
@@ -1448,7 +1514,7 @@ class TestApplyTargetProtections:
 # ---------------------------------------------------------------------------
 
 
-from lorcana_bot.cards import CardDef, CardDatabase, EffectDef, load_demo_database, make_demo_deck
+from lorcana_bot.cards import CardDef, CardDatabase, DEMO_FEATURE_CARD_IDS, EffectDef, load_demo_database, make_demo_deck
 from lorcana_bot.constants import ACTION_PLAY_CARD
 from lorcana_bot.engine import GameEngine
 from tests.conftest import add_ready_ink
@@ -1458,7 +1524,7 @@ class TestEngineActionCardTargets:
     """Tests for engine legal_actions integration with targeting service."""
 
     def _engine_with_extra_cards(self, extra_cards):
-        db = CardDatabase(list(load_demo_database()._cards_by_id.values()) + list(extra_cards))
+        db = CardDatabase(load_demo_database().all_cards() + list(extra_cards))
         return GameEngine(db)
 
     def _find_play_card_action(self, actions, card_id, *, target=None):
@@ -1524,8 +1590,6 @@ class TestEngineActionCardTargets:
     def test_unsupported_target_descriptor_emits_no_broad_fallback(self, engine, state):
         """Action card with an unknown/unsupported target descriptor must not
         emit broad fallback targets."""
-        from lorcana_bot.cards import CardDef, CardDatabase
-
         # Create an action card with an unknown target descriptor
         unknown_target_card = CardDef(
             "test_unknown_target",
@@ -1536,7 +1600,7 @@ class TestEngineActionCardTargets:
             "action",
             effects=[{"kind": "draw", "amount": 1, "target": "totally_unknown_selector_xyz"}],
         )
-        db2 = CardDatabase(list(engine.db._cards_by_id.values()) + [unknown_target_card])
+        db2 = CardDatabase(engine.db.all_cards() + [unknown_target_card])
         engine2 = GameEngine(db2)
         state2 = engine2.setup_game(
             [make_demo_deck(["Mystery Action"], 50), make_demo_deck(["Amber Recruit"], 50)],
@@ -1583,70 +1647,49 @@ class TestEngineActionCardTargets:
         assert all(isinstance(d, TargetDescriptor) for d in result)
 
     def test_chosen_item_action_can_target_items(self):
-        engine = self._engine_with_extra_cards([
-            CardDef("test_item", "Test Item", "amber", 1, True, CARD_ITEM),
-            CardDef(
-                "target_item_action",
-                "Target Item Action",
-                "amber",
-                1,
-                True,
-                "action",
-                effects=(EffectDef("return_to_hand", target="chosen_item"),),
-            ),
-        ])
+        engine = GameEngine(load_demo_database())
         state = engine.setup_game(
-            [make_demo_deck(["Target Item Action", "Test Item"], 50), make_demo_deck(["Amber Recruit"], 50)],
+            [
+                make_demo_deck(["Demo Target Item Action", "Demo Item"], 50),
+                make_demo_deck(["Amber Recruit"], 50),
+            ],
             seed=101,
         )
-        action_card = put_card(state, engine, 0, "Target Item Action", ZONE_HAND)
-        item = put_card(state, engine, 0, "Test Item", ZONE_PLAY, exclude=frozenset({action_card}))
+        action_card = put_card(state, engine, 0, "Demo Target Item Action", ZONE_HAND)
+        item = put_card(state, engine, 0, "Demo Item", ZONE_PLAY, exclude=frozenset({action_card}))
+        assert engine.card_def(state, action_card).id == DEMO_FEATURE_CARD_IDS["target_item_action"]
+        assert engine.card_def(state, item).id == DEMO_FEATURE_CARD_IDS["item"]
         add_ready_ink(state, engine, 0, 1, exclude=frozenset({action_card, item}))
 
         actions = engine.legal_actions(state, 0)
         assert any(a.kind == ACTION_PLAY_CARD and a.card == action_card and a.target == item for a in actions)
 
     def test_chosen_location_action_can_target_locations(self):
-        engine = self._engine_with_extra_cards([
-            CardDef("test_location", "Test Location", "amber", 1, True, CARD_LOCATION, move_cost=1, lore=1),
-            CardDef(
-                "target_location_action",
-                "Target Location Action",
-                "amber",
-                1,
-                True,
-                "action",
-                effects=(EffectDef("return_to_hand", target="chosen_location"),),
-            ),
-        ])
+        engine = GameEngine(load_demo_database())
         state = engine.setup_game(
-            [make_demo_deck(["Target Location Action", "Test Location"], 50), make_demo_deck(["Amber Recruit"], 50)],
+            [
+                make_demo_deck(["Demo Target Location Action", "Demo Location"], 50),
+                make_demo_deck(["Amber Recruit"], 50),
+            ],
             seed=102,
         )
-        action_card = put_card(state, engine, 0, "Target Location Action", ZONE_HAND)
-        location = put_card(state, engine, 0, "Test Location", ZONE_PLAY, exclude=frozenset({action_card}))
+        action_card = put_card(state, engine, 0, "Demo Target Location Action", ZONE_HAND)
+        location = put_card(state, engine, 0, "Demo Location", ZONE_PLAY, exclude=frozenset({action_card}))
+        assert engine.card_def(state, action_card).id == DEMO_FEATURE_CARD_IDS["target_location_action"]
+        assert engine.card_def(state, location).id == DEMO_FEATURE_CARD_IDS["location"]
         add_ready_ink(state, engine, 0, 1, exclude=frozenset({action_card, location}))
 
         actions = engine.legal_actions(state, 0)
         assert any(a.kind == ACTION_PLAY_CARD and a.card == action_card and a.target == location for a in actions)
 
     def test_chosen_player_action_uses_choice_and_resolves_player_choice(self):
-        engine = self._engine_with_extra_cards([
-            CardDef(
-                "target_player_action",
-                "Target Player Action",
-                "amber",
-                1,
-                True,
-                "action",
-                effects=(EffectDef("gain_lore", 2, "chosen_player"),),
-            ),
-        ])
+        engine = GameEngine(load_demo_database())
         state = engine.setup_game(
-            [make_demo_deck(["Target Player Action"], 50), make_demo_deck(["Amber Recruit"], 50)],
+            [make_demo_deck(["Demo Target Player Action"], 50), make_demo_deck(["Amber Recruit"], 50)],
             seed=103,
         )
-        action_card = put_card(state, engine, 0, "Target Player Action", ZONE_HAND)
+        action_card = put_card(state, engine, 0, "Demo Target Player Action", ZONE_HAND)
+        assert engine.card_def(state, action_card).id == DEMO_FEATURE_CARD_IDS["target_player_action"]
         add_ready_ink(state, engine, 0, 1, exclude=frozenset({action_card}))
 
         actions = engine.legal_actions(state, 0)
@@ -1661,26 +1704,17 @@ class TestEngineActionCardTargets:
 
         chosen = next(a for a in player_actions if a.choice["player"] == 1)
         state = engine.apply_action(state, chosen)
-        assert state.players[1].lore == 2
+        assert state.players[1].lore == 1
         assert state.players[0].lore == 0
 
     def test_chosen_damaged_character_only_emits_damaged_characters(self):
-        engine = self._engine_with_extra_cards([
-            CardDef(
-                "target_damaged_action",
-                "Target Damaged Action",
-                "amber",
-                1,
-                True,
-                "action",
-                effects=(EffectDef("remove_damage", 1, "chosen_damaged_character"),),
-            ),
-        ])
+        engine = GameEngine(load_demo_database())
         state = engine.setup_game(
-            [make_demo_deck(["Target Damaged Action"], 50), make_demo_deck(["Amber Recruit", "Amber Guard"], 50)],
+            [make_demo_deck(["Demo Target Damaged Action"], 50), make_demo_deck(["Amber Recruit", "Amber Guard"], 50)],
             seed=104,
         )
-        action_card = put_card(state, engine, 0, "Target Damaged Action", ZONE_HAND)
+        action_card = put_card(state, engine, 0, "Demo Target Damaged Action", ZONE_HAND)
+        assert engine.card_def(state, action_card).id == DEMO_FEATURE_CARD_IDS["target_damaged_action"]
         healthy = put_card(state, engine, 1, "Amber Recruit", ZONE_PLAY)
         damaged = put_card(state, engine, 1, "Amber Guard", ZONE_PLAY, exclude=frozenset({healthy}), damage=1)
         add_ready_ink(state, engine, 0, 1, exclude=frozenset({action_card}))
@@ -1694,22 +1728,13 @@ class TestEngineActionCardTargets:
         assert healthy not in action_targets
 
     def test_fixed_opponent_player_target_does_not_require_choice_action(self):
-        engine = self._engine_with_extra_cards([
-            CardDef(
-                "fixed_opponent_action",
-                "Fixed Opponent Action",
-                "amber",
-                0,
-                True,
-                "action",
-                effects=(EffectDef("lose_lore", 1, "opponent"),),
-            ),
-        ])
+        engine = GameEngine(load_demo_database())
         state = engine.setup_game(
-            [make_demo_deck(["Fixed Opponent Action"], 50), make_demo_deck(["Amber Recruit"], 50)],
+            [make_demo_deck(["Demo Fixed Opponent Action"], 50), make_demo_deck(["Amber Recruit"], 50)],
             seed=105,
         )
-        lore_loss = put_card(state, engine, 0, "Fixed Opponent Action", ZONE_HAND)
+        lore_loss = put_card(state, engine, 0, "Demo Fixed Opponent Action", ZONE_HAND)
+        assert engine.card_def(state, lore_loss).id == DEMO_FEATURE_CARD_IDS["fixed_opponent_action"]
 
         actions = [a for a in engine.legal_actions(state, 0) if a.kind == ACTION_PLAY_CARD and a.card == lore_loss]
         assert actions == [a for a in actions if a.target is None and a.choice is None]
@@ -1724,7 +1749,7 @@ class TestEngineActionCardTargets:
             "action",
             effects=(EffectDef("draw", 1, "totally_unknown_selector_xyz"),),
         )
-        db2 = CardDatabase(list(engine.db._cards_by_id.values()) + [unknown_target_card])
+        db2 = CardDatabase(engine.db.all_cards() + [unknown_target_card])
         engine2 = GameEngine(db2)
         state = engine2.setup_game(
             [make_demo_deck(["Mystery Board Action"], 50), make_demo_deck(["Amber Recruit"], 50)],

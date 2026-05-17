@@ -28,6 +28,14 @@ def validate_candidate(state: GameState, engine: GameEngine, candidate: Automate
         return CandidateValidationResult(False, "target instance is missing", "target_missing")
     if candidate.card_instance_id is not None and candidate.card_instance_id not in state.cards:
         return CandidateValidationResult(False, "card instance is missing", "source_missing")
+    if candidate.slotted_targets:
+        try:
+            from lorcana_bot.targeting import flatten_slotted_targets
+            for target_id in flatten_slotted_targets(candidate.slotted_targets):
+                if target_id not in state.cards:
+                    return CandidateValidationResult(False, "slotted target instance is missing", "target_missing")
+        except ValueError as exc:
+            return CandidateValidationResult(False, str(exc), "target_invalid")
 
     # Map candidate to action
     try:

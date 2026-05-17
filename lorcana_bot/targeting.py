@@ -1228,3 +1228,103 @@ def _is_protected_from_targeting(
         return check_cannot_be_targeted(state, target_id, caster_controller)
     except (ImportError, AttributeError):
         return False
+
+
+# ---------------------------------------------------------------------------
+# Brief 7: Slotted target input support
+# ---------------------------------------------------------------------------
+
+SLOTTED_TARGET_KINDS = (
+    "move-damage",
+    "move-to-location",
+    "shift-and-choose",
+    "banish-and-play",
+)
+
+SLOTTED_TARGET_SLOT_KEYS: dict[str, tuple[str, ...]] = {
+    "move-damage": ("from", "to"),
+    "move-to-location": ("subject", "location"),
+    "shift-and-choose": ("chosenCard",),
+    "banish-and-play": ("banish", "play"),
+}
+
+
+def is_slotted_target_input(value: Any) -> bool:
+    """Return True for Lorcanito-style resolved slotted target input.
+
+    Mirrors Lorcanito's structural guard: the value must be a non-list dict,
+    its ``kind`` must be known, and every canonical slot for that kind must be
+    an array-like value. Extra keys are ignored.
+    """
+    if not isinstance(value, dict):
+        return False
+    kind = value.get("kind")
+    if not isinstance(kind, str) or kind not in SLOTTED_TARGET_SLOT_KEYS:
+        return False
+    return all(isinstance(value.get(slot), (list, tuple)) for slot in SLOTTED_TARGET_SLOT_KEYS[kind])
+
+
+def flatten_slotted_targets(value: dict[str, Any]) -> tuple[int, ...]:
+    """Flatten slotted target IDs in Lorcanito's canonical slot order."""
+    if not is_slotted_target_input(value):
+        raise ValueError("Invalid slotted target input")
+
+    kind = str(value["kind"])
+    flattened: list[int] = []
+    for slot in SLOTTED_TARGET_SLOT_KEYS[kind]:
+        for target_id in value.get(slot, ()):
+            if not isinstance(target_id, int):
+                raise ValueError(f"Slotted target {slot} contains non-integer value {target_id!r}")
+            flattened.append(target_id)
+    return tuple(flattened)
+
+
+def normalize_slotted_target_input(value: dict[str, Any]) -> dict[str, Any]:
+    """Return a canonical slotted target dict with tuple-valued slots."""
+    if not is_slotted_target_input(value):
+        raise ValueError("Invalid slotted target input")
+    kind = str(value["kind"])
+    normalized: dict[str, Any] = {"kind": kind}
+    for slot in SLOTTED_TARGET_SLOT_KEYS[kind]:
+        slot_values: list[int] = []
+        for target_id in value.get(slot, ()):
+            if not isinstance(target_id, int):
+                raise ValueError(f"Slotted target {slot} contains non-integer value {target_id!r}")
+            slot_values.append(target_id)
+        normalized[slot] = tuple(slot_values)
+    return normalized
+
+
+def validate_slotted_targets(
+    state: GameState,
+    value: dict[str, Any],
+    descriptor_by_slot: dict[str, TargetDescriptor] | None = None,
+    *,
+    actor: int | None = None,
+    source_id: int | None = None,
+    engine: GameEngine | None = None,
+) -> None:
+    """Validate a slotted target input against state and optional slot descriptors."""
+    normalized = normalize_slotted_target_input(value)
+    for target_id in flatten_slotted_targets(normalized):
+        if target_id not in state.cards:
+            raise ValueError(f"Slotted target card {target_id} does not exist")
+
+    if not descriptor_by_slot:
+        return
+
+    for slot, descriptor in descriptor_by_slot.items():
+        if slot == "kind":
+            continue
+        if slot not in normalized:
+            raise ValueError(f"Unknown slotted target slot {slot!r}")
+        for target_id in normalized[slot]:
+            if not is_card_target_candidate(
+                state,
+                target_id,
+                descriptor,
+                actor=actor,
+                source_id=source_id,
+                engine=engine,
+            ):
+                raise ValueError(f"Slotted target {target_id} is not valid for slot {slot!r}")

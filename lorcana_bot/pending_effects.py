@@ -21,6 +21,7 @@ from lorcana_bot.cards import EffectDef
 if TYPE_CHECKING:
     from lorcana_bot.engine import GameEngine
     from lorcana_bot.state import GameState
+    from lorcana_bot.targeting import TargetDescriptor, TargetCandidate, TargetQueryContext
 
 
 def _emit_pending_event(
@@ -250,7 +251,8 @@ class PendingEffect:
     effects: tuple[EffectDef, ...]  # Effects to resolve (multi-step)
     current_effect_index: int = 0  # Index of current effect in sequence
     required_targets: tuple[TargetRequirement, ...] = ()  # Target requirements for current effect
-    selected_targets: tuple[int, ...] = ()  # Player's selected target instance IDs
+    selected_targets: tuple[int, ...] = ()  # Player's selected target instance IDs (card IDs only)
+    selected_player_targets: tuple[int, ...] = ()  # Player's selected player IDs (separate from card targets)
     choice_options: tuple[Any, ...] = ()  # Available choices (card instances, indices, etc.)
     selected_choice: int | None = None  # Player's selected choice index
     optional: bool = False  # Whether accepting is optional
@@ -513,19 +515,31 @@ def get_valid_targets_for_requirement(
 ) -> list[int]:
     """Get valid target instance IDs for a target requirement.
 
-    Applies normal targeting rules:
-    - Ward protects opposing targets (requires engine)
-    - Only public board targets are valid
-    - Damaged targets must have damage > 0
-    - Opposing targets must be opponent of chooser
+    Delegates to the targeting service (TargetDescriptor/TargetCandidate)
+    when an engine is available and the requirement kind maps to a known
+    selector.  Falls back to the legacy manual board scan when the engine
+    is None or the requirement kind is not mappable.
 
-    Args:
-        state: The game state
-        requirement: The target requirement
-        chooser_id: The player who is choosing
-        engine: Optional engine for keyword checking. If None, skip Ward checks.
+    Returns a backward-compatible ``list[int]`` of card instance IDs.
     """
-    from lorcana_bot.constants import KEYWORD_WARD, ZONE_PLAY, CARD_CHARACTER, CARD_ITEM, CARD_LOCATION
+    # Try targeting service first when engine is available.
+    # If the requirement maps to a known targeting descriptor, service failures
+    # should surface instead of falling back to a broad manual scan.
+    if engine is not None:
+        desc = target_descriptor_from_requirement(requirement)
+        if desc is not None:
+            from lorcana_bot.targeting import (
+                TargetQueryContext,
+                apply_target_protections,
+                resolve_candidate_targets,
+            )
+            context = TargetQueryContext(actor=chooser_id, source_id=None)
+            raw_candidates = resolve_candidate_targets(state, engine, desc, context)
+            protected = apply_target_protections(state, engine, raw_candidates, desc, context)
+            return [c.id for c in protected if c.kind == "card"]
+
+    # Legacy fallback: manual board scan (no engine or unmappable kind)
+    from lorcana_bot.constants import KEYWORD_WARD, ZONE_PLAY
 
     valid_targets: list[int] = []
 
@@ -1447,6 +1461,54 @@ def resolve_multi_target_selection(
     )
 
 
+def resolve_slotted_target_selection(
+    state: GameState,
+    pending_id: str,
+    slotted_targets: dict[str, Any],
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a pending slotted-target requirement.
+
+    Stores both the structured slotted input and the flattened target tuple so
+    existing effect resolution can continue to consume ``current_targets`` while
+    future slot-aware effects can inspect ``resolution_input["slotted_targets"]``.
+    """
+    from lorcana_bot.targeting import (
+        flatten_slotted_targets,
+        normalize_slotted_target_input,
+        validate_slotted_targets,
+    )
+
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    normalized = normalize_slotted_target_input(slotted_targets)
+    validate_slotted_targets(state, normalized, actor=pe.chooser_id, source_id=pe.source_id, engine=engine)
+    flat_targets = flatten_slotted_targets(normalized)
+    _validate_targets(state, pe, flat_targets)
+
+    pe.selected_targets = flat_targets
+    pe.raw["slotted_targets"] = normalized
+    resolution_input = pe.raw.setdefault("resolution_input", {})
+    resolution_input["slotted_targets"] = normalized
+    resolution_input["targets"] = flat_targets
+    _emit_pending_event(
+        state,
+        engine,
+        "SLOTTED_TARGET_SELECTED",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=flat_targets[0] if flat_targets else None,
+        payload={
+            "pending_effect_id": pending_id,
+            "slotted_targets": normalized,
+            "targets": list(flat_targets),
+        },
+    )
+
+
 def resolve_discard_choice(
     state: GameState,
     pending_id: str,
@@ -1596,5 +1658,329 @@ def resolve_enter_play_exerted_choice(
         payload={
             "pending_effect_id": pending_id,
             "enter_play_exerted": enter_play_exerted,
+        },
+    )
+
+
+# =============================================================================
+# B5: Pending targeting integration helpers
+# These bridge PendingEffect/TargetRequirement to the targeting service
+# (TargetDescriptor/TargetCandidate) so pending target enumeration uses the
+# same candidate resolution and protection filtering as action-card targeting.
+# =============================================================================
+
+# Mapping from TargetRequirement.kind to TargetDescriptor selector
+_KIND_TO_SELECTOR: dict[str, str] = {
+    "chosen_card": "chosen_card",
+    "chosen_character": "chosen_character",
+    "chosen_opposing_character": "chosen_opposing_character",
+    "chosen_damaged_character": "chosen_damaged_character",
+    "chosen_item": "chosen_item",
+    "chosen_location": "chosen_location",
+    "chosen_player": "chosen_player",
+}
+
+
+def target_descriptor_from_requirement(
+    requirement: TargetRequirement | None,
+) -> "TargetDescriptor | None":
+    """Convert a TargetRequirement to a TargetDescriptor.
+
+    Returns None if the requirement is None or its kind cannot be mapped
+    to a known selector.  The conversion is deterministic and preserves
+    min/max targets, card type, damage/exerted filters, and owner filter.
+    """
+    if requirement is None:
+        return None
+
+    from lorcana_bot.targeting import TargetDescriptor, normalize_target_descriptor
+
+    selector = _KIND_TO_SELECTOR.get(requirement.kind)
+    if selector is None:
+        return None
+
+    base = normalize_target_descriptor(selector)
+    if base is None:
+        return None
+
+    # Build filters from requirement flags
+    filters: list[dict[str, Any]] = list(base.filters)
+    if requirement.must_be_damaged:
+        # Only add if not already present
+        if not any(f.get("type") == "damaged" for f in filters):
+            filters.append({"type": "damaged", "min": 1})
+    if requirement.must_be_exerted:
+        if not any(f.get("type") == "exerted" for f in filters):
+            filters.append({"type": "exerted"})
+
+    # Map owner_filter to controller
+    controller = base.controller
+    if requirement.owner_filter == "opponent":
+        controller = "opponent"
+    elif requirement.owner_filter == "controller":
+        controller = "you"
+
+    # Map card_type to card_types
+    card_types = base.card_types
+    if requirement.card_type and not card_types:
+        card_types = (requirement.card_type,)
+
+    min_count = 0 if requirement.optional else requirement.min_targets
+    max_count = requirement.max_targets if requirement.max_targets is not None else base.max_count
+
+    return TargetDescriptor(
+        selector=selector,
+        min_count=min_count,
+        max_count=max_count,
+        zones=base.zones,
+        card_types=card_types,
+        owner=base.owner,
+        controller=controller,
+        filters=tuple(filters),
+        exclude_self=base.exclude_self,
+        exclude_trigger_subject=base.exclude_trigger_subject,
+        allow_players=base.allow_players,
+        allow_duplicate_targets=base.allow_duplicate_targets,
+    )
+
+
+# Known selectors that the targeting service can resolve.  Unknown strings
+# must NOT be inferred into broad default descriptors (fail closed).
+_KNOWN_SELECTORS: frozenset[str] = frozenset({
+    "chosen_card", "chosen_character", "chosen_opposing_character",
+    "chosen_damaged_character", "chosen_item", "chosen_location",
+    "chosen_player", "opposing_character", "self", "event_source",
+    "event_target", "trigger_subject", "your_characters", "your_other_characters",
+    "opposing_characters", "all_characters", "damaged_characters",
+    "opposing_damaged_characters", "current_targets", "context_targets",
+    "you", "opponent", "each_player",
+    "controller", "actor", "opposing_player", "target",
+})
+
+
+def _is_known_descriptor(desc: "TargetDescriptor") -> bool:
+    """Return True if the descriptor's selector is a known targeting selector."""
+    return desc.selector in _KNOWN_SELECTORS
+
+
+def pending_target_descriptors(pe: PendingEffect) -> tuple["TargetDescriptor", ...]:
+    """Extract TargetDescriptor(s) from a PendingEffect.
+
+    Descriptor source precedence:
+    1. pe.raw["target_descriptor"]
+    2. pe.raw["target_dsl"]
+    3. pe.raw["target"]
+    4. pe.raw["selector"]
+    5. pe.raw["requirement"] if descriptor-like
+    6. pe.current_requirement / TargetRequirement fallback
+    7. raw_requirement.kind / raw_requirement.target / raw_requirement.selector
+
+    Returns no descriptors if no descriptor can be normalized (fail closed).
+    Unknown strings are NOT inferred into broad default descriptors.
+    """
+    from lorcana_bot.targeting import TargetDescriptor, normalize_target_descriptor, normalize_target_descriptors
+
+    raw = pe.raw or {}
+
+    def _try_normalize(value) -> "TargetDescriptor | None":
+        """Normalize and validate that the selector is known."""
+        if value is None:
+            return None
+        desc = normalize_target_descriptor(value)
+        if desc is not None and _is_known_descriptor(desc):
+            return desc
+        return None
+
+    def _try_normalize_many(value) -> tuple["TargetDescriptor", ...]:
+        """Normalize one or more descriptors and discard unknown selectors."""
+        if value is None:
+            return ()
+        return tuple(
+            desc for desc in normalize_target_descriptors(value)
+            if _is_known_descriptor(desc)
+        )
+
+    def _try_requirement_like(value) -> "TargetDescriptor | None":
+        """Normalize requirement-like raw objects without inventing defaults."""
+        if value is None:
+            return None
+        if isinstance(value, TargetRequirement):
+            return target_descriptor_from_requirement(value)
+        if isinstance(value, TargetDescriptor):
+            return value if _is_known_descriptor(value) else None
+        if isinstance(value, dict):
+            desc = _try_normalize(value)
+            if desc is not None:
+                return desc
+            for key in ("target", "selector", "kind", "type"):
+                desc = _try_normalize(value.get(key))
+                if desc is not None:
+                    return desc
+            return None
+        for attr in ("target", "selector", "kind", "type"):
+            desc = _try_normalize(getattr(value, attr, None))
+            if desc is not None:
+                return desc
+        return None
+
+    # 1. pe.raw["target_descriptor"]
+    descs = _try_normalize_many(raw.get("target_descriptor"))
+    if descs:
+        return descs
+
+    # 2. pe.raw["target_dsl"]
+    descs = _try_normalize_many(raw.get("target_dsl"))
+    if descs:
+        return descs
+
+    # 3. pe.raw["target"]
+    descs = _try_normalize_many(raw.get("target"))
+    if descs:
+        return descs
+
+    # 4. pe.raw["selector"]
+    descs = _try_normalize_many(raw.get("selector"))
+    if descs:
+        return descs
+
+    # 5. pe.raw["requirement"] if descriptor-like or TargetRequirement-like
+    desc = _try_requirement_like(raw.get("requirement"))
+    if desc is not None:
+        return (desc,)
+
+    # 6. pe.current_requirement / TargetRequirement fallback
+    requirement = pe.current_requirement
+    if requirement is not None:
+        desc = target_descriptor_from_requirement(requirement)
+        if desc is not None:
+            return (desc,)
+
+    # 7. raw_requirement from engine (kind/target/selector if present and descriptor-like)
+    desc = _try_requirement_like(raw.get("raw_requirement"))
+    if desc is not None:
+        return (desc,)
+
+    return ()
+
+
+def get_valid_target_candidates_for_pending(
+    state: GameState,
+    pe: PendingEffect,
+    chooser_id: int,
+    engine: "GameEngine",
+) -> tuple["TargetCandidate", ...]:
+    """Resolve valid target candidates for a pending effect using the targeting service.
+
+    This is the central pending-target candidate resolver.  It:
+    1. Resolves descriptors from the pending effect.
+    2. Resolves candidates through resolve_candidate_targets().
+    3. Applies apply_target_protections().
+    4. Narrows card candidates by raw candidate_ids / card_candidate_ids / target_candidate_ids.
+    5. Narrows player candidates by raw player_candidate_ids / player_candidates.
+    6. Returns only valid, protected, narrowed candidates.
+
+    Returns no candidates if no descriptor can be determined (fail closed).
+    """
+    from lorcana_bot.targeting import (
+        TargetCandidate,
+        TargetQueryContext,
+        apply_target_protections,
+        resolve_candidate_targets,
+    )
+
+    descriptors = pending_target_descriptors(pe)
+    if not descriptors:
+        return ()
+
+    raw = pe.raw or {}
+    context = TargetQueryContext(
+        actor=chooser_id,
+        source_id=pe.source_id,
+        event_payload=raw.get("event_payload", {}) or {},
+        current_targets=tuple(raw.get("current_targets", ()) or ()),
+        context_targets=tuple(raw.get("context_targets", ()) or ()),
+    )
+
+    all_candidates: list[TargetCandidate] = []
+    for desc in descriptors:
+        raw_candidates = resolve_candidate_targets(state, engine, desc, context)
+        protected = apply_target_protections(state, engine, raw_candidates, desc, context)
+        all_candidates.extend(protected)
+
+    # Deduplicate by (kind, id)
+    seen: set[tuple[str, int]] = set()
+    deduped: list[TargetCandidate] = []
+    for cand in all_candidates:
+        key = (cand.kind, cand.id)
+        if key not in seen:
+            seen.add(key)
+            deduped.append(cand)
+
+    # Separate card and player candidates
+    card_candidates = [c for c in deduped if c.kind == "card"]
+    player_candidates = [c for c in deduped if c.kind == "player"]
+
+    # Narrow card candidates by raw candidate lists
+    narrowing_card_ids = (
+        raw.get("card_candidate_ids")
+        or raw.get("target_candidate_ids")
+        or raw.get("candidate_ids")
+        or ()
+    )
+    if narrowing_card_ids:
+        narrowing_set = set(narrowing_card_ids)
+        card_candidates = [c for c in card_candidates if c.id in narrowing_set]
+
+    # Narrow player candidates by raw player candidate lists
+    narrowing_player_ids = (
+        raw.get("player_candidate_ids")
+        or raw.get("player_candidates")
+        or ()
+    )
+    if narrowing_player_ids:
+        narrowing_set = set(narrowing_player_ids)
+        player_candidates = [c for c in player_candidates if c.id in narrowing_set]
+
+    # Reassemble: cards first, then players
+    return tuple(card_candidates + player_candidates)
+
+
+def resolve_player_target_selection(
+    state: GameState,
+    pending_id: str,
+    player_targets: tuple[int, ...],
+    *,
+    engine: "GameEngine | None" = None,
+) -> None:
+    """Resolve a pending player-target requirement.
+
+    Validates that player IDs exist in the current game,
+    then writes into pe.selected_player_targets and
+    pe.raw["resolution_input"]["player_targets"].
+
+    Player targets are stored separately from card targets.
+    """
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    # Validate player IDs
+    for pid in player_targets:
+        if pid < 0 or pid >= len(state.players):
+            raise ValueError(f"Invalid player ID {pid}")
+
+    pe.selected_player_targets = player_targets
+    pe.raw["selected_player_targets"] = player_targets
+    pe.raw.setdefault("resolution_input", {})["player_targets"] = player_targets
+    _emit_pending_event(
+        state,
+        engine,
+        "PLAYER_TARGET_SELECTED",
+        actor=pe.chooser_id,
+        source=pe.source_id,
+        target=None,
+        payload={
+            "pending_effect_id": pending_id,
+            "player_targets": list(player_targets),
         },
     )

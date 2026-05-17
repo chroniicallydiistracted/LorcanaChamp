@@ -8,6 +8,9 @@ Read `docs/agent_work/microfix_10/MICROFIX_10_SHARED_RULES.md` before making cha
 
 This brief depends on Briefs 1-5.
 Do not add new effect kinds here.
+Brief 5 is complete: pending target legal actions now use
+`get_valid_target_candidates_for_pending()` and player targets are stored
+separately from card targets. Preserve that action/pending routing.
 
 ---
 
@@ -43,6 +46,8 @@ _target_cards() delegates descriptor resolution to targeting service when possib
 _target_player() delegates player aliases to targeting service when possible.
 _collection() is either removed or becomes a thin wrapper over targeting service.
 context.current_targets and future context_targets are honored.
+`EffectResolutionContext` may be expanded to include `context_targets` if it is
+not already present.
 event_source/event_target/trigger_subject continue to work.
 ```
 
@@ -54,7 +59,7 @@ Build TargetQueryContext from EffectResolutionContext:
   source_id=context.source
   event_payload=context.event_payload
   current_targets=context.current_targets
-  context_targets=tuple from context if present, otherwise ()
+  context_targets=context.context_targets or ()
 Use resolve_candidate_card_ids() for card-targeting effect aliases and collections.
 Use resolve_candidate_player_ids() for player aliases.
 Preserve existing explicit selected target behavior: pending-selected target remains the first target where existing effects expect one.

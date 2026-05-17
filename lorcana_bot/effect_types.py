@@ -40,6 +40,7 @@ class EffectResolutionContext:
     trigger_source: int | None = None
     trigger_subject: int | None = None
     current_targets: tuple[int, ...] = ()
+    context_targets: tuple[int, ...] = ()
 
 
 SUPPORTED_EFFECT_KINDS = frozenset(

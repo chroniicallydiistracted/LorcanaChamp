@@ -127,6 +127,7 @@ class AutomatedActionCandidate:
     amount: int | None = None                # For "amount" pending requirement
     enter_play_exerted: bool | None = None   # For "enter_play_exerted" pending requirement
     discard_card_ids: tuple[int, ...] = () # For "discard_choice" pending requirement
+    slotted_targets: dict[str, Any] = field(default_factory=dict)  # For slotted target pending input
 
 
 @dataclass(frozen=True)

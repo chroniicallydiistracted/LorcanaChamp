@@ -307,6 +307,54 @@ class TestEventContextTargets:
         assert state.cards[ally].damage == 1
         assert state.cards[target].damage == 1
 
+    def test_chosen_character_consumes_all_current_targets(self):
+        """chosen_character should consume all selected current_targets, not only context.target."""
+        engine, state = setup_effect_game()
+        ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+
+        effect = EffectDef("deal_damage", 1, "chosen_character")
+        engine.effect_resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=ally, current_targets=(ally, target)),
+        )
+
+        assert state.cards[ally].damage == 1
+        assert state.cards[target].damage == 1
+
+    def test_current_targets_are_validated_by_descriptor(self):
+        """Selected IDs still pass through target descriptor validation."""
+        engine, state = setup_effect_game()
+        ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+        hand_card = put_card(state, engine, 0, "Target", ZONE_HAND, exerted=False, drying=False)
+
+        effect = EffectDef("deal_damage", 1, "chosen_character")
+        engine.effect_resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=ally, current_targets=(ally, hand_card)),
+        )
+
+        assert state.cards[ally].damage == 1
+        assert state.cards[hand_card].damage == 0
+
+    def test_context_targets_selector_uses_context_target_set(self):
+        """context_targets should resolve through the targeting service candidate path."""
+        engine, state = setup_effect_game()
+        ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=True, drying=False)
+
+        effect = EffectDef("deal_damage", 2, "context_targets")
+        engine.effect_resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=ally, context_targets=(target,)),
+        )
+
+        assert state.cards[target].damage == 2
+        assert state.cards[ally].damage == 0
+
 
 class TestEventPayloadTargets:
     """Tests for event_payload-based targets."""
@@ -390,6 +438,20 @@ class TestPlayerTargets:
             EffectResolutionContext(actor=0)
         )
         assert len(state.players[0].hand) == hand_before + 2
+
+    def test_chosen_player_target_uses_context_choice(self):
+        """chosen_player should validate context.choice and resolve that player."""
+        engine, state = setup_effect_game()
+
+        effect = EffectDef("gain_lore", 2, "chosen_player")
+        engine.effect_resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, choice=1),
+        )
+
+        assert state.players[1].lore == 2
+        assert state.players[0].lore == 0
 
 
 class TestEffectHelperRouting:

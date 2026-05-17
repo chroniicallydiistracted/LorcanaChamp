@@ -76,6 +76,7 @@ from .pending_effects import (
     get_current_pending_effect,
     get_pending_effect_by_id,
     get_valid_targets_for_requirement,
+    get_valid_target_candidates_for_pending,
     resolve_pending_effect_target,
     resolve_pending_effect_choice,
     resolve_pending_effect_optional,
@@ -87,6 +88,8 @@ from .pending_effects import (
     resolve_amount_choice,
     resolve_target_selection,
     resolve_multi_target_selection,
+    resolve_slotted_target_selection,
+    resolve_player_target_selection,
     resolve_discard_choice,
     resolve_choice_index,
     resolve_optional_choice,
@@ -147,6 +150,8 @@ _SUPPORTED_EFFECT_TARGET_KINDS = frozenset({
     "event_source",
     "event_target",
     "trigger_subject",
+    "current_targets",
+    "context_targets",
     "your_characters",
     "your_other_characters",
     "opposing_characters",
@@ -340,54 +345,54 @@ class GameEngine:
                             choice={"pending_effect_id": pe.id, "amount": amount}
                         ))
                 elif requirement_kind == "target":
-                    # Single target selection - use raw candidate_ids or fallback to get_valid_targets
-                    candidate_ids = (
-                        (pe.raw or {}).get("candidate_ids")
-                        or getattr(raw_requirement, "candidate_ids", None)
-                        or []
-                    )
-                    if candidate_ids:
-                        # Use explicit candidate list from raw
-                        for target_id in candidate_ids:
+                    # Single target selection - use targeting service for candidate resolution
+                    candidates = get_valid_target_candidates_for_pending(state, pe, player, self)
+                    card_candidates = [c for c in candidates if c.kind == "card"]
+                    player_candidates = [c for c in candidates if c.kind == "player"]
+                    if card_candidates:
+                        for cand in card_candidates:
                             actions.append(Action(
                                 ACTION_RESOLVE_PENDING_EFFECT,
                                 actor=player,
                                 source=pe.source_id,
-                                target=target_id,
-                                choice={"pending_effect_id": pe.id, "targets": (target_id,)}
+                                target=cand.id,
+                                choice={"pending_effect_id": pe.id, "targets": (cand.id,)}
                             ))
-                    elif requirement is not None:
-                        # Fallback to get_valid_targets_for_requirement
-                        valid_targets = get_valid_targets_for_requirement(state, requirement, player, self)
-                        for target in valid_targets:
+                    if player_candidates:
+                        for cand in player_candidates:
                             actions.append(Action(
                                 ACTION_RESOLVE_PENDING_EFFECT,
                                 actor=player,
                                 source=pe.source_id,
-                                target=target,
-                                choice={"pending_effect_id": pe.id, "targets": (target,)}
+                                target=None,
+                                choice={
+                                    "pending_effect_id": pe.id,
+                                    "target_kind": "player",
+                                    "player_targets": (cand.id,),
+                                    "player": cand.id,
+                                }
                             ))
                 elif requirement_kind == "multi_target":
-                    # Multi-target selection - enumerate combinations respecting min/max
-                    raw_candidates = (
-                        (pe.raw or {}).get("candidate_ids")
-                        or getattr(raw_requirement, "candidate_ids", None)
-                        or []
+                    # Multi-target selection - use targeting service, then enumerate combinations
+                    service_candidates = get_valid_target_candidates_for_pending(state, pe, player, self)
+                    card_cands = [c for c in service_candidates if c.kind == "card"]
+                    candidate_ids = tuple(c.id for c in card_cands)
+                    min_targets = (
+                        (pe.raw or {}).get("min_targets")
+                        if (pe.raw or {}).get("min_targets") is not None
+                        else getattr(raw_requirement, "min_targets", getattr(requirement, "min_targets", 1))
+                    ) or 1
+                    max_targets = (
+                        (pe.raw or {}).get("max_targets")
+                        if (pe.raw or {}).get("max_targets") is not None
+                        else getattr(raw_requirement, "max_targets", getattr(requirement, "max_targets", len(candidate_ids)))
                     )
-                    min_targets = getattr(raw_requirement, "min_targets", 1)
-                    max_targets = getattr(raw_requirement, "max_targets", len(raw_candidates))
                     if max_targets is None:
-                        max_targets = len(raw_candidates)
-                    # Filter to valid targets if we have a requirement for validation
-                    if requirement is not None:
-                        valid_set = set(get_valid_targets_for_requirement(state, requirement, player, self))
-                        candidates = tuple(cid for cid in raw_candidates if cid in valid_set)
-                    else:
-                        candidates = tuple(raw_candidates)
+                        max_targets = len(candidate_ids)
                     # Generate all valid target combinations
                     from itertools import combinations
                     for r in range(min_targets, max_targets + 1):
-                        for combo in combinations(candidates, r):
+                        for combo in combinations(candidate_ids, r):
                             actions.append(Action(
                                 ACTION_RESOLVE_PENDING_EFFECT,
                                 actor=player,
@@ -443,20 +448,33 @@ class GameEngine:
                     # Determine choice type from raw
                     choice_type = (pe.raw or {}).get("choice_type", "choice")
                     if choice_type == "target" or choice_type == "targets":
-                        # Target-based opponent choice
-                        candidate_ids = (
-                            (pe.raw or {}).get("candidate_ids")
-                            or getattr(raw_requirement, "candidate_ids", None)
-                            or []
-                        )
-                        for target_id in candidate_ids:
-                            actions.append(Action(
-                                ACTION_RESOLVE_PENDING_EFFECT,
-                                actor=player,
-                                source=pe.source_id,
-                                target=target_id,
-                                choice={"pending_effect_id": pe.id, "targets": (target_id,)}
-                            ))
+                        # Target-based opponent choice - use targeting service
+                        candidates = get_valid_target_candidates_for_pending(state, pe, player, self)
+                        card_candidates = [c for c in candidates if c.kind == "card"]
+                        player_candidates = [c for c in candidates if c.kind == "player"]
+                        if card_candidates:
+                            for cand in card_candidates:
+                                actions.append(Action(
+                                    ACTION_RESOLVE_PENDING_EFFECT,
+                                    actor=player,
+                                    source=pe.source_id,
+                                    target=cand.id,
+                                    choice={"pending_effect_id": pe.id, "targets": (cand.id,)}
+                                ))
+                        if player_candidates:
+                            for cand in player_candidates:
+                                actions.append(Action(
+                                    ACTION_RESOLVE_PENDING_EFFECT,
+                                    actor=player,
+                                    source=pe.source_id,
+                                    target=None,
+                                    choice={
+                                        "pending_effect_id": pe.id,
+                                        "target_kind": "player",
+                                        "player_targets": (cand.id,),
+                                        "player": cand.id,
+                                    }
+                                ))
                     elif choice_type == "amount":
                         amount_options = (
                             (pe.raw or {}).get("amount_options")
@@ -2445,18 +2463,35 @@ class GameEngine:
                     resolve_amount_choice(state, pending_id, int(amount), engine=self)
 
                 elif requirement_kind == "target":
-                    targets = action.choice.get("targets")
-                    if targets is None:
-                        raise IllegalActionError("target requirement requires targets in choice")
-                    targets_tuple = tuple(targets) if targets else ()
-                    resolve_target_selection(state, pending_id, targets_tuple, engine=self)
+                    slotted_targets = action.choice.get("slotted_targets")
+                    if slotted_targets is not None:
+                        resolve_slotted_target_selection(state, pending_id, slotted_targets, engine=self)
+                    else:
+                        # Check if this is a player target
+                        target_kind = action.choice.get("target_kind")
+                        if target_kind == "player":
+                            player_targets = action.choice.get("player_targets")
+                            if player_targets is None:
+                                raise IllegalActionError("target (player) requires player_targets in choice")
+                            player_targets_tuple = tuple(player_targets) if player_targets else ()
+                            resolve_player_target_selection(state, pending_id, player_targets_tuple, engine=self)
+                        else:
+                            targets = action.choice.get("targets")
+                            if targets is None:
+                                raise IllegalActionError("target requirement requires targets in choice")
+                            targets_tuple = tuple(targets) if targets else ()
+                            resolve_target_selection(state, pending_id, targets_tuple, engine=self)
 
                 elif requirement_kind == "multi_target":
-                    targets = action.choice.get("targets")
-                    if targets is None:
-                        raise IllegalActionError("multi_target requirement requires targets in choice")
-                    targets_tuple = tuple(targets) if targets else ()
-                    resolve_multi_target_selection(state, pending_id, targets_tuple, engine=self)
+                    slotted_targets = action.choice.get("slotted_targets")
+                    if slotted_targets is not None:
+                        resolve_slotted_target_selection(state, pending_id, slotted_targets, engine=self)
+                    else:
+                        targets = action.choice.get("targets")
+                        if targets is None:
+                            raise IllegalActionError("multi_target requirement requires targets in choice")
+                        targets_tuple = tuple(targets) if targets else ()
+                        resolve_multi_target_selection(state, pending_id, targets_tuple, engine=self)
 
                 elif requirement_kind == "discard_choice":
                     discard_card_ids = action.choice.get("discard_card_ids")
@@ -2494,11 +2529,24 @@ class GameEngine:
                     # Opponent makes a choice - read choice_type from raw
                     choice_type = raw.get("choice_type", "choice")
                     if choice_type == "target" or choice_type == "targets":
-                        targets = action.choice.get("targets")
-                        if targets is None:
-                            raise IllegalActionError("opponent_choice (target) requires targets in choice")
-                        targets_tuple = tuple(targets) if targets else ()
-                        resolve_target_selection(state, pending_id, targets_tuple, engine=self)
+                        slotted_targets = action.choice.get("slotted_targets")
+                        if slotted_targets is not None:
+                            resolve_slotted_target_selection(state, pending_id, slotted_targets, engine=self)
+                        else:
+                            # Check if this is a player target
+                            target_kind = action.choice.get("target_kind")
+                            if target_kind == "player":
+                                player_targets = action.choice.get("player_targets")
+                                if player_targets is None:
+                                    raise IllegalActionError("opponent_choice (player target) requires player_targets in choice")
+                                player_targets_tuple = tuple(player_targets) if player_targets else ()
+                                resolve_player_target_selection(state, pending_id, player_targets_tuple, engine=self)
+                            else:
+                                targets = action.choice.get("targets")
+                                if targets is None:
+                                    raise IllegalActionError("opponent_choice (target) requires targets in choice")
+                                targets_tuple = tuple(targets) if targets else ()
+                                resolve_target_selection(state, pending_id, targets_tuple, engine=self)
                     elif choice_type == "amount":
                         amount = action.choice.get("amount")
                         if amount is None:
@@ -2531,7 +2579,7 @@ class GameEngine:
         requirement = pe.current_requirement
         if pe.requires_target_input and requirement is not None:
             # Target selection required - validate that we have a target
-            if not pe.selected_targets and action.target is None:
+            if not pe.selected_targets and not pe.selected_player_targets and action.target is None:
                 raise IllegalActionError(f"Pending effect {pending_id} requires a target selection")
             # Validate the target is in the stored selections or action target
             if action.target is not None:
@@ -2547,12 +2595,23 @@ class GameEngine:
         # Resolve the current effect
         current_effect = pe.current_effect
         if current_effect is not None:
-            # Get target from stored selected_targets or action target
-            selected_target = pe.selected_targets[0] if pe.selected_targets else action.target
-            # Get choice from stored selected_choice or action choice_index
-            selected_choice = pe.selected_choice if pe.selected_choice is not None else choice_index
-            # Get all selected targets for current_targets
+            # Get card targets from stored selected_targets or action target.
             selected_targets = tuple(pe.selected_targets) if pe.selected_targets else ()
+            selected_player_targets = (
+                tuple(pe.selected_player_targets)
+                or tuple((pe.raw or {}).get("selected_player_targets", ()) or ())
+                or tuple((pe.raw or {}).get("resolution_input", {}).get("player_targets", ()) or ())
+            )
+            selected_target = selected_targets[0] if selected_targets else action.target
+            if selected_player_targets and not selected_targets:
+                selected_target = None
+
+            # Player targets are passed through choice, matching player-target
+            # action effects that consume EffectResolutionContext.choice.
+            if selected_player_targets:
+                selected_choice = selected_player_targets[0]
+            else:
+                selected_choice = pe.selected_choice if pe.selected_choice is not None else choice_index
 
             # Extract event context from raw
             raw = pe.raw or {}
@@ -2572,6 +2631,7 @@ class GameEngine:
                 trigger_source=pe.source_id if pe.origin == "bag" else None,
                 trigger_subject=raw.get("trigger_subject"),
                 current_targets=selected_targets,
+                context_targets=tuple(raw.get("context_targets", ()) or ()),
             )
 
             # Resolve the effect

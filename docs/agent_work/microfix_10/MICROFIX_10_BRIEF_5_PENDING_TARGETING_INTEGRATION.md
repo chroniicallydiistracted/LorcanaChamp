@@ -361,6 +361,8 @@ Python must therefore keep card instance IDs and player IDs separate at action e
 
 Add focused tests to `tests/test_pending_effects.py` or `tests/test_targeting.py`. Use existing test builders and patterns.
 
+Use `DEMO_FEATURE_CARD_IDS` from `lorcana_bot.cards` for card fixtures. Do not create orphan test instances with `card_id` values that are not present in `engine.db`.
+
 Required coverage:
 ```text
 1. get_valid_targets_for_requirement() delegates to targeting-service behavior and preserves the old list[int] API.

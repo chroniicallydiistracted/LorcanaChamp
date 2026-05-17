@@ -16,7 +16,7 @@ from unittest.mock import MagicMock, patch
 
 from lorcana_bot.actions import Action
 from lorcana_bot.automation.candidate_enumerator import enumerate_automated_action_candidates, _candidate_from_action
-from lorcana_bot.automation.candidates import AutomatedActionFamily
+from lorcana_bot.automation.candidates import AutomatedActionCandidate, AutomatedActionFamily
 from lorcana_bot.automation.candidate_validator import validate_candidate
 from lorcana_bot.automation.move_adapter import candidate_to_action
 from lorcana_bot.pending_effects import PendingEffect, TargetRequirement
@@ -664,3 +664,58 @@ class TestPendingChoiceRoundTrip:
         assert result_action.kind == ACTION_RESOLVE_PENDING_EFFECT
         assert result_action.choice.get("selected_card_id") == 101
         assert result_action.choice.get("destination") == "hand"
+
+    def test_slotted_target_pending_action_round_trips(self):
+        """B10.7: slotted target input round-trips through automation candidates."""
+        mock_state = self._make_mock_state_with_cards()
+        mock_engine = self._make_mock_engine()
+
+        action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            source=1,
+            choice={
+                "pending_effect_id": "pe_slotted",
+                "slotted_targets": {
+                    "kind": "move-damage",
+                    "from": [4],
+                    "to": [5],
+                },
+            },
+        )
+
+        candidate = _candidate_from_action(mock_state, mock_engine, action)
+
+        assert candidate is not None
+        assert candidate.slotted_targets == {
+            "kind": "move-damage",
+            "from": (4,),
+            "to": (5,),
+        }
+        assert candidate.targets == (4, 5)
+        assert candidate.metadata["slotted_targets"] == candidate.slotted_targets
+
+        result_action = candidate_to_action(candidate)
+
+        assert result_action.kind == ACTION_RESOLVE_PENDING_EFFECT
+        assert result_action.choice["slotted_targets"] == candidate.slotted_targets
+        assert result_action.choice["targets"] == [4, 5]
+
+    def test_move_adapter_writes_flat_targets_for_slotted_candidate_without_targets(self):
+        """B10.7: move adapter exposes flattened targets for legacy pending paths."""
+        candidate = AutomatedActionCandidate(
+            family=AutomatedActionFamily.RESOLVE_EFFECT,
+            actor=0,
+            stable_key="slotted",
+            pending_effect_id="pe_slotted",
+            slotted_targets={
+                "kind": "banish-and-play",
+                "banish": (4,),
+                "play": (5, 6),
+            },
+        )
+
+        action = candidate_to_action(candidate)
+
+        assert action.choice["slotted_targets"] == candidate.slotted_targets
+        assert action.choice["targets"] == [4, 5, 6]

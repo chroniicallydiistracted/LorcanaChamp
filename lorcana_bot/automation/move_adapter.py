@@ -96,6 +96,14 @@ def candidate_to_action(candidate: AutomatedActionCandidate) -> Action:
         if candidate.targets:
             choice["targets"] = list(candidate.targets)
 
+        # B10.7: Preserve slotted target input and expose flattened targets.
+        slotted_targets = candidate.slotted_targets if isinstance(candidate.slotted_targets, dict) else {}
+        if slotted_targets:
+            choice["slotted_targets"] = slotted_targets
+            if not candidate.targets:
+                from lorcana_bot.targeting import flatten_slotted_targets
+                choice["targets"] = list(flatten_slotted_targets(slotted_targets))
+
         # Handle choice index
         if candidate.choice_index is not None:
             choice["choice_index"] = candidate.choice_index

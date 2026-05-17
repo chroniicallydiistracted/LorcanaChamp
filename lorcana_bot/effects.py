@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from dataclasses import replace
+from typing import TYPE_CHECKING, Any
 
 from .cards import EffectDef
-from .constants import CARD_CHARACTER, ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_PLAY
+from .constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_PLAY
 from .effect_types import EffectResolutionContext, SUPPORTED_EFFECT_KINDS
 from .state import GameState
 
@@ -188,7 +189,8 @@ class EffectResolver:
                 pending_trigger_id=context.pending_trigger_id,
                 trigger_source=context.trigger_source,
                 trigger_subject=context.trigger_subject,
-                current_targets=context.current_targets,
+                current_targets=(target,),
+                context_targets=context.context_targets,
             )
             self.resolve_many(state, effect.effects, nested_context)
 
@@ -310,102 +312,138 @@ class EffectResolver:
         *,
         require_target: bool = True,
     ) -> list[int]:
-        target = effect.target
-        if target in {None, "chosen_character", "chosen_card", "chosen_item", "chosen_location", "target", "opposing_character"}:
-            if context.target is None:
+        descriptor = self._normalize_effect_target(effect.target)
+        if descriptor is None:
+            if require_target:
+                raise EffectResolutionError(f"Unsupported card target {effect.target!r} for {effect.kind}")
+            return []
+
+        if self._uses_selected_card_context(descriptor.selector):
+            selected = self._selected_card_targets_from_context(context)
+            if not selected:
                 if require_target:
                     raise EffectResolutionError(f"Effect {effect.kind} requires a target")
                 return []
-            return [context.target]
-        if target == "self":
-            if context.source is None:
-                raise EffectResolutionError(f"Effect {effect.kind} requires a source")
-            return [context.source]
-        # Trigger-derived targets
-        if target == "event_source":
-            if context.trigger_source is None:
-                if require_target:
-                    raise EffectResolutionError(f"Effect {effect.kind} requires trigger_source")
-                return []
-            return [context.trigger_source]
-        if target == "event_target":
-            # B2: Normalized event target resolution priority
-            # 1. context.target (already normalized from payload)
-            if context.target is not None:
-                return [context.target]
-            # 2. context.current_targets[0]
-            if context.current_targets:
-                return [context.current_targets[0]]
-            # 3. Fall through to event_payload (for legacy/testing)
-            if context.event_payload:
-                event_target_id = (
-                    context.event_payload.get("event_target_id")
-                    or context.event_payload.get("target_id")
-                    or context.event_payload.get("defender_id")
-                )
-                if event_target_id:
-                    return [event_target_id]
-            if require_target:
-                raise EffectResolutionError(f"Effect {effect.kind} requires event_target")
-            return []
-        if target == "trigger_subject":
-            # B2: Normalized trigger subject resolution priority
-            # 1. context.trigger_subject
-            if context.trigger_subject is not None:
-                return [context.trigger_subject]
-            # 2. context.event_payload['subject_card_id']
-            if context.event_payload and "subject_card_id" in context.event_payload:
-                return [context.event_payload["subject_card_id"]]
-            if require_target:
-                raise EffectResolutionError(f"Effect {effect.kind} requires trigger_subject")
-            return []
-        if target in {"your_characters", "your_other_characters", "opposing_characters", "all_characters", "damaged_characters", "opposing_damaged_characters"}:
-            return self._collection(state, target, context)
-        raise EffectResolutionError(f"Unsupported card target {target!r} for {effect.kind}")
+            return self._resolve_selected_card_targets(state, descriptor, context, selected)
+
+        targets = self._resolve_descriptor_card_targets(state, descriptor, context)
+        if not targets and require_target:
+            raise EffectResolutionError(f"Effect {effect.kind} found no valid targets for {descriptor.selector!r}")
+        return targets
 
     def _collection(self, state: GameState, collection: str, context: EffectResolutionContext) -> list[int]:
-        players: tuple[int, ...]
-        # B2: Determine collection based on target type
-        if collection in {"your_characters", "friendly_characters"}:
-            players = (context.actor,)
-        elif collection == "your_other_characters":
-            players = (context.actor,)
-        elif collection in {"opposing_characters", "opposing_damaged_characters"}:
-            players = (state.opponent(context.actor),)
-        elif collection in {"damaged_characters", "all_characters"}:
-            players = (context.actor, state.opponent(context.actor))
-        else:
+        descriptor = self._normalize_effect_target(collection)
+        if descriptor is None:
             raise EffectResolutionError(f"Unsupported for_each collection {collection!r}")
-
-        result: list[int] = []
-        for player in players:
-            for cid in state.players[player].play:
-                if self.engine.card_def(state, cid).card_type != CARD_CHARACTER:
-                    continue
-
-                # Filter out source from your_other_characters
-                if collection == "your_other_characters" and cid == context.source:
-                    continue
-
-                # Filter by damage state
-                if collection == "damaged_characters" and state.cards[cid].damage == 0:
-                    continue
-                if collection == "opposing_damaged_characters" and state.cards[cid].damage == 0:
-                    continue
-
-                result.append(cid)
-        return result
+        targets = self._resolve_descriptor_card_targets(state, descriptor, context)
+        if not targets:
+            return []
+        return targets
 
     def _target_player(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> int:
-        if effect.target in {None, "controller", "actor", "you"}:
-            return context.actor
-        if effect.target in {"opponent", "opposing_player"}:
-            return state.opponent(context.actor)
-        if effect.target == "chosen_player":
-            if context.choice not in {0, 1}:
-                raise EffectResolutionError("chosen_player requires context.choice of 0 or 1")
+        descriptor = self._normalize_player_target(effect.target)
+        if descriptor is None:
+            raise EffectResolutionError(f"Unsupported player target {effect.target!r} for {effect.kind}")
+
+        from .targeting import resolve_candidate_player_ids
+
+        query_context = self._target_query_context(context)
+        candidates = resolve_candidate_player_ids(state, descriptor, query_context)
+
+        if descriptor.selector == "chosen_player":
+            if not isinstance(context.choice, int):
+                raise EffectResolutionError("chosen_player requires context.choice of a player id")
+            if context.choice not in candidates:
+                raise EffectResolutionError(f"chosen_player target {context.choice!r} is not valid")
             return int(context.choice)
-        raise EffectResolutionError(f"Unsupported player target {effect.target!r} for {effect.kind}")
+
+        if len(candidates) != 1:
+            raise EffectResolutionError(
+                f"Player target {effect.target!r} resolved to {len(candidates)} players"
+            )
+        return candidates[0]
+
+    def _normalize_effect_target(self, raw_target: Any):
+        from .targeting import normalize_target_descriptor
+
+        target = "target" if raw_target is None else raw_target
+        descriptor = normalize_target_descriptor(target)
+        if descriptor is not None:
+            return descriptor
+        return None
+
+    def _normalize_player_target(self, raw_target: Any):
+        from .targeting import normalize_target_descriptor
+
+        if raw_target in {None, "controller", "actor"}:
+            return normalize_target_descriptor("you")
+        if raw_target == "opposing_player":
+            return normalize_target_descriptor("opponent")
+        return normalize_target_descriptor(raw_target)
+
+    def _target_query_context(self, context: EffectResolutionContext):
+        from .targeting import TargetQueryContext
+
+        event_payload = dict(context.event_payload or {})
+        if context.trigger_source is not None:
+            event_payload.setdefault("source", context.trigger_source)
+            event_payload.setdefault("source_id", context.trigger_source)
+        elif context.source is not None:
+            event_payload.setdefault("source", context.source)
+            event_payload.setdefault("source_id", context.source)
+
+        event_target = context.target
+        if event_target is None and context.current_targets:
+            event_target = context.current_targets[0]
+        if event_target is not None:
+            event_payload.setdefault("target", event_target)
+            event_payload.setdefault("target_id", event_target)
+            event_payload.setdefault("event_target_id", event_target)
+
+        if context.trigger_subject is not None:
+            event_payload.setdefault("subject", context.trigger_subject)
+            event_payload.setdefault("trigger_subject", context.trigger_subject)
+            event_payload.setdefault("subject_id", context.trigger_subject)
+            event_payload.setdefault("subject_card_id", context.trigger_subject)
+
+        return TargetQueryContext(
+            actor=context.actor,
+            source_id=context.source,
+            event_payload=event_payload,
+            current_targets=context.current_targets,
+            context_targets=context.context_targets,
+        )
+
+    def _uses_selected_card_context(self, selector: str) -> bool:
+        from .targeting import requires_explicit_target_selection
+
+        return selector == "target" or requires_explicit_target_selection(selector)
+
+    def _selected_card_targets_from_context(self, context: EffectResolutionContext) -> tuple[int, ...]:
+        if context.current_targets:
+            return context.current_targets
+        if context.target is not None:
+            return (context.target,)
+        return ()
+
+    def _resolve_selected_card_targets(
+        self,
+        state: GameState,
+        descriptor,
+        context: EffectResolutionContext,
+        selected: tuple[int, ...],
+    ) -> list[int]:
+        from .targeting import resolve_candidate_card_ids
+
+        query_context = self._target_query_context(context)
+        constrained = replace(descriptor, selector="current_targets")
+        constrained_context = replace(query_context, current_targets=selected)
+        return list(resolve_candidate_card_ids(state, self.engine, constrained, constrained_context))
+
+    def _resolve_descriptor_card_targets(self, state: GameState, descriptor, context: EffectResolutionContext) -> list[int]:
+        from .targeting import resolve_candidate_card_ids
+
+        return list(resolve_candidate_card_ids(state, self.engine, descriptor, self._target_query_context(context)))
 
     def _amount(self, effect: EffectDef) -> int:
         return int(effect.amount or 0)

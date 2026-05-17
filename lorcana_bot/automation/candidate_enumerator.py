@@ -521,7 +521,12 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
         named_card = choice.get("named_card")
         destination = choice.get("destination")
         amount = choice.get("amount")
-        targets = tuple(choice.get("targets", ()))
+        slotted_targets = _normalize_slotted_targets_for_candidate(choice.get("slotted_targets"))
+        flat_slotted_targets: tuple[int, ...] = ()
+        if slotted_targets:
+            from lorcana_bot.targeting import flatten_slotted_targets
+            flat_slotted_targets = flatten_slotted_targets(slotted_targets)
+        targets = tuple(choice.get("targets", ())) or flat_slotted_targets
         discard_card_ids = tuple(choice.get("discard_card_ids", ()))
         enter_play_exerted = choice.get("enter_play_exerted")
 
@@ -542,6 +547,7 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
             "targets": targets,
             "discard_card_ids": discard_card_ids,
             "enter_play_exerted": enter_play_exerted,
+            "slotted_targets": slotted_targets,
         }
         metadata = {key: value for key, value in metadata.items() if value is not None and value != ()}
 
@@ -578,6 +584,7 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
                 targets=targets,
                 discard_card_ids=discard_card_ids,
                 enter_play_exerted=enter_play_exerted,
+                slotted_targets=slotted_targets,
             ),
             source_instance_id=action.source,
             source_card_id=source_card_id,
@@ -594,6 +601,7 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
             targets=targets,
             discard_card_ids=discard_card_ids,
             enter_play_exerted=enter_play_exerted,
+            slotted_targets=slotted_targets,
         )
     if action.kind == ACTION_RESOLVE_BAG:
         bag_id = action.choice.get("bag_id") if action.choice else None
@@ -682,6 +690,13 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
             },
         )
     return None
+
+
+def _normalize_slotted_targets_for_candidate(value: Any) -> dict[str, Any]:
+    if value is None:
+        return {}
+    from lorcana_bot.targeting import normalize_slotted_target_input
+    return normalize_slotted_target_input(value)
 
 
 def _mulligan_structural_candidates(state: GameState, engine: GameEngine, actor: int, legal: list[Action]) -> list[AutomatedActionCandidate]:

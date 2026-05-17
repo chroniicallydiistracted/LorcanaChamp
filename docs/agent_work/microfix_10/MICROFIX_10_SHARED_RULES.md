@@ -247,6 +247,43 @@ SlottedTargetInput preserves structured multi-slot choices and can be flattened 
 
 ## 7. Testing Rules
 
+Use the curated demo feature pool for targeting and play-mode tests:
+```python
+from lorcana_bot.cards import DEMO_FEATURE_CARD_IDS, load_demo_database
+```
+
+Current curated feature IDs include:
+```text
+basic_character
+bodyguard_character
+evasive_character
+rush_character
+ward_character
+challenger_character
+resist_character
+singer_character
+item
+location
+action
+song
+target_character_action
+target_item_action
+target_location_action
+target_player_action
+target_damaged_action
+fixed_opponent_action
+shift_base
+shift_same_name
+shift_classification_base
+shift_classification
+shift_universal
+shift_non_ink_cost
+```
+
+Do not create `CardInstance.card_id` values that are absent from `engine.db`.
+For unit tests, either use a card ID from `DEMO_FEATURE_CARD_IDS` or add a matching `CardDef` to the test `CardDatabase`.
+Do not "fix" targeting failures by allowing raw candidate IDs to bypass descriptor validation and protections.
+
 Every brief must run:
 ```bash
 python3 -m pytest tests/test_targeting.py -q
