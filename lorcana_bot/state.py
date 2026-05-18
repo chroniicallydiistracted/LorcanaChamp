@@ -240,6 +240,9 @@ class GameState:
     # B6: Replacement effect registry for damage/banish interception
     replacement_effect_registry: ReplacementEffectRegistry = field(default_factory=_default_replacement_effect_registry)
 
+    # B13: Turn metadata for trigger condition evaluation (Lorcanito turn-metrics)
+    turn_metadata: dict[str, Any] = field(default_factory=dict)
+
     def opponent(self, player: int) -> int:
         return 1 - player
 

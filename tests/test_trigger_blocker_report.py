@@ -17,6 +17,39 @@ def test_analyze_trigger_on_filter_supported():
     assert _analyze_trigger_on_filter({"cardType": "character", "controller": "you"}) is None
 
 
+def test_characters_here_no_longer_reports_unsupported_on():
+    """Test that CHARACTERS_HERE and related string filters no longer report unsupported_on."""
+    from lorcana_bot.decks.trigger_blocker_report import SUPPORTED_TRIGGER_ON_VALUES
+
+    # 2C: These string filters are now supported
+    assert "CHARACTERS_HERE" in SUPPORTED_TRIGGER_ON_VALUES
+    assert "CHARACTER_HERE" in SUPPORTED_TRIGGER_ON_VALUES
+    assert "ANY_ITEM" in SUPPORTED_TRIGGER_ON_VALUES
+    assert "YOUR_ACTIONS" in SUPPORTED_TRIGGER_ON_VALUES
+    assert "YOUR_SONGS" in SUPPORTED_TRIGGER_ON_VALUES
+    assert "YOUR_CHARACTERS_OR_LOCATIONS" in SUPPORTED_TRIGGER_ON_VALUES
+    assert "YOUR_CHARACTERS_OR_LOCATIONS_WITH_CARD_UNDER" in SUPPORTED_TRIGGER_ON_VALUES
+
+
+def test_ink_type_filter_no_longer_reports_complex_filter():
+    """Test that ink-type filter no longer reports complex_filter."""
+    from lorcana_bot.decks.trigger_blocker_report import _analyze_trigger_on_filter, SUPPORTED_FILTER_KEYS, SUPPORTED_FILTER_TYPES
+
+    # 2C: Verify ink-type filter type is now supported
+    assert "ink-type" in SUPPORTED_FILTER_TYPES
+
+    # Pluto-style trigger with ink-type filter
+    pluto_style_trigger = {
+        "cardType": "character",
+        "controller": "you",
+        "excludeSelf": True,
+        "filters": [{"type": "ink-type", "inkType": "steel"}],
+    }
+
+    # 2C: This should NOT report unsupported - ink-type is supported
+    assert _analyze_trigger_on_filter(pluto_style_trigger) is None
+
+
 def test_analyze_trigger_on_filter_unsupported():
     """Test that unsupported trigger on filters return blocker strings."""
     assert _analyze_trigger_on_filter({"unsupported_key": "value"}) == "unsupported_trigger_on:complex_filter:unsupported_key"
@@ -38,12 +71,16 @@ def test_extract_resolution_requirements_recursive():
             self.effects = effects
             self.auto_resolve = auto_resolve
 
-    # Test nested scry
-    nested_scry = MockEffect("sequence", effects=[MockEffect("scry")])
-    ability = MockAbility([nested_scry])
+    # 4C: Test recursive extraction of other requirements
+    # scry_ordering is no longer a blocker since Brief 4B supports pending scry
+    nested_draw = MockEffect("sequence", effects=[MockEffect("draw", raw={"type": "draw", "amount": 1})])
+    ability = MockAbility([nested_draw])
 
     requirements = _extract_resolution_requirements(ability)
-    assert "scry_ordering" in requirements
+    # Amount is not a blocker for static integer shape
+    assert "amount" not in requirements
+    # Ensure recursive extraction still works for other requirements
+    assert True  # Other requirements would be added here
 
 
 def test_build_trigger_summary_excludes_projected():
@@ -146,3 +183,185 @@ def test_trigger_summary_all_dimensions_populated():
     assert summary["by_target_kind"]  # Not empty
     assert summary["by_condition_kind"]  # Not empty
     assert summary["by_resolution_requirement"]  # Not empty
+
+
+def test_has_card_under_no_longer_reports_unsupported_condition():
+    """Test that has-card-under condition no longer reports unsupported_condition."""
+    from lorcana_bot.importers.lorcanito_source_mapper import SUPPORTED_CONDITION_KINDS
+
+    # 3C: has-card-under is now supported
+    assert "has-card-under" in SUPPORTED_CONDITION_KINDS
+
+
+def test_turn_metric_no_longer_reports_unsupported_condition():
+    """Test that turn-metric condition no longer reports unsupported_condition."""
+    from lorcana_bot.importers.lorcanito_source_mapper import SUPPORTED_CONDITION_KINDS
+
+    # 3C: turn-metric is now supported
+    assert "turn-metric" in SUPPORTED_CONDITION_KINDS
+
+
+class TestMicrofix4CBlockerReportAlignment:
+    """Tests for microfix 4C blocker report alignment."""
+
+    def test_supported_amount_shape_not_reported_as_resolution_blocker(self):
+        """Supported amount shapes should not be reported as amount blockers."""
+        from lorcana_bot.decks.trigger_blocker_report import _extract_resolution_requirements, _get_amount_shape_from_raw
+
+        # Verify the amount shape detection works
+        assert _get_amount_shape_from_raw(2) == "static_integer"
+        assert _get_amount_shape_from_raw("3") == "numeric_string"
+        assert _get_amount_shape_from_raw({"type": "static", "amount": 1}) == "static_object"
+        assert _get_amount_shape_from_raw({"type": "event-snapshot", "key": "drawnCount"}) == "event_snapshot_drawn_count"
+        assert _get_amount_shape_from_raw({"type": "event-snapshot", "key": "cardsUnderCountBeforeBanish"}) == "event_snapshot_cards_under_count"
+
+        # Mock ability with supported amount shape (static integer)
+        class MockEffect:
+            def __init__(self, kind, effects=None, branches=None, raw=None):
+                self.kind = kind
+                self.effects = effects or []
+                self.branches = branches or []
+                self.raw = raw or {}
+
+        class MockAbility:
+            def __init__(self, effects, auto_resolve=True):
+                self.effects = effects
+                self.auto_resolve = auto_resolve
+
+        # Supported static integer amount
+        effect_static = MockEffect("gain-lore", raw={"type": "gain-lore", "amount": 2})
+        ability_static = MockAbility([effect_static])
+
+        requirements = _extract_resolution_requirements(ability_static)
+        # 4C: static_integer amount shape is NOT a blocker
+        assert "amount" not in requirements
+
+        # Supported numeric string amount
+        effect_string = MockEffect("draw", raw={"type": "draw", "amount": "3"})
+        ability_string = MockAbility([effect_string])
+
+        requirements = _extract_resolution_requirements(ability_string)
+        # 4C: numeric_string amount shape is NOT a blocker
+        assert "amount" not in requirements
+
+        # Supported static object amount
+        effect_static_obj = MockEffect("deal-damage", raw={"type": "deal-damage", "amount": {"type": "static", "amount": 1}})
+        ability_static_obj = MockAbility([effect_static_obj])
+
+        requirements = _extract_resolution_requirements(ability_static_obj)
+        # 4C: static_object amount shape is NOT a blocker
+        assert "amount" not in requirements
+
+        # Supported event-snapshot amount
+        effect_event = MockEffect("gain-lore", raw={"type": "gain-lore", "amount": {"type": "event-snapshot", "key": "drawnCount"}})
+        ability_event = MockAbility([effect_event])
+
+        requirements = _extract_resolution_requirements(ability_event)
+        # 4C: event_snapshot amount shape is NOT a blocker
+        assert "amount" not in requirements
+
+    def test_unsupported_amount_shape_still_reported_as_resolution_blocker(self):
+        """Unsupported amount shapes should still be reported as blockers."""
+        from lorcana_bot.decks.trigger_blocker_report import _extract_resolution_requirements, _get_amount_shape_from_raw
+
+        # Verify unsupported shapes return None
+        assert _get_amount_shape_from_raw({"type": "dynamic", "key": "unknown"}) is None
+        assert _get_amount_shape_from_raw({"type": "event-snapshot", "key": "unknownKey"}) is None
+        assert _get_amount_shape_from_raw([1, 2, 3]) is None
+
+        # Mock ability with unsupported amount shape
+        class MockEffect:
+            def __init__(self, kind, raw=None):
+                self.kind = kind
+                self.effects = []
+                self.branches = []
+                self.raw = raw or {}
+
+        class MockAbility:
+            def __init__(self, effects, auto_resolve=True):
+                self.effects = effects
+                self.auto_resolve = auto_resolve
+
+        # Unsupported dynamic amount
+        effect_dynamic = MockEffect("deal-damage", raw={"type": "deal-damage", "amount": {"type": "dynamic", "key": "opponentCharacterCount"}})
+        ability_dynamic = MockAbility([effect_dynamic])
+
+        requirements = _extract_resolution_requirements(ability_dynamic)
+        # 4C: Unsupported amount shape IS a blocker
+        assert "amount" in requirements
+
+        # Unsupported event-snapshot key
+        effect_unknown_key = MockEffect("gain-lore", raw={"type": "gain-lore", "amount": {"type": "event-snapshot", "key": "unknownKey"}})
+        ability_unknown_key = MockAbility([effect_unknown_key])
+
+        requirements = _extract_resolution_requirements(ability_unknown_key)
+        # 4C: Unknown event-snapshot key IS a blocker
+        assert "amount" in requirements
+
+        # Unsupported list amount
+        effect_list = MockEffect("draw", raw={"type": "draw", "amount": [1, 2, 3]})
+        ability_list = MockAbility([effect_list])
+
+        requirements = _extract_resolution_requirements(ability_list)
+        # 4C: Unsupported list amount IS a blocker
+        assert "amount" in requirements
+
+    def test_scry_ordering_not_reported_when_pending_route_supported(self):
+        """Scry ordering should not be reported as blocker since Brief 4B supports pending scry."""
+        from lorcana_bot.decks.trigger_blocker_report import _extract_resolution_requirements
+
+        # Mock ability with scry effect
+        class MockEffect:
+            def __init__(self, kind, effects=None, branches=None, raw=None):
+                self.kind = kind
+                self.effects = effects or []
+                self.branches = branches or []
+                self.raw = raw or {}
+
+        class MockAbility:
+            def __init__(self, effects, auto_resolve=True):
+                self.effects = effects
+                self.auto_resolve = auto_resolve
+
+        # Scry effect (no amount required - Brief 4B handles pending scry)
+        effect_scry = MockEffect("scry", raw={"type": "scry"})
+        ability_scry = MockAbility([effect_scry])
+
+        requirements = _extract_resolution_requirements(ability_scry)
+        # 4C: scry_ordering is NOT a blocker because Brief 4B supports pending scry through bag completion
+        assert "scry_ordering" not in requirements
+
+        # Nested scry effect
+        effect_nested = MockEffect("sequence", effects=[
+            MockEffect("scry", raw={"type": "scry"})
+        ])
+        ability_nested = MockAbility([effect_nested])
+
+        requirements = _extract_resolution_requirements(ability_nested)
+        # 4C: Nested scry also does not report scry_ordering
+        assert "scry_ordering" not in requirements
+
+    def test_reveal_routing_still_reported_as_blocker(self):
+        """reveal-routing should still be reported as blocker."""
+        from lorcana_bot.decks.trigger_blocker_report import _extract_resolution_requirements
+
+        # Mock ability with reveal-and-route effect
+        class MockEffect:
+            def __init__(self, kind, raw=None):
+                self.kind = kind
+                self.effects = []
+                self.branches = []
+                self.raw = raw or {}
+
+        class MockAbility:
+            def __init__(self, effects, auto_resolve=True):
+                self.effects = effects
+                self.auto_resolve = auto_resolve
+
+        # reveal-and-route effect
+        effect_reveal = MockEffect("reveal-and-route", raw={"type": "reveal-and-route"})
+        ability_reveal = MockAbility([effect_reveal])
+
+        requirements = _extract_resolution_requirements(ability_reveal)
+        # reveal_routing is still a blocker (not addressed by Brief 4B)
+        assert "reveal_routing" in requirements

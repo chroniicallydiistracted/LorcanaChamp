@@ -5,7 +5,7 @@ from lorcana_bot.engine import GameEngine
 from lorcana_bot.cards import CardDatabase, CardDef, EffectDef, TriggerDef
 from lorcana_bot.state import GameState, BagEffectEntry, PendingTriggeredEvent, GameEvent
 from lorcana_bot.actions import Action
-from lorcana_bot.constants import ACTION_RESOLVE_BAG, ACTION_CONCEDE, ACTION_END_TURN
+from lorcana_bot.constants import ACTION_RESOLVE_BAG, ACTION_CONCEDE, ACTION_END_TURN, ACTION_RESOLVE_PENDING_EFFECT
 from lorcana_bot.effect_types import EffectResolutionContext
 
 
@@ -508,3 +508,196 @@ class TestNonActiveBagResolver:
         non_active = 1 - state.active_player
         non_active_actions = engine.legal_actions(state, non_active)
         assert len(non_active_actions) == 0, "Non-active player with empty bag should have no actions"
+
+
+class TestTriggeredScryPending:
+    """Tests for triggered scry effects creating pending effects from bag resolution."""
+
+    def test_triggered_scry_creates_bag_origin_pending_effect(self, engine):
+        """Test that resolving a bag-origin triggered scry effect creates a pending effect.
+
+        Required behavior:
+        1. Resolving a bag-origin triggered scry effect creates a pending effect
+           with requirement_kind == "scry_ordering".
+        2. The pending effect raw data includes:
+           - origin == "bag"
+           - origin_id == bag_id
+        3. The bag item remains in state.bag while the pending effect is unresolved.
+        """
+        state = engine.setup_game([["test_char"] * 30, ["test_char"] * 30], seed=42)
+
+        # Manually create a card in play
+        from lorcana_bot.state import CardInstance
+        from lorcana_bot.constants import ZONE_PLAY
+
+        next_id = max(state.cards.keys()) + 1 if state.cards else 1
+        test_char = next_id
+
+        state.cards[test_char] = CardInstance(instance_id=test_char, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+        state.players[0].play.append(test_char)
+
+        # Create a bag entry with a scry effect
+        from lorcana_bot.state import PendingTriggeredEvent
+        pending_event = PendingTriggeredEvent(
+            id="test_event_scry",
+            event="quest",
+            player_id=0,
+            subject_card_id=test_char,
+            trigger_source_card_id=test_char,
+            source_card_type="character",
+            payload={},
+        )
+
+        # Scry effect with amount 2 (look at top 2 cards)
+        scry_effect = EffectDef(kind="scry", amount=2)
+
+        bag_entry = BagEffectEntry(
+            id="bag_scry_1",
+            kind="triggered_ability",
+            ability_id="test_scry_ability",
+            ability_index=0,
+            ability_key="test_scry:0",
+            ability_name="Test Scry Ability",
+            auto_resolve=True,
+            controller_id=0,
+            chooser_id=0,
+            source_id=test_char,
+            source_card_id="test_char",
+            trigger={"event": "quest", "on": None},
+            condition=None,
+            effects=(scry_effect,),
+            occurrence_index=1,
+            event=pending_event,
+            raw={},
+        )
+
+        state.bag.append(bag_entry)
+
+        # Find resolve bag action
+        actions = engine.legal_actions(state, 0)
+        resolve_actions = [a for a in actions if a.kind == ACTION_RESOLVE_BAG]
+        assert len(resolve_actions) > 0
+
+        # Apply the resolve action
+        next_state = engine.apply_action(state, resolve_actions[0])
+
+        # Check that a pending effect was created with scry_ordering requirement_kind
+        assert len(next_state.pending_effects) == 1, "Should have created one pending effect"
+        pe = next_state.pending_effects[0]
+        assert pe.raw.get("requirement_kind") == "scry_ordering", "Pending effect should have scry_ordering requirement_kind"
+
+        # Check that pending effect has bag origin
+        assert pe.origin == "bag", "Pending effect should have bag origin"
+        assert pe.origin_id == "bag_scry_1", "Pending effect should have correct origin_id"
+
+        # Check that bag entry is still present (not removed yet)
+        bag_ids = [entry.id for entry in next_state.bag]
+        assert "bag_scry_1" in bag_ids, "Bag entry should remain while pending effect is unresolved"
+
+    def test_resolving_bag_origin_scry_pending_removes_bag_item_once(self, engine):
+        """Test that resolving a bag-origin scry pending effect removes exactly one bag item.
+
+        Required behavior:
+        1. Resolving the pending scry effect removes exactly one matching bag item.
+        2. Deck order changes according to resolved top/bottom ordering.
+        """
+        state = engine.setup_game([["test_char"] * 30, ["test_char"] * 30], seed=42)
+
+        # Manually create a card in play
+        from lorcana_bot.state import CardInstance
+        from lorcana_bot.constants import ZONE_PLAY
+
+        next_id = max(state.cards.keys()) + 1 if state.cards else 1
+        test_char = next_id
+
+        state.cards[test_char] = CardInstance(instance_id=test_char, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+        state.players[0].play.append(test_char)
+
+        # Store initial deck order
+        initial_deck = list(state.players[0].deck)
+        assert len(initial_deck) >= 2, "Need at least 2 cards in deck for scry test"
+
+        # Create a bag entry with a scry effect
+        from lorcana_bot.state import PendingTriggeredEvent
+        pending_event = PendingTriggeredEvent(
+            id="test_event_scry_2",
+            event="quest",
+            player_id=0,
+            subject_card_id=test_char,
+            trigger_source_card_id=test_char,
+            source_card_type="character",
+            payload={},
+        )
+
+        scry_effect = EffectDef(kind="scry", amount=2)
+
+        bag_entry = BagEffectEntry(
+            id="bag_scry_2",
+            kind="triggered_ability",
+            ability_id="test_scry_ability_2",
+            ability_index=0,
+            ability_key="test_scry_2:0",
+            ability_name="Test Scry Ability 2",
+            auto_resolve=True,
+            controller_id=0,
+            chooser_id=0,
+            source_id=test_char,
+            source_card_id="test_char",
+            trigger={"event": "quest", "on": None},
+            condition=None,
+            effects=(scry_effect,),
+            occurrence_index=1,
+            event=pending_event,
+            raw={},
+        )
+
+        state.bag.append(bag_entry)
+
+        # First action: resolve bag
+        actions = engine.legal_actions(state, 0)
+        resolve_bag_actions = [a for a in actions if a.kind == ACTION_RESOLVE_BAG]
+        assert len(resolve_bag_actions) > 0
+
+        state_after_bag = engine.apply_action(state, resolve_bag_actions[0])
+
+        # Check pending effect was created
+        assert len(state_after_bag.pending_effects) == 1
+        pe = state_after_bag.pending_effects[0]
+
+        # Second action: resolve the scry pending effect
+        # Get the scry candidates (top 2 cards from deck)
+        from lorcana_bot.pending_effects import ScryRequirement
+        scry_req = pe.raw.get("requirement")
+        assert isinstance(scry_req, ScryRequirement), "Requirement should be ScryRequirement"
+        candidate_ids = scry_req.candidate_ids
+        assert len(candidate_ids) == 2, "Should have 2 scry candidates"
+
+        # Resolve with specific ordering: top_cards=(first, second), bottom_cards=()
+        resolve_pending_action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            source=pe.source_id,
+            choice={
+                "pending_effect_id": pe.id,
+                "top_cards": candidate_ids,
+                "bottom_cards": (),
+            },
+        )
+
+        # Verify this action is legal
+        actions_after_bag = engine.legal_actions(state_after_bag, 0)
+        assert resolve_pending_action in actions_after_bag, "Scry resolution action should be legal"
+
+        state_final = engine.apply_action(state_after_bag, resolve_pending_action)
+
+        # Check pending effect was completed
+        assert len(state_final.pending_effects) == 0, "Pending effect should be completed"
+
+        # Check bag entry was removed
+        bag_ids = [entry.id for entry in state_final.bag]
+        assert "bag_scry_2" not in bag_ids, "Bag entry should be removed after pending resolution"
+
+        # Check deck order changed - the top 2 cards should now be at the top (possibly reordered)
+        # The scry should have moved cards around
+        new_deck = state_final.players[0].deck
+        assert set(new_deck[:2]) == set(candidate_ids), "Scry candidates should be at top of deck"

@@ -19,6 +19,7 @@ from lorcana_bot.constants import (
     ACTION_QUEST,
     ACTION_SING_SONG,
     ACTION_USE_ABILITY,
+    EVENT_PUT_CARD_UNDER,
     ZONE_UNDER,
 )
 from lorcana_bot.engine import GameEngine
@@ -488,6 +489,24 @@ class TestExecuteShiftPlay:
         assert len(shift_events) == 1
         assert shift_events[0].payload.get("shift_cost") == 3
         assert shift_events[0].payload.get("shift_target_name") == "Maleficent"
+
+    def test_shift_emits_put_card_under_event(self):
+        """Shift stack attachment should emit Lorcanito put-card-under event."""
+        engine, state = self._setup_shift_game_state()
+
+        execute_shift_play(state, engine, 2, 1)
+
+        put_under_events = [
+            event for event in state.event_log
+            if event.event_type == EVENT_PUT_CARD_UNDER
+        ]
+        assert len(put_under_events) == 1
+        assert put_under_events[0].payload["player_id"] == 0
+        assert put_under_events[0].payload["card_id"] == 1
+        assert put_under_events[0].payload["target_id"] == 2
+
+        pending_events = [pending.event for pending in state.pending_trigger_events]
+        assert "put-card-under" in pending_events
 
 
 class TestShiftTargetModes:
@@ -1650,6 +1669,66 @@ class TestCardsUnderRestrictions:
         assert state.cards[1].stack_parent_id is None
         assert state.cards[2].stack_parent_id is None
         assert state.cards[3].stack_parent_id is None
+
+
+class TestShiftTurnMetadata:
+    """Tests for turn metadata recording during Shift operations."""
+
+    def _setup_shift_game_state(self) -> tuple[GameEngine, GameState]:
+        """Set up complete game state."""
+        cards = [
+            _make_test_shift_card(
+                "test_mal_base", "Maleficent", shift_cost=3,
+                strength=3, willpower=4, lore=1
+            ),
+            _make_test_shift_card(
+                "test_mal_shift", "Maleficent", shift_cost=3,
+                strength=7, willpower=7, lore=2
+            ),
+        ]
+        engine = GameEngine(CardDatabase(cards))
+
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={},
+        )
+
+        # Add base Maleficent to play for player 0
+        state.cards[1] = CardInstance(
+            instance_id=1, card_id="test_mal_base", owner=0, controller=0, zone="play"
+        )
+        state.players[0].play.append(1)
+
+        # Add shifted Maleficent to hand for player 0
+        state.cards[2] = CardInstance(
+            instance_id=2, card_id="test_mal_shift", owner=0, controller=0, zone="hand"
+        )
+        state.players[0].hand.append(2)
+
+        # Add ink for player 0
+        for i in range(10):
+            state.cards[100 + i] = CardInstance(
+                instance_id=100 + i, card_id="ink_amber", owner=0, controller=0, zone="inkwell"
+            )
+            state.players[0].inkwell.append(100 + i)
+
+        return engine, state
+
+    def test_shift_records_put_card_under_turn_metadata(self):
+        """Test that shift play records cards_put_under_this_turn_by_player and cards_put_under_self_this_turn_by_card."""
+        from lorcana_bot.play_modes import execute_shift_play
+
+        engine, state = self._setup_shift_game_state()
+
+        # Execute shift
+        execute_shift_play(state, engine, 2, 1)
+
+        # Verify turn metadata was recorded
+        assert "cards_put_under_this_turn_by_player" in state.turn_metadata
+        assert state.turn_metadata["cards_put_under_this_turn_by_player"][0] == 1  # 1 card put under
+
+        assert "cards_put_under_self_this_turn_by_card" in state.turn_metadata
+        assert state.turn_metadata["cards_put_under_self_this_turn_by_card"][2] == 1  # Card 2 (top of stack) received 1 card under
 
 
 if __name__ == "__main__":

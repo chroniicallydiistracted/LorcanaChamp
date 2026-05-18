@@ -435,16 +435,50 @@ def project_action_effects(card: CardDef) -> tuple[EffectDef, ...]:
     return tuple(effects)
 
 
-# Supported trigger events for B2 trigger projection
+# Supported trigger on values (separate from effect target aliases)
+# 2C: Added string filters for CHARACTERS_HERE, YOUR_ITEMS, etc.
+SUPPORTED_TRIGGER_ON_VALUES = frozenset({
+    "SELF",
+    "YOU",
+    "CONTROLLER",
+    "OPPONENT",
+    "ANY_PLAYER",
+    "YOUR_CHARACTERS",
+    "YOUR_OTHER_CHARACTERS",
+    "OPPOSING_CHARACTERS",
+    "ANY_CHARACTER",
+    "YOUR_ITEMS",
+    "YOUR_LOCATIONS",
+    # 2C: Supported string filters
+    "CHARACTERS_HERE",
+    "CHARACTER_HERE",
+    "ANY_ITEM",
+    "YOUR_ACTIONS",
+    "YOUR_SONGS",
+    "YOUR_CHARACTERS_OR_LOCATIONS",
+    "YOUR_CHARACTERS_OR_LOCATIONS_WITH_CARD_UNDER",
+})
+
+# Supported trigger events for trigger projection.
 SUPPORTED_TRIGGER_EVENTS = frozenset({
     "play",
     "quest",
     "challenge",
     "banish",
+    "banish-in-challenge",
     "start-turn",
     "end-turn",
     "ink",
     "move",
+    "discard",
+    "return-to-hand",
+    "draw",
+    "gain-lore",
+    "lose-lore",
+    "support",
+    "deal-damage",
+    "put-card-under",
+    "leave-play",
     "challenged",
     "damage",
     "exert",
@@ -558,20 +592,22 @@ SUPPORTED_CONDITION_KINDS = frozenset({
     "first-turn-non-otp",
     "is-named",
     "stat-threshold",
+    # 3C: Card-under and turn-metric conditions now supported
+    "has-card-under",
+    "trigger-subject-had-card-under",
+    "put-card-under-any-this-turn",
+    "put-card-under-self-this-turn",
+    "banished-in-challenge-this-turn",
+    "turn-metric",
 })
 
 # Blocked condition kinds - these cannot be truthfully evaluated at runtime
 # They block trigger projection rather than allowing incorrect execution
+# 3C: Card-under and turn-metric conditions moved to SUPPORTED_CONDITION_KINDS
 BLOCKED_CONDITION_KINDS = frozenset({
-    # Requires tracking state not currently available
-    "banished-in-challenge-this-turn",
-    "has-card-under",
     "at-location",
     "has-granted-ability",
     "target-aggregate-comparison",
-    "trigger-subject-had-card-under",
-    "put-card-under-any-this-turn",
-    "put-card-under-self-this-turn",
     # Requires card instance tracking
     "used-shift",
 })
@@ -650,6 +686,54 @@ def project_triggers(card: CardDef) -> tuple[TriggerDef, ...]:
     return tuple(triggers)
 
 
+# 4C: Supported amount shapes that Brief 4A resolver can handle
+SUPPORTED_AMOUNT_SHAPES = frozenset({
+    # Static integer amounts
+    "static_integer",
+    # Numeric string amounts
+    "numeric_string",
+    # Static object: {"type": "static", "amount": N}
+    "static_object",
+    # Event snapshot: {"type": "event-snapshot", "key": "drawnCount"}
+    # or {"type": "event-snapshot", "key": "cardsUnderCountBeforeBanish"}
+    "event_snapshot_drawn_count",
+    "event_snapshot_cards_under_count",
+})
+
+
+def _get_amount_shape(raw_amount: Any) -> str | None:
+    """Determine the shape of an amount value.
+
+    Returns a shape identifier or None for unsupported shapes.
+    4C: Used to filter amount projection to shapes Brief 4A resolver supports.
+    """
+    if raw_amount is None:
+        return "static_integer"  # No amount = 0, but shape is supported
+
+    # Static integer
+    if isinstance(raw_amount, int):
+        return "static_integer"
+
+    # Numeric string (e.g., "2")
+    if isinstance(raw_amount, str) and raw_amount.isdigit():
+        return "numeric_string"
+
+    # Static object: {"type": "static", "amount": N}
+    if isinstance(raw_amount, dict):
+        if raw_amount.get("type") == "static" and "amount" in raw_amount:
+            return "static_object"
+        # Event snapshot: {"type": "event-snapshot", "key": "drawnCount"}
+        if raw_amount.get("type") == "event-snapshot":
+            key = raw_amount.get("key")
+            if key == "drawnCount":
+                return "event_snapshot_drawn_count"
+            if key == "cardsUnderCountBeforeBanish":
+                return "event_snapshot_cards_under_count"
+
+    # Unsupported shape
+    return None
+
+
 def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
     """Project a source effect into an EffectDef for trigger execution.
 
@@ -657,6 +741,8 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
 
     B3: CHOSEN_* targets are now allowed - they will be resolved via pending effect
     system at runtime, allowing triggers with chosen targets to project.
+    4C: Amount is projected only for shapes Brief 4A resolver supports.
+    Unsupported amount shapes cause the effect to not project.
     """
     kind = ENGINE_EFFECT_MAP.get(effect.kind)
     if not kind:
@@ -664,6 +750,15 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
 
     if kind not in SUPPORTED_EFFECT_KINDS:
         return None
+
+    # 4C: Check amount shape before projection
+    # If effect has an amount, verify it's a shape the Brief 4A resolver supports
+    raw_amount = effect.raw.get("amount") if effect.raw and "amount" in effect.raw else effect.amount
+    if raw_amount is not None:
+        amount_shape = _get_amount_shape(raw_amount)
+        if amount_shape is None:
+            # Unsupported amount shape - do not project this effect
+            return None
 
     # Check target if present
     target = None
@@ -712,9 +807,21 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
     if effect.kind == "modify-stat":
         value = {str(effect.raw.get("attribute") or "strength"): effect.amount or effect.raw.get("modifier", 0)}
 
+    # 4C: Project amount only for supported shapes, preserve raw for resolution
+    # For supported shapes, extract the actual amount value
+    projected_amount = 0
+    if raw_amount is not None:
+        if isinstance(raw_amount, int):
+            projected_amount = raw_amount
+        elif isinstance(raw_amount, str) and raw_amount.isdigit():
+            projected_amount = int(raw_amount)
+        elif isinstance(raw_amount, dict) and raw_amount.get("type") == "static":
+            projected_amount = raw_amount.get("amount", 0)
+        # Event snapshot amounts are passed through raw for runtime resolution
+
     return EffectDef(
         kind=kind,
-        amount=int(effect.amount or 0) if isinstance(effect.amount, int) or str(effect.amount or "").isdigit() else 0,
+        amount=projected_amount,
         target=target,
         value=value,
         keyword=_keyword_constant(str(keyword)) if keyword else None,
@@ -722,6 +829,7 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
         condition=condition,
         optional=effect.kind == "optional" or bool(effect.optional),
         duration=effect.duration if isinstance(effect.duration, str) else None,
+        # 4C: Preserve raw amount information for Brief 4A resolver at runtime
         raw=asdict(effect),
     )
 

@@ -232,13 +232,16 @@ def evaluate_condition(
         return _evaluate_target_aggregate(condition, state, source_instance_id, engine)
 
     if kind == "trigger-subject-had-card-under":
-        return _evaluate_trigger_subject_had_card_under(condition, state, source_instance_id)
+        return _evaluate_trigger_subject_had_card_under(condition, state, source_instance_id, event)
 
     if kind == "put-card-under-any-this-turn":
         return _evaluate_put_card_under_any_this_turn(condition, state, source_instance_id)
 
     if kind == "put-card-under-self-this-turn":
         return _evaluate_put_card_under_self_this_turn(condition, state, source_instance_id)
+
+    if kind == "turn-metric":
+        return _evaluate_turn_metric(condition, state, source_instance_id)
 
     # If we get here, the condition is not supported
     raise UnsupportedConditionError(f"Unsupported condition kind: {kind}")
@@ -864,17 +867,20 @@ def _evaluate_banished_in_challenge(
     state: GameState,
     source_instance_id: int,
 ) -> bool:
-    """Evaluate banished-in-challenge-this-turn conditions."""
+    """Evaluate banished-in-challenge-this-turn conditions.
+
+    True when state.turn_metadata["banished_characters_in_challenge_by_owner_this_turn"][owner] is non-empty.
+    """
     owner = condition.get("owner")
     source_controller = state.cards[source_instance_id].controller
 
     if owner == "opponent":
-        check_players = (state.opponent(source_controller),)
+        check_owner = state.opponent(source_controller)
     else:
-        check_players = (source_controller,)
+        check_owner = source_controller
 
-    # Simplified implementation - real would track banished-in-challenge events
-    return False
+    owner_banishes = state.turn_metadata.get("banished_characters_in_challenge_by_owner_this_turn", {})
+    return len(owner_banishes.get(check_owner, [])) > 0
 
 
 def _evaluate_in_challenge(
@@ -917,11 +923,19 @@ def _evaluate_has_card_under(
 ) -> bool:
     """Evaluate has-card-under conditions.
 
-    Cards under is not currently tracked in the engine, so this raises.
+    True when the source/target/context card has non-empty cards_under.
     """
-    raise UnsupportedConditionError(
-        "has-card-under: cards-under tracking is not currently implemented"
-    )
+    target_id = condition.get("target") or condition.get("card") or source_instance_id
+    if isinstance(target_id, str):
+        target_id = int(target_id) if target_id.isdigit() else source_instance_id
+    elif not isinstance(target_id, int):
+        target_id = source_instance_id
+
+    card_inst = state.cards.get(target_id)
+    if card_inst is None:
+        return False
+
+    return len(card_inst.cards_under) > 0
 
 
 def _evaluate_at_location(
@@ -1045,11 +1059,26 @@ def _evaluate_trigger_subject_had_card_under(
     condition: dict,
     state: GameState,
     source_instance_id: int,
+    event: PendingTriggeredEvent | GameEvent | None,
 ) -> bool:
-    """Evaluate trigger-subject-had-card-under conditions."""
-    raise UnsupportedConditionError(
-        "trigger-subject-had-card-under: cards-under tracking is not currently implemented"
-    )
+    """Evaluate trigger-subject-had-card-under conditions.
+
+    True when event_snapshot cardsUnderCountBeforeBanish > 0 or
+    cardsUnderIdsBeforeBanish is non-empty.
+    """
+    if "cardsUnderCountBeforeBanish" in condition:
+        return condition.get("cardsUnderCountBeforeBanish", 0) > 0
+    if "cardsUnderIdsBeforeBanish" in condition:
+        return len(condition.get("cardsUnderIdsBeforeBanish", [])) > 0
+
+    event_snapshot = getattr(event, "event_snapshot", {}) if event is not None else {}
+    if event_snapshot:
+        if int(event_snapshot.get("cardsUnderCountBeforeBanish") or 0) > 0:
+            return True
+        if event_snapshot.get("cardsUnderIdsBeforeBanish"):
+            return True
+
+    return False
 
 
 def _evaluate_put_card_under_any_this_turn(
@@ -1057,10 +1086,18 @@ def _evaluate_put_card_under_any_this_turn(
     state: GameState,
     source_instance_id: int,
 ) -> bool:
-    """Evaluate put-card-under-any-this-turn conditions."""
-    raise UnsupportedConditionError(
-        "put-card-under-any-this-turn: cards-under tracking is not currently implemented"
-    )
+    """Evaluate put-card-under-any-this-turn conditions.
+
+    True when state.turn_metadata["cards_put_under_this_turn_by_player"][player] > 0.
+    """
+    controller = state.cards[source_instance_id].controller
+
+    cond_controller = condition.get("controller")
+    if cond_controller == "opponent":
+        controller = state.opponent(controller)
+
+    player_puts = state.turn_metadata.get("cards_put_under_this_turn_by_player", {})
+    return player_puts.get(controller, 0) > 0
 
 
 def _evaluate_put_card_under_self_this_turn(
@@ -1068,10 +1105,12 @@ def _evaluate_put_card_under_self_this_turn(
     state: GameState,
     source_instance_id: int,
 ) -> bool:
-    """Evaluate put-card-under-self-this-turn conditions."""
-    raise UnsupportedConditionError(
-        "put-card-under-self-this-turn: cards-under tracking is not currently implemented"
-    )
+    """Evaluate put-card-under-self-this-turn conditions.
+
+    True when state.turn_metadata["cards_put_under_self_this_turn_by_card"][source_id] > 0.
+    """
+    card_puts = state.turn_metadata.get("cards_put_under_self_this_turn_by_card", {})
+    return card_puts.get(source_instance_id, 0) > 0
 
 
 def _evaluate_numeric_comparison(
@@ -1103,19 +1142,78 @@ def _evaluate_numeric_comparison(
     raise UnsupportedConditionError(f"Unsupported numeric comparison metric: {metric}")
 
 
+def _evaluate_turn_metric(
+    condition: dict,
+    state: GameState,
+    source_instance_id: int,
+) -> bool:
+    """Evaluate turn-metric conditions.
+
+    Supports metrics:
+    - cards-drawn-by-player
+    - challenges-by-player
+    - banished-characters
+    - banished-characters-in-challenge
+    - cards-put-under-by-player
+
+    Comparison operators: eq, equals, gte, greater-than-or-equal, gt, greater-than,
+                          lte, less-than-or-equal, lt, less-than
+    """
+    metric_name = condition.get("metric")
+    if not metric_name:
+        raise UnsupportedConditionError("turn-metric requires a 'metric' field")
+
+    controller = state.cards[source_instance_id].controller
+
+    cond_controller = condition.get("controller")
+    if cond_controller == "opponent":
+        controller = state.opponent(controller)
+
+    comparison = condition.get("comparison") or condition.get("operator") or ">="
+    value = int(condition.get("value") or condition.get("amount") or 0)
+
+    # Map metric names to turn metadata paths
+    metric_value = 0
+
+    if metric_name == "cards-drawn-by-player":
+        player_draws = state.turn_metadata.get("cards_drawn_this_turn_by_player", {})
+        metric_value = player_draws.get(controller, 0)
+
+    elif metric_name == "challenges-by-player":
+        player_challenges = state.turn_metadata.get("challenges_by_player_this_turn", {})
+        metric_value = player_challenges.get(controller, 0)
+
+    elif metric_name == "banished-characters":
+        banished_list = state.turn_metadata.get("banished_characters_this_turn", [])
+        metric_value = len(banished_list)
+
+    elif metric_name == "banished-characters-in-challenge":
+        owner_banishes = state.turn_metadata.get("banished_characters_in_challenge_by_owner_this_turn", {})
+        metric_value = len(owner_banishes.get(controller, []))
+
+    elif metric_name == "cards-put-under-by-player":
+        player_puts = state.turn_metadata.get("cards_put_under_this_turn_by_player", {})
+        metric_value = player_puts.get(controller, 0)
+
+    else:
+        raise UnsupportedConditionError(f"turn-metric: unknown metric '{metric_name}'")
+
+    return _compare(metric_value, comparison, value)
+
+
 def _compare(value: int, comparison: str, threshold: int) -> bool:
     """Compare a value against a threshold using the specified comparison operator."""
     comparison = str(comparison).strip().lower()
 
-    if comparison in (">=", "gte", "at-least", "greater-or-equal", "or-more"):
+    if comparison in (">=", "gte", "at-least", "greater-or-equal", "greater-than-or-equal", "or-more"):
         return value >= threshold
-    if comparison in (">", "gt", "more-than", "greater"):
+    if comparison in (">", "gt", "more-than", "greater", "greater-than"):
         return value > threshold
-    if comparison in ("<=", "lte", "at-most", "less-or-equal"):
+    if comparison in ("<=", "lte", "at-most", "less-or-equal", "less-than-or-equal"):
         return value <= threshold
     if comparison in ("<", "lt", "less-than", "less"):
         return value < threshold
-    if comparison in ("==", "=", "eq", "exactly", "equal"):
+    if comparison in ("==", "=", "eq", "exactly", "equal", "equals"):
         return value == threshold
     if comparison in ("!=", "<>", "ne", "not", "not-equal"):
         return value != threshold

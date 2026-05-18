@@ -16,6 +16,7 @@ from lorcana_bot.constants import (
     EVENT_CARD_PLAYED,
     EVENT_CHALLENGE_STARTED,
     EVENT_CHARACTER_BANISHED,
+    EVENT_BANISH_IN_CHALLENGE,
     EVENT_DAMAGE_DEALT,
     ZONE_PLAY,
 )
@@ -210,6 +211,22 @@ def test_banish_event_payload(engine):
         assert event.payload.get("to_zone") == "discard"
         assert event.payload.get("happened_in_challenge") is True
         assert event.payload.get("banished_card_type") == "character"
+
+
+def test_challenge_banish_emits_generic_and_challenge_specific_events(engine):
+    """Challenge banish must buffer both banish and banish-in-challenge events."""
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(1, "test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.players[0].play.append(1)
+
+    engine._banish_eventful(state, 1, actor=0, source_id=1, happened_in_challenge=True)
+
+    event_types = [event.event_type for event in state.event_log]
+    assert EVENT_CHARACTER_BANISHED in event_types
+    assert EVENT_BANISH_IN_CHALLENGE in event_types
+    pending_events = [pending.event for pending in state.pending_trigger_events]
+    assert "banish" in pending_events
+    assert "banish-in-challenge" in pending_events
 
 
 def test_pending_trigger_event_structure(engine):
@@ -545,3 +562,60 @@ def test_zero_amount_damage_emits_no_damage_dealt_event(engine):
     logged = [event for event in state.event_log if event.event_type == EVENT_DAMAGE_DEALT]
     assert logged == []
     assert [pending.event for pending in state.pending_trigger_events] == []
+
+
+def test_draw_cards_records_turn_metadata(engine):
+    """Test that draw_cards records cards_drawn_this_turn_by_player in turn_metadata."""
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+
+    # Set up deck with cards
+    for i in range(5):
+        state.cards[i + 1] = CardInstance(
+            instance_id=i + 1, card_id="test_char", owner=0, controller=0, zone="deck"
+        )
+        state.players[0].deck.append(i + 1)
+
+    # Draw cards
+    engine.draw_cards(state, 0, 3)
+
+    # Verify turn metadata was recorded
+    assert "cards_drawn_this_turn_by_player" in state.turn_metadata
+    assert state.turn_metadata["cards_drawn_this_turn_by_player"][0] == 3
+
+
+def test_challenge_records_turn_metadata(engine):
+    """Test that _apply_challenge records challenges_by_player_this_turn in turn_metadata."""
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.cards[2] = CardInstance(instance_id=2, card_id="test_char2", owner=1, controller=1, zone=ZONE_PLAY)
+    state.cards[2].exerted = True  # Defender must be exerted
+    state.players[0].play = [1]
+    state.players[1].play = [2]
+
+    # Execute challenge
+    engine._apply_challenge(
+        state,
+        Action(kind=ACTION_CHALLENGE, actor=0, source=1, target=2),
+    )
+
+    # Verify turn metadata was recorded
+    assert "challenges_by_player_this_turn" in state.turn_metadata
+    assert state.turn_metadata["challenges_by_player_this_turn"][0] == 1
+
+
+def test_challenge_banish_records_turn_metadata(engine):
+    """Test that _banish_eventful records banished_characters and challenge-specific banish in turn_metadata."""
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(instance_id=1, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.players[0].play.append(1)
+
+    # Banish a character (happened in challenge)
+    engine._banish_eventful(state, 1, actor=0, source_id=1, happened_in_challenge=True)
+
+    # Verify turn metadata was recorded
+    assert "banished_characters_this_turn" in state.turn_metadata
+    assert 1 in state.turn_metadata["banished_characters_this_turn"]
+
+    assert "banished_characters_in_challenge_by_owner_this_turn" in state.turn_metadata
+    assert 0 in state.turn_metadata["banished_characters_in_challenge_by_owner_this_turn"]
+    assert 1 in state.turn_metadata["banished_characters_in_challenge_by_owner_this_turn"][0]

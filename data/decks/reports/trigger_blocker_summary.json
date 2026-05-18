@@ -2,54 +2,12 @@
   "by_condition_kind": [
     {
       "condition_kind": "has-card-under",
-      "copies": 12,
-      "deck_presence": 3,
-      "unique_cards": 3
-    },
-    {
-      "condition_kind": "turn-metric",
-      "copies": 8,
-      "deck_presence": 2,
-      "unique_cards": 2
-    },
-    {
-      "condition_kind": "target-query",
-      "copies": 4,
+      "copies": 2,
       "deck_presence": 1,
       "unique_cards": 1
     }
   ],
   "by_effect_kind": [
-    {
-      "copies": 43,
-      "deck_presence": 6,
-      "effect_kind": "gain-lore",
-      "unique_cards": 10
-    },
-    {
-      "copies": 42,
-      "deck_presence": 9,
-      "effect_kind": "optional",
-      "unique_cards": 6
-    },
-    {
-      "copies": 34,
-      "deck_presence": 5,
-      "effect_kind": "cost-reduction",
-      "unique_cards": 2
-    },
-    {
-      "copies": 22,
-      "deck_presence": 5,
-      "effect_kind": "scry",
-      "unique_cards": 4
-    },
-    {
-      "copies": 14,
-      "deck_presence": 4,
-      "effect_kind": "draw",
-      "unique_cards": 1
-    },
     {
       "copies": 8,
       "deck_presence": 2,
@@ -57,71 +15,25 @@
       "unique_cards": 1
     },
     {
-      "copies": 8,
-      "deck_presence": 2,
-      "effect_kind": "gain-keyword",
-      "unique_cards": 1
-    },
-    {
-      "copies": 8,
-      "deck_presence": 2,
-      "effect_kind": "lose-lore",
-      "unique_cards": 2
-    },
-    {
-      "copies": 3,
+      "copies": 2,
       "deck_presence": 1,
-      "effect_kind": "deal-damage",
+      "effect_kind": "or",
       "unique_cards": 1
     },
     {
       "copies": 2,
       "deck_presence": 1,
-      "effect_kind": "or",
+      "effect_kind": "gain-lore",
+      "unique_cards": 1
+    },
+    {
+      "copies": 2,
+      "deck_presence": 1,
+      "effect_kind": "scry",
       "unique_cards": 1
     }
   ],
   "by_primary_blocker_copies": [
-    {
-      "blocker": "unsupported_trigger_resolution_requirement:amount",
-      "copies": 99,
-      "deck_presence": 11,
-      "example_cards": [],
-      "recommended_engine_work": "target_choice_prompts",
-      "unique_cards": 14
-    },
-    {
-      "blocker": "unsupported_trigger_event:banish-in-challenge",
-      "copies": 16,
-      "deck_presence": 2,
-      "example_cards": [],
-      "recommended_engine_work": "broader_trigger_projection",
-      "unique_cards": 3
-    },
-    {
-      "blocker": "unsupported_trigger_event:put-card-under",
-      "copies": 16,
-      "deck_presence": 4,
-      "example_cards": [],
-      "recommended_engine_work": "broader_trigger_projection",
-      "unique_cards": 1
-    },
-    {
-      "blocker": "unsupported_trigger_condition:has-card-under",
-      "copies": 12,
-      "deck_presence": 3,
-      "example_cards": [],
-      "recommended_engine_work": "condition_evaluator_expansion",
-      "unique_cards": 3
-    },
-    {
-      "blocker": "unsupported_trigger_condition:turn-metric",
-      "copies": 8,
-      "deck_presence": 2,
-      "example_cards": [],
-      "recommended_engine_work": "condition_evaluator_expansion",
-      "unique_cards": 2
-    },
     {
       "blocker": "unsupported_trigger_effect:create-replacement-effect",
       "copies": 8,
@@ -131,36 +43,12 @@
       "unique_cards": 1
     },
     {
-      "blocker": "unsupported_trigger_event:draw",
-      "copies": 8,
+      "blocker": "unsupported_trigger_resolution_requirement:amount",
+      "copies": 4,
       "deck_presence": 2,
       "example_cards": [],
-      "recommended_engine_work": "broader_trigger_projection",
-      "unique_cards": 1
-    },
-    {
-      "blocker": "unsupported_trigger_event:leave-play",
-      "copies": 7,
-      "deck_presence": 2,
-      "example_cards": [],
-      "recommended_engine_work": "broader_trigger_projection",
-      "unique_cards": 1
-    },
-    {
-      "blocker": "unsupported_trigger_on:CHARACTERS_HERE",
-      "copies": 4,
-      "deck_presence": 1,
-      "example_cards": [],
-      "recommended_engine_work": "broader_trigger_projection",
-      "unique_cards": 1
-    },
-    {
-      "blocker": "unsupported_trigger_on:complex_filter:filters",
-      "copies": 4,
-      "deck_presence": 1,
-      "example_cards": [],
-      "recommended_engine_work": "broader_trigger_projection",
-      "unique_cards": 1
+      "recommended_engine_work": "target_choice_prompts",
+      "unique_cards": 2
     },
     {
       "blocker": "unsupported_trigger_effect:or",
@@ -176,58 +64,21 @@
   "by_recommended_engine_work": [
     {
       "blockers": [
-        "unsupported_trigger_condition:has-card-under",
-        "unsupported_trigger_condition:turn-metric",
-        "unsupported_trigger_event:banish-in-challenge",
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
-      "copies": 124,
-      "deck_presence": 11,
-      "recommended_engine_work": "target_choice_prompts",
-      "unique_cards": 20
-    },
-    {
-      "blockers": [
-        "unsupported_trigger_event:banish-in-challenge",
-        "unsupported_trigger_event:draw",
-        "unsupported_trigger_event:leave-play",
-        "unsupported_trigger_event:put-card-under",
-        "unsupported_trigger_on:CHARACTERS_HERE",
-        "unsupported_trigger_on:complex_filter:filters"
-      ],
-      "copies": 55,
-      "deck_presence": 6,
-      "recommended_engine_work": "broader_trigger_projection",
-      "unique_cards": 7
-    },
-    {
-      "blockers": [
-        "unsupported_trigger_condition:has-card-under",
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
-      "copies": 22,
-      "deck_presence": 5,
-      "recommended_engine_work": "scry_search_reveal",
-      "unique_cards": 4
-    },
-    {
-      "blockers": [
-        "unsupported_trigger_condition:has-card-under",
-        "unsupported_trigger_condition:turn-metric"
-      ],
-      "copies": 20,
-      "deck_presence": 4,
-      "recommended_engine_work": "condition_evaluator_expansion",
-      "unique_cards": 5
-    },
-    {
-      "blockers": [
         "unsupported_trigger_effect:create-replacement-effect"
       ],
       "copies": 8,
       "deck_presence": 2,
       "recommended_engine_work": "replacement_prevention",
       "unique_cards": 1
+    },
+    {
+      "blockers": [
+        "unsupported_trigger_resolution_requirement:amount"
+      ],
+      "copies": 4,
+      "deck_presence": 2,
+      "recommended_engine_work": "target_choice_prompts",
+      "unique_cards": 2
     },
     {
       "blockers": [
@@ -241,103 +92,37 @@
   ],
   "by_resolution_requirement": [
     {
-      "copies": 124,
-      "deck_presence": 11,
+      "copies": 4,
+      "deck_presence": 2,
       "resolution_requirement": "amount",
-      "unique_cards": 20
-    },
-    {
-      "copies": 22,
-      "deck_presence": 5,
-      "resolution_requirement": "scry_ordering",
-      "unique_cards": 4
+      "unique_cards": 2
     }
   ],
   "by_target_kind": [
     {
-      "copies": 54,
-      "deck_presence": 8,
-      "target_kind": "CONTROLLER",
-      "unique_cards": 5
-    },
-    {
-      "copies": 8,
-      "deck_presence": 2,
-      "target_kind": "SELF",
-      "unique_cards": 1
-    },
-    {
-      "copies": 8,
-      "deck_presence": 2,
-      "target_kind": "EACH_OPPONENT",
-      "unique_cards": 2
-    },
-    {
-      "copies": 3,
+      "copies": 2,
       "deck_presence": 1,
-      "target_kind": "chosen",
+      "target_kind": "CONTROLLER",
       "unique_cards": 1
     }
   ],
   "by_trigger_event": [
     {
-      "copies": 80,
-      "deck_presence": 11,
-      "trigger_event": "play",
-      "unique_cards": 12
-    },
-    {
-      "copies": 16,
-      "deck_presence": 3,
-      "trigger_event": "challenge",
-      "unique_cards": 3
-    },
-    {
-      "copies": 16,
-      "deck_presence": 4,
-      "trigger_event": "start-turn",
-      "unique_cards": 1
-    },
-    {
-      "copies": 16,
-      "deck_presence": 4,
-      "trigger_event": "put-card-under",
-      "unique_cards": 1
-    },
-    {
-      "copies": 16,
-      "deck_presence": 2,
-      "trigger_event": "banish-in-challenge",
-      "unique_cards": 3
-    },
-    {
-      "copies": 15,
-      "deck_presence": 4,
-      "trigger_event": "quest",
-      "unique_cards": 5
-    },
-    {
       "copies": 8,
       "deck_presence": 2,
-      "trigger_event": "draw",
+      "trigger_event": "challenge",
       "unique_cards": 1
     },
     {
-      "copies": 7,
-      "deck_presence": 2,
-      "trigger_event": "leave-play",
-      "unique_cards": 1
-    },
-    {
-      "copies": 4,
+      "copies": 2,
       "deck_presence": 1,
-      "trigger_event": "end-turn",
+      "trigger_event": "play",
       "unique_cards": 1
     },
     {
-      "copies": 4,
+      "copies": 2,
       "deck_presence": 1,
-      "trigger_event": "move",
+      "trigger_event": "quest",
       "unique_cards": 1
     },
     {
@@ -349,57 +134,21 @@
   ],
   "by_trigger_on": [
     {
-      "copies": 116,
-      "deck_presence": 11,
+      "copies": 14,
+      "deck_presence": 4,
       "trigger_on": "SELF",
-      "unique_cards": 18
-    },
-    {
-      "copies": 28,
-      "deck_presence": 7,
-      "trigger_on": "YOU",
-      "unique_cards": 3
-    },
-    {
-      "copies": 12,
-      "deck_presence": 1,
-      "trigger_on": "YOUR_CHARACTERS",
-      "unique_cards": 3
-    },
-    {
-      "copies": 8,
-      "deck_presence": 3,
-      "trigger_on": "filter:{\"cardType\": \"song\", \"controller\": \"you\"}",
-      "unique_cards": 2
-    },
-    {
-      "copies": 8,
-      "deck_presence": 2,
-      "trigger_on": "filter:{\"cardType\": \"action\", \"controller\": \"you\"}",
-      "unique_cards": 1
-    },
-    {
-      "copies": 8,
-      "deck_presence": 1,
-      "trigger_on": "filter:{\"cardType\": \"character\", \"controller\": \"you\", \"excludeSelf\": true, \"filters\": [{\"inkType\": \"steel\", \"type\": \"ink-type\"}]}",
-      "unique_cards": 1
-    },
-    {
-      "copies": 4,
-      "deck_presence": 1,
-      "trigger_on": "CHARACTERS_HERE",
-      "unique_cards": 1
+      "unique_cards": 4
     }
   ],
   "schema_version": 1,
   "summary": {
-    "blocked_trigger_copies": 184,
-    "blocked_trigger_rows": 50,
+    "blocked_trigger_copies": 14,
+    "blocked_trigger_rows": 5,
     "broad_unsupported_trigger_copies": 0,
-    "projected_trigger_rows": 65,
+    "projected_trigger_rows": 110,
     "total_decks": 12,
     "total_trigger_rows": 115,
-    "unclassified_trigger_rows": 65
+    "unclassified_trigger_rows": 110
   },
   "top_cards_by_blocked_copies": [],
   "top_decks_by_blocked_copies": []

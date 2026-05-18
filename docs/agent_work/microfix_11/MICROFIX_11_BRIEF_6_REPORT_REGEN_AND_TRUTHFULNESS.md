@@ -1,0 +1,187 @@
+# TECHNICAL IMPLEMENTATION BRIEF 6 - Report Regeneration And Truthfulness
+
+Read `docs/agent_work/microfix_11/MICROFIX_11_SHARED_RULES.md` first.
+
+Goal:
+Regenerate trigger blocker reports after Briefs 1A-5B and prove the reports are truthful. This brief is report alignment only.
+
+Do not implement new runtime support in this brief.
+
+---
+
+## Allowed Files
+
+You may edit only:
+
+```text
+lorcana_bot/decks/trigger_blocker_report.py
+tests/test_trigger_blocker_report.py
+data/decks/reports/trigger_blocker_summary.json
+data/decks/reports/trigger_projection_failures.json
+data/decks/reports/trigger_blocker_audit.json
+data/decks/reports/next_engine_milestone_recommendation.json
+```
+
+Only edit JSON report files by running the repository report script. Do not hand-edit JSON.
+
+---
+
+## Current Expected Baseline Before Brief 6
+
+After Briefs 1A-4C were audited and repaired, the repository report state was:
+
+```text
+Total trigger rows: 115
+Projected trigger rows: 110
+Blocked trigger rows: 5
+Blocked trigger copies: 14
+Broad unsupported_trigger copies: 0
+```
+
+Known remaining blockers at that point:
+
+```text
+unsupported_trigger_effect:create-replacement-effect -> 8 copies
+unsupported_trigger_resolution_requirement:amount -> 4 copies
+unsupported_trigger_effect:or -> 2 copies
+```
+
+Briefs 5A-5B may reduce or remove the `unsupported_trigger_resolution_requirement:amount` blocker only if runtime and projector/report support truly prove the amount route. Brief 6 must not remove the amount blocker by string filtering, ignoring a requirement, or changing taxonomy without runtime support.
+
+---
+
+## Exact Required Work
+
+### 1. Regenerate Reports With The Repository Script
+
+Locate the script if needed:
+
+```bash
+rg -n "trigger_blocker|print-summary|trigger_projection_failures" scripts lorcana_bot data tests
+```
+
+Expected command:
+
+```bash
+python3 scripts/report_trigger_blockers.py --print-summary
+```
+
+### 2. Verify Completed Microfix 11 Blockers Are Not Still Reported
+
+The final report must not include these blockers if Briefs 1A-5B passed:
+
+```text
+unsupported_trigger_event:banish-in-challenge
+unsupported_trigger_event:put-card-under
+unsupported_trigger_event:draw
+unsupported_trigger_event:leave-play
+unsupported_trigger_condition:has-card-under
+unsupported_trigger_condition:turn-metric
+unsupported_trigger_on:CHARACTERS_HERE
+unsupported_trigger_on:complex_filter:filters
+unsupported_trigger_resolution_requirement:scry_ordering
+```
+
+### 3. Verify Unsupported Features Remain Reported
+
+Do not remove or hide these blockers unless the runtime feature was implemented in a separate explicit brief:
+
+```text
+unsupported_trigger_effect:create-replacement-effect
+unsupported_trigger_effect:or
+```
+
+`unsupported_trigger_resolution_requirement:amount` is allowed to remain if it is still unsupported by the projection/runtime path. It is allowed to disappear only if tests prove the amount path now projects and resolves correctly.
+
+---
+
+## Exact Required Tests
+
+Add or update this test in `tests/test_trigger_blocker_report.py`:
+
+```text
+tests/test_trigger_blocker_report.py::test_microfix_11_report_does_not_hide_unimplemented_effects
+```
+
+Required assertions:
+
+```python
+assert "unsupported_trigger_effect:create-replacement-effect" in blockers
+assert "unsupported_trigger_effect:or" in blockers
+```
+
+Add or update this test in `tests/test_trigger_blocker_report.py`:
+
+```text
+tests/test_trigger_blocker_report.py::test_microfix_11_completed_blockers_are_not_reported
+```
+
+Required assertions:
+
+```python
+for blocker in {
+    "unsupported_trigger_event:banish-in-challenge",
+    "unsupported_trigger_event:put-card-under",
+    "unsupported_trigger_event:draw",
+    "unsupported_trigger_event:leave-play",
+    "unsupported_trigger_condition:has-card-under",
+    "unsupported_trigger_condition:turn-metric",
+    "unsupported_trigger_on:CHARACTERS_HERE",
+    "unsupported_trigger_on:complex_filter:filters",
+    "unsupported_trigger_resolution_requirement:scry_ordering",
+}:
+    assert blocker not in blockers
+```
+
+The test may build blockers by calling the report code directly. Do not assert exact copy counts in unit tests unless the test fixture controls every deck row.
+
+---
+
+## Forbidden Changes
+
+Do not edit runtime files.
+
+Do not remove blocker taxonomy entries.
+
+Do not mark `create-replacement-effect` or `or` as supported.
+
+Do not hand-edit report JSON.
+
+Do not add fake card IDs absent from the demo card database.
+
+---
+
+## Acceptance Checks
+
+Run:
+
+```bash
+python3 -m pytest tests/test_trigger_blocker_report.py -q
+python3 scripts/report_trigger_blockers.py --print-summary
+python3 -m pytest -q
+git diff --check
+```
+
+Also inspect the regenerated summary:
+
+```bash
+jq '.by_primary_blocker_copies, .by_resolution_requirement, .by_recommended_engine_work' data/decks/reports/trigger_blocker_summary.json
+```
+
+---
+
+## Final Response Requirements
+
+Report:
+
+```text
+1. Files changed.
+2. Report files regenerated by script.
+3. Before and after blocker counts if before counts are available.
+4. Remaining blocker list with copy counts.
+5. Confirmation that create-replacement-effect and or remain reported.
+6. Confirmation that completed Microfix 11 blockers are absent.
+7. Exact tests added.
+8. Exact command results.
+9. Five yes/no self-audit answers from MICROFIX_11_SHARED_RULES.md.
+```

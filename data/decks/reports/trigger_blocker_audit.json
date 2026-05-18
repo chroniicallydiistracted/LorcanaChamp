@@ -99,10 +99,8 @@
       "ability_kind": "triggered",
       "ability_name": "SMOOTH THE WAY",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_Qej",
       "card_count": 4,
       "card_id": "bN7",
@@ -118,11 +116,11 @@
       "effect_kinds": [
         "cost-reduction"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Grandmother Willow - Ancient Advisor",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "autoResolve": true,
@@ -149,12 +147,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -171,10 +165,8 @@
       "ability_kind": "triggered",
       "ability_name": "SMOOTH THE WAY",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_Qej",
       "card_count": 4,
       "card_id": "bN7",
@@ -190,11 +182,11 @@
       "effect_kinds": [
         "cost-reduction"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Grandmother Willow - Ancient Advisor",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "autoResolve": true,
@@ -221,12 +213,8 @@
         "on": "YOU",
         "timing": "at"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -243,10 +231,8 @@
       "ability_kind": "triggered",
       "ability_name": "IT'S LOADS OF FUN",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:put-card-under"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_akT",
       "card_count": 4,
       "card_id": "akT",
@@ -262,11 +248,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Cheshire Cat - Inexplicable",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_event:put-card-under",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -317,9 +303,7 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "put-card-under",
@@ -411,10 +395,8 @@
       "ability_kind": "triggered",
       "ability_name": "WHAT HAPPENS NOW?",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_M3n",
       "card_count": 4,
       "card_id": "B2Y",
@@ -430,11 +412,11 @@
       "effect_kinds": [
         "draw"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Genie - Wish Fulfilled",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -458,12 +440,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -815,10 +793,8 @@
       "ability_kind": "triggered",
       "ability_name": "HEAVILY ARMED",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:draw"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_z2N",
       "card_count": 4,
       "card_id": "z2N",
@@ -834,11 +810,11 @@
       "effect_kinds": [
         "gain-keyword"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Royal Guard - Octopus Soldier",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_event:draw",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -864,9 +840,7 @@
         "on": "YOU",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [
         "SELF"
@@ -884,10 +858,8 @@
       "ability_kind": "triggered",
       "ability_name": "I KNOW THE WAY",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_h09",
       "card_count": 2,
       "card_id": "h09",
@@ -903,11 +875,11 @@
       "effect_kinds": [
         "cost-reduction"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Huey - Reliable Leader",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -933,12 +905,8 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -955,10 +923,8 @@
       "ability_kind": "triggered",
       "ability_name": "IT'S LOADS OF FUN",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:put-card-under"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_akT",
       "card_count": 4,
       "card_id": "akT",
@@ -974,11 +940,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Cheshire Cat - Inexplicable",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_event:put-card-under",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -1029,9 +995,7 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "put-card-under",
@@ -1047,10 +1011,8 @@
       "ability_kind": "triggered",
       "ability_name": "FAN FAVORITE",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_Jj0",
       "card_count": 1,
       "card_id": "Jj0",
@@ -1066,11 +1028,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Alan-a-Dale - Rockin' Rooster",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -1099,12 +1061,8 @@
         },
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
       "trigger_on": {
@@ -1122,10 +1080,8 @@
       "ability_kind": "triggered",
       "ability_name": "WHAT HAPPENS NOW?",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_M3n",
       "card_count": 4,
       "card_id": "B2Y",
@@ -1141,11 +1097,11 @@
       "effect_kinds": [
         "draw"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Genie - Wish Fulfilled",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -1169,12 +1125,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -1985,10 +1937,8 @@
       "ability_kind": "triggered",
       "ability_name": "SMOOTH THE WAY",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_Qej",
       "card_count": 4,
       "card_id": "bN7",
@@ -2004,11 +1954,11 @@
       "effect_kinds": [
         "cost-reduction"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Grandmother Willow - Ancient Advisor",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "autoResolve": true,
@@ -2035,12 +1985,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -2057,10 +2003,8 @@
       "ability_kind": "triggered",
       "ability_name": "SMOOTH THE WAY",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_Qej",
       "card_count": 4,
       "card_id": "bN7",
@@ -2076,11 +2020,11 @@
       "effect_kinds": [
         "cost-reduction"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Grandmother Willow - Ancient Advisor",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "autoResolve": true,
@@ -2107,12 +2051,8 @@
         "on": "YOU",
         "timing": "at"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -2437,11 +2377,8 @@
       "ability_kind": "triggered",
       "ability_name": "THAT'S YOUR CUE",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_dBq",
       "card_count": 4,
       "card_id": "dBq",
@@ -2457,11 +2394,11 @@
       "effect_kinds": [
         "scry"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Nani - Stage Manager",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -2508,14 +2445,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "scry_search_reveal",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount",
-        "scry_ordering"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
       "trigger_on": "SELF",
@@ -2870,10 +2801,8 @@
       "ability_kind": "triggered",
       "ability_name": "SECOND CHANCE",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:leave-play"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_D7f",
       "card_count": 3,
       "card_id": "D7f",
@@ -2889,11 +2818,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Olaf - Helping Hand",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_event:leave-play",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -2930,9 +2859,7 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "leave-play",
@@ -3112,10 +3039,8 @@
       "ability_kind": "triggered",
       "ability_name": "IT'S LOADS OF FUN",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:put-card-under"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_akT",
       "card_count": 4,
       "card_id": "akT",
@@ -3131,11 +3056,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Cheshire Cat - Inexplicable",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_event:put-card-under",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -3186,9 +3111,7 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "put-card-under",
@@ -3287,10 +3210,8 @@
       "ability_kind": "triggered",
       "ability_name": "WHAT HAPPENS NOW?",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_M3n",
       "card_count": 4,
       "card_id": "B2Y",
@@ -3306,11 +3227,11 @@
       "effect_kinds": [
         "draw"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Genie - Wish Fulfilled",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -3334,12 +3255,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -3603,10 +3520,8 @@
       "ability_kind": "triggered",
       "ability_name": "HEAVILY ARMED",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:draw"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_z2N",
       "card_count": 4,
       "card_id": "z2N",
@@ -3622,11 +3537,11 @@
       "effect_kinds": [
         "gain-keyword"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Royal Guard - Octopus Soldier",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_event:draw",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -3652,9 +3567,7 @@
         "on": "YOU",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [
         "SELF"
@@ -3739,10 +3652,8 @@
       "ability_kind": "triggered",
       "ability_name": "IT'S LOADS OF FUN",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:put-card-under"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_akT",
       "card_count": 4,
       "card_id": "akT",
@@ -3758,11 +3669,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Cheshire Cat - Inexplicable",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_event:put-card-under",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -3813,9 +3724,7 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "put-card-under",
@@ -3831,10 +3740,8 @@
       "ability_kind": "triggered",
       "ability_name": "WHAT HAPPENS NOW?",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_M3n",
       "card_count": 2,
       "card_id": "B2Y",
@@ -3850,11 +3757,11 @@
       "effect_kinds": [
         "draw"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Genie - Wish Fulfilled",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -3878,12 +3785,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -4376,10 +4279,8 @@
       "ability_kind": "triggered",
       "ability_name": "SMOOTH THE WAY",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_Qej",
       "card_count": 4,
       "card_id": "bN7",
@@ -4395,11 +4296,11 @@
       "effect_kinds": [
         "cost-reduction"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Grandmother Willow - Ancient Advisor",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "autoResolve": true,
@@ -4426,12 +4327,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -4448,10 +4345,8 @@
       "ability_kind": "triggered",
       "ability_name": "SMOOTH THE WAY",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_Qej",
       "card_count": 4,
       "card_id": "bN7",
@@ -4467,11 +4362,11 @@
       "effect_kinds": [
         "cost-reduction"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Grandmother Willow - Ancient Advisor",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "autoResolve": true,
@@ -4498,12 +4393,8 @@
         "on": "YOU",
         "timing": "at"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -4668,11 +4559,8 @@
       "ability_kind": "triggered",
       "ability_name": "THAT'S YOUR CUE",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_dBq",
       "card_count": 4,
       "card_id": "dBq",
@@ -4688,11 +4576,11 @@
       "effect_kinds": [
         "scry"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Nani - Stage Manager",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -4739,14 +4627,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "scry_search_reveal",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount",
-        "scry_ordering"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
       "trigger_on": "SELF",
@@ -4761,10 +4643,8 @@
       "ability_kind": "triggered",
       "ability_name": "COMMAND PERFORMANCE Once",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
-      "blockers": [
-        "unsupported_trigger_condition:has-card-under"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_izM",
       "card_count": 4,
       "card_id": "Mni",
@@ -4782,11 +4662,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Ariel - Ethereal Voice",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_condition:has-card-under",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "condition": {
@@ -4841,9 +4721,7 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
@@ -4862,11 +4740,9 @@
       "ability_kind": "triggered",
       "ability_name": "COME SEE!",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
+      "blocker_family": "resolution_requirement",
       "blockers": [
-        "unsupported_trigger_condition:has-card-under",
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
+        "unsupported_trigger_resolution_requirement:amount"
       ],
       "canonical_id": "ci_Ab7",
       "card_count": 2,
@@ -4888,7 +4764,7 @@
       "execution_status": "mapped_not_executable",
       "full_name": "Bambi - Ethereal Fawn",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_condition:has-card-under",
+      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
       "projection_status": "not_projected",
       "raw_ability": {
         "_source_index": 1,
@@ -4948,13 +4824,10 @@
         "timing": "whenever"
       },
       "recommended_engine_work": [
-        "condition_evaluator_expansion",
-        "scry_search_reveal",
         "target_choice_prompts"
       ],
       "resolution_requirements": [
-        "amount",
-        "scry_ordering"
+        "amount"
       ],
       "target_kinds": [],
       "trigger_event": "exert",
@@ -5194,10 +5067,8 @@
       "ability_kind": "triggered",
       "ability_name": "SMOOTH THE WAY",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_Qej",
       "card_count": 4,
       "card_id": "bN7",
@@ -5213,11 +5084,11 @@
       "effect_kinds": [
         "cost-reduction"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Grandmother Willow - Ancient Advisor",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "autoResolve": true,
@@ -5244,12 +5115,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -5266,10 +5133,8 @@
       "ability_kind": "triggered",
       "ability_name": "SMOOTH THE WAY",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_Qej",
       "card_count": 4,
       "card_id": "bN7",
@@ -5285,11 +5150,11 @@
       "effect_kinds": [
         "cost-reduction"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Grandmother Willow - Ancient Advisor",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "autoResolve": true,
@@ -5316,12 +5181,8 @@
         "on": "YOU",
         "timing": "at"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -5486,11 +5347,8 @@
       "ability_kind": "triggered",
       "ability_name": "THAT'S YOUR CUE",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_dBq",
       "card_count": 4,
       "card_id": "dBq",
@@ -5506,11 +5364,11 @@
       "effect_kinds": [
         "scry"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Nani - Stage Manager",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -5557,14 +5415,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "scry_search_reveal",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount",
-        "scry_ordering"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
       "trigger_on": "SELF",
@@ -5579,10 +5431,8 @@
       "ability_kind": "triggered",
       "ability_name": "COMMAND PERFORMANCE Once",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
-      "blockers": [
-        "unsupported_trigger_condition:has-card-under"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_izM",
       "card_count": 3,
       "card_id": "Mni",
@@ -5600,11 +5450,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Ariel - Ethereal Voice",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_condition:has-card-under",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "condition": {
@@ -5659,9 +5509,7 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
@@ -5910,10 +5758,8 @@
       "ability_kind": "triggered",
       "ability_name": "WHATEVER YOU WISH FOR",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
-      "blockers": [
-        "unsupported_trigger_condition:turn-metric"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_fz8",
       "card_count": 4,
       "card_id": "J1F",
@@ -5931,11 +5777,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Cinderella - Dream Come True",
       "ink": "sapphire",
-      "primary_blocker": "unsupported_trigger_condition:turn-metric",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "condition": {
@@ -5990,9 +5836,7 @@
         "on": "YOU",
         "timing": "at"
       },
-      "recommended_engine_work": [
-        "condition_evaluator_expansion"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "end-turn",
@@ -6576,10 +6420,8 @@
       "ability_kind": "triggered",
       "ability_name": "SECOND CHANCE",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:leave-play"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_D7f",
       "card_count": 4,
       "card_id": "D7f",
@@ -6595,11 +6437,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Olaf - Helping Hand",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_event:leave-play",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -6636,9 +6478,7 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "leave-play",
@@ -6654,11 +6494,8 @@
       "ability_kind": "triggered",
       "ability_name": "LEVEL UP",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:banish-in-challenge",
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_NLA",
       "card_count": 4,
       "card_id": "NLA",
@@ -6674,11 +6511,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Calhoun - Marine Sergeant",
       "ink": "steel",
-      "primary_blocker": "unsupported_trigger_event:banish-in-challenge",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -6713,13 +6550,8 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "banish-in-challenge",
       "trigger_on": "SELF",
@@ -6810,10 +6642,8 @@
       "ability_kind": "triggered",
       "ability_name": "TALE OF THE FIFTH SPIRIT",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_7Vg",
       "card_count": 4,
       "card_id": "7Vg",
@@ -6831,11 +6661,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Honeymaren - Northuldra Guide",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "condition": {
@@ -6878,12 +6708,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
       "trigger_on": "SELF",
@@ -6981,10 +6807,8 @@
       "ability_kind": "triggered",
       "ability_name": "THE BEAUTY OF THE WORLD",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_ZnW",
       "card_count": 4,
       "card_id": "ZnW",
@@ -7000,11 +6824,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "The White Rose - Jewel of the Garden",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -7027,12 +6851,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
       "trigger_on": "SELF",
@@ -7137,10 +6957,8 @@
       "ability_kind": "triggered",
       "ability_name": "NEW INFORMATION",
       "appears_in_deck": true,
-      "blocker_family": "trigger_on",
-      "blockers": [
-        "unsupported_trigger_on:CHARACTERS_HERE"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_hOa",
       "card_count": 4,
       "card_id": "hOa",
@@ -7156,11 +6974,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Zootopia - Police Headquarters",
       "ink": "steel",
-      "primary_blocker": "unsupported_trigger_on:CHARACTERS_HERE",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -7218,9 +7036,7 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "move",
@@ -7303,11 +7119,8 @@
       "ability_kind": "triggered",
       "ability_name": "THERE WAS ONLY OCEAN",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_1sm",
       "card_count": 4,
       "card_id": "1sm",
@@ -7323,11 +7136,11 @@
       "effect_kinds": [
         "scry"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Gramma Tala - Keeper of Ancient Stories",
       "ink": "sapphire",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -7362,14 +7175,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "scry_search_reveal",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount",
-        "scry_ordering"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
       "trigger_on": "SELF",
@@ -7459,10 +7266,8 @@
       "ability_kind": "triggered",
       "ability_name": "WAYFINDING",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_HTB",
       "card_count": 4,
       "card_id": "HTB",
@@ -7478,11 +7283,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Maui - Half-Shark",
       "ink": "ruby",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 2,
         "effect": {
@@ -7511,12 +7316,8 @@
         },
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
       "trigger_on": {
@@ -7885,11 +7686,8 @@
       "ability_kind": "triggered",
       "ability_name": "MY GREATEST PERFORMANCE",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount",
-        "unsupported_trigger_resolution_requirement:scry_ordering"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_qwp",
       "card_count": 4,
       "card_id": "wLe",
@@ -7905,11 +7703,11 @@
       "effect_kinds": [
         "scry"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Robin Hood - Sharpshooter",
       "ink": "ruby",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -7956,14 +7754,8 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "scry_search_reveal",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount",
-        "scry_ordering"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "quest",
       "trigger_on": "SELF",
@@ -8136,10 +7928,8 @@
       "ability_kind": "triggered",
       "ability_name": "WAYFINDING",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_HTB",
       "card_count": 4,
       "card_id": "HTB",
@@ -8155,11 +7945,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Maui - Half-Shark",
       "ink": "ruby",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 2,
         "effect": {
@@ -8188,12 +7978,8 @@
         },
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
       "trigger_on": {
@@ -8211,10 +7997,8 @@
       "ability_kind": "triggered",
       "ability_name": "CHAOTIC COLLISION",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_G4S",
       "card_count": 4,
       "card_id": "G4S",
@@ -8230,11 +8014,11 @@
       "effect_kinds": [
         "lose-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Olaf - Snowman of Action",
       "ink": "ruby",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -8258,12 +8042,8 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "EACH_OPPONENT"
       ],
@@ -8357,11 +8137,8 @@
       "ability_kind": "triggered",
       "ability_name": "LEVEL UP",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:banish-in-challenge",
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_NLA",
       "card_count": 4,
       "card_id": "NLA",
@@ -8377,11 +8154,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Calhoun - Marine Sergeant",
       "ink": "steel",
-      "primary_blocker": "unsupported_trigger_event:banish-in-challenge",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -8416,13 +8193,8 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "banish-in-challenge",
       "trigger_on": "SELF",
@@ -8437,11 +8209,8 @@
       "ability_kind": "triggered",
       "ability_name": "TRAINING EXERCISES",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
-      "blockers": [
-        "unsupported_trigger_condition:turn-metric",
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_HVE",
       "card_count": 4,
       "card_id": "HVE",
@@ -8459,11 +8228,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Fa Zhou - War Hero",
       "ink": "steel",
-      "primary_blocker": "unsupported_trigger_condition:turn-metric",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "condition": {
@@ -8505,13 +8274,8 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "condition_evaluator_expansion",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "challenge",
       "trigger_on": "YOUR_CHARACTERS",
@@ -8526,10 +8290,8 @@
       "ability_kind": "triggered",
       "ability_name": "YOU'LL NEVER MISS IT",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_5EC",
       "card_count": 4,
       "card_id": "5EC",
@@ -8545,11 +8307,11 @@
       "effect_kinds": [
         "lose-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Jasmine - Rebellious Princess",
       "ink": "ruby",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -8573,12 +8335,8 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "EACH_OPPONENT"
       ],
@@ -8595,10 +8353,8 @@
       "ability_kind": "triggered",
       "ability_name": "DON'T INSULT MY INTELLIGENCE",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_68m",
       "card_count": 4,
       "card_id": "e9n",
@@ -8614,11 +8370,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Shere Khan - Menacing Predator",
       "ink": "ruby",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -8643,12 +8399,8 @@
         "on": "YOUR_CHARACTERS",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "challenge",
       "trigger_on": "YOUR_CHARACTERS",
@@ -8663,11 +8415,8 @@
       "ability_kind": "triggered",
       "ability_name": "EXPERT SHOT",
       "appears_in_deck": true,
-      "blocker_family": "condition_unsupported",
-      "blockers": [
-        "unsupported_trigger_condition:has-card-under",
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_ZXj",
       "card_count": 3,
       "card_id": "6Ji",
@@ -8685,11 +8434,11 @@
       "effect_kinds": [
         "deal-damage"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Robin Hood - Ephemeral Archer",
       "ink": "steel",
-      "primary_blocker": "unsupported_trigger_condition:has-card-under",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "condition": {
@@ -8728,13 +8477,8 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "condition_evaluator_expansion",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "chosen"
       ],
@@ -8818,11 +8562,8 @@
       "ability_kind": "triggered",
       "ability_name": "GUARDIAN OF LOST SOULS",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:banish-in-challenge",
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_8nj",
       "card_count": 4,
       "card_id": "8nj",
@@ -8838,11 +8579,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Mushu - Majestic Dragon",
       "ink": "ruby",
-      "primary_blocker": "unsupported_trigger_event:banish-in-challenge",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -8878,13 +8619,8 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -8901,12 +8637,8 @@
       "ability_kind": "triggered",
       "ability_name": "WINNER TAKE ALL",
       "appears_in_deck": true,
-      "blocker_family": "trigger_event",
-      "blockers": [
-        "unsupported_trigger_event:banish-in-challenge",
-        "unsupported_trigger_on:complex_filter:filters",
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_hQC",
       "card_count": 4,
       "card_id": "hQC",
@@ -8922,11 +8654,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Pluto - Steel Champion",
       "ink": "steel",
-      "primary_blocker": "unsupported_trigger_event:banish-in-challenge",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -8981,13 +8713,8 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection",
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "banish-in-challenge",
       "trigger_on": {
@@ -9012,10 +8739,8 @@
       "ability_kind": "triggered",
       "ability_name": "MAKE ROOM",
       "appears_in_deck": true,
-      "blocker_family": "trigger_on",
-      "blockers": [
-        "unsupported_trigger_on:complex_filter:filters"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_hQC",
       "card_count": 4,
       "card_id": "hQC",
@@ -9031,11 +8756,11 @@
       "effect_kinds": [
         "optional"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Pluto - Steel Champion",
       "ink": "steel",
-      "primary_blocker": "unsupported_trigger_on:complex_filter:filters",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -9092,9 +8817,7 @@
         },
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "broader_trigger_projection"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "play",
@@ -9195,8 +8918,8 @@
     "broad_unsupported_trigger_copies": 0,
     "deck_count": 12,
     "specific_trigger_blocker_copies": 0,
-    "trigger_blocked_card_copies": 184,
-    "trigger_blocked_unique_cards": 28,
+    "trigger_blocked_card_copies": 14,
+    "trigger_blocked_unique_cards": 4,
     "unclassified_trigger_blocker_copies": 0
   }
 }

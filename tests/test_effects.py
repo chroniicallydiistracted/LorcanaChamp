@@ -1105,33 +1105,120 @@ class TestZoneRoutingEffectRegression:
         assert revealed_at_call[0] is True
         assert len(calls) >= 1
 
-    def test_reveal_and_route_preserves_revealed_flag_before_route(self):
-        """reveal_and_route must mark card as revealed before calling _move_card_eventful."""
+
+import pytest
+
+
+class TestAmountResolver:
+    """Tests for the amount resolver supporting multiple amount shapes."""
+
+    def test_amount_resolver_integer(self):
+        """Integer amount should resolve directly."""
         engine, state = setup_effect_game()
 
-        top_card_id = self._find_top_card(state, 0)
-        assert top_card_id is not None
-        assert state.cards[top_card_id].revealed is False
+        effect = EffectDef("gain_lore", 5, "you")
+        context = EffectResolutionContext(actor=0)
 
-        calls = self._spy_move_card(engine)
+        initial_lore = state.players[0].lore
+        engine.effect_resolver.resolve(state, effect, context)
 
-        # Capture the card's revealed state at time of first call
-        revealed_at_call = [False]
-        original_move = engine._move_card_eventful
+        assert state.players[0].lore == initial_lore + 5
 
-        def capture_reveal(*args, **kwargs):
-            if revealed_at_call[0] is False:
-                revealed_at_call[0] = state.cards[args[1]].revealed
-            return original_move(*args, **kwargs)
+    def test_amount_resolver_numeric_string_from_raw(self):
+        """Numeric string amount from raw should resolve."""
+        engine, state = setup_effect_game()
 
-        engine._move_card_eventful = capture_reveal
+        # Simulate raw amount as a numeric string (Lorcanito format)
+        effect = EffectDef("gain_lore", 0, "you", raw={"amount": "3"})
 
-        effect = EffectDef("reveal_and_route", value="hand")
-        engine.effect_resolver.resolve(
-            state, effect,
-            EffectResolutionContext(actor=0, source=12)
+        initial_lore = state.players[0].lore
+        context = EffectResolutionContext(actor=0)
+        engine.effect_resolver.resolve(state, effect, context)
+
+        assert state.players[0].lore == initial_lore + 3
+
+    def test_amount_resolver_static_object(self):
+        """Static object amount should resolve."""
+        engine, state = setup_effect_game()
+
+        # Simulate static object amount (Lorcanito format)
+        effect = EffectDef("gain_lore", 0, "you", raw={"amount": {"type": "static", "amount": 7}})
+
+        initial_lore = state.players[0].lore
+        context = EffectResolutionContext(actor=0)
+        engine.effect_resolver.resolve(state, effect, context)
+
+        assert state.players[0].lore == initial_lore + 7
+
+    def test_amount_resolver_event_snapshot_key(self):
+        """Event-snapshot amount should resolve from context."""
+        engine, state = setup_effect_game()
+
+        # Simulate event-snapshot amount (Lorcanito format)
+        effect = EffectDef("gain_lore", 0, "you", raw={"amount": {"type": "event-snapshot", "key": "drawnCount"}})
+
+        initial_lore = state.players[0].lore
+        context = EffectResolutionContext(actor=0, event_payload={"drawnCount": 4})
+        engine.effect_resolver.resolve(state, effect, context)
+
+        assert state.players[0].lore == initial_lore + 4
+
+    def test_amount_resolver_event_snapshot_key_from_pending_event(self):
+        """Event-snapshot amount should resolve from PendingTriggeredEvent.event_snapshot."""
+        from lorcana_bot.state import PendingTriggeredEvent
+
+        engine, state = setup_effect_game()
+        effect = EffectDef("gain_lore", 0, "you", raw={"amount": {"type": "event-snapshot", "key": "drawnCount"}})
+        event = PendingTriggeredEvent(id="evt_drawn_count", event="draw", event_snapshot={"drawnCount": 2})
+
+        initial_lore = state.players[0].lore
+        context = EffectResolutionContext(actor=0, event=event)
+        engine.effect_resolver.resolve(state, effect, context)
+
+        assert state.players[0].lore == initial_lore + 2
+
+    def test_amount_resolver_projected_source_effect_nested_raw_amount(self):
+        """Projected SourceEffectDef raw payload should still expose nested raw amount."""
+        engine, state = setup_effect_game()
+        effect = EffectDef(
+            "gain_lore",
+            0,
+            "you",
+            raw={
+                "amount": None,
+                "raw": {"amount": {"type": "event-snapshot", "key": "cardsUnderCountBeforeBanish"}},
+            },
         )
+        context = EffectResolutionContext(actor=0, event_payload={"cardsUnderCountBeforeBanish": 5})
 
-        # Card must be marked revealed at time of first _move_card_eventful call
-        assert revealed_at_call[0] is True
-        assert len(calls) >= 1
+        initial_lore = state.players[0].lore
+        engine.effect_resolver.resolve(state, effect, context)
+
+        assert state.players[0].lore == initial_lore + 5
+
+    def test_amount_resolver_decimal_string_raises(self):
+        """Decimal strings are unsupported numeric strings and must not truncate."""
+        from lorcana_bot.effects import EffectResolutionError
+
+        engine, state = setup_effect_game()
+        effect = EffectDef("gain_lore", 0, "you", raw={"amount": "2.5"})
+        context = EffectResolutionContext(actor=0)
+
+        with pytest.raises(EffectResolutionError):
+            engine.effect_resolver.resolve(state, effect, context)
+
+    def test_amount_resolver_unsupported_shape_raises(self):
+        """Unsupported amount shape should raise EffectResolutionError, not return 0."""
+        from lorcana_bot.effects import EffectResolutionError
+
+        engine, state = setup_effect_game()
+
+        # Unsupported shape: list
+        effect = EffectDef("gain_lore", 0, "you", raw={"amount": ["unsupported", "list"]})
+
+        context = EffectResolutionContext(actor=0)
+
+        with pytest.raises(EffectResolutionError) as exc_info:
+            engine.effect_resolver.resolve(state, effect, context)
+
+        assert "Unsupported amount shape" in str(exc_info.value)

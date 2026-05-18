@@ -423,35 +423,180 @@ class TestRealDeckConditions:
         with pytest.raises(UnsupportedConditionError):
             evaluate_condition(condition, state, None, source_id, engine)
 
-    def test_banished_in_challenge_raises(self, state, engine):
-        """Test banished-in-challenge-this-turn raises (stub returns False)."""
+    def test_has_card_under_true_for_shift_stack(self, state, engine):
+        """Test has-card-under returns True for card with cards_under."""
         source_id = state.players[0].play[0] if state.players[0].play else 1
-        condition = {"type": "banished-in-challenge-this-turn"}
-        # Should return False (stub implementation) rather than raise
-        result = evaluate_condition(condition, state, None, source_id, engine)
-        assert isinstance(result, bool)
+        # Add a card under the source card (simulating shift stack)
+        under_card_id = state.players[0].hand[0] if state.players[0].hand else 1
+        state.cards[source_id].cards_under.append(under_card_id)
 
-    def test_has_card_under_raises(self, state, engine):
-        """Test has-card-under raises (not tracked)."""
-        source_id = state.players[0].play[0] if state.players[0].play else 1
         condition = {"type": "has-card-under"}
-        # This should raise because has-card-under is blocked
-        with pytest.raises(UnsupportedConditionError):
-            evaluate_condition(condition, state, None, source_id, engine)
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
 
-    def test_trigger_subject_had_card_under_raises(self, state, engine):
-        """Test trigger-subject-had-card-under raises (not tracked)."""
+    def test_has_card_under_false_for_empty(self, state, engine):
+        """Test has-card-under returns False when cards_under is empty."""
         source_id = state.players[0].play[0] if state.players[0].play else 1
+        # Ensure cards_under is empty
+        state.cards[source_id].cards_under.clear()
+
+        condition = {"type": "has-card-under"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
+
+    def test_trigger_subject_had_card_under_uses_event_snapshot(self, state, engine):
+        """Test trigger-subject-had-card-under uses condition payload."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        # Test with cardsUnderCountBeforeBanish in condition
+        condition = {"type": "trigger-subject-had-card-under", "cardsUnderCountBeforeBanish": 2}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+
+    def test_trigger_subject_had_card_under_uses_pending_event_snapshot(self, state, engine):
+        """trigger-subject-had-card-under should inspect the triggering event snapshot."""
+        from lorcana_bot.state import PendingTriggeredEvent
+
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        event = PendingTriggeredEvent(
+            id="evt_cards_under",
+            event="banish",
+            event_snapshot={"cardsUnderCountBeforeBanish": 1},
+        )
+
         condition = {"type": "trigger-subject-had-card-under"}
-        with pytest.raises(UnsupportedConditionError):
-            evaluate_condition(condition, state, None, source_id, engine)
+        result = evaluate_condition(condition, state, event, source_id, engine)
+        assert result is True
 
-    def test_put_card_under_any_this_turn_raises(self, state, engine):
-        """Test put-card-under-any-this-turn raises (not tracked)."""
+    def test_trigger_subject_had_card_under_zero_count(self, state, engine):
+        """Test trigger-subject-had-card-under returns False when count is 0."""
         source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "trigger-subject-had-card-under", "cardsUnderCountBeforeBanish": 0}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
+
+    def test_put_card_under_any_this_turn_uses_turn_metadata(self, state, engine):
+        """Test put-card-under-any-this-turn uses turn_metadata."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        controller = state.cards[source_id].controller
+        # Set up turn metadata
+        state.turn_metadata["cards_put_under_this_turn_by_player"] = {controller: 2}
+
         condition = {"type": "put-card-under-any-this-turn"}
-        with pytest.raises(UnsupportedConditionError):
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+
+    def test_put_card_under_any_this_turn_zero(self, state, engine):
+        """Test put-card-under-any-this-turn returns False when count is 0."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        # Ensure no puts recorded
+        state.turn_metadata["cards_put_under_this_turn_by_player"] = {}
+
+        condition = {"type": "put-card-under-any-this-turn"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
+
+    def test_put_card_under_self_this_turn_uses_turn_metadata(self, state, engine):
+        """Test put-card-under-self-this-turn uses turn_metadata."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        # Set up turn metadata
+        state.turn_metadata["cards_put_under_self_this_turn_by_card"] = {source_id: 1}
+
+        condition = {"type": "put-card-under-self-this-turn"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+
+    def test_banished_in_challenge_this_turn_uses_turn_metadata(self, state, engine):
+        """Test banished-in-challenge-this-turn uses turn_metadata."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        controller = state.cards[source_id].controller
+        # Set up turn metadata
+        state.turn_metadata["banished_characters_in_challenge_by_owner_this_turn"] = {controller: [1, 2, 3]}
+
+        condition = {"type": "banished-in-challenge-this-turn"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+
+    def test_banished_in_challenge_this_turn_empty(self, state, engine):
+        """Test banished-in-challenge-this-turn returns False when empty."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        # Ensure no banishes recorded
+        state.turn_metadata["banished_characters_in_challenge_by_owner_this_turn"] = {}
+
+        condition = {"type": "banished-in-challenge-this-turn"}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is False
+
+    def test_turn_metric_cards_drawn_by_player(self, state, engine):
+        """Test turn-metric with cards-drawn-by-player."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        controller = state.cards[source_id].controller
+        # Set up turn metadata
+        state.turn_metadata["cards_drawn_this_turn_by_player"] = {controller: 3}
+
+        condition = {"type": "turn-metric", "metric": "cards-drawn-by-player", "comparison": ">=", "value": 2}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+
+    def test_turn_metric_challenges_by_player(self, state, engine):
+        """Test turn-metric with challenges-by-player."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        controller = state.cards[source_id].controller
+        # Set up turn metadata
+        state.turn_metadata["challenges_by_player_this_turn"] = {controller: 2}
+
+        condition = {"type": "turn-metric", "metric": "challenges-by-player", "comparison": "eq", "value": 2}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+
+    def test_turn_metric_lorcanito_comparison_aliases(self, state, engine):
+        """turn-metric should support Lorcanito comparison aliases."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        controller = state.cards[source_id].controller
+        state.turn_metadata["cards_drawn_this_turn_by_player"] = {controller: 3}
+
+        assert evaluate_condition(
+            {
+                "type": "turn-metric",
+                "metric": "cards-drawn-by-player",
+                "comparison": "greater-than-or-equal",
+                "value": 3,
+            },
+            state,
+            None,
+            source_id,
+            engine,
+        ) is True
+        assert evaluate_condition(
+            {
+                "type": "turn-metric",
+                "metric": "cards-drawn-by-player",
+                "comparison": "equals",
+                "value": 3,
+            },
+            state,
+            None,
+            source_id,
+            engine,
+        ) is True
+
+    def test_turn_metric_banished_characters(self, state, engine):
+        """Test turn-metric with banished-characters."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        # Set up turn metadata
+        state.turn_metadata["banished_characters_this_turn"] = [1, 2, 3, 4]
+
+        condition = {"type": "turn-metric", "metric": "banished-characters", "comparison": ">=", "value": 3}
+        result = evaluate_condition(condition, state, None, source_id, engine)
+        assert result is True
+
+    def test_turn_metric_unknown_metric_raises(self, state, engine):
+        """Test turn-metric raises for unknown metric."""
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        condition = {"type": "turn-metric", "metric": "totally-unknown-metric"}
+
+        with pytest.raises(UnsupportedConditionError) as exc_info:
             evaluate_condition(condition, state, None, source_id, engine)
+        assert "unknown metric" in str(exc_info.value)
 
     def test_target_aggregate_comparison_raises(self, state, engine):
         """Test target-aggregate-comparison raises (not implemented)."""

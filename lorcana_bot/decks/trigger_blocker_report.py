@@ -17,6 +17,7 @@ from lorcana_bot.card_logic import (
 )
 from lorcana_bot.importers.lorcanito_source_mapper import (
     ENGINE_EFFECT_MAP,
+    SUPPORTED_AMOUNT_SHAPES,
     SUPPORTED_CONDITION_KINDS,
     SUPPORTED_TARGET_ALIASES,
     SUPPORTED_TRIGGER_EFFECT_KINDS,
@@ -26,6 +27,7 @@ from lorcana_bot.cards import CardDef
 
 
 # Supported trigger on values (separate from effect target aliases)
+# 2C: Added string filters for CHARACTERS_HERE, YOUR_ITEMS, etc.
 SUPPORTED_TRIGGER_ON_VALUES = frozenset({
     "SELF",
     "YOU",
@@ -38,6 +40,14 @@ SUPPORTED_TRIGGER_ON_VALUES = frozenset({
     "ANY_CHARACTER",
     "YOUR_ITEMS",
     "YOUR_LOCATIONS",
+    # 2C: Supported string filters
+    "CHARACTERS_HERE",
+    "CHARACTER_HERE",
+    "ANY_ITEM",
+    "YOUR_ACTIONS",
+    "YOUR_SONGS",
+    "YOUR_CHARACTERS_OR_LOCATIONS",
+    "YOUR_CHARACTERS_OR_LOCATIONS_WITH_CARD_UNDER",
 })
 
 # Supported engine effect kinds for trigger projection (mapped from source kinds)
@@ -196,16 +206,53 @@ class TriggerProjectionAnalysis:
         return "unknown"
 
 
+# 2C: Supported keys in trigger on object filters
+SUPPORTED_FILTER_KEYS = frozenset({
+    "controller",
+    "owner",
+    "cardType",
+    "cardTypes",
+    "classification",
+    "classifications",
+    "name",
+    "hasKeyword",
+    "excludeSelf",
+    "filters",
+})
+
+# 2C: Supported filter types within filters[]
+SUPPORTED_FILTER_TYPES = frozenset({
+    "ink-type",
+    "damaged",
+    "exerted",
+    "ready",
+    "has-keyword",
+    "has-classification",
+    "at-location",
+})
+
+
 def _analyze_trigger_on_filter(on_filter: dict[str, Any]) -> str | None:
     """Analyze a trigger on filter object for supported keys.
 
     Returns a blocker string if unsupported, None if supported.
+    2C: Extended to support object filter keys including filters[].
     """
-    supported_keys = {"cardType", "controller", "owner", "classification", "excludeSelf"}
-
     for key in on_filter:
-        if key not in supported_keys:
+        if key not in SUPPORTED_FILTER_KEYS:
             return f"unsupported_trigger_on:complex_filter:{key}"
+
+    # Check filters array if present
+    filters_list = on_filter.get("filters")
+    if filters_list is not None:
+        if not isinstance(filters_list, list):
+            return "unsupported_trigger_on:complex_filter:filters"
+        for f in filters_list:
+            if not isinstance(f, dict):
+                return "unsupported_trigger_on:complex_filter:filters"
+            filter_type = f.get("type")
+            if filter_type not in SUPPORTED_FILTER_TYPES:
+                return f"unsupported_trigger_on:complex_filter:filters:{filter_type}"
 
     # All keys are supported
     return None
@@ -393,8 +440,56 @@ def _extract_condition_kinds(condition: SourceConditionDef | None) -> list[str]:
     return kinds
 
 
+# 4C: Amount shape detection helper (mirrors lorcanito_source_mapper logic)
+def _get_amount_shape_from_raw(raw_amount: Any) -> str | None:
+    """Determine the shape of an amount value.
+
+    Returns a shape identifier or None for unsupported shapes.
+    4C: Used to filter amount resolution requirements to shapes Brief 4A resolver supports.
+    """
+    if raw_amount is None:
+        return "static_integer"  # No amount = 0, but shape is supported
+
+    # Static integer
+    if isinstance(raw_amount, int):
+        return "static_integer"
+
+    # Numeric string (e.g., "2")
+    if isinstance(raw_amount, str) and raw_amount.isdigit():
+        return "numeric_string"
+
+    # Static object: {"type": "static", "amount": N}
+    if isinstance(raw_amount, dict):
+        if raw_amount.get("type") == "static" and "amount" in raw_amount:
+            return "static_object"
+        # Event snapshot: {"type": "event-snapshot", "key": "drawnCount"}
+        if raw_amount.get("type") == "event-snapshot":
+            key = raw_amount.get("key")
+            if key == "drawnCount":
+                return "event_snapshot_drawn_count"
+            if key == "cardsUnderCountBeforeBanish":
+                return "event_snapshot_cards_under_count"
+
+    # Unsupported shape
+    return None
+
+
+# 4C: Supported amount shapes that Brief 4A resolver can handle
+SUPPORTED_AMOUNT_SHAPES_FOR_REPORT = frozenset({
+    "static_integer",
+    "numeric_string",
+    "static_object",
+    "event_snapshot_drawn_count",
+    "event_snapshot_cards_under_count",
+})
+
+
 def _extract_resolution_requirements(ability: SourceAbilityDef) -> list[str]:
-    """Determine resolution requirements from ability structure."""
+    """Determine resolution requirements from ability structure.
+
+    4C: Amount resolution requirement is only reported for unsupported shapes.
+    Scry ordering resolution requirement is not reported since Brief 4B supports pending scry.
+    """
     requirements = []
 
     # Recursively check all effects
@@ -402,7 +497,9 @@ def _extract_resolution_requirements(ability: SourceAbilityDef) -> list[str]:
         if effect.kind == "choice":
             requirements.append("choice")
         if effect.kind == "scry":
-            requirements.append("scry_ordering")
+            # 4C: Do not report scry_ordering as blocker since Brief 4B
+            # supports creating pending scry ordering through bag completion
+            pass
         if effect.kind == "reveal-and-route":
             requirements.append("reveal_routing")
         if effect.kind == "name-a-card":
@@ -411,8 +508,14 @@ def _extract_resolution_requirements(ability: SourceAbilityDef) -> list[str]:
             requirements.append("ordering")
         if effect.raw.get("destination"):
             requirements.append("destination")
-        if effect.raw.get("amount"):
-            requirements.append("amount")
+        # 4C: Check amount shape - only report as blocker for unsupported shapes
+        raw_amount = effect.raw.get("amount") if effect.raw and "amount" in effect.raw else getattr(effect, "amount", None)
+        if raw_amount is not None:
+            amount_shape = _get_amount_shape_from_raw(raw_amount)
+            if amount_shape is None:
+                # Unsupported amount shape - report as blocker
+                requirements.append("amount")
+            # Supported amount shapes are handled by Brief 4A resolver
 
         # Recursively check child effects
         for child in effect.effects:

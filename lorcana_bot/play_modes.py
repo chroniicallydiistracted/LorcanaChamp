@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 
 from dataclasses import dataclass
 
-from lorcana_bot.constants import CARD_CHARACTER, ZONE_PLAY, ZONE_UNDER
+from lorcana_bot.constants import CARD_CHARACTER, EVENT_PUT_CARD_UNDER, ZONE_PLAY, ZONE_UNDER
 
 if TYPE_CHECKING:
     from lorcana_bot.state import GameState
@@ -1080,6 +1080,36 @@ def attach_shift_stack(
         if under_id in state.cards:
             state.cards[under_id].stack_parent_id = new_top_id
             state.cards[under_id].cards_under.clear()
+
+    for under_id in stack_ids:
+        if under_id not in state.cards:
+            continue
+        engine.emit_event(
+            state,
+            EVENT_PUT_CARD_UNDER,
+            actor=player,
+            source=under_id,
+            target=new_top_id,
+            payload={
+                "player_id": player,
+                "card_id": under_id,
+                "subject_card_id": under_id,
+                "target_id": new_top_id,
+                "trigger_source_card_id": new_top_id,
+            },
+        )
+
+    # B13: Record put-card-under for turn metadata
+    if "cards_put_under_this_turn_by_player" not in state.turn_metadata:
+        state.turn_metadata["cards_put_under_this_turn_by_player"] = {}
+    player_puts = state.turn_metadata["cards_put_under_this_turn_by_player"]
+    player_puts[player] = player_puts.get(player, 0) + len(stack_ids)
+
+    # Record by target card ID
+    if "cards_put_under_self_this_turn_by_card" not in state.turn_metadata:
+        state.turn_metadata["cards_put_under_self_this_turn_by_card"] = {}
+    card_puts = state.turn_metadata["cards_put_under_self_this_turn_by_card"]
+    card_puts[new_top_id] = card_puts.get(new_top_id, 0) + len(stack_ids)
 
     return stack_ids
 

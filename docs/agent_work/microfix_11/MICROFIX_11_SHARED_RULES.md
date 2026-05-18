@@ -3,7 +3,7 @@
 Read this file before every Microfix 11 brief. Every implementation brief in this directory assumes these rules.
 
 Goal:
-Bring trigger projection and trigger runtime behavior closer to Lorcanito without hiding unsupported logic. Microfix 11 is about event matching, trigger subject filters, turn metadata conditions, dynamic amount/scry requirements, and bag/pending continuation.
+Bring trigger projection and trigger runtime behavior closer to Lorcanito without hiding unsupported logic. Microfix 11 is split into small mechanical briefs. Each brief must complete exactly the named functions and exact tests in that brief.
 
 Do not implement unrelated card text systems here. In particular, `create-replacement-effect` and effect-kind `or` remain out of scope unless a later brief explicitly expands scope.
 
@@ -78,6 +78,48 @@ Microfix 11 should reduce the trigger/event/condition/amount/scry blockers. Do n
 
 ---
 
+## Support-List Gate
+
+This gate applies to every brief.
+
+Do not edit any of these support lists unless the current brief explicitly says to do so:
+
+```text
+lorcana_bot/triggers.py::SUPPORTED_TRIGGER_EVENTS
+lorcana_bot/triggers.py::SUPPORTED_ON_VALUES
+lorcana_bot/importers/lorcanito_source_mapper.py::SUPPORTED_TRIGGER_EVENTS
+lorcana_bot/importers/lorcanito_source_mapper.py::SUPPORTED_CONDITION_KINDS
+lorcana_bot/importers/lorcanito_source_mapper.py::BLOCKED_CONDITION_KINDS
+lorcana_bot/decks/trigger_blocker_report.py::SUPPORTED_TRIGGER_ON_VALUES
+lorcana_bot/decks/trigger_blocker_report.py::RESOLUTION_REQUIREMENT_KINDS
+```
+
+When a brief does allow a support-list edit, the edit is allowed only after all three checks are true:
+
+```text
+1. A runtime function emits, matches, evaluates, or resolves the behavior.
+2. A focused test proves the runtime behavior without relying on report logic.
+3. A projection/report test proves the support-list claim.
+```
+
+Constants are not support claims. Adding a constant is allowed only when the brief explicitly names it. Adding the constant to `SUPPORTED_*` is a separate support claim and needs the gate above.
+
+---
+
+## Required Self-Audit For Every Brief
+
+Before final response, answer these yes/no questions in the final response:
+
+```text
+1. Did I edit only the files allowed by this brief?
+2. Did I avoid all forbidden support-list changes?
+3. Does every new support-list entry have a runtime test?
+4. Did I add every required test named in this brief?
+5. Did I run every required command?
+```
+
+---
+
 ## Demo Card Test Rule
 
 When tests need real card definitions, use the shared demo card database and constants from current tests. Do not invent integer card definition IDs such as `1001`.
@@ -104,3 +146,4 @@ The implementing agent must report:
 4. Exact tests added or revised.
 5. Exact pytest commands run and results.
 6. Any remaining blockers intentionally left for later Microfixes.
+7. The five yes/no self-audit answers from this shared rules file.

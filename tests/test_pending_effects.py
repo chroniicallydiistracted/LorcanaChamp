@@ -2276,3 +2276,86 @@ class TestPendingTargetingIntegration:
         assert new_state.cards[from_id].damage == 3
         assert new_state.cards[to_id].damage == 1
         assert not has_pending_effects(new_state)
+
+
+class TestBagOriginScryPending:
+    """Tests for bag-origin scry pending effects preserving resolution input."""
+
+    def test_bag_origin_scry_pending_preserves_resolution_input(self):
+        """Test that bag-origin scry pending effect preserves resolution_input.
+
+        Required behavior:
+        - The pending effect raw data includes resolution_input copied from the bag entry
+        - When resolving a bag-origin scry pending effect, the resolution_input is preserved
+        """
+        from lorcana_bot.state import GameState, PlayerState, CardInstance, BagEffectEntry, PendingTriggeredEvent
+        from lorcana_bot.cards import CardDatabase, CardDef
+        from lorcana_bot.engine import GameEngine
+        from lorcana_bot.pending_effects import create_scry_pending_effect, get_pending_effect_by_id, ScryRequirement
+
+        # Create a minimal engine for testing
+        cards = [
+            CardDef("a", "A", "amber", 1, True, "character", 1, 1, 1),
+            CardDef("b", "B", "amber", 1, True, "character", 1, 1, 1),
+            CardDef("c", "C", "amber", 1, True, "character", 1, 1, 1),
+        ]
+        engine = GameEngine(CardDatabase(cards))
+
+        # Create a state with a deck
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        state.cards[1] = CardInstance(instance_id=1, card_id="a", owner=0, controller=0, zone="deck")
+        state.cards[2] = CardInstance(instance_id=2, card_id="b", owner=0, controller=0, zone="deck")
+        state.cards[3] = CardInstance(instance_id=3, card_id="c", owner=0, controller=0, zone="deck")
+        state.players[0].deck = [1, 2, 3]
+        state.active_player = 0
+
+        # Simulate the bag resolution scenario by:
+        # 1. Creating a scry pending effect
+        # 2. Marking it with bag origin (simulating what _apply_resolve_bag does)
+        # 3. Adding resolution_input (simulating what would be copied from bag entry)
+        pe = create_scry_pending_effect(
+            state,
+            controller_id=0,
+            chooser_id=0,
+            source_id=1,
+            source_card_id="a",
+            amount=2,
+            origin="bag",
+        )
+
+        # Simulate bag origin setup (what engine does in _apply_resolve_bag)
+        pe.origin = "bag"
+        pe.origin_id = "bag_test_123"
+
+        # Add resolution_input (this would come from the bag entry in a real scenario)
+        pe.raw.setdefault("resolution_input", {})
+        pe.raw["resolution_input"]["event"] = "quest"
+        pe.raw["resolution_input"]["trigger_subject"] = 1
+        pe.raw["resolution_input"]["ability_id"] = "test_ability"
+        pe.raw["resolution_input"]["source_id"] = 1
+
+        # Verify the pending effect has the correct structure
+        assert pe.origin == "bag"
+        assert pe.origin_id == "bag_test_123"
+        assert pe.raw.get("requirement_kind") == "scry_ordering"
+
+        # Get the scry requirement
+        scry_req = pe.raw.get("requirement")
+        assert isinstance(scry_req, ScryRequirement)
+        assert len(scry_req.candidate_ids) == 2
+
+        # Verify resolution_input is preserved
+        assert pe.raw["resolution_input"]["event"] == "quest"
+        assert pe.raw["resolution_input"]["trigger_subject"] == 1
+        assert pe.raw["resolution_input"]["ability_id"] == "test_ability"
+
+        # Test that we can retrieve the pending effect
+        retrieved_pe = get_pending_effect_by_id(state, pe.id)
+        assert retrieved_pe is not None
+        assert retrieved_pe.id == pe.id
+
+        # Verify the ScryRequirement is preserved when retrieved
+        retrieved_req = retrieved_pe.raw.get("requirement")
+        assert isinstance(retrieved_req, ScryRequirement)
+        assert retrieved_req.candidate_ids == scry_req.candidate_ids
+        assert retrieved_req.amount == 2

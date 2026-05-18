@@ -24,10 +24,13 @@ from typing import Any
 
 from .cards import CardDef, TriggerDef
 from .constants import (
+    CARD_ACTION,
     CARD_CHARACTER,
+    CARD_ITEM,
     CARD_LOCATION,
     LEGACY_EVENT_MAP,
     TRIGGER_EVENT_BANISH,
+    TRIGGER_EVENT_BANISH_IN_CHALLENGE,
     TRIGGER_EVENT_CHALLENGE,
     TRIGGER_EVENT_DAMAGE_DEALT,
     TRIGGER_EVENT_DISCARD,
@@ -40,6 +43,7 @@ from .constants import (
     TRIGGER_EVENT_LOSE_LORE,
     TRIGGER_EVENT_MOVE,
     TRIGGER_EVENT_PLAY,
+    TRIGGER_EVENT_PUT_CARD_UNDER,
     TRIGGER_EVENT_QUEST,
     TRIGGER_EVENT_READY,
     TRIGGER_EVENT_RETURN_TO_HAND,
@@ -51,12 +55,14 @@ from .constants import (
 )
 from .state import BagEffectEntry, GameEvent, GameState, PendingTriggeredEvent
 
-# Supported trigger events for B2
+# Supported trigger events for trigger matching.
 SUPPORTED_TRIGGER_EVENTS = frozenset({
     TRIGGER_EVENT_PLAY,
     TRIGGER_EVENT_QUEST,
     TRIGGER_EVENT_CHALLENGE,
     TRIGGER_EVENT_BANISH,
+    TRIGGER_EVENT_BANISH_IN_CHALLENGE,
+    TRIGGER_EVENT_LEAVE_PLAY,
     TRIGGER_EVENT_START_TURN,
     TRIGGER_EVENT_END_TURN,
     TRIGGER_EVENT_INK,
@@ -70,11 +76,76 @@ SUPPORTED_TRIGGER_EVENTS = frozenset({
     TRIGGER_EVENT_LOSE_LORE,
     TRIGGER_EVENT_SUPPORT,
     TRIGGER_EVENT_DAMAGE_DEALT,
-    "banish-in-challenge",
+    TRIGGER_EVENT_PUT_CARD_UNDER,
 })
 
 # Supported `on` values for B2 trigger matching
-SUPPORTED_ON_VALUES = frozenset({"SELF", "YOU", "CONTROLLER", "OPPONENT", "YOUR_CHARACTERS", "YOUR_OTHER_CHARACTERS", "OPPOSING_CHARACTERS", "ANY_CHARACTER"})
+SUPPORTED_ON_VALUES = frozenset({
+    "SELF",
+    "YOU",
+    "CONTROLLER",
+    "OPPONENT",
+    "ANY_PLAYER",
+    "YOUR_CHARACTERS",
+    "YOUR_OTHER_CHARACTERS",
+    "OPPOSING_CHARACTERS",
+    "OPPONENT_CHARACTERS",
+    "ANY_CHARACTER",
+    "YOUR_ITEMS",
+    "ANY_ITEM",
+    "YOUR_LOCATIONS",
+    "YOUR_ACTIONS",
+    "YOUR_SONGS",
+    "CHARACTERS_HERE",
+    "CHARACTER_HERE",
+    "YOUR_CHARACTERS_OR_LOCATIONS",
+    "YOUR_CHARACTERS_OR_LOCATIONS_WITH_CARD_UNDER",
+})
+
+
+def _norm(value: Any) -> str:
+    return str(value).strip().lower()
+
+
+def _card_classifications(card: CardDef) -> tuple[str, ...]:
+    values: list[str] = []
+    for value in card.subtypes or ():
+        if isinstance(value, str) and value.strip():
+            values.append(value.strip())
+    for raw_source in (card.raw_lorcanito_source, card.raw):
+        if isinstance(raw_source, dict):
+            for value in raw_source.get("classifications", ()) or ():
+                if isinstance(value, str) and value.strip():
+                    values.append(value.strip())
+    return tuple(dict.fromkeys(values))
+
+
+def _card_keywords(card: CardDef) -> tuple[str, ...]:
+    values: list[str] = []
+    for value in card.keywords or ():
+        if isinstance(value, str) and value.strip():
+            values.append(value.strip())
+    for keyword_def in card.keyword_defs or ():
+        value = getattr(keyword_def, "keyword", None)
+        if isinstance(value, str) and value.strip():
+            values.append(value.strip())
+    return tuple(dict.fromkeys(values))
+
+
+def _card_names(card: CardDef) -> tuple[str, ...]:
+    names = []
+    for attr in ("full_name", "name", "simple_name"):
+        value = getattr(card, attr, None)
+        if isinstance(value, str) and value.strip():
+            names.append(value.strip())
+    return tuple(dict.fromkeys(names))
+
+
+def _card_matches_type(card: CardDef, card_type: Any) -> bool:
+    wanted = _norm(card_type)
+    if wanted == "song":
+        return card.card_type == CARD_ACTION and _norm(card.action_subtype or "") == "song"
+    return _norm(card.card_type) == wanted
 
 
 @dataclass(frozen=True)
@@ -112,7 +183,7 @@ def expand_trigger_event(event: str) -> tuple[str, ...]:
     if event == TRIGGER_EVENT_LEAVE_PLAY:
         return (
             TRIGGER_EVENT_BANISH,
-            "banish-in-challenge",
+            TRIGGER_EVENT_BANISH_IN_CHALLENGE,
             TRIGGER_EVENT_RETURN_TO_HAND,
             TRIGGER_EVENT_INK,
         )
@@ -288,8 +359,7 @@ def trigger_matches_event(
     """Check if a trigger candidate matches the pending event."""
     trigger = candidate.trigger
 
-    # Event type must match
-    if trigger.event != pending.event:
+    if pending.event not in expand_trigger_event(trigger.event):
         return False
 
     # Check source zone restrictions
@@ -334,18 +404,17 @@ def _on_filter_matches_string(
     """Check if a string `on` value matches the pending event."""
     source_instance_id = candidate.source_instance_id
     subject_card_id = pending.subject_card_id
+    source_controller = state.cards[source_instance_id].controller
 
     if on_value == "SELF":
         return subject_card_id == source_instance_id
 
     if on_value in {"YOU", "CONTROLLER"}:
         # Trigger fires when its controller performs the action
-        source_controller = state.cards[source_instance_id].controller
         return pending.player_id == source_controller
 
     if on_value == "OPPONENT":
         # Trigger fires for opponent action
-        source_controller = state.cards[source_instance_id].controller
         return pending.player_id is not None and pending.player_id != source_controller
 
     if on_value == "ANY_PLAYER":
@@ -359,7 +428,8 @@ def _on_filter_matches_string(
         subject_card = state.cards.get(subject_card_id)
         if subject_card is None:
             return False
-        return subject_card.controller == state.cards[source_instance_id].controller
+        subject_def = engine.card_def(state, subject_card_id)
+        return subject_card.controller == source_controller and subject_def.card_type == CARD_CHARACTER
 
     if on_value == "YOUR_OTHER_CHARACTERS":
         # Exclude self
@@ -370,8 +440,8 @@ def _on_filter_matches_string(
         subject_card = state.cards.get(subject_card_id)
         if subject_card is None:
             return False
-        source_controller = state.cards[source_instance_id].controller
-        return subject_card.controller == source_controller
+        subject_def = engine.card_def(state, subject_card_id)
+        return subject_card.controller == source_controller and subject_def.card_type == CARD_CHARACTER
 
     if on_value == "OPPOSING_CHARACTERS":
         if subject_card_id is None:
@@ -379,17 +449,125 @@ def _on_filter_matches_string(
         subject_card = state.cards.get(subject_card_id)
         if subject_card is None:
             return False
-        source_controller = state.cards[source_instance_id].controller
-        return subject_card.controller == state.opponent(source_controller)
+        subject_def = engine.card_def(state, subject_card_id)
+        return subject_card.controller == state.opponent(source_controller) and subject_def.card_type == CARD_CHARACTER
+
+    if on_value == "OPPONENT_CHARACTERS":
+        # Trigger fires for opponent's characters
+        if subject_card_id is None:
+            return True
+        subject_card = state.cards.get(subject_card_id)
+        if subject_card is None:
+            return False
+        subject_def = engine.card_def(state, subject_card_id)
+        return subject_card.controller == state.opponent(source_controller) and subject_def.card_type == CARD_CHARACTER
 
     if on_value == "ANY_CHARACTER":
         if subject_card_id is None:
             return True
         subject_card = state.cards.get(subject_card_id)
-        return subject_card is not None
+        if subject_card is None:
+            return False
+        subject_def = engine.card_def(state, subject_card_id)
+        return subject_def.card_type == CARD_CHARACTER
 
-    # Default: allow match
-    return True
+    if on_value == "YOUR_ITEMS":
+        # Trigger fires for items you control
+        if subject_card_id is None:
+            return True
+        subject_card = state.cards.get(subject_card_id)
+        if subject_card is None:
+            return False
+        subject_def = engine.card_def(state, subject_card_id)
+        return subject_card.controller == source_controller and subject_def.card_type == CARD_ITEM
+
+    if on_value == "ANY_ITEM":
+        if subject_card_id is None:
+            return True
+        subject_card = state.cards.get(subject_card_id)
+        if subject_card is None:
+            return False
+        subject_def = engine.card_def(state, subject_card_id)
+        return subject_def.card_type == CARD_ITEM
+
+    if on_value == "YOUR_LOCATIONS":
+        # Trigger fires for locations you control
+        if subject_card_id is None:
+            return True
+        subject_card = state.cards.get(subject_card_id)
+        if subject_card is None:
+            return False
+        subject_def = engine.card_def(state, subject_card_id)
+        return subject_card.controller == source_controller and subject_def.card_type == CARD_LOCATION
+
+    if on_value == "YOUR_ACTIONS":
+        # Trigger fires for actions you control
+        if subject_card_id is None:
+            return True
+        subject_card = state.cards.get(subject_card_id)
+        if subject_card is None:
+            return False
+        subject_def = engine.card_def(state, subject_card_id)
+        return subject_card.controller == source_controller and subject_def.card_type == CARD_ACTION
+
+    if on_value == "YOUR_SONGS":
+        # Trigger fires for song actions you control
+        if subject_card_id is None:
+            return True
+        subject_card = state.cards.get(subject_card_id)
+        if subject_card is None:
+            return False
+        if subject_card.controller != source_controller:
+            return False
+        subject_def = engine.card_def(state, subject_card_id)
+        return _card_matches_type(subject_def, "song")
+
+    if on_value in {"CHARACTERS_HERE", "CHARACTER_HERE"}:
+        # Match only when subject is a character at the same location as the trigger source
+        if subject_card_id is None:
+            return False
+        subject_card = state.cards.get(subject_card_id)
+        if subject_card is None:
+            return False
+        subject_def = engine.card_def(state, subject_card_id)
+        if subject_def.card_type != CARD_CHARACTER:
+            return False
+        # Prefer subjectAtLocationId from event snapshot, fall back to location_instance_id
+        location_id = pending.event_snapshot.get("subjectAtLocationId")
+        if location_id is None:
+            location_id = pending.event_snapshot.get("subject_at_location_id")
+        if location_id is None:
+            location_id = subject_card.location_instance_id
+        return location_id == source_instance_id
+
+    if on_value == "YOUR_CHARACTERS_OR_LOCATIONS":
+        # Trigger fires for characters or locations you control
+        if subject_card_id is None:
+            return True
+        subject_card = state.cards.get(subject_card_id)
+        if subject_card is None:
+            return False
+        if subject_card.controller != source_controller:
+            return False
+        subject_def = engine.card_def(state, subject_card_id)
+        return subject_def.card_type in {"character", "location"}
+
+    if on_value == "YOUR_CHARACTERS_OR_LOCATIONS_WITH_CARD_UNDER":
+        # Trigger fires for controlled character/location subjects with cards under them
+        if subject_card_id is None:
+            return True
+        subject_card = state.cards.get(subject_card_id)
+        if subject_card is None:
+            return False
+        if subject_card.controller != source_controller:
+            return False
+        subject_def = engine.card_def(state, subject_card_id)
+        if subject_def.card_type not in {"character", "location"}:
+            return False
+        return len(subject_card.cards_under) > 0
+
+    # Unknown string filter: fail closed per Microfix 11 rule 3
+    return False
 
 
 def _on_filter_matches_object(
@@ -399,49 +577,203 @@ def _on_filter_matches_object(
     pending: PendingTriggeredEvent,
     on_value: dict[str, Any],
 ) -> bool:
-    """Check if an object query `on` value matches the pending event."""
-    # Handle simple object queries like {cardType: character, controller: you}
-    card_type_filter = on_value.get("cardType")
-    controller_filter = on_value.get("controller")
-    owner_filter = on_value.get("owner")
-    classification_filter = on_value.get("classification")
+    """Check if an object query `on` value matches the pending event.
 
-    if pending.subject_card_id is None:
+    Implements exact object `on` filter matching per MICROFIX_11_BRIEF_2B.
+
+    Object keys supported:
+    - controller: "you" | "opponent" | "any"
+    - owner: "you" | "opponent" | "any"
+    - cardType: exact match (with special handling for "song")
+    - cardTypes: array of card types to match
+    - classification: single classification match
+    - classifications: array of classifications (any match)
+    - name: card name match (case-insensitive)
+    - hasKeyword: keyword match
+    - excludeSelf: exclude the trigger source from matching
+    - filters: array of runtime filters
+    """
+    supported_keys = {
+        "controller",
+        "owner",
+        "cardType",
+        "cardTypes",
+        "classification",
+        "classifications",
+        "name",
+        "hasKeyword",
+        "excludeSelf",
+        "filters",
+    }
+    if any(key not in supported_keys for key in on_value):
+        return False
+
+    source_instance_id = candidate.source_instance_id
+    subject_card_id = pending.subject_card_id
+
+    if subject_card_id is None:
         return True
 
-    subject_card = state.cards.get(pending.subject_card_id)
+    # excludeSelf: block the source card from matching itself
+    if on_value.get("excludeSelf") is True:
+        if subject_card_id == source_instance_id:
+            return False
+
+    subject_card = state.cards.get(subject_card_id)
     if subject_card is None:
         return False
 
-    subject_def = engine.card_def(state, pending.subject_card_id)
-    source_controller = state.cards[candidate.source_instance_id].controller
+    subject_def = engine.card_def(state, subject_card_id)
+    source_controller = state.cards[source_instance_id].controller
 
-    # Card type filter
-    if card_type_filter:
-        if subject_def.card_type != card_type_filter:
-            return False
-
-    # Controller filter (you = source controller, opponent = opponent)
-    if controller_filter == "you":
-        if subject_card.controller != source_controller:
-            return False
-    elif controller_filter == "opponent":
-        if subject_card.controller != state.opponent(source_controller):
-            return False
+    # Controller filter
+    controller_filter = on_value.get("controller")
+    if controller_filter:
+        if controller_filter == "you":
+            if subject_card.controller != source_controller:
+                return False
+        elif controller_filter == "opponent":
+            if subject_card.controller != state.opponent(source_controller):
+                return False
+        elif controller_filter == "any":
+            pass  # any controller matches
+        else:
+            return False  # Unknown controller value fails closed
 
     # Owner filter
-    if owner_filter == "you":
-        if subject_card.owner != source_controller:
-            return False
-    elif owner_filter == "opponent":
-        if subject_card.owner != state.opponent(source_controller):
+    owner_filter = on_value.get("owner")
+    if owner_filter:
+        if owner_filter == "you":
+            if subject_card.owner != source_controller:
+                return False
+        elif owner_filter == "opponent":
+            if subject_card.owner != state.opponent(source_controller):
+                return False
+        elif owner_filter == "any":
+            pass  # any owner matches
+        else:
+            return False  # Unknown owner value fails closed
+
+    # cardType filter - exact match with song special handling
+    card_type_filter = on_value.get("cardType")
+    if card_type_filter:
+        if not _card_matches_type(subject_def, card_type_filter):
             return False
 
-    # Classification filter (simplified)
+    # cardTypes filter - array of card types (any match)
+    card_types_filter = on_value.get("cardTypes")
+    if card_types_filter is not None:
+        if isinstance(card_types_filter, list):
+            if not any(_card_matches_type(subject_def, ct) for ct in card_types_filter):
+                return False
+        else:
+            return False  # cardTypes must be array
+
+    # classification filter - single classification
+    classification_filter = on_value.get("classification")
     if classification_filter:
-        # Check if card has the classification keyword
-        if classification_filter not in subject_def.keywords:
+        cls_lower = _norm(classification_filter)
+        if cls_lower not in {_norm(value) for value in _card_classifications(subject_def)}:
             return False
+
+    # classifications filter - array of classifications (any match)
+    classifications_filter = on_value.get("classifications")
+    if classifications_filter is not None:
+        if isinstance(classifications_filter, list):
+            available = {_norm(value) for value in _card_classifications(subject_def)}
+            if not any(_norm(cls) in available for cls in classifications_filter):
+                return False
+        else:
+            return False  # classifications must be array
+
+    # name filter
+    name_filter = on_value.get("name")
+    if name_filter:
+        wanted_name = _norm(name_filter)
+        if wanted_name not in {_norm(name) for name in _card_names(subject_def)}:
+            return False
+
+    # hasKeyword filter
+    has_keyword_filter = on_value.get("hasKeyword")
+    if has_keyword_filter:
+        if _norm(has_keyword_filter) not in {_norm(keyword) for keyword in _card_keywords(subject_def)}:
+            return False
+
+    # filters[] runtime filters
+    filters = on_value.get("filters")
+    if filters is not None:
+        if not isinstance(filters, list):
+            return False
+
+        for f in filters:
+            if not isinstance(f, dict) or "type" not in f:
+                return False
+
+            filter_type = f.get("type")
+
+            if filter_type == "ink-type":
+                ink_type = f.get("inkType")
+                if not ink_type:
+                    return False
+                # Check CardDef.ink field for ink type matching
+                card_inks = { _norm(subject_def.ink), *{_norm(color) for color in subject_def.colors} }
+                if _norm(ink_type) not in card_inks:
+                    return False
+
+            elif filter_type == "damaged":
+                damage = getattr(subject_card, "damage", 0) or 0
+                if damage <= 0:
+                    return False
+
+            elif filter_type == "exerted":
+                # CardInstance uses exerted boolean field
+                if not getattr(subject_card, "exerted", False):
+                    return False
+
+            elif filter_type == "ready":
+                # CardInstance uses exerted boolean field (ready = not exerted)
+                if getattr(subject_card, "exerted", False):
+                    return False
+
+            elif filter_type == "has-keyword":
+                keyword = f.get("keyword")
+                if not keyword:
+                    return False
+                if _norm(keyword) not in {_norm(value) for value in _card_keywords(subject_def)}:
+                    return False
+
+            elif filter_type == "has-classification":
+                classification = f.get("classification")
+                if not classification:
+                    return False
+                if _norm(classification) not in {_norm(value) for value in _card_classifications(subject_def)}:
+                    return False
+
+            elif filter_type == "at-location":
+                location = f.get("location")
+                if not location:
+                    return False
+                # "source" means the trigger source's location (its location_instance_id)
+                source_card = state.cards.get(source_instance_id)
+                if source_card is None:
+                    return False
+                if location == "source":
+                    expected_location = getattr(source_card, "location_instance_id", source_instance_id)
+                    # If source has no location set, default to source instance id
+                    if expected_location is None:
+                        expected_location = source_instance_id
+                else:
+                    expected_location = location
+                subject_location = getattr(subject_card, "location_instance_id", None)
+                # If no location is set on subject, it's not at any specific location
+                if subject_location is None:
+                    return False
+                if subject_location != expected_location:
+                    return False
+
+            else:
+                # Unknown filter type must return False (fail closed)
+                return False
 
     return True
 

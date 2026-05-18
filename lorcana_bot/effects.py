@@ -45,21 +45,21 @@ class EffectResolver:
             self.engine.draw_cards(
                 state,
                 self._target_player(state, effect, context),
-                self._amount(effect),
+                self._amount(effect, context),
                 private=True,
             )
         elif kind == "gain_lore":
             self.engine._gain_lore_eventful(
                 state,
                 self._target_player(state, effect, context),
-                self._amount(effect),
+                self._amount(effect, context),
                 source_id=context.source,
             )
         elif kind == "lose_lore":
             self.engine._lose_lore_eventful(
                 state,
                 self._target_player(state, effect, context),
-                self._amount(effect),
+                self._amount(effect, context),
                 source_id=context.source,
             )
         elif kind == "deal_damage":
@@ -68,7 +68,7 @@ class EffectResolver:
                     state,
                     target_id=target,
                     source_id=context.source,
-                    amount=self._amount(effect),
+                    amount=self._amount(effect, context),
                     actor=context.actor,
                     is_challenge=False,
                     apply_resist=True,
@@ -78,7 +78,7 @@ class EffectResolver:
                 self.engine._remove_damage_eventful(
                     state,
                     target,
-                    self._amount(effect),
+                    self._amount(effect, context),
                     actor=context.actor,
                     source_id=context.source,
                 )
@@ -121,7 +121,7 @@ class EffectResolver:
         elif kind == "cost_reduction":
             state.players[context.actor].cost_reductions.append(
                 {
-                    "amount": self._amount(effect),
+                    "amount": self._amount(effect, context),
                     "card_type": effect.value if isinstance(effect.value, str) else None,
                     "duration": effect.duration or "this_turn",
                 }
@@ -236,7 +236,7 @@ class EffectResolver:
             return
 
         player = self._target_player(state, effect, context)
-        amount = self._amount(effect)
+        amount = self._amount(effect, context)
 
         # Determine if explicit choice is required
         # Rule 1: If effect.raw["chosen"] is true, create pending discard_choice
@@ -445,8 +445,58 @@ class EffectResolver:
 
         return list(resolve_candidate_card_ids(state, self.engine, descriptor, self._target_query_context(context)))
 
-    def _amount(self, effect: EffectDef) -> int:
-        return int(effect.amount or 0)
+    def _amount(self, effect: EffectDef, context: EffectResolutionContext) -> int:
+        """Resolve effect amount from various supported shapes.
+
+        Supported shapes:
+        - integer: direct int amount on EffectDef (including 0)
+        - numeric string: string that converts to int (from raw["amount"])
+        - {"type": "static", "amount": N}: explicit static amount object
+        - {"type": "event-snapshot", "key": "drawnCount"}: event snapshot lookup
+
+        Raises:
+            EffectResolutionError: for unsupported amount shapes (never returns 0)
+        """
+        raw_source = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else {}
+        raw_amount = raw_source.get("amount") if "amount" in raw_source else effect.raw.get("amount")
+        if raw_amount is not None:
+            if isinstance(raw_amount, (int, float)):
+                return int(raw_amount)
+            if isinstance(raw_amount, str):
+                if raw_amount.isdigit():
+                    return int(raw_amount)
+                raise EffectResolutionError(f"Unsupported amount shape: {raw_amount!r}")
+
+        # Check for object-style amount in raw
+        if isinstance(raw_amount, dict):
+            amount_type = raw_amount.get("type")
+            if amount_type == "static":
+                static_amount = raw_amount.get("amount")
+                if static_amount is not None:
+                    return int(static_amount)
+            elif amount_type == "event-snapshot":
+                key = raw_amount.get("key")
+                if key:
+                    event_payload = context.event_payload or {}
+                    event_snapshot = getattr(context.event, "event_snapshot", {}) or {}
+                    value = event_payload.get(key)
+                    if value is None:
+                        value = event_snapshot.get(key)
+                    if value is not None:
+                        return int(value)
+                    raise EffectResolutionError(f"Event snapshot amount key {key!r} was not present")
+
+        # Check direct amount - only if raw["amount"] was not present
+        if raw_amount is None and effect.amount is not None:
+            return int(effect.amount)
+
+        # Unsupported amount shape - raise instead of returning 0
+        unsupported_shape = raw_amount if raw_amount is not None else effect.amount
+        raise EffectResolutionError(
+            f"Unsupported amount shape: {unsupported_shape!r}. "
+            f"Supported shapes: integer, numeric string, {{'type': 'static', 'amount': N}}, "
+            f"{{'type': 'event-snapshot', 'key': 'KEY_NAME'}}"
+        )
 
     def _keyword(self, effect: EffectDef) -> str:
         if not effect.keyword:
@@ -469,7 +519,7 @@ class EffectResolver:
         """
         from .pending_effects import create_scry_pending_effect
 
-        amount = self._amount(effect)
+        amount = self._amount(effect, context)
         if amount <= 0:
             return
 
@@ -492,7 +542,7 @@ class EffectResolver:
         """
         # Look at top cards - this is for triggering player info only
         # Cards stay on deck, just the player gets to see them
-        amount = self._amount(effect)
+        amount = self._amount(effect, context)
         player_deck = state.players[context.actor].deck
 
         # Emit reveal event for the looked-at cards (private info)
@@ -516,7 +566,7 @@ class EffectResolver:
 
         The card identity becomes public and is routed according to effect.value.
         """
-        amount = self._amount(effect)
+        amount = self._amount(effect, context)
         if amount <= 0:
             amount = 1
 

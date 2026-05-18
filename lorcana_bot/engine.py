@@ -33,6 +33,7 @@ from .constants import (
     EVENT_CHALLENGE_STARTED,
     EVENT_CHALLENGED,
     EVENT_CHARACTER_BANISHED,
+    EVENT_BANISH_IN_CHALLENGE,
     EVENT_CONCEDED,
     EVENT_DAMAGE_DEALT,
     EVENT_INKED,
@@ -1056,6 +1057,12 @@ class GameEngine:
             ps.hand.append(cid)
             drawn_ids.append(cid)
 
+        # B13: Record cards drawn for turn metadata
+        if "cards_drawn_this_turn_by_player" not in state.turn_metadata:
+            state.turn_metadata["cards_drawn_this_turn_by_player"] = {}
+        player_draws = state.turn_metadata["cards_drawn_this_turn_by_player"]
+        player_draws[player] = player_draws.get(player, 0) + count
+
         # Emit CARD_DRAWN event with appropriate privacy level
         # In private mode, we don't leak the card identities to opponent
         if private:
@@ -1333,6 +1340,46 @@ class GameEngine:
             },
             queue_triggers=queue_triggers,
         )
+        if happened_in_challenge:
+            self.emit_event(
+                state,
+                EVENT_BANISH_IN_CHALLENGE,
+                actor=resolved_actor,
+                source=source_id if source_id is not None else card_id,
+                target=card_id if source_id is not None else None,
+                payload={
+                    "player_id": resolved_actor,
+                    "card_id": card_id,
+                    "subject_card_id": card_id,
+                    "source_card_id": source_id,
+                    "trigger_source_card_id": source_id if source_id is not None else card_id,
+                    "owner_id": inst.owner,
+                    "controller_id": controller,
+                    "from_zone": from_zone,
+                    "to_zone": banish_event.actual_destination,
+                    "happened_in_challenge": True,
+                    "banished_card_type": card_type,
+                    "reason": reason,
+                    "was_replaced": banish_event.was_replaced,
+                    "replacement_description": banish_event.replacement_description,
+                },
+            queue_triggers=queue_triggers,
+        )
+
+        # B13: Record banish for turn metadata (only for character cards)
+        if card_type == CARD_CHARACTER:
+            if "banished_characters_this_turn" not in state.turn_metadata:
+                state.turn_metadata["banished_characters_this_turn"] = []
+            state.turn_metadata["banished_characters_this_turn"].append(card_id)
+
+            if happened_in_challenge:
+                if "banished_characters_in_challenge_by_owner_this_turn" not in state.turn_metadata:
+                    state.turn_metadata["banished_characters_in_challenge_by_owner_this_turn"] = {}
+                owner = inst.owner
+                owner_banishes = state.turn_metadata["banished_characters_in_challenge_by_owner_this_turn"]
+                if owner not in owner_banishes:
+                    owner_banishes[owner] = []
+                owner_banishes[owner].append(card_id)
 
     def _put_into_inkwell_eventful(
         self,
@@ -1838,6 +1885,12 @@ class GameEngine:
 
         target_inst.was_challenged_this_turn = True
 
+        # B13: Record challenge for turn metadata
+        if "challenges_by_player_this_turn" not in state.turn_metadata:
+            state.turn_metadata["challenges_by_player_this_turn"] = {}
+        player_challenges = state.turn_metadata["challenges_by_player_this_turn"]
+        player_challenges[action.actor] = player_challenges.get(action.actor, 0) + 1
+
         # Emit challenge event with rich Lorcanito-aligned payload
         self.emit_event(
             state,
@@ -1901,6 +1954,10 @@ class GameEngine:
             inst = state.cards[cid]
             inst.exerted = False
             inst.added_to_ink_this_turn = False
+
+        # B13: Reset turn metadata when the active turn changes
+        state.turn_metadata = {}
+
         self.emit_event(state, EVENT_TURN_START, actor=next_player)
         self._gain_lore_from_locations(state, next_player)
         self.draw_cards(state, next_player, 1)
@@ -2189,7 +2246,10 @@ class GameEngine:
 
         # B2: Resolve effects as the trigger controller, not the chooser
         # Normalize event target from payload (handles defender_id from challenge events)
-        event_payload = entry.event.payload if entry.event else {}
+        event_payload = {}
+        if entry.event:
+            event_payload.update(entry.event.event_snapshot or {})
+            event_payload.update(entry.event.payload or {})
         event_target = (
             event_payload.get('event_target_id')
             or event_payload.get('target_id')
@@ -2438,6 +2498,31 @@ class GameEngine:
 
             except ValueError as exc:
                 raise IllegalActionError(str(exc)) from exc
+
+            # B9.5: Check if this pending effect has bag origin and complete the bag entry as well
+            updated_pe = get_pending_effect_by_id(state, pending_id)
+            if updated_pe and updated_pe.origin == "bag" and updated_pe.origin_id:
+                bag_id = updated_pe.origin_id
+                # Find the matching bag entry
+                bag_entry = None
+                for entry in state.bag:
+                    if entry.id == bag_id:
+                        bag_entry = entry
+                        break
+
+                if bag_entry is not None:
+                    # Record resolution and remove bag entry
+                    record_bag_effect_resolution(state, bag_entry)
+                    remove_bag_effect(state, bag_id)
+                    # Emit trigger resolved event
+                    self.emit_event(
+                        state,
+                        EVENT_TRIGGER_RESOLVED,
+                        actor=action.actor,
+                        source=bag_entry.source_id,
+                        payload={"bag_id": bag_id, "ability_id": bag_entry.ability_id},
+                        queue_triggers=False,
+                    )
 
             complete_pending_effect(state, pending_id)
             return
