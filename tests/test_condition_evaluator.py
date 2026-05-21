@@ -415,13 +415,33 @@ class TestRealDeckConditions:
         with pytest.raises(UnsupportedConditionError):
             evaluate_condition(condition, state, None, source_id, engine)
 
-    def test_used_shift_raises(self, state, engine):
-        """Test used-shift condition raises (not implemented)."""
+    def test_used_shift_uses_pending_event_snapshot(self, state, engine):
+        """Test used-shift condition reads shifted play event snapshots."""
+        from lorcana_bot.state import PendingTriggeredEvent
+
         source_id = state.players[0].play[0] if state.players[0].play else 1
+        event = PendingTriggeredEvent(
+            id="evt_used_shift",
+            event="play",
+            event_snapshot={"playedCardUsedShift": True},
+            payload={"used_shift": True},
+        )
         condition = {"type": "used-shift"}
-        # This should raise because used-shift is blocked
-        with pytest.raises(UnsupportedConditionError):
-            evaluate_condition(condition, state, None, source_id, engine)
+        assert evaluate_condition(condition, state, event, source_id, engine) is True
+
+    def test_used_shift_false_for_normal_play_event(self, state, engine):
+        """Test used-shift condition is false when no shift evidence exists."""
+        from lorcana_bot.state import PendingTriggeredEvent
+
+        source_id = state.players[0].play[0] if state.players[0].play else 1
+        event = PendingTriggeredEvent(
+            id="evt_normal_play",
+            event="play",
+            event_snapshot={"used_shift": False},
+            payload={"used_shift": False},
+        )
+        condition = {"type": "used-shift"}
+        assert evaluate_condition(condition, state, event, source_id, engine) is False
 
     def test_has_card_under_true_for_shift_stack(self, state, engine):
         """Test has-card-under returns True for card with cards_under."""

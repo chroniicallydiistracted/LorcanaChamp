@@ -211,7 +211,10 @@ def evaluate_condition(
         return _evaluate_at_location(condition, state, source_instance_id)
 
     if kind == "play-context":
-        return _evaluate_play_context(condition, state, source_instance_id)
+        return _evaluate_play_context(condition, state, source_instance_id, event)
+
+    if kind == "used-shift":
+        return _evaluate_used_shift(event)
 
     if kind == "opponent-has-damaged-character":
         return _evaluate_opponent_has_damaged_character(condition, state, source_instance_id)
@@ -241,7 +244,7 @@ def evaluate_condition(
         return _evaluate_put_card_under_self_this_turn(condition, state, source_instance_id)
 
     if kind == "turn-metric":
-        return _evaluate_turn_metric(condition, state, source_instance_id)
+        return _evaluate_turn_metric(condition, state, source_instance_id, engine)
 
     # If we get here, the condition is not supported
     raise UnsupportedConditionError(f"Unsupported condition kind: {kind}")
@@ -952,17 +955,67 @@ def _evaluate_play_context(
     condition: dict,
     state: GameState,
     source_instance_id: int,
+    event: PendingTriggeredEvent | GameEvent | None,
 ) -> bool:
     """Evaluate play-context conditions."""
     context = condition.get("context")
 
     if context == "used-shift":
-        card_inst = state.cards.get(source_instance_id)
-        # shifted_this_turn would need to be added to CardInstance
-        if card_inst and getattr(card_inst, 'just_played', False):
-            return True
+        return _evaluate_used_shift(event)
 
     return False
+
+
+def _event_lookup(event: PendingTriggeredEvent | GameEvent | None, key: str) -> Any:
+    """Read event evidence from snapshot, payload, and card_played payloads."""
+    if event is None:
+        return None
+
+    event_snapshot = getattr(event, "event_snapshot", None)
+    if isinstance(event_snapshot, dict) and key in event_snapshot:
+        return event_snapshot[key]
+
+    payload = getattr(event, "payload", None)
+    if isinstance(payload, dict):
+        if key in payload:
+            return payload[key]
+        card_played = payload.get("card_played") or payload.get("cardPlayed")
+        if isinstance(card_played, dict) and key in card_played:
+            return card_played[key]
+
+    card_played_attr = getattr(event, "card_played", None)
+    if isinstance(card_played_attr, dict) and key in card_played_attr:
+        return card_played_attr[key]
+    return None
+
+
+def _event_bool(event: PendingTriggeredEvent | GameEvent | None, *keys: str) -> bool:
+    for key in keys:
+        value = _event_lookup(event, key)
+        if isinstance(value, bool):
+            if value:
+                return True
+            continue
+        if isinstance(value, (int, float)):
+            if value != 0:
+                return True
+            continue
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"true", "yes", "1"}:
+                return True
+    return False
+
+
+def _evaluate_used_shift(event: PendingTriggeredEvent | GameEvent | None) -> bool:
+    """Evaluate Lorcanito used-shift from play payload or event snapshot."""
+    return _event_bool(
+        event,
+        "used_shift",
+        "usedShift",
+        "playedCardUsedShift",
+        "played_card_used_shift",
+    )
 
 
 def _evaluate_opponent_has_damaged_character(
@@ -1146,6 +1199,7 @@ def _evaluate_turn_metric(
     condition: dict,
     state: GameState,
     source_instance_id: int,
+    engine: "GameEngine",  # type: ignore[name-defined]
 ) -> bool:
     """Evaluate turn-metric conditions.
 
@@ -1165,40 +1219,106 @@ def _evaluate_turn_metric(
 
     controller = state.cards[source_instance_id].controller
 
-    cond_controller = condition.get("controller")
-    if cond_controller == "opponent":
-        controller = state.opponent(controller)
+    scope = (
+        condition.get("playerScope")
+        or condition.get("player_scope")
+        or condition.get("ownerScope")
+        or condition.get("owner_scope")
+        or condition.get("controller")
+    )
+    scoped_players = _resolve_condition_player_scope(state, controller, scope)
 
-    comparison = condition.get("comparison") or condition.get("operator") or ">="
-    value = int(condition.get("value") or condition.get("amount") or 0)
+    comparison_raw = condition.get("comparison") or condition.get("operator") or ">="
+    if isinstance(comparison_raw, dict):
+        comparison = comparison_raw.get("operator") or comparison_raw.get("comparison") or ">="
+        value = int(comparison_raw.get("value") or condition.get("value") or condition.get("amount") or 0)
+    else:
+        comparison = comparison_raw
+        value = int(condition.get("value") or condition.get("amount") or 0)
 
     # Map metric names to turn metadata paths
     metric_value = 0
 
     if metric_name == "cards-drawn-by-player":
         player_draws = state.turn_metadata.get("cards_drawn_this_turn_by_player", {})
-        metric_value = player_draws.get(controller, 0)
+        metric_value = _sum_scoped_turn_record(player_draws, scoped_players)
 
     elif metric_name == "challenges-by-player":
         player_challenges = state.turn_metadata.get("challenges_by_player_this_turn", {})
-        metric_value = player_challenges.get(controller, 0)
+        metric_value = _sum_scoped_turn_record(player_challenges, scoped_players)
 
     elif metric_name == "banished-characters":
         banished_list = state.turn_metadata.get("banished_characters_this_turn", [])
-        metric_value = len(banished_list)
+        metric_value = _count_banished_turn_metric(condition, state, engine, banished_list, scoped_players)
 
     elif metric_name == "banished-characters-in-challenge":
         owner_banishes = state.turn_metadata.get("banished_characters_in_challenge_by_owner_this_turn", {})
-        metric_value = len(owner_banishes.get(controller, []))
+        metric_value = _sum_scoped_turn_record(owner_banishes, scoped_players)
 
     elif metric_name == "cards-put-under-by-player":
         player_puts = state.turn_metadata.get("cards_put_under_this_turn_by_player", {})
-        metric_value = player_puts.get(controller, 0)
+        metric_value = _sum_scoped_turn_record(player_puts, scoped_players)
 
     else:
         raise UnsupportedConditionError(f"turn-metric: unknown metric '{metric_name}'")
 
     return _compare(metric_value, comparison, value)
+
+
+def _resolve_condition_player_scope(state: GameState, controller: int, scope: Any) -> tuple[int, ...]:
+    if scope == "you":
+        return (controller,)
+    if scope == "opponent":
+        return (state.opponent(controller),)
+    if scope == "active":
+        return (state.active_player,)
+    if scope == "any":
+        return tuple(range(len(state.players)))
+    return tuple(range(len(state.players)))
+
+
+def _turn_record_value(value: Any) -> int:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, (list, tuple, set)):
+        return len(value)
+    return 0
+
+
+def _sum_scoped_turn_record(record: Any, players: tuple[int, ...]) -> int:
+    if not isinstance(record, dict):
+        return 0
+    return sum(_turn_record_value(record.get(player, 0)) for player in players)
+
+
+def _count_banished_turn_metric(
+    condition: dict,
+    state: GameState,
+    engine: "GameEngine",  # type: ignore[name-defined]
+    banished_list: Any,
+    scoped_players: tuple[int, ...],
+) -> int:
+    if not isinstance(banished_list, list):
+        return 0
+
+    target_name = condition.get("name")
+    target_classification = condition.get("classification")
+    count = 0
+    for card_id in banished_list:
+        card_inst = state.cards.get(card_id)
+        if card_inst is None or card_inst.owner not in scoped_players:
+            continue
+        card_def = engine.card_def(state, card_id)
+        if target_name and target_name not in {
+            card_def.full_name,
+            card_def.name,
+            card_def.simple_name,
+        }:
+            continue
+        if target_classification and target_classification not in card_def.subtypes:
+            continue
+        count += 1
+    return count
 
 
 def _compare(value: int, comparison: str, threshold: int) -> bool:

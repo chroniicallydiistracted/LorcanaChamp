@@ -201,6 +201,70 @@ def test_turn_metric_no_longer_reports_unsupported_condition():
     assert "turn-metric" in SUPPORTED_CONDITION_KINDS
 
 
+def test_used_shift_no_longer_reports_unsupported_condition():
+    """Test that used-shift condition no longer reports unsupported_condition."""
+    from lorcana_bot.card_logic import SourceAbilityDef, SourceConditionDef, SourceEffectDef, SourceTriggerDef, ExecutionStatus
+    from lorcana_bot.cards import CardDef
+    from lorcana_bot.decks.trigger_blocker_report import analyze_source_trigger_projection
+    from lorcana_bot.importers.lorcanito_source_mapper import BLOCKED_CONDITION_KINDS, SUPPORTED_CONDITION_KINDS
+
+    assert "used-shift" in SUPPORTED_CONDITION_KINDS
+    assert "used-shift" not in BLOCKED_CONDITION_KINDS
+
+    ability = SourceAbilityDef(
+        id="used_shift_trigger",
+        kind="triggered",
+        name="Used Shift Trigger",
+        effects=(
+            SourceEffectDef(
+                kind="gain-lore",
+                amount=1,
+                raw={"type": "gain-lore", "amount": 1},
+                mapping_status="structurally_mapped",
+                execution_status=ExecutionStatus.EXECUTABLE,
+            ),
+        ),
+        trigger=SourceTriggerDef(
+            event="play",
+            on="SELF",
+            timing="when",
+            subject=None,
+            raw={"event": "play", "on": "SELF"},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+        ),
+        costs=(),
+        condition=SourceConditionDef(
+            kind="used-shift",
+            raw={"type": "used-shift"},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.EXECUTABLE,
+        ),
+        restrictions=(),
+        source_zones=(),
+        raw={"type": "triggered", "condition": {"type": "used-shift"}},
+        mapping_status="structurally_mapped",
+        execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+        auto_resolve=None,
+    )
+    card = CardDef(
+        id="used_shift_report_card",
+        full_name="Used Shift Report Card",
+        ink="steel",
+        cost=4,
+        inkable=True,
+        card_type="character",
+        strength=4,
+        willpower=4,
+        lore=1,
+    )
+
+    result = analyze_source_trigger_projection(card, ability)
+
+    assert result.can_project is True
+    assert "unsupported_trigger_condition:used-shift" not in result.blockers
+
+
 class TestMicrofix4CBlockerReportAlignment:
     """Tests for microfix 4C blocker report alignment."""
 

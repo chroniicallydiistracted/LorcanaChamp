@@ -1076,9 +1076,15 @@ class TestMicrofix3CConditionProjection:
             kind="turn-metric",
             operands=(),
             subject=None,
-            comparison=">=",
+            comparison={"operator": "gte", "value": 3},
             value=3,
-            raw={"type": "turn-metric", "comparison": ">=", "value": 3},
+            raw={
+                "type": "turn-metric",
+                "metric": "banished-characters",
+                "ownerScope": "you",
+                "classification": "Toy",
+                "comparison": {"operator": "gte", "value": 3},
+            },
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.EXECUTABLE,
         )
@@ -1093,7 +1099,17 @@ class TestMicrofix3CConditionProjection:
             condition=condition,
             restrictions=(),
             source_zones=(),
-            raw={"type": "triggered", "trigger": {"event": "quest"}, "condition": {"type": "turn-metric", "comparison": ">=", "value": 3}},
+            raw={
+                "type": "triggered",
+                "trigger": {"event": "quest"},
+                "condition": {
+                    "type": "turn-metric",
+                    "metric": "banished-characters",
+                    "ownerScope": "you",
+                    "classification": "Toy",
+                    "comparison": {"operator": "gte", "value": 3},
+                },
+            },
             mapping_status="structurally_mapped",
             execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
             auto_resolve=None,
@@ -1106,9 +1122,80 @@ class TestMicrofix3CConditionProjection:
         assert len(result) == 1
         assert result[0].event == "quest"
         assert result[0].condition["kind"] == "turn-metric"
-        assert result[0].condition["comparison"] == ">="
-        assert result[0].condition["value"] == 3
+        assert result[0].condition["metric"] == "banished-characters"
+        assert result[0].condition["ownerScope"] == "you"
+        assert result[0].condition["classification"] == "Toy"
+        assert result[0].condition["comparison"] == {"operator": "gte", "value": 3}
         assert result[0].effects[0].kind == "gain_lore"
+
+    def test_trigger_with_used_shift_condition_projects(self):
+        """Trigger with used-shift condition should project."""
+        from lorcana_bot.importers.lorcanito_source_mapper import project_triggers, SUPPORTED_CONDITION_KINDS
+        from lorcana_bot.card_logic import SourceAbilityDef, SourceConditionDef, SourceEffectDef, SourceTriggerDef, ExecutionStatus
+
+        assert "used-shift" in SUPPORTED_CONDITION_KINDS
+
+        card = CardDef(
+            id="used_shift_card",
+            full_name="Used Shift Card",
+            ink="steel",
+            cost=4,
+            inkable=True,
+            card_type="character",
+            strength=4,
+            willpower=4,
+            lore=1,
+        )
+        trigger = SourceTriggerDef(
+            event="play",
+            on="SELF",
+            timing="when",
+            subject=None,
+            raw={"event": "play", "on": "SELF"},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+        )
+        effect = SourceEffectDef(
+            kind="gain-lore",
+            amount=1,
+            raw={"type": "gain-lore", "amount": 1},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.EXECUTABLE,
+        )
+        condition = SourceConditionDef(
+            kind="used-shift",
+            raw={"type": "used-shift"},
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.EXECUTABLE,
+        )
+        ability = SourceAbilityDef(
+            id="used_shift_trigger",
+            kind="triggered",
+            name="Used Shift Trigger",
+            effects=(effect,),
+            trigger=trigger,
+            costs=(),
+            condition=condition,
+            restrictions=(),
+            source_zones=(),
+            raw={
+                "type": "triggered",
+                "trigger": {"event": "play", "on": "SELF"},
+                "condition": {"type": "used-shift"},
+            },
+            mapping_status="structurally_mapped",
+            execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+            auto_resolve=None,
+        )
+
+        object.__setattr__(card, "source_abilities", (ability,))
+        result = project_triggers(card)
+
+        assert len(result) == 1
+        assert result[0].event == "play"
+        assert result[0].on == "SELF"
+        assert result[0].condition["kind"] == "used-shift"
+        assert result[0].condition["type"] == "used-shift"
 
 
 class TestMicrofix4CAmountProjection:

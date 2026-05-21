@@ -147,7 +147,7 @@ TARGET_MAP = {
 }
 
 EXECUTABLE_TARGET_ALIASES = frozenset(TARGET_MAP)
-EXECUTABLE_CONDITIONS = {"always", "target_damaged"}
+EXECUTABLE_CONDITIONS = {"always", "target_damaged", "used-shift"}
 EXECUTABLE_COSTS = {"exert"}
 
 
@@ -599,6 +599,7 @@ SUPPORTED_CONDITION_KINDS = frozenset({
     "put-card-under-self-this-turn",
     "banished-in-challenge-this-turn",
     "turn-metric",
+    "used-shift",
 })
 
 # Blocked condition kinds - these cannot be truthfully evaluated at runtime
@@ -608,8 +609,6 @@ BLOCKED_CONDITION_KINDS = frozenset({
     "at-location",
     "has-granted-ability",
     "target-aggregate-comparison",
-    # Requires card instance tracking
-    "used-shift",
 })
 
 
@@ -843,8 +842,11 @@ def _project_trigger_condition(condition: SourceConditionDef) -> dict[str, Any] 
         return {"kind": "always"}
 
     if condition.kind in SUPPORTED_CONDITION_KINDS:
-        # Map source condition to engine condition format
-        result: dict[str, Any] = {"kind": condition.kind}
+        # Preserve Lorcanito condition fields so runtime evaluation receives the
+        # same metric/query/scope/comparison data that source cards declared.
+        result: dict[str, Any] = dict(condition.raw)
+        result["kind"] = condition.kind
+        result.setdefault("type", condition.kind)
 
         if condition.value is not None:
             result["value"] = condition.value

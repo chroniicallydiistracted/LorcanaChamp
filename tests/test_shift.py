@@ -15,14 +15,17 @@ from unittest.mock import MagicMock
 from lorcana_bot.cards import CardDef, CardDatabase
 from lorcana_bot.constants import (
     ACTION_CHALLENGE,
+    ACTION_RESOLVE_BAG,
     ACTION_PLAY_SHIFTED,
     ACTION_QUEST,
     ACTION_SING_SONG,
     ACTION_USE_ABILITY,
+    EVENT_TRIGGER_RESOLVED,
     EVENT_PUT_CARD_UNDER,
     ZONE_UNDER,
 )
 from lorcana_bot.engine import GameEngine
+from lorcana_bot.cards import EffectDef, TriggerDef
 from lorcana_bot.state import CardInstance, GameState, PlayerState
 from lorcana_bot.play_modes import (
     get_shift_info,
@@ -1729,6 +1732,62 @@ class TestShiftTurnMetadata:
 
         assert "cards_put_under_self_this_turn_by_card" in state.turn_metadata
         assert state.turn_metadata["cards_put_under_self_this_turn_by_card"][2] == 1  # Card 2 (top of stack) received 1 card under
+
+    def test_shift_used_shift_trigger_resolves_through_bag(self):
+        """A used-shift gated play trigger should resolve after PLAY_SHIFTED."""
+        base_card = _make_test_character("shift_base", "Omnidroid")
+        shifted_card = CardDef(
+            id="shift_payoff",
+            full_name="Omnidroid",
+            ink="steel",
+            cost=6,
+            inkable=True,
+            card_type="character",
+            strength=4,
+            willpower=4,
+            lore=1,
+            keywords=("SHIFT(2)",),
+            triggers=(
+                TriggerDef(
+                    id="shift_payoff_trigger",
+                    event="play",
+                    on="SELF",
+                    condition={"type": "used-shift"},
+                    effects=(EffectDef(kind="gain_lore", amount=1),),
+                ),
+            ),
+        )
+        ink_card = _make_test_character("ink_amber", "Ink")
+        engine = GameEngine(CardDatabase([base_card, shifted_card, ink_card]))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        state.cards[1] = CardInstance(1, "shift_base", owner=0, controller=0, zone="play")
+        state.players[0].play.append(1)
+        state.cards[2] = CardInstance(2, "shift_payoff", owner=0, controller=0, zone="hand")
+        state.players[0].hand.append(2)
+        _ready_ink(state, 0, 2)
+
+        shift_action = next(
+            action
+            for action in engine.legal_actions(state, 0)
+            if action.kind == ACTION_PLAY_SHIFTED and action.card == 2 and action.target == 1
+        )
+        state = engine.apply_action(state, shift_action)
+
+        assert len(state.bag) == 1
+        assert state.bag[0].condition == {"type": "used-shift"}
+        assert state.bag[0].event is not None
+        assert state.bag[0].event.event_snapshot["used_shift"] is True
+
+        resolve_action = next(
+            action
+            for action in engine.legal_actions(state, 0)
+            if action.kind == ACTION_RESOLVE_BAG and action.choice["bag_id"] == state.bag[0].id
+        )
+        state = engine.apply_action(state, resolve_action)
+
+        assert state.players[0].lore == 1
+        assert not state.bag
+        assert any(event.event_type == EVENT_TRIGGER_RESOLVED for event in state.event_log)
 
 
 if __name__ == "__main__":

@@ -21,3 +21,7 @@ def test_unsupported_condition_maps_without_crash():
     condition = map_raw_condition({"type": "brand-new-condition"})
     assert condition.execution_status == ExecutionStatus.UNSUPPORTED_CONDITION
 
+
+def test_used_shift_condition_maps_executable():
+    condition = map_raw_condition({"type": "used-shift"})
+    assert condition.execution_status == ExecutionStatus.EXECUTABLE

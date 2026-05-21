@@ -915,7 +915,7 @@ python3 -m pytest -q
 
 ## Status
 
-Partial.
+PASS as of 2026-05-21 for the runtime/report condition scope tracked by this microfix.
 
 ## Problem
 
@@ -930,6 +930,8 @@ put-card-under-self-this-turn
 banished-in-challenge-this-turn
 used-shift
 ```
+
+As of 2026-05-21, these condition kinds are runtime-supported or report-supported where they appear in the trigger path. The final missing condition from the list, `used-shift`, now evaluates from shifted play event snapshots and can project as an executable trigger condition.
 
 ## Target
 
@@ -968,6 +970,14 @@ python3 -m pytest tests/test_condition_evaluator.py -q
 python3 -m pytest tests/test_engine_trigger_pipeline.py -q
 python3 -m pytest -q
 ```
+
+## 2026-05-21 Result
+
+- `used-shift` condition evaluation now reads `used_shift`, `usedShift`, `playedCardUsedShift`, and `played_card_used_shift` from pending event snapshots, payloads, or card-play payloads.
+- Trigger condition projection preserves Lorcanito raw condition fields for supported trigger conditions, including `turn-metric` metric/scope/comparison data.
+- `used-shift` moved from blocked condition classification to supported trigger condition classification.
+- Runtime path is covered by `PLAY_SHIFTED` through `legal_actions()`, `apply_action()`, bag creation, `RESOLVE_BAG`, condition recheck, and effect resolution.
+- Regenerated reports remain at 115 trigger rows, 110 projected trigger rows, 5 blocked trigger rows, and 14 blocked trigger copies. Current next blocker remains `unsupported_trigger_resolution_requirement:amount`.
 
 ---
 
@@ -1278,7 +1288,7 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 - [x] Microfix 9: Pending resolution generalization.
 - [x] Microfix 10: Targeting service parity.
 - [x] Microfix 11: Trigger event expansion and bag/pending interaction.
-- [ ] Microfix 12: Condition evaluator and turn metrics.
+- [x] Microfix 12: Condition evaluator and turn metrics.
 - [ ] Microfix 13: Scry/search/reveal privacy and routing.
 - [ ] Microfix 14: Play modes, activated abilities, and cost safety.
 - [ ] Microfix 15: Report truthfulness and executable classification.
@@ -1292,6 +1302,6 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 
 Implement the `target_choice_prompts` milestone for the remaining supported-by-impact trigger blockers.
 
-Reason: Microfix 11 is complete for trigger event expansion and bag/pending interaction. The regenerated trigger blocker report now leaves 14 blocked trigger copies: `create-replacement-effect` (8 copies), unsupported `amount` resolution requirements (4 copies), and compound `or` effects (2 copies). The report recommendation is `target_choice_prompts` with medium confidence because the top blocker is `unsupported_trigger_resolution_requirement:amount`.
+Reason: Microfix 12 is complete for the condition evaluator and turn-metric trigger/report scope. The regenerated trigger blocker report still leaves 14 blocked trigger copies: `create-replacement-effect` (8 copies), unsupported `amount` resolution requirements (4 copies), and compound `or` effects (2 copies). The report recommendation is `target_choice_prompts` with medium confidence because the top blocker is `unsupported_trigger_resolution_requirement:amount`.
 
 Tracking note: `_apply_resolve_pending_effect()` currently has a pure-input completion path for general pending requirements (`amount`, `target`, `multi_target`, `discard_choice`, `choice`, `optional`, `opponent_choice`, `enter_play_exerted`) that calls `complete_pending_effect()` and returns when `not pe.effects`. Future bag-origin amount/target/opponent-choice work must either prove bag-origin pending effects cannot reach that path, or route it through `_complete_bag_origin_pending_effect()` before completion.
