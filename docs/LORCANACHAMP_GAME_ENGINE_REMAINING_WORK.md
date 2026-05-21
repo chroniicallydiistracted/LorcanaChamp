@@ -1293,3 +1293,5 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 Implement the `target_choice_prompts` milestone for the remaining supported-by-impact trigger blockers.
 
 Reason: Microfix 11 is complete for trigger event expansion and bag/pending interaction. The regenerated trigger blocker report now leaves 14 blocked trigger copies: `create-replacement-effect` (8 copies), unsupported `amount` resolution requirements (4 copies), and compound `or` effects (2 copies). The report recommendation is `target_choice_prompts` with medium confidence because the top blocker is `unsupported_trigger_resolution_requirement:amount`.
+
+Tracking note: `_apply_resolve_pending_effect()` currently has a pure-input completion path for general pending requirements (`amount`, `target`, `multi_target`, `discard_choice`, `choice`, `optional`, `opponent_choice`, `enter_play_exerted`) that calls `complete_pending_effect()` and returns when `not pe.effects`. Future bag-origin amount/target/opponent-choice work must either prove bag-origin pending effects cannot reach that path, or route it through `_complete_bag_origin_pending_effect()` before completion.
