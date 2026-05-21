@@ -73,6 +73,7 @@ from .state import ActionLogEntry, BagEffectEntry, CardInstance, GameEvent, Game
 from .effect_types import EffectResolutionContext
 from .effects import EffectResolver
 from .pending_effects import (
+    PendingEffect,
     has_pending_effects,
     get_current_pending_effect,
     get_pending_effect_by_id,
@@ -946,7 +947,11 @@ class GameEngine:
 
 
     def apply_action(self, state: GameState, action: Action, *, validate: bool = True) -> GameState:
-        if validate and action not in self.legal_actions(state, action.actor):
+        if (
+            validate
+            and action not in self.legal_actions(state, action.actor)
+            and not self._is_legal_resolve_bag_input_action(state, action)
+        ):
             raise IllegalActionError(f"Illegal action: {action.compact()}")
         next_state = self.copy_state(state)
         log_phase = state.phase
@@ -992,6 +997,24 @@ class GameEngine:
         if next_state.winner is not None:
             next_state.phase = PHASE_GAME_OVER
         return next_state
+
+    def _is_legal_resolve_bag_input_action(self, state: GameState, action: Action) -> bool:
+        if action.kind != ACTION_RESOLVE_BAG or not action.choice:
+            return False
+        bag_id = action.choice.get("bag_id")
+        if bag_id is None:
+            return False
+        entry = next((item for item in state.bag if item.id == bag_id), None)
+        if entry is None:
+            return False
+        resolver = get_next_bag_resolver(state)
+        if resolver is not None and action.actor != resolver:
+            return False
+        if action.actor != entry.controller_id and action.actor != entry.chooser_id:
+            return False
+        if action.choice.get("accept") is False and not entry.optional:
+            return False
+        return True
 
     def observe(self, state: GameState, player: int) -> Observation:
         opponent = state.opponent(player)
@@ -2224,6 +2247,8 @@ class GameEngine:
             self.emit_event(state, EVENT_TRIGGER_DECLINED, actor=action.actor, source=entry.source_id, payload={"bag_id": bag_id, "ability_id": entry.ability_id}, queue_triggers=False)
             return
 
+        self._merge_bag_resolution_input(entry, action.choice)
+
         # Check restrictions
         if not can_resolve_bag_effect_by_restrictions(state, entry):
             remove_bag_effect(state, bag_id)
@@ -2288,8 +2313,11 @@ class GameEngine:
             for pe in state.pending_effects[pending_count_before:]:
                 pe.origin = "bag"
                 pe.origin_id = bag_id
+                pe.raw["origin"] = "bag"
+                pe.raw["origin_id"] = bag_id
                 # Store bag entry context in pending effect raw for completion handling
                 pe.raw.setdefault("bag_id", bag_id)
+                pe.raw.setdefault("resolution_input", {}).update(entry.resolution_input)
                 pe.raw.setdefault("event", entry.event.event if entry.event else None)
                 pe.raw.setdefault("event_payload", event_payload)
                 pe.raw.setdefault("trigger_subject", entry.event.subject_card_id if entry.event else None)
@@ -2311,6 +2339,22 @@ class GameEngine:
 
         # B2: Flush any newly emitted trigger events
         # This is handled by the resolution boundary in apply_action
+
+    def _merge_bag_resolution_input(self, entry: BagEffectEntry, choice: dict[str, Any]) -> None:
+        key_map = {
+            "amount": "amount",
+            "targets": "targets",
+            "player_targets": "player_targets",
+            "slotted_targets": "slotted_targets",
+            "choice_index": "choice_index",
+            "resolve_optional": "resolve_optional",
+            "named_card": "named_card",
+            "destinations": "destinations",
+            "enter_play_exerted": "enter_play_exerted",
+        }
+        for choice_key, input_key in key_map.items():
+            if choice_key in choice:
+                entry.resolution_input[input_key] = choice[choice_key]
 
     def _apply_use_ability(self, state: GameState, action: Action) -> None:
         """Apply USE_ABILITY action to execute an activated ability.
@@ -2410,31 +2454,7 @@ class GameEngine:
             resolve_pending_effect_optional(state, pending_id, accept)
             if accept is False:
                 # Decline - remove pending effect
-                # B9.5: If this pending effect has bag origin, handle the bag entry decline
-                if pe.origin == "bag" and pe.origin_id:
-                    bag_id = pe.origin_id
-                    # Find the matching bag entry
-                    bag_entry = None
-                    for entry in state.bag:
-                        if entry.id == bag_id:
-                            bag_entry = entry
-                            break
-
-                    if bag_entry is not None:
-                        # Check if this is an optional bag entry (allow decline)
-                        if bag_entry.optional:
-                            remove_bag_effect(state, bag_id)
-                            self.emit_event(
-                                state,
-                                EVENT_TRIGGER_DECLINED,
-                                actor=action.actor,
-                                source=bag_entry.source_id,
-                                payload={"bag_id": bag_id, "ability_id": bag_entry.ability_id},
-                                queue_triggers=False,
-                            )
-                        else:
-                            # Non-optional bag item - raise error unless pending permits decline
-                            raise IllegalActionError("Non-optional bag item cannot be declined")
+                self._complete_bag_origin_pending_effect(state, pe, action.actor)
 
                 complete_pending_effect(state, pending_id)
                 return
@@ -2499,30 +2519,9 @@ class GameEngine:
             except ValueError as exc:
                 raise IllegalActionError(str(exc)) from exc
 
-            # B9.5: Check if this pending effect has bag origin and complete the bag entry as well
             updated_pe = get_pending_effect_by_id(state, pending_id)
-            if updated_pe and updated_pe.origin == "bag" and updated_pe.origin_id:
-                bag_id = updated_pe.origin_id
-                # Find the matching bag entry
-                bag_entry = None
-                for entry in state.bag:
-                    if entry.id == bag_id:
-                        bag_entry = entry
-                        break
-
-                if bag_entry is not None:
-                    # Record resolution and remove bag entry
-                    record_bag_effect_resolution(state, bag_entry)
-                    remove_bag_effect(state, bag_id)
-                    # Emit trigger resolved event
-                    self.emit_event(
-                        state,
-                        EVENT_TRIGGER_RESOLVED,
-                        actor=action.actor,
-                        source=bag_entry.source_id,
-                        payload={"bag_id": bag_id, "ability_id": bag_entry.ability_id},
-                        queue_triggers=False,
-                    )
+            if updated_pe:
+                self._complete_bag_origin_pending_effect(state, updated_pe, action.actor)
 
             complete_pending_effect(state, pending_id)
             return
@@ -2728,31 +2727,78 @@ class GameEngine:
         # Check if complete
         updated_pe = get_pending_effect_by_id(state, pending_id)
         if updated_pe and updated_pe.is_complete:
-            # B9.5: If this pending effect has bag origin, complete the bag entry as well
-            if updated_pe.origin == "bag" and updated_pe.origin_id:
-                bag_id = updated_pe.origin_id
-                # Find the matching bag entry
-                bag_entry = None
-                for entry in state.bag:
-                    if entry.id == bag_id:
-                        bag_entry = entry
-                        break
-
-                if bag_entry is not None:
-                    # Record resolution and remove bag entry
-                    record_bag_effect_resolution(state, bag_entry)
-                    remove_bag_effect(state, bag_id)
-                    # Emit trigger resolved event
-                    self.emit_event(
-                        state,
-                        EVENT_TRIGGER_RESOLVED,
-                        actor=action.actor,
-                        source=bag_entry.source_id,
-                        payload={"bag_id": bag_id, "ability_id": bag_entry.ability_id},
-                        queue_triggers=False,
-                    )
-
+            self._complete_bag_origin_pending_effect(state, updated_pe, action.actor)
             complete_pending_effect(state, pending_id)
+
+    def _complete_bag_origin_pending_effect(
+        self,
+        state: GameState,
+        pe: PendingEffect,
+        actor: int,
+    ) -> bool:
+        if pe.origin != "bag" or not pe.origin_id:
+            return False
+
+        bag_entry = next((entry for entry in state.bag if entry.id == pe.origin_id), None)
+        if bag_entry is None:
+            return False
+
+        if pe.optional and pe.accepted is False:
+            if not bag_entry.optional:
+                raise IllegalActionError("Non-optional bag item cannot be declined")
+            remove_bag_effect(state, bag_entry.id)
+            self.emit_event(
+                state,
+                EVENT_TRIGGER_DECLINED,
+                actor=actor,
+                source=bag_entry.source_id,
+                payload={"bag_id": bag_entry.id, "ability_id": bag_entry.ability_id},
+                queue_triggers=False,
+            )
+            return True
+
+        try:
+            condition_met = (
+                evaluate_condition(bag_entry.condition, state, bag_entry.event, bag_entry.source_id, self)
+                if bag_entry.condition
+                else True
+            )
+        except UnsupportedConditionError:
+            remove_bag_effect(state, bag_entry.id)
+            self.emit_event(
+                state,
+                EVENT_TRIGGER_SKIPPED,
+                actor=actor,
+                source=bag_entry.source_id,
+                payload={"bag_id": bag_entry.id, "reason": "unsupported_condition_after_pending"},
+                queue_triggers=False,
+            )
+            return True
+
+        if not condition_met:
+            remove_bag_effect(state, bag_entry.id)
+            self.emit_event(
+                state,
+                EVENT_TRIGGER_SKIPPED,
+                actor=actor,
+                source=bag_entry.source_id,
+                payload={"bag_id": bag_entry.id, "reason": "condition_not_met_after_pending"},
+                queue_triggers=False,
+            )
+            return True
+
+        bag_entry.resolution_input.update(pe.raw.get("resolution_input", {}) or {})
+        record_bag_effect_resolution(state, bag_entry)
+        remove_bag_effect(state, bag_entry.id)
+        self.emit_event(
+            state,
+            EVENT_TRIGGER_RESOLVED,
+            actor=actor,
+            source=bag_entry.source_id,
+            payload={"bag_id": bag_entry.id, "ability_id": bag_entry.ability_id},
+            queue_triggers=False,
+        )
+        return True
 
 
 @dataclass(slots=True)

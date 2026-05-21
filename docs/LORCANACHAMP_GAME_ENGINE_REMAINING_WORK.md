@@ -822,9 +822,32 @@ docs/agent_work/microfix_10/MICROFIX_10_BRIEF_8_CONSOLIDATION_AND_REPORT_AUDIT.m
 
 ## Status
 
-**Current highest-priority next action.**
+**PASS as of 2026-05-21.**
 
-Partial runtime and projection support exists, but this is now the next parity blocker after Microfix 10.
+Runtime, projection, report regeneration, and bag/pending continuation checks passed for the Microfix 11 scope. The regenerated trigger blocker report has:
+
+```text
+total_trigger_rows: 115
+projected_trigger_rows: 110
+blocked_trigger_rows: 5
+blocked_trigger_copies: 14
+```
+
+Remaining trigger blockers:
+
+```text
+unsupported_trigger_effect:create-replacement-effect: 8 copies, 1 unique, 2 decks
+unsupported_trigger_resolution_requirement:amount: 4 copies, 2 unique, 2 decks
+unsupported_trigger_effect:or: 2 copies, 1 unique, 1 deck
+```
+
+Recommended next milestone from `data/decks/reports/next_engine_milestone_recommendation.json`:
+
+```text
+target_choice_prompts
+confidence: medium
+reason: Recommended based on copy/unique/deck impact scoring. Top blocker: unsupported_trigger_resolution_requirement:amount
+```
 
 ## Problem
 
@@ -1254,7 +1277,7 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 - [x] Microfix 8: EffectResolver mutation centralization.
 - [x] Microfix 9: Pending resolution generalization.
 - [x] Microfix 10: Targeting service parity.
-- [ ] Microfix 11: Trigger event expansion and bag/pending interaction.
+- [x] Microfix 11: Trigger event expansion and bag/pending interaction.
 - [ ] Microfix 12: Condition evaluator and turn metrics.
 - [ ] Microfix 13: Scry/search/reveal privacy and routing.
 - [ ] Microfix 14: Play modes, activated abilities, and cost safety.
@@ -1267,6 +1290,6 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 
 ## Current Highest-Priority Next Action
 
-Implement Microfix 11: Trigger event expansion and bag/pending interaction.
+Implement the `target_choice_prompts` milestone for the remaining supported-by-impact trigger blockers.
 
-Reason: Microfix 10 is complete with centralized action, pending, EffectResolver, automation, current/context, protection, player/card, and slotted-target routing. The blocker reports still recommend `target_choice_prompts` with 124 affected copies, but the dominant blocker is `unsupported_trigger_resolution_requirement:amount`, followed by missing trigger events such as `banish-in-challenge`, `put-card-under`, `draw`, and `leave-play`. The next implementation work should expand trigger projection/runtime event support and bag-to-pending interaction. Any remaining report-only classification that continues to label supported runtime targeting as unsupported belongs to Microfix 15 report truthfulness.
+Reason: Microfix 11 is complete for trigger event expansion and bag/pending interaction. The regenerated trigger blocker report now leaves 14 blocked trigger copies: `create-replacement-effect` (8 copies), unsupported `amount` resolution requirements (4 copies), and compound `or` effects (2 copies). The report recommendation is `target_choice_prompts` with medium confidence because the top blocker is `unsupported_trigger_resolution_requirement:amount`.

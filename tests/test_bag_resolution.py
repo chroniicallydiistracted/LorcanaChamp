@@ -2,10 +2,27 @@
 
 import pytest
 from lorcana_bot.engine import GameEngine
-from lorcana_bot.cards import CardDatabase, CardDef, EffectDef, TriggerDef
-from lorcana_bot.state import GameState, BagEffectEntry, PendingTriggeredEvent, GameEvent
+from lorcana_bot.cards import (
+    DEMO_FEATURE_CARD_IDS,
+    CardDatabase,
+    CardDef,
+    EffectDef,
+    TriggerDef,
+    load_demo_database,
+    make_demo_deck,
+)
+from lorcana_bot.state import GameState, BagEffectEntry, CardInstance, PendingTriggeredEvent, GameEvent
 from lorcana_bot.actions import Action
-from lorcana_bot.constants import ACTION_RESOLVE_BAG, ACTION_CONCEDE, ACTION_END_TURN, ACTION_RESOLVE_PENDING_EFFECT
+from lorcana_bot.constants import (
+    ACTION_RESOLVE_BAG,
+    ACTION_CONCEDE,
+    ACTION_END_TURN,
+    ACTION_RESOLVE_PENDING_EFFECT,
+    EVENT_TRIGGER_DECLINED,
+    EVENT_TRIGGER_RESOLVED,
+    EVENT_TRIGGER_SKIPPED,
+    ZONE_PLAY,
+)
 from lorcana_bot.effect_types import EffectResolutionContext
 
 
@@ -19,6 +36,86 @@ def engine():
     ]
     db = CardDatabase(cards)
     return GameEngine(db)
+
+
+def _demo_engine_and_state() -> tuple[GameEngine, GameState]:
+    demo_engine = GameEngine(load_demo_database())
+    state = demo_engine.setup_game([make_demo_deck(size=50), make_demo_deck(size=50)], seed=42)
+    return demo_engine, state
+
+
+def _find_demo_instance(state: GameState, card_id: str, player: int = 0) -> int:
+    for instance_id, inst in state.cards.items():
+        if inst.owner == player and inst.card_id == card_id:
+            return instance_id
+    raise AssertionError(f"No demo instance for {card_id!r}")
+
+
+def _put_demo_source_in_play(state: GameState, player: int = 0) -> int:
+    source_id = _find_demo_instance(state, DEMO_FEATURE_CARD_IDS["basic_character"], player)
+    state.move_card(source_id, ZONE_PLAY, controller=player)
+    return source_id
+
+
+def _append_scry_bag_entry(
+    state: GameState,
+    source_id: int,
+    *,
+    bag_id: str = "bag_scry_input",
+    condition: dict | None = None,
+    optional: bool = False,
+    resolution_input: dict | None = None,
+) -> BagEffectEntry:
+    pending_event = PendingTriggeredEvent(
+        id=f"{bag_id}_event",
+        event="quest",
+        player_id=0,
+        subject_card_id=source_id,
+        trigger_source_card_id=source_id,
+        source_card_type="character",
+        payload={},
+    )
+    entry = BagEffectEntry(
+        id=bag_id,
+        kind="triggered_ability",
+        ability_id=f"{bag_id}_ability",
+        ability_index=0,
+        ability_key=f"{bag_id}:0",
+        ability_name="Demo Scry Trigger",
+        auto_resolve=False if optional else True,
+        controller_id=0,
+        chooser_id=0,
+        source_id=source_id,
+        source_card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+        trigger={"event": "quest", "on": "SELF", "optional": optional},
+        condition=condition,
+        effects=(EffectDef(kind="scry", amount=2),),
+        occurrence_index=1,
+        resolution_input=dict(resolution_input or {}),
+        event=pending_event,
+        raw={},
+    )
+    state.bag.append(entry)
+    return entry
+
+
+def _resolve_bag_action(bag_id: str, **choice):
+    return Action(ACTION_RESOLVE_BAG, actor=0, choice={"bag_id": bag_id, **choice})
+
+
+def _resolve_first_scry_pending(state: GameState):
+    pe = state.pending_effects[0]
+    candidate_ids = pe.raw["requirement"].candidate_ids
+    return Action(
+        ACTION_RESOLVE_PENDING_EFFECT,
+        actor=0,
+        source=pe.source_id,
+        choice={
+            "pending_effect_id": pe.id,
+            "top_cards": candidate_ids,
+            "bottom_cards": (),
+        },
+    )
 
 
 def test_resolve_bag_requires_action(engine):
@@ -701,3 +798,181 @@ class TestTriggeredScryPending:
         # The scry should have moved cards around
         new_deck = state_final.players[0].deck
         assert set(new_deck[:2]) == set(candidate_ids), "Scry candidates should be at top of deck"
+
+
+class TestBagResolutionInputContinuation:
+    def test_resolve_bag_amount_input_persists_resolution_input(self):
+        engine, state = _demo_engine_and_state()
+        source_id = _put_demo_source_in_play(state)
+        _append_scry_bag_entry(state, source_id, bag_id="bag_amount")
+
+        state = engine.apply_action(state, _resolve_bag_action("bag_amount", amount=2))
+        entry = next(item for item in state.bag if item.id == "bag_amount")
+
+        assert entry.resolution_input["amount"] == 2
+        assert "bag_amount" in [item.id for item in state.bag]
+        assert len(state.pending_effects) == 1
+
+    def test_resolve_bag_target_input_persists_resolution_input(self):
+        engine, state = _demo_engine_and_state()
+        source_id = _put_demo_source_in_play(state)
+        target_id = _find_demo_instance(state, DEMO_FEATURE_CARD_IDS["bodyguard_character"], 0)
+        _append_scry_bag_entry(state, source_id, bag_id="bag_targets")
+
+        state = engine.apply_action(state, _resolve_bag_action("bag_targets", targets=(target_id,)))
+        entry = next(item for item in state.bag if item.id == "bag_targets")
+
+        assert entry.resolution_input["targets"] == (target_id,)
+
+    def test_resolve_bag_named_card_input_persists_resolution_input(self):
+        engine, state = _demo_engine_and_state()
+        source_id = _put_demo_source_in_play(state)
+        _append_scry_bag_entry(state, source_id, bag_id="bag_named")
+
+        state = engine.apply_action(state, _resolve_bag_action("bag_named", named_card="Amber Recruit"))
+        entry = next(item for item in state.bag if item.id == "bag_named")
+
+        assert entry.resolution_input["named_card"] == "Amber Recruit"
+
+    def test_resolve_bag_does_not_copy_bag_id_or_accept_to_resolution_input(self):
+        engine, state = _demo_engine_and_state()
+        source_id = _put_demo_source_in_play(state)
+        _append_scry_bag_entry(state, source_id, bag_id="bag_no_control_keys")
+
+        state = engine.apply_action(
+            state,
+            Action(
+                ACTION_RESOLVE_BAG,
+                actor=0,
+                choice={
+                    "bag_id": "bag_no_control_keys",
+                    "accept": True,
+                    "amount": 2,
+                },
+            ),
+        )
+        entry = next(item for item in state.bag if item.id == "bag_no_control_keys")
+
+        assert entry.resolution_input["amount"] == 2
+        assert "bag_id" not in entry.resolution_input
+        assert "accept" not in entry.resolution_input
+
+    def test_resolve_bag_decline_still_removes_optional_entry(self):
+        engine, state = _demo_engine_and_state()
+        source_id = _put_demo_source_in_play(state)
+        _append_scry_bag_entry(state, source_id, bag_id="bag_decline", optional=True)
+
+        state = engine.apply_action(state, _resolve_bag_action("bag_decline", accept=False, amount=2))
+
+        assert "bag_decline" not in [entry.id for entry in state.bag]
+        assert len(state.pending_effects) == 0
+        assert state.event_log[-1].event_type == EVENT_TRIGGER_DECLINED
+
+    def test_pending_created_from_bag_preserves_origin_and_resolution_input(self):
+        engine, state = _demo_engine_and_state()
+        source_id = _put_demo_source_in_play(state)
+        _append_scry_bag_entry(
+            state,
+            source_id,
+            bag_id="bag_pending_origin",
+            resolution_input={"amount": 2},
+        )
+
+        state = engine.apply_action(
+            state,
+            _resolve_bag_action("bag_pending_origin", named_card="Amber Recruit"),
+        )
+        entry = next(item for item in state.bag if item.id == "bag_pending_origin")
+
+        pe = state.pending_effects[0]
+        assert pe.origin == "bag"
+        assert pe.origin_id == entry.id
+        assert pe.raw["origin"] == "bag"
+        assert pe.raw["origin_id"] == entry.id
+        assert pe.raw["bag_id"] == entry.id
+        assert pe.raw["resolution_input"]["amount"] == 2
+        assert pe.raw["resolution_input"]["named_card"] == "Amber Recruit"
+
+    def test_resolving_bag_origin_pending_merges_resolution_input_before_removal(self, monkeypatch):
+        import lorcana_bot.engine as engine_module
+
+        engine, state = _demo_engine_and_state()
+        source_id = _put_demo_source_in_play(state)
+        _append_scry_bag_entry(
+            state,
+            source_id,
+            bag_id="bag_merge",
+            resolution_input={"amount": 2},
+        )
+        state = engine.apply_action(state, _resolve_bag_action("bag_merge", named_card="Amber Recruit"))
+        pe = state.pending_effects[0]
+        pe.raw.setdefault("resolution_input", {})["choice_index"] = 1
+        recorded_inputs = []
+
+        original_record = engine_module.record_bag_effect_resolution
+
+        def spy_record_bag_effect_resolution(state_arg, entry_arg):
+            recorded_inputs.append(dict(entry_arg.resolution_input))
+            return original_record(state_arg, entry_arg)
+
+        monkeypatch.setattr(
+            engine_module,
+            "record_bag_effect_resolution",
+            spy_record_bag_effect_resolution,
+        )
+
+        state = engine.apply_action(state, _resolve_first_scry_pending(state))
+
+        assert "bag_merge" not in [item.id for item in state.bag]
+        assert recorded_inputs == [{
+            "amount": 2,
+            "named_card": "Amber Recruit",
+            "choice_index": 1,
+        }]
+        assert any(
+            event.event_type == EVENT_TRIGGER_RESOLVED and event.payload.get("bag_id") == "bag_merge"
+            for event in state.event_log
+        )
+
+    def test_resolving_bag_origin_pending_removes_exactly_one_bag_item(self):
+        engine, state = _demo_engine_and_state()
+        source_id = _put_demo_source_in_play(state)
+        _append_scry_bag_entry(state, source_id, bag_id="bag_remove_one")
+        _append_scry_bag_entry(state, source_id, bag_id="bag_keep_other")
+        state = engine.apply_action(state, _resolve_bag_action("bag_remove_one"))
+
+        state = engine.apply_action(state, _resolve_first_scry_pending(state))
+
+        assert "bag_remove_one" not in [item.id for item in state.bag]
+        assert "bag_keep_other" in [item.id for item in state.bag]
+
+    def test_bag_condition_rechecked_after_pending_delay(self):
+        engine, state = _demo_engine_and_state()
+        source_id = _put_demo_source_in_play(state)
+        under_id = _find_demo_instance(state, DEMO_FEATURE_CARD_IDS["bodyguard_character"], 0)
+        state.cards[source_id].cards_under.append(under_id)
+        state.cards[under_id].stack_parent_id = source_id
+        _append_scry_bag_entry(
+            state,
+            source_id,
+            bag_id="bag_condition_recheck",
+            condition={"type": "has-card-under"},
+        )
+        state = engine.apply_action(state, _resolve_bag_action("bag_condition_recheck"))
+        state.cards[source_id].cards_under.clear()
+        state.cards[under_id].stack_parent_id = None
+
+        state = engine.apply_action(state, _resolve_first_scry_pending(state))
+
+        assert "bag_condition_recheck" not in [item.id for item in state.bag]
+        assert not any(
+            event.event_type == EVENT_TRIGGER_RESOLVED
+            and event.payload.get("bag_id") == "bag_condition_recheck"
+            for event in state.event_log
+        )
+        assert any(
+            event.event_type == EVENT_TRIGGER_SKIPPED
+            and event.payload.get("bag_id") == "bag_condition_recheck"
+            and event.payload.get("reason") == "condition_not_met_after_pending"
+            for event in state.event_log
+        )
