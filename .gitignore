@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.so
 *$py.class
 .python-version
 
@@ -13,40 +14,75 @@ dist/
 .eggs/
 pip-wheel-metadata/
 
-# Virtual environments
+# Virtual environments and local environment files
 venv/
 ENV/
 env/
 .venv/
+.env/
 __pypackages__/
+.conda/
+.env
+.env.*
+!.env.example
+!.env.sample
 
 # Testing
 .pytest_cache/
 coverage.xml
 htmlcov/
+coverage/
 .coverage
 .coverage.*
+.hypothesis/
 
 # Type checkers
 .mypy_cache/
 .pyre/
+.pytype/
+.ruff_cache/
+.tox/
+.nox/
 
 # Editor / IDE
 .vscode/
 .idea/
+.fleet/
 *.swp
+*.swo
 *~
 .DS_Store
+Thumbs.db
+
+# JavaScript / TypeScript tooling used by source export helpers
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
 
 # Logs and runtime files
 logs/
 *.log
 *.jsonl
 
-# Temporary state and local data
-LorcanaChampB2.1State.zip
-LorcanaChampHopefulFinalFix.zip
+# Temporary archives, state, and local data
 *.zip
+*.tar
+*.tar.gz
+*.tgz
+*.sqlite
+*.sqlite3
+*.db
+*.prof
+*.pkl
+*.pickle
+*.joblib
+*.npy
+*.npz
 
 # Ignore the extracted/managed external source tree
 lorcanito-full-src-code/
