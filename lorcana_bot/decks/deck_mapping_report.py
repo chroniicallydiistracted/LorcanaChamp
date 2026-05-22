@@ -1,95 +1,50 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
-from lorcana_bot.card_logic import AbilityKind, ExecutionStatus, SourceEffectDef
-from lorcana_bot.card_logic.resolution_requirements import analyze_resolution_requirements
 from lorcana_bot.cards import CardDef
-from lorcana_bot.importers.lorcanito_source_importer import import_lorcanito_source_cards
-from lorcana_bot.play_modes import get_shift_rules
 
-from .deck_schema import ResolvedDeck, ResolvedDeckCard
+from .deck_schema import ResolvedDeck
+from .runtime_executability import (
+    DeckRuntimeSupport,
+    classify_deck_runtime_support,
+    load_current_card_defs,
+)
 from .trigger_blocker_report import (
-    analyze_source_trigger_projection,
     build_milestone_recommendation,
     build_trigger_audit_rows,
     build_trigger_summary,
 )
 
 SCHEMA_VERSION = 1
-CRITICAL_BLOCKERS = {
-    "unsupported_trigger",
-    "unsupported_static_effect",
-    "unsupported_replacement_effect",
-    "unsupported_activated_ability",
-    "unsupported_effect:choice",
-    "unsupported_effect:scry",
-    "unsupported_effect:search-deck",
-}
 CLASSIFICATION_SOURCE = "current_python_runtime"
 
 
-@dataclass(frozen=True, slots=True)
-class RuntimeCardClassification:
-    status: str
-    blockers: tuple[str, ...]
-
-
-def load_current_card_defs(source_json: str | Path = "data/lorcanito_extracted/cards.normalized.json") -> dict[str, CardDef]:
-    source_path = Path(source_json)
-    if not source_path.exists():
-        return {}
-    db, _ = import_lorcanito_source_cards(source_path)
-    return {card.id: card for card in db.all_cards()}
-
-
 def classify_deck_playability(deck: ResolvedDeck, card_defs: dict[str, CardDef] | None = None) -> str:
-    card_defs = card_defs if card_defs is not None else load_current_card_defs()
-    validation = deck.validation or {}
-    if validation.get("valid") is False or validation.get("unresolved_cards") or validation.get("ambiguous_cards") or validation.get("banned_cards"):
-        return "invalid"
-    if len(deck.playable_decklist_ids) != deck.deck_total_declared:
-        return "invalid"
-    classifications = [_classify_card_runtime(card, card_defs) for card in deck.cards]
-    blocker_copies = sum(card.count for card, classification in zip(deck.cards, classifications) if classification.blockers)
-    if blocker_copies == 0 and all(classification.status == ExecutionStatus.EXECUTABLE for classification in classifications):
-        return "fully_executable"
-    blockers = {blocker for classification in classifications for blocker in classification.blockers}
-    if _has_critical_blocker(blockers):
-        return "partially_executable"
-    total = max(deck.deck_total_declared, 1)
-    if blocker_copies <= total * 0.10:
-        return "mostly_executable"
-    if sum(card.count for card, classification in zip(deck.cards, classifications) if classification.status != ExecutionStatus.EXECUTABLE) > total * 0.50:
-        return "source_only"
-    return "partially_executable"
+    return classify_deck_runtime_support(deck, card_defs).playability
 
 
-def build_deck_mapping_summary(deck: ResolvedDeck, card_defs: dict[str, CardDef] | None = None) -> dict[str, Any]:
+def build_deck_mapping_summary(
+    deck: ResolvedDeck,
+    card_defs: dict[str, CardDef] | None = None,
+    runtime_support: DeckRuntimeSupport | None = None,
+) -> dict[str, Any]:
     card_defs = card_defs if card_defs is not None else load_current_card_defs()
-    classifications = {_card_key(card): _classify_card_runtime(card, card_defs) for card in deck.cards}
-    executable_unique = sum(1 for card in deck.cards if card.resolved and classifications[_card_key(card)].status == ExecutionStatus.EXECUTABLE)
-    mapped_not_unique = sum(1 for card in deck.cards if card.resolved and classifications[_card_key(card)].status == ExecutionStatus.MAPPED_NOT_EXECUTABLE)
-    unsupported_unique = sum(
-        1
-        for card in deck.cards
-        if classifications[_card_key(card)].status
-        not in {ExecutionStatus.EXECUTABLE, ExecutionStatus.MAPPED_NOT_EXECUTABLE}
-    )
-    executable_copies = sum(card.count for card in deck.cards if card.resolved and classifications[_card_key(card)].status == ExecutionStatus.EXECUTABLE)
-    mapped_not_copies = sum(card.count for card in deck.cards if card.resolved and classifications[_card_key(card)].status == ExecutionStatus.MAPPED_NOT_EXECUTABLE)
-    unsupported_copies = sum(
-        card.count
-        for card in deck.cards
-        if classifications[_card_key(card)].status
-        not in {ExecutionStatus.EXECUTABLE, ExecutionStatus.MAPPED_NOT_EXECUTABLE}
-    )
-    by_unique, by_copies = _blocker_counters(deck, card_defs)
+    runtime_support = runtime_support or classify_deck_runtime_support(deck, card_defs)
+    count_by_card_id = {card.card_id or card.raw_name: card.count for card in deck.cards}
+    executable_unique = sum(1 for result in runtime_support.card_results if result.status == "executable")
+    mapped_not_unique = sum(1 for result in runtime_support.card_results if result.status in {"projected_but_requires_pending_input", "scaffold_only"})
+    unsupported_unique = sum(1 for result in runtime_support.card_results if result.status in {"unsupported", "source_preserved"})
+    executable_copies = sum(count_by_card_id.get(result.card_id, 1) for result in runtime_support.card_results if result.status == "executable")
+    mapped_not_copies = sum(count_by_card_id.get(result.card_id, 1) for result in runtime_support.card_results if result.status in {"projected_but_requires_pending_input", "scaffold_only"})
+    unsupported_copies = sum(count_by_card_id.get(result.card_id, 1) for result in runtime_support.card_results if result.status in {"unsupported", "source_preserved"})
+    by_unique = Counter(runtime_support.blockers_by_unique_cards)
+    by_copies = Counter(runtime_support.blockers_by_copies)
+    stale_by_copies = Counter(runtime_support.stale_blockers_ignored_by_copies)
+    stored_by_copies = Counter(runtime_support.stored_blockers_by_copies)
     runtime_blockers_by_card = _runtime_blockers_by_card(deck, card_defs)
-    playability = classify_deck_playability(deck, card_defs)
+    playability = runtime_support.playability
     return {
         "schema_version": SCHEMA_VERSION,
         "classification_source": CLASSIFICATION_SOURCE,
@@ -110,8 +65,12 @@ def build_deck_mapping_summary(deck: ResolvedDeck, card_defs: dict[str, CardDef]
         "unsupported_copies": unsupported_copies,
         "top_blockers_by_unique_cards": _top_counter(by_unique),
         "top_blockers_by_copies": _top_counter(by_copies),
+        "stored_resolved_deck_blockers": _top_counter(stored_by_copies),
+        "fresh_runtime_blockers": _top_counter(by_copies),
+        "stale_blockers_ignored": _top_counter(stale_by_copies),
         "recommended_engine_work": _recommended_engine_work_order(by_copies, {deck.id: by_unique}),
         "runtime_blockers_by_card": runtime_blockers_by_card,
+        "fresh_runtime_blockers_by_card": runtime_blockers_by_card,
         "best_use": _best_use(deck, playability),
     }
 
@@ -124,6 +83,9 @@ def build_suite_mapping_report(resolved_decks: list[ResolvedDeck], card_defs: di
     deck_presence: Counter[str] = Counter()
     by_deck: dict[str, Counter[str]] = {}
     summaries = []
+    runtime_by_deck: dict[str, DeckRuntimeSupport] = {
+        deck.id: classify_deck_runtime_support(deck, card_defs) for deck in resolved_decks
+    }
 
     # Build trigger audit rows
     resolved_decks_dict = []
@@ -144,9 +106,11 @@ def build_suite_mapping_report(resolved_decks: list[ResolvedDeck], card_defs: di
     milestone_rec = build_milestone_recommendation(trigger_summary, trigger_rows)
 
     for deck in sorted(resolved_decks, key=lambda item: item.id):
-        summary = build_deck_mapping_summary(deck, card_defs)
+        runtime_support = runtime_by_deck[deck.id]
+        summary = build_deck_mapping_summary(deck, card_defs, runtime_support)
         summaries.append(summary)
-        by_unique, by_copies = _blocker_counters(deck, card_defs)
+        by_unique = Counter(runtime_support.blockers_by_unique_cards)
+        by_copies = Counter(runtime_support.blockers_by_copies)
         unique_total.update(by_unique)
         copy_total.update(by_copies)
         by_deck[deck.id] = by_unique
@@ -179,8 +143,8 @@ def build_suite_mapping_report(resolved_decks: list[ResolvedDeck], card_defs: di
             for deck in sorted(
                 resolved_decks,
                 key=lambda item: (
-                    classify_deck_playability(item, card_defs) not in {"fully_executable", "mostly_executable"},
-                    sum(card.count for card in item.cards if _classify_card_runtime(card, card_defs).blockers),
+                    runtime_by_deck[item.id].playability not in {"fully_executable", "mostly_executable"},
+                    sum(runtime_by_deck[item.id].blockers_by_copies.values()),
                     item.id,
                 ),
             )[:5]
@@ -189,154 +153,20 @@ def build_suite_mapping_report(resolved_decks: list[ResolvedDeck], card_defs: di
     }
 
 
-def _classify_card_runtime(card: ResolvedDeckCard, card_defs: dict[str, CardDef]) -> RuntimeCardClassification:
-    if not card.resolved:
-        return RuntimeCardClassification(ExecutionStatus.UNSUPPORTED_ENGINE_MECHANIC, ("unresolved_card",))
-    if not card.card_id:
-        return RuntimeCardClassification(ExecutionStatus.UNSUPPORTED_ENGINE_MECHANIC, ("missing_card_id",))
-    card_def = card_defs.get(card.card_id)
-    if card_def is None:
-        return RuntimeCardClassification(ExecutionStatus.UNSUPPORTED_ENGINE_MECHANIC, ("missing_current_card_definition",))
-    blockers = _runtime_blockers_for_card(card_def)
-    if blockers:
-        return RuntimeCardClassification(ExecutionStatus.MAPPED_NOT_EXECUTABLE, blockers)
-    return RuntimeCardClassification(ExecutionStatus.EXECUTABLE, ())
-
-
-def _card_key(card: ResolvedDeckCard) -> str:
-    return card.card_id or card.canonical_id or card.raw_name
-
-
-def _runtime_blockers_for_card(card: CardDef) -> tuple[str, ...]:
-    blockers: list[str] = []
-    for ability in card.source_abilities:
-        if ability.kind == AbilityKind.TRIGGERED:
-            analysis = analyze_source_trigger_projection(card, ability)
-            if not analysis.can_project:
-                blockers.extend(blocker for blocker in analysis.blockers if blocker != "activated_ability_reported_separately")
-        elif ability.kind == AbilityKind.ACTIVATED:
-            blockers.append("unsupported_activated_ability")
-            blockers.extend(_cost_blockers(ability.costs))
-            blockers.extend(_condition_blockers(ability.condition))
-            blockers.extend(_effect_blockers(effect) for effect in ability.effects)
-        elif ability.kind == AbilityKind.STATIC:
-            blockers.append("unsupported_static_effect")
-            blockers.extend(_effect_blockers(effect) for effect in ability.effects)
-        elif ability.kind == AbilityKind.REPLACEMENT:
-            blockers.append("unsupported_replacement_effect")
-            blockers.extend(_effect_blockers(effect) for effect in ability.effects)
-        elif ability.kind == AbilityKind.ACTION:
-            blockers.extend(_cost_blockers(ability.costs))
-            blockers.extend(_condition_blockers(ability.condition))
-            blockers.extend(_effect_blockers(effect) for effect in ability.effects)
-        elif ability.kind not in {AbilityKind.KEYWORD} and ability.execution_status != ExecutionStatus.EXECUTABLE:
-            blockers.append(f"unsupported_ability:{ability.kind}")
-
-    if not card.source_abilities:
-        blockers.extend(_effect_blockers(effect) for effect in card.source_effects)
-
-    for static_ability in card.source_static_abilities:
-        blockers.append(f"unsupported_static_effect:{static_ability.kind}")
-        if static_ability.effect:
-            blockers.extend(_effect_blockers(static_ability.effect))
-        blockers.extend(_condition_blockers(static_ability.condition))
-    for replacement_ability in card.source_replacement_abilities:
-        blockers.append(f"unsupported_replacement_effect:{replacement_ability.replaces}")
-        if replacement_ability.replacement:
-            blockers.extend(_effect_blockers(replacement_ability.replacement))
-        blockers.extend(_condition_blockers(replacement_ability.condition))
-
-    keyword_names = {str(keyword).upper() for keyword in card.keywords}
-    keyword_names.update(str(keyword.keyword).upper() for keyword in card.keyword_defs)
-    if "SING_TOGETHER" in keyword_names or "SINGTOGETHER" in keyword_names:
-        blockers.append("keyword:SING_TOGETHER")
-    shift_rules = get_shift_rules(card)
-    if shift_rules is not None:
-        if shift_rules.unsupported_reason:
-            blockers.append(f"unsupported_shift:{shift_rules.unsupported_reason}")
-        elif shift_rules.ink_cost is None:
-            blockers.append("unsupported_shift:missing_cost")
-
-    if not card.source_abilities:
-        for unsupported in card.unsupported_abilities:
-            raw_kind = str(unsupported.get("type") or unsupported.get("kind") or unsupported.get("_unsupported_reason") or "unknown")
-            blockers.append(f"unsupported_ability:{raw_kind}")
-
-    if not card.source_abilities and card.source_execution_status not in {ExecutionStatus.EXECUTABLE, ExecutionStatus.MAPPED_NOT_EXECUTABLE} and not blockers:
-        blockers.append(f"source_execution_status:{card.source_execution_status}")
-    return _normalize_blockers(_flatten_blockers(blockers))
-
-
-def _flatten_blockers(items: list[Any]) -> list[str]:
-    blockers: list[str] = []
-    for item in items:
-        if isinstance(item, str):
-            blockers.append(item)
-        elif isinstance(item, tuple):
-            blockers.extend(str(value) for value in item if value)
-        elif isinstance(item, list):
-            blockers.extend(str(value) for value in item if value)
-    return blockers
-
-
-def _normalize_blockers(blockers: list[str]) -> tuple[str, ...]:
-    unique = set(blockers)
-    if any(blocker.startswith("unsupported_static_effect:") for blocker in unique):
-        unique.discard("unsupported_static_effect")
-    if any(blocker.startswith("unsupported_replacement_effect:") for blocker in unique):
-        unique.discard("unsupported_replacement_effect")
-    if any(blocker.startswith("unsupported_trigger_") for blocker in unique):
-        unique.discard("unsupported_trigger")
-    return tuple(sorted(unique))
-
-
-def _effect_blockers(effect: SourceEffectDef) -> tuple[str, ...]:
-    blockers: list[str] = []
-    if effect.execution_status != ExecutionStatus.EXECUTABLE:
-        blockers.append(f"unsupported_effect:{effect.kind}")
-    if effect.target is not None and effect.target.execution_status != ExecutionStatus.EXECUTABLE:
-        blockers.append(f"unsupported_target:{effect.target.kind}:{effect.target.selector or effect.target.alias or 'unknown'}")
-    blockers.extend(_condition_blockers(effect.condition))
-    requirements = analyze_resolution_requirements(effect)
-    blockers.extend(f"unsupported_resolution_requirement:{requirement}" for requirement in requirements.unsupported_requirements)
-    for child in (*effect.effects, *effect.branches):
-        blockers.extend(_effect_blockers(child))
-    return tuple(blockers)
-
-
-def _condition_blockers(condition: Any | None) -> tuple[str, ...]:
-    if condition is None or condition.execution_status == ExecutionStatus.EXECUTABLE:
-        return ()
-    return (f"unsupported_condition:{condition.kind}",)
-
-
-def _cost_blockers(costs: tuple[Any, ...]) -> tuple[str, ...]:
-    blockers: list[str] = []
-    for cost in costs:
-        if cost.execution_status != ExecutionStatus.EXECUTABLE:
-            blockers.append(f"unsupported_cost:{cost.kind}")
-        if getattr(cost, "selector", None) is not None and cost.selector.execution_status != ExecutionStatus.EXECUTABLE:
-            blockers.append(f"unsupported_target:{cost.selector.kind}:{cost.selector.selector or cost.selector.alias or 'unknown'}")
-        blockers.extend(_cost_blockers(getattr(cost, "components", ())))
-    return tuple(blockers)
-
-
 def _blocker_counters(deck: ResolvedDeck, card_defs: dict[str, CardDef] | None = None) -> tuple[Counter[str], Counter[str]]:
     card_defs = card_defs if card_defs is not None else load_current_card_defs()
-    by_unique: Counter[str] = Counter()
-    by_copies: Counter[str] = Counter()
-    for card in deck.cards:
-        for blocker in _classify_card_runtime(card, card_defs).blockers:
-            by_unique[blocker] += 1
-            by_copies[blocker] += card.count
-    return by_unique, by_copies
+    support = classify_deck_runtime_support(deck, card_defs)
+    return Counter(support.blockers_by_unique_cards), Counter(support.blockers_by_copies)
 
 
 def _runtime_blockers_by_card(deck: ResolvedDeck, card_defs: dict[str, CardDef]) -> list[dict[str, Any]]:
     rows = []
+    support_by_card_id = {
+        result.card_id: result for result in classify_deck_runtime_support(deck, card_defs).card_results
+    }
     for card in deck.cards:
-        classification = _classify_card_runtime(card, card_defs)
-        if not classification.blockers:
+        classification = support_by_card_id.get(card.card_id or card.raw_name)
+        if classification is None or not classification.blockers:
             continue
         rows.append(
             {
@@ -345,18 +175,16 @@ def _runtime_blockers_by_card(deck: ResolvedDeck, card_defs: dict[str, CardDef])
                 "count": card.count,
                 "runtime_status": classification.status,
                 "runtime_blockers": list(classification.blockers),
+                "fresh_runtime_blockers": list(classification.fresh_runtime_blockers),
+                "stale_blockers_ignored": list(classification.stale_blockers_ignored),
+                "runtime_paths_required": list(classification.runtime_paths_required),
+                "runtime_paths_verified": list(classification.runtime_paths_verified),
                 "stored_source_execution_status": card.source_execution_status,
                 "stored_unsupported_blockers": list(card.unsupported_blockers),
+                "stored_resolved_deck_blockers": list(card.unsupported_blockers),
             }
         )
     return rows
-
-
-def _has_critical_blocker(blockers: set[str]) -> bool:
-    return bool(blockers & CRITICAL_BLOCKERS) or any(
-        blocker.startswith(("unsupported_resolution_requirement", "unsupported_static_effect:", "unsupported_replacement_effect:", "unsupported_trigger_"))
-        for blocker in blockers
-    )
 
 
 def _top_counter(counter: Counter[str], limit: int = 20) -> list[dict[str, Any]]:

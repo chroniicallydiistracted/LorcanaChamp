@@ -46,13 +46,18 @@ def run_real_deck_gauntlet(
     else:
         allowed = [deck for deck in decks if current_playability[deck.id] == "fully_executable"]
     if len(allowed) < 2:
+        if allow_partial:
+            result = "not_enough_allowed_decks"
+        else:
+            result = "no_fully_executable_decks" if not allowed else "not_enough_fully_executable_decks"
         report = {
             "schema_version": SCHEMA_VERSION,
             "classification_source": CLASSIFICATION_SOURCE,
-            "result": "no_fully_executable_decks" if not allow_partial else "not_enough_allowed_decks",
+            "result": result,
             "games_run": 0,
             "not_strength_valid": False,
             "deck_playability": current_playability,
+            "eligible_deck_ids": [deck.id for deck in allowed],
             "matchups": [],
         }
         return _write_optional(report, out)

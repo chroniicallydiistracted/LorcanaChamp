@@ -411,57 +411,9 @@ def _cost_type_counts(card: CardDef | None) -> dict[str, int]:
 def _unsupported_blockers(card: CardDef | None) -> tuple[str, ...]:
     if not card:
         return ("missing_carddef_status",)
-    blockers: set[str] = set()
+    from .runtime_executability import classify_card_runtime_support
 
-    # B2-FIX: Classify triggers more specifically instead of just broad unsupported_trigger
-    if card.source_triggers:
-        # Check if any triggers can be projected as executable
-        projected_triggers = card.triggers  # These are already projected TriggerDefs
-        executable_triggers = len(projected_triggers)
-        total_triggers = len(card.source_triggers)
-
-        # If all triggers are executable, don't add any blocker
-        # If some are executable, add specific blocker for unprojected ones
-        if total_triggers > 0:
-            if executable_triggers == 0:
-                # No triggers can be projected - classify by specific reason
-                for trigger in card.source_triggers:
-                    reason = _trigger_blocker_reason(trigger)
-                    blockers.add(reason)
-            # If some triggers are executable, those are already projected,
-            # and we only count the unexecutable ones
-
-    if card.source_static_abilities:
-        blockers.add("unsupported_static_effect")
-    if card.source_replacement_abilities:
-        blockers.add("unsupported_replacement_effect")
-    if any(ability.kind == "activated" for ability in card.source_abilities):
-        blockers.add("unsupported_activated_ability")
-    for keyword in card.keyword_defs:
-        if keyword.keyword in CRITICAL_KEYWORDS:
-            blockers.add(f"keyword:{keyword.keyword}")
-    for ability in card.source_abilities:
-        for cost in ability.costs:
-            if cost.execution_status != ExecutionStatus.EXECUTABLE:
-                blockers.add(f"unsupported_cost:{cost.kind}")
-        if ability.trigger and ability.trigger.execution_status != ExecutionStatus.EXECUTABLE:
-            # This is for ability-level trigger execution status
-            reason = _trigger_blocker_reason(ability.trigger)
-            blockers.add(reason)
-        for effect in ability.effects:
-            _collect_effect_blockers(effect, blockers)
-    for item in card.unsupported_abilities:
-        reason = item.get("reason") or item.get("type") or item.get("mapping_status")
-        if reason and reason not in {
-            ExecutionStatus.MAPPED_NOT_EXECUTABLE,
-            ExecutionStatus.UNSUPPORTED_CONDITION,
-            ExecutionStatus.UNSUPPORTED_COST,
-            ExecutionStatus.UNSUPPORTED_ENGINE_MECHANIC,
-            ExecutionStatus.UNSUPPORTED_TARGETING,
-            ExecutionStatus.UNSUPPORTED_CHOICE,
-        }:
-            blockers.add(str(reason))
-    return tuple(sorted(blockers))
+    return classify_card_runtime_support(card).blockers
 
 
 def _trigger_blocker_reason(trigger) -> str:

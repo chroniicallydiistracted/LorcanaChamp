@@ -9,14 +9,17 @@
     "as_steelsong_brian_law_taipei_2026_03_14": "partially_executable",
     "as_value_harlan_2026_04_04": "partially_executable",
     "es_control_i_hate_dogs_imola_2026_04_11": "partially_executable",
-    "ps_burn_matt_w_2026_03_21": "partially_executable",
+    "ps_burn_matt_w_2026_03_21": "fully_executable",
     "rs_pawpsicles_maui_fiesta_2025_05_04": "partially_executable",
     "rs_songs_daniele_2026_04_04": "partially_executable",
     "sr_aggro_damien_2026_01_31": "partially_executable"
   },
+  "eligible_deck_ids": [
+    "ps_burn_matt_w_2026_03_21"
+  ],
   "games_run": 0,
   "matchups": [],
   "not_strength_valid": false,
-  "result": "no_fully_executable_decks",
+  "result": "not_enough_fully_executable_decks",
   "schema_version": 1
 }

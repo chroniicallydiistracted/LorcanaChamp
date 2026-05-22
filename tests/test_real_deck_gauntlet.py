@@ -3,6 +3,7 @@ import json
 from lorcana_bot.decks.deck_loader import write_resolved_deck
 from lorcana_bot.decks.deck_schema import ResolvedDeck, ResolvedDeckCard
 from lorcana_bot.decks.gauntlet import run_real_deck_gauntlet
+from lorcana_bot.decks.runtime_executability import classify_card_runtime_support
 from lorcana_bot.importers.lorcanito_source_importer import import_lorcanito_source_cards
 
 
@@ -60,7 +61,11 @@ def test_no_fully_executable_decks_uses_current_runtime_not_stored_playability(t
 
 def test_partial_gauntlet_requires_allow_partial_and_marks_not_strength_valid(tmp_path):
     db, _ = import_lorcanito_source_cards("data/lorcanito_extracted/cards.normalized.json")
-    card_id = next(card.id for card in db.all_cards() if card.card_type == "character" and card.source_static_abilities)
+    card_id = next(
+        card.id
+        for card in db.all_cards()
+        if card.card_type == "character" and classify_card_runtime_support(card).status == "projected_but_requires_pending_input"
+    )
     write_resolved_deck(_resolved_deck("d1", [card_id], playability="fully_executable"), tmp_path / "d1.resolved.json")
     write_resolved_deck(_resolved_deck("d2", [card_id], playability="fully_executable"), tmp_path / "d2.resolved.json")
     decisions = tmp_path / "decisions.jsonl"
@@ -77,3 +82,17 @@ def test_partial_gauntlet_requires_allow_partial_and_marks_not_strength_valid(tm
         row = json.loads(decisions.read_text().splitlines()[0])
         assert row["deck_id_player_0"] == "d1"
         assert row["deck_id_player_1"] == "d2"
+
+
+def test_gauntlet_gate_allows_current_executable_decks_despite_stale_blockers(tmp_path):
+    db, _ = import_lorcanito_source_cards("data/lorcanito_extracted/cards.normalized.json")
+    card_id = next(card.id for card in db.all_cards() if card.card_type == "character" and classify_card_runtime_support(card).status == "executable")
+    write_resolved_deck(_resolved_deck("d1", [card_id], playability="source_only"), tmp_path / "d1.resolved.json")
+    write_resolved_deck(_resolved_deck("d2", [card_id], playability="source_only"), tmp_path / "d2.resolved.json")
+
+    report = run_real_deck_gauntlet(tmp_path, only_fully_executable=True, games_per_pair=1, max_actions=1)
+
+    assert report["games_run"] == 1
+    assert report["deck_playability"] == {"d1": "fully_executable", "d2": "fully_executable"}
+    assert report["matchups"][0]["stored_deck_playability_player_0"] == "source_only"
+    assert report["matchups"][0]["deck_playability_player_0"] == "fully_executable"
