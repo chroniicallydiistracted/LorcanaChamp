@@ -1,18 +1,18 @@
 """Ability cost validation and payment for activated abilities.
 
-This module implements cost validation and payment for Lorcana's activated abilities,
-separating these operations from effect resolution as per Lorcanito's architecture.
+This module implements cost validation and payment for Lorcana's activated
+abilities, separating cost validation/payment from effect resolution as in
+Lorcanito's activated ability architecture.
 
-Supported costs (MVP):
+Supported direct payment costs:
 - exert_source: Exert the source card
-- ink: Pay ink (exert N ink cards)
-- banish_self: Banish the source card (move to discard)
-- discard: Discard N cards from hand (random if no choice required)
+- ink: Pay ink by exerting ready inkwell cards
+- banish_self: Banish the source card through the engine event boundary
+- discard: Random discard only when the source explicitly marks it random
 
-Not supported (requires pending prompts):
-- choose/discard specific card
-- reveal named card
-- pay complex alternative costs
+Non-random discard costs are not paid directly here. They must be resolved
+through the activated-cost pending discard-choice path so the player-selected
+card IDs are validated before any payment occurs.
 """
 
 from __future__ import annotations
@@ -52,6 +52,21 @@ SUPPORTED_COST_KINDS = frozenset({
     "banish",
     "tap",
 })
+
+def cost_requires_pending_discard_choice(
+    ability: ActivatedAbility,
+    cost: SourceCostDef,
+) -> bool:
+    """Return True when a discard cost must be paid through pending choice.
+
+    Lorcanito models chosen discard costs as selected cost input. LorcanaChamp's
+    direct cost helper may only random-discard when the source explicitly marks
+    the ability as random.
+    """
+    if to_engine_cost_kind(cost.kind) != "discard":
+        return False
+    raw = getattr(ability, "raw", {}) or {}
+    return not bool(raw.get("random_discard"))
 
 
 def validate_cost_payable(
@@ -276,20 +291,28 @@ def _pay_discard_cost(
     ability: ActivatedAbility,
     amount: int,
 ) -> None:
-    """Pay discard cost by randomly discarding cards from hand."""
+    """Pay an explicitly random discard cost.
+
+    Non-random discard costs must resolve through the activated-cost pending
+    discard-choice path. This prevents direct helpers from silently choosing a
+    random card when Lorcanito source expects the player to choose.
+    """
     player = state.cards[ability.source_instance_id].controller
     hand = state.players[player].hand
 
     if len(hand) < amount:
         raise CostPaymentError(f"Not enough cards to discard: need {amount}, have {len(hand)}")
 
-    # Randomly select cards to discard (for MVP without choice prompts)
-    discarded: list[int] = []
+    raw = getattr(ability, "raw", {}) or {}
+    if not raw.get("random_discard"):
+        raise CostPaymentError(
+            "Non-random discard costs must resolve through pending discard choice"
+        )
+
     hand_copy = list(hand)
     for _ in range(amount):
         idx = random.randrange(len(hand_copy))
         cid = hand_copy.pop(idx)
-        discarded.append(cid)
         engine._discard_eventful(
             state,
             cid,
@@ -329,31 +352,29 @@ def pay_all_costs(
     engine: GameEngine,
     ability: ActivatedAbility,
 ) -> tuple[str, ...]:
-    """Pay all costs for an ability atomically.
+    """Pay all directly payable costs for an ability atomically.
 
-    This function collects all costs first, validates them, and only then
-    applies the payments. If any cost cannot be paid, no state changes occur.
-
-    Args:
-        state: The game state
-        engine: The game engine
-        ability: The activated ability whose costs to pay
-
-    Returns:
-        Tuple of cost kinds that were paid
-
-    Raises:
-        CostPaymentError: If any cost cannot be paid (no partial state changes)
+    Non-random discard costs are not directly payable. They must be routed
+    through the activated-cost pending discard-choice path before any cost is
+    paid, otherwise an earlier cost could mutate state before discard choice is
+    available.
     """
-    # First validate all costs
     can_pay, failures = validate_ability_cost_collection(state, engine, ability)
     if not can_pay:
         raise CostPaymentError(f"Cannot pay costs: {', '.join(failures)}")
 
-    # Collect costs to pay before modifying state (for atomic payment)
     costs_to_pay: list[SourceCostDef] = list(ability.costs)
 
-    # Pay all costs
+    pending_discard_costs = [
+        cost.kind
+        for cost in costs_to_pay
+        if cost_requires_pending_discard_choice(ability, cost)
+    ]
+    if pending_discard_costs:
+        raise CostPaymentError(
+            "Non-random discard costs must resolve through pending discard choice"
+        )
+
     paid: list[str] = []
     for cost in costs_to_pay:
         pay_cost(state, engine, ability, cost)

@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "the_fam_is_back_together",
+  "name": "The Fam Is Back Together!",
+  "format": "core_constructed",
+  "source_site": "manual",
+  "source_deck_id": 760091,
+  "player": "Andy",
+  "placement": "NA",
+  "event": "casual",
+  "event_date": "NA",
+  "ink_colors": [
+    "amber",
+    "sapphire"
+  ],
+  "archetype": "Midrange/Tempo",
+  "purpose": [
+    "midrange",
+    "casual",
+    "songs"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Julieta Madrigal - Caring Baker",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Pedro Madrigal - Family Patriarch",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Dolores Madrigal - Hears Everything",
+      "count": 1,
+      "type": "character"
+    },
+    {
+      "name": "Isabela Madrigal - Such a Lovely Voice",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Isabela Madrigal - Caring Cultivator",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Isabela Madrigal - Perfectly in Control",
+      "count": 2,
+      "type": "character"
+    },
+    {
+      "name": "Bruno Madrigal - Oasis Oracle",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Julieta Madrigal - Excellent Cook",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Mirabel Madrigal - Resourceful Daughter",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Four Dozen Eggs",
+      "count": 2,
+      "type": "song"
+    },
+    {
+      "name": "Let It Go",
+      "count": 3,
+      "type": "song"
+    },
+    {
+      "name": "What Else Can I Do?",
+      "count": 1,
+      "type": "song"
+    },
+    {
+      "name": "This Growing Pressure",
+      "count": 2,
+      "type": "song"
+    },
+    {
+      "name": "Coconut Basket",
+      "count": 4,
+      "type": "item"
+    },
+    {
+      "name": "Julieta's Arepas",
+      "count": 4,
+      "type": "item"
+    },
+    {
+      "name": "The Horseman Strikes!",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Ohana Means Family",
+      "count": 1,
+      "type": "action"
+    },
+    {
+      "name": "Develop Your Brain",
+      "count": 4,
+      "type": "action"
+    },
+    {
+      "name": "Casa Madrigal - Courtyard",
+      "count": 4,
+      "type": "location"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "casual",
+      "hide_banned": true
+    }
+  }
+}

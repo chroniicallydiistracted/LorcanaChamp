@@ -309,28 +309,37 @@ def pay_ability_costs(
     engine: GameEngine,
     ability: ActivatedAbility,
 ) -> tuple[str, ...]:
-    """Pay all costs for an activated ability atomically.
+    """Pay all directly payable costs for an activated ability atomically.
 
-    Args:
-        state: The game state
-        engine: The game engine
-        ability: The activated ability whose costs to pay
-
-    Returns:
-        Tuple of cost kinds that were paid
-
-    Raises:
-        AbilityCostError: If costs cannot be paid
+    Non-random discard costs must be resolved by GameEngine's pending
+    discard-choice path. This public helper fails before any payment so direct
+    callers cannot accidentally random-discard or partially pay costs.
     """
-    from lorcana_bot.costs import pay_cost
+    from lorcana_bot.costs import (
+        CostPaymentError,
+        cost_requires_pending_discard_choice,
+        pay_cost,
+    )
+
+    pending_discard_costs = [
+        cost.kind
+        for cost in ability.costs
+        if cost_requires_pending_discard_choice(ability, cost)
+    ]
+    if pending_discard_costs:
+        raise AbilityCostError(
+            "Non-random discard costs must resolve through pending discard choice"
+        )
 
     paid_costs: list[str] = []
 
-    for cost in ability.costs:
-        pay_cost(state, engine, ability, cost)
-        paid_costs.append(cost.kind)
+    try:
+        for cost in ability.costs:
+            pay_cost(state, engine, ability, cost)
+            paid_costs.append(cost.kind)
+    except CostPaymentError as exc:
+        raise AbilityCostError(str(exc)) from exc
 
-    # Mark ability as used this turn
     card = state.cards[ability.source_instance_id]
     card.used_abilities_this_turn.append(ability.unique_use_key)
 

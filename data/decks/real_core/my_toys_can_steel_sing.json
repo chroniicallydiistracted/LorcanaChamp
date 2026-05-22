@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "my_toys_can_steel_sing",
+  "name": "My Toys Can Steel Sing",
+  "format": "core_constructed",
+  "source_site": "manually_created",
+  "source_deck_id": 615728,
+  "player": "Andy",
+  "placement": "NA",
+  "event": "casual",
+  "event_date": "NA",
+  "ink_colors": [
+    "amber",
+    "steel"
+  ],
+  "archetype": "Amber Steel",
+  "purpose": [
+    "aggro",
+    "combo",
+    "songs"
+  ],
+  "deck_total": 60,
+  "cards": [
+    {
+      "name": "Strength of a Raging Fire",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Akood et Emuti",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "You've Got a Friend in Me",
+      "count": 4,
+      "type": "song"
+    },
+    {
+      "name": "Woody - Jungle Guide",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Angel - Experiment 624",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Woody - Leader of the Toys",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Bullseye - Loyal Horse",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Grandmother Willow - Ancient Advisor",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Woody - Waiting for a Friend",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Rex - Protective Dinosaur",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Angel - Siren Singer",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Jessie - Lively Cowgirl",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Hamm - Piggy Bank",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Mowgli - Man Cub",
+      "count": 4,
+      "type": "character"
+    },
+    {
+      "name": "Nani - Stage Manager",
+      "count": 4,
+      "type": "character"
+    }
+  ],
+  "validation": {
+    "card_count_is_60": true,
+    "max_two_inks_declared": true,
+    "source_filter": {
+      "format": "core",
+      "deck_type": "casual",
+      "hide_banned": true
+    }
+  }
+}

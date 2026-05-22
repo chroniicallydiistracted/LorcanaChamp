@@ -22,12 +22,16 @@ from lorcana_bot.abilities import (
     get_activated_abilities_for_card,
     can_use_ability_this_turn,
     validate_ability_costs,
+    pay_ability_costs,
+    use_ability,
     AbilityCostError,
     ActivatedAbility,
 )
 from lorcana_bot.costs import (
     validate_cost_payable,
     pay_cost,
+    pay_all_costs,
+    CostPaymentError,
 )
 
 
@@ -474,6 +478,156 @@ class TestDiscardCost:
         assert event.payload["subject_card_id"] == 1
         assert event.payload["source_card_id"] == 3
         assert event.payload["reason"] == "ability_cost"
+    def test_non_random_discard_direct_pay_cost_requires_pending_choice(self):
+        """Direct pay_cost must not randomly discard non-random discard costs."""
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={
+                1: CardInstance(instance_id=1, card_id="hand1", owner=0, controller=0),
+                2: CardInstance(instance_id=2, card_id="hand2", owner=0, controller=0),
+                3: CardInstance(instance_id=3, card_id="test", owner=0, controller=0),
+            },
+        )
+        state.players[0].hand = [1, 2]
+        state.cards[1].zone = ZONE_HAND
+        state.cards[2].zone = ZONE_HAND
+        state.cards[3].zone = ZONE_PLAY
+
+        engine = _eventful_cost_engine()
+        ability = ActivatedAbility(
+            source_instance_id=3,
+            source_card_id="test",
+            ability_id="discard_ability",
+            ability_index=0,
+            name="Discard",
+            costs=(_make_source_cost("discard", 1),),
+            effects=(),
+            condition=None,
+            raw={},  # non-random discard
+        )
+
+        with pytest.raises(CostPaymentError, match="pending discard choice"):
+            pay_cost(state, engine, ability, ability.costs[0])
+
+        assert state.players[0].hand == [1, 2]
+        assert state.cards[1].zone == ZONE_HAND
+        assert state.cards[2].zone == ZONE_HAND
+        assert not any(event.event_type == EVENT_CARD_DISCARDED for event in state.event_log)
+
+    def test_non_random_discard_pay_all_costs_fails_before_partial_payment(self):
+        """pay_all_costs must fail before paying earlier costs when discard needs choice."""
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={
+                1: CardInstance(instance_id=1, card_id="hand1", owner=0, controller=0),
+                2: CardInstance(instance_id=2, card_id="test", owner=0, controller=0),
+            },
+        )
+        state.players[0].hand = [1]
+        state.cards[1].zone = ZONE_HAND
+        state.cards[2].zone = ZONE_PLAY
+        state.cards[2].exerted = False
+
+        engine = _eventful_cost_engine()
+        ability = ActivatedAbility(
+            source_instance_id=2,
+            source_card_id="test",
+            ability_id="combined_discard",
+            ability_index=0,
+            name="Combined Discard",
+            costs=(
+                _make_source_cost("exert_source"),
+                _make_source_cost("discard", 1),
+            ),
+            effects=(),
+            condition=None,
+            raw={},  # non-random discard
+        )
+
+        with pytest.raises(CostPaymentError, match="pending discard choice"):
+            pay_all_costs(state, engine, ability)
+
+        assert state.cards[2].exerted is False
+        assert state.players[0].hand == [1]
+        assert state.cards[1].zone == ZONE_HAND
+
+    def test_non_random_discard_pay_ability_costs_fails_before_partial_payment(self):
+        """pay_ability_costs must fail before any direct payment for non-random discard."""
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={
+                1: CardInstance(instance_id=1, card_id="hand1", owner=0, controller=0),
+                2: CardInstance(instance_id=2, card_id="test", owner=0, controller=0),
+            },
+        )
+        state.players[0].hand = [1]
+        state.cards[1].zone = ZONE_HAND
+        state.cards[2].zone = ZONE_PLAY
+        state.cards[2].exerted = False
+
+        engine = _eventful_cost_engine()
+        ability = ActivatedAbility(
+            source_instance_id=2,
+            source_card_id="test",
+            ability_id="ability_costs_discard",
+            ability_index=0,
+            name="Ability Costs Discard",
+            costs=(
+                _make_source_cost("exert_source"),
+                _make_source_cost("discard", 1),
+            ),
+            effects=(),
+            condition=None,
+            raw={},  # non-random discard
+        )
+
+        with pytest.raises(AbilityCostError, match="pending discard choice"):
+            pay_ability_costs(state, engine, ability)
+
+        assert state.cards[2].exerted is False
+        assert state.players[0].hand == [1]
+        assert state.cards[1].zone == ZONE_HAND
+        assert ability.unique_use_key not in state.cards[2].used_abilities_this_turn
+
+    def test_non_random_discard_use_ability_returns_failure_without_payment(self):
+        """Direct use_ability must fail cleanly and not mutate state for non-random discard."""
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={
+                1: CardInstance(instance_id=1, card_id="hand1", owner=0, controller=0),
+                2: CardInstance(instance_id=2, card_id="test", owner=0, controller=0),
+            },
+        )
+        state.players[0].hand = [1]
+        state.cards[1].zone = ZONE_HAND
+        state.cards[2].zone = ZONE_PLAY
+        state.cards[2].exerted = False
+
+        engine = _eventful_cost_engine()
+        ability = ActivatedAbility(
+            source_instance_id=2,
+            source_card_id="test",
+            ability_id="use_ability_discard",
+            ability_index=0,
+            name="Use Ability Discard",
+            costs=(
+                _make_source_cost("exert_source"),
+                _make_source_cost("discard", 1),
+            ),
+            effects=(),
+            condition=None,
+            raw={},  # non-random discard
+        )
+
+        result = use_ability(state, engine, ability)
+
+        assert result.success is False
+        assert result.error_message is not None
+        assert "pending discard choice" in result.error_message
+        assert state.cards[2].exerted is False
+        assert state.players[0].hand == [1]
+        assert state.cards[1].zone == ZONE_HAND
+        assert ability.unique_use_key not in state.cards[2].used_abilities_this_turn
 
     def test_discard_cost_not_payable_with_insufficient_cards(self):
         """Discard cost should NOT be payable when player lacks cards."""
