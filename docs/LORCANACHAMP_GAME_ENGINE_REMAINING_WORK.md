@@ -1,7 +1,7 @@
 # LorcanaChamp Engine Parity Roadmap
 
-**Audit date:** 2026-05-17
-**Audit target:** current LorcanaChamp workspace after Microfix 10 targeting service parity
+**Audit date:** 2026-05-21
+**Audit target:** current LorcanaChamp workspace after Microfix 13 scry destination/ordering runtime support
 **Reference authority:** `lorcanito-full-src-code/packages/lorcana` and `references/lorcana-simulator`
 **Goal:** migrate Lorcanito's rules, card logic, game state, and automation behavior into Python with enough 1:1 fidelity to support teacher-bot creation and LorcanaChamp ML training.
 
@@ -18,71 +18,77 @@ Do not mark a card, mechanic, deck, or training dataset as executable unless the
 
 ## 0. Current Verification Snapshot
 
-Commands run during this audit:
+Commands run during the current audit:
 
 ```bash
-python3 -m pytest --collect-only
+python3 -m py_compile lorcana_bot/decks/runtime_executability.py lorcana_bot/decks/deck_mapping_report.py lorcana_bot/decks/deck_resolver.py lorcana_bot/decks/gauntlet.py
+python3 -m pytest tests/test_real_deck_mapping_report.py tests/test_real_deck_gauntlet.py tests/test_real_deck_runtime_executability.py tests/test_trigger_blocker_report.py -q
 python3 -m pytest -q
+python3 scripts/audit_real_deck_executability.py --print-summary
 python3 scripts/report_trigger_blockers.py --print-summary
-python3 scripts/report_real_deck_mapping_coverage.py --resolved-deck-dir data/decks/resolved/real_core --out /tmp/real_deck_suite_mapping_coverage.json --print-summary
-python3 scripts/report_lorcanito_source_mapping.py --source-json data/lorcanito_extracted/cards.normalized.json --out /tmp/lorcanito_mapping_coverage.json --print-summary
+python3 scripts/report_real_deck_mapping_coverage.py --resolved-deck-dir data/decks/resolved/real_core --out data/decks/reports/real_deck_suite_mapping_coverage.json --print-summary
+python3 scripts/run_real_deck_gauntlet.py --resolved-deck-dir data/decks/resolved/real_core --strategy-a deck-aware-lore-race --strategy-b board-control --only-fully-executable --games-per-pair 2 --max-actions 300 --out data/decks/reports/real_deck_suite_gauntlet.json
 ```
 
-Observed baseline test state from the original roadmap audit:
+Observed current test state after Microfix 13:
 
-- `516 tests collected`
-- Full pytest suite passes.
-
-Observed current test state after Microfix 10:
-
-- Targeting, pending-effect, EffectResolver, and automation pending suites pass.
+- Real-deck runtime executability tests pass.
+- Real-deck mapping report tests pass.
+- Real-deck gauntlet gate tests pass.
+- Trigger blocker report tests pass.
+- Scry/search/reveal tests pass.
+- Automation pending-effect round-trip tests pass.
 - Full pytest suite passes.
 
 Observed real-deck report state:
 
 - `total decks: 12`
 - `valid decks: 12`
-- `fully executable decks: 0`
+- `classification_source: current_python_runtime`
+- `fully executable decks: 1`
+- `mostly executable decks: 0`
+- `partially executable decks: 11`
+- `source-only decks: 0`
 - recommended next milestone: `target_choice_prompts`
 
-Top real-deck blockers by copies:
+Top current runtime real-deck blockers by copies:
 
 ```text
-338 unsupported_trigger
-111 unsupported_trigger_not_projected
- 92 unsupported_static_effect
- 79 unsupported_choice
- 52 unsupported_effect:scry
- 49 unsupported_target:chosen
- 48 unsupported_activated_ability
- 47 unsupported_cost:ink
- 30 keyword:SHIFT
- 25 unsupported_effect:restriction
+22 unsupported_target:selector:chosen
+21 unsupported_ability:unknown
+15 unsupported_cost:discardCards
+15 unsupported_cost:discardChosen
+12 unsupported_cost:banishSelf
+10 unsupported_effect:put-into-inkwell
+ 9 unsupported_resolution_requirement:opponent_choice
+ 8 unsupported_trigger_effect:create-replacement-effect
+```
+
+Runtime executability audit:
+
+```text
+old fully executable decks: 0
+fresh fully executable decks: 1
+cards changed blocked->executable: 76
+cards changed executable->blocked: 0
 ```
 
 Trigger blocker report:
 
 ```text
 Total trigger rows: 115
-Projected trigger rows: 65
-Blocked trigger rows: 50
-Blocked trigger copies: 184
+Projected trigger rows: 110
+Blocked trigger rows: 5
+Blocked trigger copies: 14
 Broad unsupported_trigger copies: 0
 
 Top blockers:
-unsupported_trigger_resolution_requirement:amount: 99 copies, 14 unique, 11 decks
-unsupported_trigger_event:banish-in-challenge: 16 copies, 3 unique, 2 decks
-unsupported_trigger_event:put-card-under: 16 copies, 1 unique, 4 decks
-unsupported_trigger_condition:has-card-under: 12 copies, 3 unique, 3 decks
-unsupported_trigger_condition:turn-metric: 8 copies, 2 unique, 2 decks
 unsupported_trigger_effect:create-replacement-effect: 8 copies, 1 unique, 2 decks
-unsupported_trigger_event:draw: 8 copies, 1 unique, 2 decks
-unsupported_trigger_event:leave-play: 7 copies, 1 unique, 2 decks
-unsupported_trigger_on:CHARACTERS_HERE: 4 copies, 1 unique, 1 deck
-unsupported_trigger_on:complex_filter:filters: 4 copies, 1 unique, 1 deck
+unsupported_trigger_resolution_requirement:amount: 4 copies, 2 unique, 2 decks
+unsupported_trigger_effect:or: 2 copies, 1 unique, 1 deck
 ```
 
-The report still recommends `target_choice_prompts` with 124 affected copies. The dominant blocker is now `unsupported_trigger_resolution_requirement:amount`; central runtime targeting is implemented, so the remaining report movement depends on trigger projection/importer/report classification work rather than another Microfix 10 targeting route.
+The report still recommends `target_choice_prompts`, but Microfix 13 removed the scry destination/ordering blockers from the top current-runtime list. The current highest blockers are exact selected-target support, exact activated ability/cost gaps, opponent-choice prompts, and a small trigger tail.
 
 Source mapping report:
 
@@ -95,7 +101,7 @@ mapped-not-executable cards: 873
 unsupported cards: 1138
 ```
 
-Important interpretation: unit tests are green, but the engine is not yet suitable for real-deck ML training. Reports still show zero fully executable real decks and major trigger/static/choice blockers.
+Important interpretation: unit tests are green and report truthfulness is materially improved, but the engine is not yet suitable for real-deck ML training. The current report has one truthfully fully executable deck, which is enough to prove the classification path but not enough to run a two-deck fully executable gauntlet.
 
 ---
 
@@ -242,31 +248,39 @@ Key Lorcanito concepts to preserve:
 - Microfix 6 Shift stack and `ZONE_UNDER` behavior is implemented with stack-aware movement and public-play exclusions.
 - Microfix 7 static/replacement lifecycle hardening is implemented for public permanent entry, leave-play deregistration, inactive under-stack sources, and replacement/prevention ordering on hardened routes.
 - Microfix 8 `EffectResolver` mutation centralization is implemented with draw privacy hardening, core helper regression tests, zone-routing regression tests, and a direct-mutation audit guard.
+- Microfix 9 pending resolution generalization is implemented for amount, target, multi-target, discard choice, choice, optional, opponent choice, and enter-play-exerted requirements through `legal_actions()` and `apply_action()`.
+- Microfix 10 targeting service parity is implemented for current Python target interpretation, pending target resolution, EffectResolver aliases, automation round-trip, context targets, and slotted target input preservation.
+- Microfix 11 trigger event expansion and bag/pending interaction is implemented for the tracked trigger projection, event, condition, filter, and bag continuation paths.
+- Microfix 12 condition evaluator and turn metric support is implemented for the tracked trigger/report condition scope, including `used-shift` snapshots.
+- Microfix 12B runtime executability classification is implemented. Real-deck playability now uses current `CardDef` runtime capability checks, not stale `ResolvedDeckCard.unsupported_blockers`.
+- Microfix 13 scry destination/ordering support is implemented for current source `scry` effects whose destinations use supported zones: hand, deck-top, deck-bottom, discard, and inkwell.
+- `deck_resolver._unsupported_blockers()` now delegates to the fresh runtime classifier for future resolved deck generation.
+- `build_suite_mapping_report()` reports `stored_resolved_deck_blockers`, `fresh_runtime_blockers`, `stale_blockers_ignored`, and `current_runtime_playability`.
+- Real-deck gauntlet eligibility reclassifies decks from current runtime support before applying `--only-fully-executable`.
 
 ### Partial Or Scaffolded
 
-- `pending_effects.py` supports some scry/search/reveal helpers, but privacy, destination structure, continuation, eventfulness, and search filters are not Lorcanito-equivalent.
-- `condition_evaluator.py` has many condition handlers, but report-critical conditions still fail or depend on missing turn metrics/cards-under state.
-- `triggers.py` can buffer and match common triggers, but runtime trigger support is narrower than Lorcanito's trigger subject/filter model.
-- `abilities.py` and `costs.py` can enumerate some activated abilities and costs, but ink/discard/banish costs still block many real cards.
-- `play_modes.py` supports singing and Shift stack behavior, including `ZONE_UNDER`, but full play-mode parity still needs later cost/mode work.
-- `decks/*` reports useful blockers, but executable/scaffold classification still needs to be stricter.
+- `pending_effects.py` supports scry destination/ordering for the proven source shapes, plus some search/reveal helpers, but full reveal/search filters, continuation, and all destination zones are not Lorcanito-equivalent.
+- `triggers.py` can buffer and match the current high-impact triggers, but a small tail remains: trigger-created replacement effects, trigger amount prompts, and compound `or` effects.
+- `abilities.py` and `costs.py` can enumerate and execute some activated abilities and costs, but discard/banish/self-cost paths still block many real cards.
+- `play_modes.py` supports singing and Shift stack behavior, including `ZONE_UNDER`; Sing Together remains unsupported.
+- Runtime classification is truthful for current Python capability, but it is still a classifier. A deck marked executable still needs gauntlet coverage before it is useful for training.
 
 ### Blocked For 1:1 Migration
 
-- No complete target selection service equivalent to Lorcanito targeting runtime.
-- No amount-choice pending requirement.
-- No discard-choice pending requirement.
 - No general `resolutionInput` continuation model for sequences that suspend and resume.
-- No full event snapshot and turn metric model for trigger conditions.
-- No fully executable real deck.
+- No complete selected-target prompt support for all source selectors.
+- No complete activated cost prompt support for discard/banish/self costs.
+- No complete put-into-inkwell effect runtime path.
+- No executable trigger-created replacement-effect path.
+- No two-deck fully executable real-deck gauntlet yet; current fully executable real decks: 1.
 - No parity harness that runs Lorcanito scenario expectations against Python.
 
 ---
 
 ## 3. Revised Development Order
 
-The highest report recommendation is `target_choice_prompts`, but implementing target/amount prompts before eventful operations and zone invariants would create more scaffold. The revised order is:
+The highest report recommendation remains `target_choice_prompts`, but the work is now narrower and current-runtime based. Eventful operations, zone invariants, targeting foundations, trigger expansion, condition support, and report truthfulness are already in place. The current order is:
 
 1. Microfix 5: Eventful movement and zone operations.
 2. Microfix 6: Shift stack and `ZONE_UNDER`.
@@ -276,10 +290,10 @@ The highest report recommendation is `target_choice_prompts`, but implementing t
 6. Microfix 10: Targeting service parity.
 7. Microfix 11: Trigger event expansion and bag/pending interaction.
 8. Microfix 12: Condition evaluator and turn metrics.
-9. Microfix 13: Scry/search/reveal privacy and destination hardening.
-10. Microfix 14: Play-card modes and cost safety.
-11. Microfix 15: Report truthfulness and executable classification.
-12. Microfix 16: Real-deck gauntlet unlock.
+9. Microfix 12B: Real-deck runtime executability reclassification.
+10. Microfix 13: Scry destination/ordering and privacy hardening for supported source shapes.
+11. Microfix 14: Selected-target prompts, activated abilities, cost safety, and remaining play modes.
+12. Microfix 16: Real-deck gauntlet unlock for at least two current-runtime executable decks.
 13. Microfix 17: Card logic expansion by report impact.
 14. Microfix 18: Final parity harness.
 
@@ -749,7 +763,7 @@ tests/test_effects.py
 tests/test_automation_pending_effects.py
 ```
 
-Target interpretation is now centralized through `lorcana_bot/targeting.py` for action legal-action enumeration, pending target resolution, EffectResolver target aliases, automation round-trip, current/context targets, and slotted target input preservation. The real-deck reports still recommend `target_choice_prompts`, but the top blocker is `unsupported_trigger_resolution_requirement:amount`; that remaining report movement belongs to trigger projection/importer/report classification work rather than another Microfix 10 runtime targeting route.
+Target interpretation is now centralized through `lorcana_bot/targeting.py` for action legal-action enumeration, pending target resolution, EffectResolver target aliases, automation round-trip, current/context targets, and slotted target input preservation. Later Microfix 12B reclassified real decks against current runtime support; the current `target_choice_prompts` work is now about exact destination, ordering, selected-target, and opponent-choice runtime blockers, not another broad targeting-service foundation pass.
 
 ## Problem
 
@@ -981,29 +995,138 @@ python3 -m pytest -q
 
 ---
 
-# Microfix 13: Scry/Search/Reveal Privacy And Routing
+# Microfix 12B: Real-Deck Runtime Executability Reclassification
 
 ## Status
 
-Partial.
+**Completed 2026-05-21.**
+
+Current report truth is based on the Python runtime classifier, not stale resolved-deck JSON blockers:
+
+```text
+classification_source: current_python_runtime
+valid decks: 12
+fully executable decks: 1
+mostly executable decks: 0
+partially executable decks: 11
+source-only decks: 0
+```
+
+Runtime audit movement:
+
+```text
+cards changed blocked->executable: 72
+cards changed executable->blocked: 0
+```
+
+Gauntlet gate result:
+
+```text
+result: not_enough_fully_executable_decks
+eligible_deck_ids: ["ps_burn_matt_w_2026_03_21"]
+games_run: 0
+```
+
+This is an expected truthfulness result: one deck is currently executable, but the fully executable real-deck gauntlet still needs at least two eligible decks.
 
 ## Problem
 
-Helpers exist, but Lorcanito's scry/search/reveal behavior is richer:
-
-- scry uses structured destination selections.
-- private reveal windows must not leak to opponent/fair traces.
-- search filters must match source data.
-- reveal-and-route depends on named-card and route conditions.
-- movement must be eventful where rule-visible.
+Real-deck executability was previously decided by stored `ResolvedDeckCard.unsupported_blockers` and importer/source-level `source_execution_status`. Those fields can be stale after runtime support lands. Broad blockers such as `unsupported_static_effect`, `unsupported_replacement_effect`, `unsupported_activated_ability`, `keyword:SHIFT`, `keyword:SINGER`, and `unsupported_trigger` were too conservative.
 
 ## Target
 
-- represent scry resolution as structured destinations internally, while keeping Python top/bottom convenience actions if desired.
-- filter search candidates by source effect data.
-- support reveal-and-route routes/fallback/side effects.
-- separate private diagnostics from triggerable public events.
-- redact private candidate ids in fair training traces.
+Runtime classification now uses current `CardDef` data and checks exact Python runtime support:
+
+```text
+executable
+projected_but_requires_pending_input
+scaffold_only
+source_preserved
+unsupported
+```
+
+Executable requires projection plus the relevant runtime path:
+
+- `legal_actions()` when player input is needed.
+- `apply_action()` mutation path.
+- `EffectResolver` support for action effects.
+- eventful helpers for gameplay mutation.
+- trigger/bag resolution when triggers are involved.
+- automation candidate generation and validation when bots must act.
+
+## Files
+
+```text
+lorcana_bot/decks/runtime_executability.py
+lorcana_bot/decks/deck_mapping_report.py
+lorcana_bot/decks/deck_resolver.py
+lorcana_bot/decks/gauntlet.py
+scripts/audit_real_deck_executability.py
+tests/test_real_deck_runtime_executability.py
+tests/test_real_deck_mapping_report.py
+tests/test_real_deck_gauntlet.py
+data/decks/reports/real_deck_runtime_executability_audit.json
+data/decks/reports/real_deck_suite_mapping_coverage.json
+data/decks/reports/real_deck_suite_gauntlet.json
+```
+
+## Acceptance
+
+```bash
+python3 -m pytest tests/test_real_deck_mapping_report.py tests/test_real_deck_gauntlet.py tests/test_real_deck_runtime_executability.py tests/test_trigger_blocker_report.py -q
+python3 -m pytest -q
+python3 scripts/audit_real_deck_executability.py --print-summary
+python3 scripts/report_real_deck_mapping_coverage.py --resolved-deck-dir data/decks/resolved/real_core --out data/decks/reports/real_deck_suite_mapping_coverage.json --print-summary
+python3 scripts/report_trigger_blockers.py --print-summary
+python3 scripts/run_real_deck_gauntlet.py --resolved-deck-dir data/decks/resolved/real_core --strategy-a deck-aware-lore-race --strategy-b board-control --only-fully-executable --games-per-pair 2 --max-actions 300 --out data/decks/reports/real_deck_suite_gauntlet.json
+```
+
+## 12B Result-Time Runtime Blockers
+
+```text
+30 unsupported_resolution_requirement:ordering
+26 unsupported_resolution_requirement:destination
+22 unsupported_target:selector:chosen
+21 unsupported_ability:unknown
+15 unsupported_cost:discardCards
+15 unsupported_cost:discardChosen
+12 unsupported_cost:banishSelf
+10 unsupported_effect:put-into-inkwell
+ 9 unsupported_resolution_requirement:opponent_choice
+ 8 unsupported_trigger_effect:create-replacement-effect
+```
+
+## Tracking Note
+
+`_apply_resolve_pending_effect()` has a pure-input completion path for general pending requirements (`amount`, `target`, `multi_target`, `discard_choice`, `choice`, `optional`, `opponent_choice`, `enter_play_exerted`) that calls `complete_pending_effect()` and returns when `not pe.effects`. Future bag-origin amount/target/opponent-choice work must either prove bag-origin pending effects cannot reach that path, or route it through `_complete_bag_origin_pending_effect()` before completion.
+
+---
+
+# Microfix 13: Scry Destination, Ordering, And Privacy Hardening
+
+## Status
+
+**Completed 2026-05-21 for supported source scry destination/ordering shapes.**
+
+## Problem
+
+Helpers existed, but Lorcanito's scry destination/ordering behavior is richer than the previous Python top/bottom helper. After Microfix 12B, `unsupported_resolution_requirement:ordering` and `unsupported_resolution_requirement:destination` were the highest current-runtime report blockers.
+
+- scry uses structured destination selections.
+- private reveal windows must not leak to opponent/fair traces.
+- movement must be eventful where rule-visible.
+- destination and ordering requirements must resolve through public `legal_actions()` and `apply_action()` paths.
+
+## Target Achieved
+
+- source `scry` destination rules are preserved into pending effects.
+- `legal_actions()` exposes structured destination choices for supported scry shapes.
+- `apply_action()` resolves structured `destinations` through `ACTION_RESOLVE_PENDING_EFFECT`.
+- selected scry cards are validated against looked-at candidates with duplicate rejection, min/max, and remainder handling.
+- scry movement routes through engine-owned movement helpers.
+- automation round-trips structured `destinations`.
+- public `SCRY_RESOLVED` diagnostics do not expose private card identities.
+- runtime classification no longer emits `unsupported_resolution_requirement:ordering` or `unsupported_resolution_requirement:destination` for supported source `scry` effects.
 
 ## Files
 
@@ -1011,10 +1134,14 @@ Helpers exist, but Lorcanito's scry/search/reveal behavior is richer:
 lorcana_bot/pending_effects.py
 lorcana_bot/effects.py
 lorcana_bot/engine.py
-lorcana_bot/automation/decision_trace.py
-scripts/export_decision_traces.py
+lorcana_bot/decks/runtime_executability.py
+lorcana_bot/automation/candidate_enumerator.py
+lorcana_bot/automation/move_adapter.py
 tests/test_scry_search_reveal.py
 tests/test_training_export.py
+tests/test_pending_effects.py
+tests/test_automation_pending_effects.py
+tests/test_real_deck_runtime_executability.py
 ```
 
 ## Lorcanito Authority
@@ -1030,13 +1157,34 @@ packages/lorcana/lorcana-engine/src/runtime-moves/resolution/action-effects/reve
 
 ```bash
 python3 -m pytest tests/test_scry_search_reveal.py -q
+python3 -m pytest tests/test_pending_effects.py tests/test_automation_pending_effects.py -q
+python3 -m pytest tests/test_real_deck_runtime_executability.py -q
+python3 scripts/report_real_deck_mapping_coverage.py --resolved-deck-dir data/decks/resolved/real_core --out data/decks/reports/real_deck_suite_mapping_coverage.json --print-summary
 python3 -m pytest tests/test_training_export.py -q
 python3 -m pytest -q
 ```
 
+## 2026-05-21 Result
+
+Current blocker movement:
+
+```text
+unsupported_resolution_requirement:ordering: 30 -> 0
+unsupported_resolution_requirement:destination: 26 -> 0
+cards changed blocked->executable: 72 -> 76
+```
+
+Remaining out of scope for Microfix 13:
+
+- selected/chosen source target projection.
+- opponent-choice prompts.
+- search filters and reveal-and-route condition parity.
+- `put-into-inkwell` outside scry destination routing.
+- full Lorcanito deck zone ordering convention migration.
+
 ---
 
-# Microfix 14: Play Modes, Activated Abilities, And Cost Safety
+# Microfix 14: Selected Targets, Play Modes, Activated Abilities, And Cost Safety
 
 ## Status
 
@@ -1044,16 +1192,29 @@ Partial.
 
 ## Problem
 
-Real-deck report blockers include `unsupported_cost:ink`, `keyword:SHIFT`, and `unsupported_activated_ability`. Python cost execution still has random-discard fallback paths and incomplete cost-mode support.
+Microfix 12B removed stale broad play-mode blockers from current deck playability, and Microfix 13 removed scry destination/ordering blockers. `keyword:SHIFT`, supported Singer paths, supported scry destination/ordering, and supported activated abilities are no longer automatic blockers. The remaining current-runtime blockers are exact:
+
+```text
+22 unsupported_target:selector:chosen
+21 unsupported_ability:unknown
+15 unsupported_cost:discardCards
+15 unsupported_cost:discardChosen
+12 unsupported_cost:banishSelf
+10 unsupported_effect:put-into-inkwell
+ 9 unsupported_resolution_requirement:opponent_choice
+```
+
+Python cost execution still needs exact pending cost selection and fail-closed handling for unsupported activated ability source shapes.
 
 ## Target
 
 - normalize Lorcanito effect kinds through shared mapping.
+- implement selected/chosen source target projection only for exact shapes backed by the targeting service and runtime tests.
 - validate all costs before any payment.
-- support ink costs for activated abilities.
 - support chosen discard/banish/exert costs via pending cost selection.
-- support Singer and Sing Together exactly enough for real-deck source data.
-- support Shift target rules and cost modes from Microfix 6.
+- preserve current executable Shift and Singer paths.
+- support Sing Together only after Lorcanito source search and runtime tests prove the multi-singer path.
+- classify unknown activated ability source shapes as `unsupported` with exact blockers until implemented.
 - block unsupported effects before costs are paid.
 
 ## Files
@@ -1092,13 +1253,13 @@ python3 -m pytest -q
 
 ## Status
 
-Blocked.
+**Completed by Microfix 12B.**
 
 ## Problem
 
-Reports must not count a mechanic as executable because parser projection or helper scaffolding exists. Current real-deck reports still show broad blockers and zero fully executable decks.
+Reports must not count a mechanic as executable because parser projection or helper scaffolding exists. Before Microfix 12B, real-deck reports mixed fresh trigger audit data with stale resolved-deck blockers and showed broad blockers that no longer matched current Python runtime support.
 
-## Target
+## Target Achieved
 
 Reports classify every card/mechanic as:
 
@@ -1119,24 +1280,37 @@ Executable requires:
 - automation candidate adaptation where bots must act.
 - engine-path test coverage.
 
+Current report behavior:
+
+- `classification_source: current_python_runtime`
+- stale resolved-deck blockers are retained only as comparison data.
+- `fresh_runtime_blockers` drive playability and report summaries.
+- `stale_blockers_ignored` identifies old blockers no longer used for current playability.
+- `deck_resolver._unsupported_blockers()` delegates to the fresh runtime classifier for future resolved deck generation.
+
 ## Files
 
 ```text
-lorcana_bot/decks/trigger_blocker_report.py
+lorcana_bot/decks/runtime_executability.py
 lorcana_bot/decks/deck_mapping_report.py
 lorcana_bot/decks/deck_resolver.py
+lorcana_bot/decks/gauntlet.py
 scripts/report_trigger_blockers.py
 scripts/report_real_deck_mapping_coverage.py
+scripts/audit_real_deck_executability.py
 tests/test_trigger_blocker_report.py
-tests/test_real_deck_mapping_coverage.py
+tests/test_real_deck_mapping_report.py
+tests/test_real_deck_runtime_executability.py
+tests/test_real_deck_gauntlet.py
 ```
 
 ## Acceptance
 
 ```bash
+python3 scripts/audit_real_deck_executability.py --print-summary
 python3 scripts/report_trigger_blockers.py --print-summary
 python3 scripts/report_real_deck_mapping_coverage.py --resolved-deck-dir data/decks/resolved/real_core --out data/decks/reports/real_deck_suite_mapping_coverage.json --print-summary
-python3 -m pytest tests/test_trigger_blocker_report.py tests/test_real_deck_mapping_coverage.py -q
+python3 -m pytest tests/test_trigger_blocker_report.py tests/test_real_deck_mapping_report.py tests/test_real_deck_runtime_executability.py tests/test_real_deck_gauntlet.py -q
 python3 -m pytest -q
 ```
 
@@ -1146,11 +1320,22 @@ python3 -m pytest -q
 
 ## Status
 
-Blocked by Microfix 15 and zero fully executable decks.
+Partially unblocked by Microfix 12B.
+
+The gauntlet gate now reclassifies decks using current runtime support before applying `--only-fully-executable`. Current result:
+
+```text
+result: not_enough_fully_executable_decks
+eligible_deck_ids: ["ps_burn_matt_w_2026_03_21"]
+games_run: 0
+```
+
+This means the gate is truthful, but there are not yet enough fully executable decks to run a fully executable real-deck matchup.
 
 ## Target
 
 - run only decks truthfully classified as fully executable.
+- require at least two current-runtime fully executable decks before strength-valid gauntlet runs.
 - produce a separate strength-valid-but-not-fully-executable report.
 - fail loudly on illegal action, deadlock, private leak, or unsupported decision.
 
@@ -1162,6 +1347,7 @@ scripts/report_real_deck_mapping_coverage.py
 lorcana_bot/decks/*
 data/decks/reports/*
 tests/test_evaluation.py
+tests/test_real_deck_gauntlet.py
 ```
 
 ## Acceptance
@@ -1169,6 +1355,7 @@ tests/test_evaluation.py
 ```bash
 python3 scripts/report_real_deck_mapping_coverage.py --resolved-deck-dir data/decks/resolved/real_core --out data/decks/reports/real_deck_suite_mapping_coverage.json --print-summary
 python3 scripts/run_real_deck_gauntlet.py --resolved-deck-dir data/decks/resolved/real_core --strategy-a deck-aware-lore-race --strategy-b board-control --only-fully-executable --games-per-pair 2 --max-actions 300 --out data/decks/reports/real_deck_suite_gauntlet.json
+python3 -m pytest tests/test_real_deck_gauntlet.py -q
 python3 -m pytest tests/test_evaluation.py -q
 python3 -m pytest -q
 ```
@@ -1185,14 +1372,15 @@ Ongoing after foundation fixes.
 
 Convert preserved Lorcanito source logic into executable Python by report impact:
 
-1. amount/target/discard/choice requirements.
-2. trigger events and conditions.
-3. static/replacement effects.
-4. scry/search/reveal and name-a-card routing.
-5. activated abilities and costs.
-6. Shift, put-under, move-from-under.
-7. restrictions and temporary abilities.
-8. locations and location-specific targeting.
+1. destination and ordering requirements.
+2. chosen/selected target selectors.
+3. activated ability source shapes and discard/banish/self costs.
+4. put-into-inkwell effect path.
+5. trigger-created replacement effects.
+6. trigger amount prompts and compound `or` effects.
+7. scry/search/reveal privacy and name-a-card routing.
+8. static/replacement tail only where exact runtime blockers remain.
+9. locations and location-specific targeting.
 
 ## Files
 
@@ -1265,14 +1453,22 @@ Do not begin teacher-bot training or ML self-play training until all are true:
 
 1. At least 12 real decks resolve with no unresolved deck-list cards.
 2. At least 4 real decks are truthfully fully executable.
-3. Real-deck gauntlet completes games with no illegal moves.
+3. Real-deck gauntlet completes games between at least two current-runtime fully executable decks with no illegal moves.
 4. No pending/bag deadlocks.
 5. Decision traces contain no private deck/hand/look/search leaks.
-6. Reports distinguish executable from scaffold-only.
+6. Reports distinguish executable from scaffold-only using current Python runtime classification.
 7. Every supported pending requirement kind has legal-action and apply-action tests.
 8. Every gameplay zone change uses eventful operation helpers.
 9. Static/replacement sources deregister correctly on every leave-play route.
 10. Shift stacks and cards-under are zone-safe.
+
+Current gate state:
+
+- resolved real decks: 12/12.
+- current-runtime fully executable decks: 1/12.
+- gauntlet status: `not_enough_fully_executable_decks`.
+- report truthfulness: current-runtime classification implemented.
+- training status: blocked.
 
 Initial ML should use imitation/ranking from deterministic teacher bots before self-play.
 
@@ -1289,10 +1485,11 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 - [x] Microfix 10: Targeting service parity.
 - [x] Microfix 11: Trigger event expansion and bag/pending interaction.
 - [x] Microfix 12: Condition evaluator and turn metrics.
-- [ ] Microfix 13: Scry/search/reveal privacy and routing.
-- [ ] Microfix 14: Play modes, activated abilities, and cost safety.
-- [ ] Microfix 15: Report truthfulness and executable classification.
-- [ ] Microfix 16: Real-deck gauntlet unlock.
+- [x] Microfix 12B: Real-deck runtime executability reclassification.
+- [x] Microfix 13: Scry destination, ordering, and privacy hardening for supported source shapes.
+- [ ] Microfix 14: Selected targets, play modes, activated abilities, and cost safety.
+- [x] Microfix 15: Report truthfulness and executable classification.
+- [ ] Microfix 16: Real-deck gauntlet unlock for at least two fully executable decks.
 - [ ] Microfix 17: Card logic expansion by report impact.
 - [ ] Microfix 18: Final engine parity harness.
 
@@ -1300,8 +1497,19 @@ Initial ML should use imitation/ranking from deterministic teacher bots before s
 
 ## Current Highest-Priority Next Action
 
-Implement the `target_choice_prompts` milestone for the remaining supported-by-impact trigger blockers.
+Implement the selected-target portion of the `target_choice_prompts` milestone against the current runtime blocker list.
 
-Reason: Microfix 12 is complete for the condition evaluator and turn-metric trigger/report scope. The regenerated trigger blocker report still leaves 14 blocked trigger copies: `create-replacement-effect` (8 copies), unsupported `amount` resolution requirements (4 copies), and compound `or` effects (2 copies). The report recommendation is `target_choice_prompts` with medium confidence because the top blocker is `unsupported_trigger_resolution_requirement:amount`.
+Reason: Microfix 13 removed the scry destination/ordering blockers. The regenerated real-deck report still shows 1 fully executable deck and 11 partially executable decks. The highest current blockers are now exact selected-target/ability/cost gaps:
+
+```text
+22 unsupported_target:selector:chosen
+21 unsupported_ability:unknown
+15 unsupported_cost:discardCards
+15 unsupported_cost:discardChosen
+12 unsupported_cost:banishSelf
+10 unsupported_effect:put-into-inkwell
+ 9 unsupported_resolution_requirement:opponent_choice
+ 8 unsupported_trigger_effect:create-replacement-effect
+```
 
 Tracking note: `_apply_resolve_pending_effect()` currently has a pure-input completion path for general pending requirements (`amount`, `target`, `multi_target`, `discard_choice`, `choice`, `optional`, `opponent_choice`, `enter_play_exerted`) that calls `complete_pending_effect()` and returns when `not pe.effects`. Future bag-origin amount/target/opponent-choice work must either prove bag-origin pending effects cannot reach that path, or route it through `_complete_bag_origin_pending_effect()` before completion.

@@ -16,7 +16,7 @@ from lorcana_bot.pending_effects import (
     get_pending_effects_for_chooser,
     complete_pending_effect,
 )
-from lorcana_bot.constants import ZONE_DECK, ZONE_HAND, ZONE_PLAY, ZONE_DISCARD
+from lorcana_bot.constants import ZONE_DECK, ZONE_HAND, ZONE_INKWELL, ZONE_PLAY, ZONE_DISCARD, ACTION_RESOLVE_PENDING_EFFECT
 from lorcana_bot.actions import Action
 
 
@@ -434,6 +434,114 @@ class TestScryRequirementTruthfulness:
         # After reorder: [original_cids[2], original_cids[0], original_cids[1], ...rest]
         new_deck = sample_game_state.players[0].deck
         assert new_deck[0] == original_cids[2]  # Top card from scry on top
+
+    def test_scry_destinations_resolve_through_legal_actions_and_apply_action(self, sample_game_state, engine):
+        """Structured scry destinations should resolve through the public engine path."""
+        from lorcana_bot.cards import EffectDef
+
+        deck_before = tuple(sample_game_state.players[0].deck)
+        chosen_for_hand = deck_before[1]
+        bottom_card = deck_before[0]
+
+        resolver = EffectResolver(engine)
+        context = EffectResolutionContext(actor=0, source=None)
+        effect = EffectDef(
+            kind="scry",
+            amount=2,
+            raw={
+                "raw": {
+                    "type": "scry",
+                    "amount": 2,
+                    "destinations": [
+                        {"zone": "hand", "min": 1, "max": 1},
+                        {"zone": "deck-bottom", "remainder": True},
+                    ],
+                }
+            },
+        )
+        resolver.resolve(sample_game_state, effect, context)
+
+        pending = sample_game_state.pending_effects[-1]
+        legal = [
+            action for action in engine.legal_actions(sample_game_state, 0)
+            if action.kind == ACTION_RESOLVE_PENDING_EFFECT
+            and action.choice.get("pending_effect_id") == pending.id
+            and action.choice.get("destinations")
+        ]
+        assert legal
+
+        selected = next(
+            action for action in legal
+            if action.choice["destinations"][0]["cards"] == (chosen_for_hand,)
+        )
+        state_after = engine.apply_action(sample_game_state, selected)
+
+        assert pending.id not in [pe.id for pe in state_after.pending_effects]
+        assert chosen_for_hand in state_after.players[0].hand
+        assert state_after.cards[chosen_for_hand].zone == ZONE_HAND
+        assert state_after.players[0].deck[-1] == bottom_card
+        assert state_after.cards[bottom_card].zone == ZONE_DECK
+        events = [event for event in state_after.event_log if event.event_type == "SCRY_RESOLVED"]
+        assert events
+        assert events[-1].payload["private"] is True
+        assert "card_ids" not in events[-1].payload
+
+    def test_scry_destinations_reject_duplicate_cards(self, sample_game_state, engine):
+        """A looked-at card cannot be assigned to more than one scry destination."""
+        from lorcana_bot.pending_effects import create_scry_pending_effect, resolve_scry_destinations
+
+        pe = create_scry_pending_effect(
+            sample_game_state,
+            0,
+            0,
+            None,
+            None,
+            2,
+            destinations=(
+                {"zone": "hand", "min": 1, "max": 1},
+                {"zone": "deck-bottom", "remainder": True},
+            ),
+            origin="test",
+        )
+        card = pe.raw["requirement"].candidate_ids[0]
+
+        with pytest.raises(ValueError, match="only one destination"):
+            resolve_scry_destinations(
+                sample_game_state,
+                pe.id,
+                (
+                    {"zone": "hand", "cards": (card,)},
+                    {"zone": "deck-bottom", "cards": (card,)},
+                ),
+                engine=engine,
+            )
+
+    def test_scry_destination_to_inkwell_respects_exerted_destination(self, sample_game_state, engine):
+        """Scry destination routing can put a looked-at card into inkwell exerted."""
+        from lorcana_bot.pending_effects import create_scry_pending_effect, resolve_scry_destinations
+
+        pe = create_scry_pending_effect(
+            sample_game_state,
+            0,
+            0,
+            None,
+            None,
+            1,
+            destinations=({"zone": "inkwell", "min": 1, "max": 1, "exerted": True, "facedown": True},),
+            origin="test",
+        )
+        card = pe.raw["requirement"].candidate_ids[0]
+
+        resolve_scry_destinations(
+            sample_game_state,
+            pe.id,
+            ({"zone": "inkwell", "cards": (card,)},),
+            engine=engine,
+        )
+
+        assert card in sample_game_state.players[0].inkwell
+        assert sample_game_state.cards[card].zone == ZONE_INKWELL
+        assert sample_game_state.cards[card].exerted is True
 
 
 class TestSearchRequirementTruthfulness:

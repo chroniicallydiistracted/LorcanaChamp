@@ -2,9 +2,9 @@
   "best_first_gauntlet_candidates": [
     "ps_burn_matt_w_2026_03_21",
     "sr_aggro_damien_2026_01_31",
-    "ae_aggro_zan_syed_sao_paulo_2026_04_25",
-    "as_value_harlan_2026_04_04",
-    "aa_evasives_raging_storm_2026_02_23"
+    "rs_pawpsicles_maui_fiesta_2025_05_04",
+    "rs_songs_daniele_2026_04_04",
+    "ae_aggro_zan_syed_sao_paulo_2026_04_25"
   ],
   "classification_source": "current_python_runtime",
   "decks": [
@@ -3246,17 +3246,9 @@
       "best_use": "coverage_discovery",
       "classification_source": "current_python_runtime",
       "deck_id": "es_control_i_hate_dogs_imola_2026_04_11",
-      "executable_copies": 44,
-      "executable_unique_cards": 13,
+      "executable_copies": 51,
+      "executable_unique_cards": 15,
       "fresh_runtime_blockers": [
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 7
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 7
-        },
         {
           "blocker": "unsupported_ability:unknown",
           "count": 4
@@ -3311,76 +3303,6 @@
           "stored_unsupported_blockers": [
             "unsupported_effect:grant-discard-inkability",
             "unsupported_static_effect"
-          ]
-        },
-        {
-          "card_id": "GGr",
-          "count": 3,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Develop Your Brain",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
-        },
-        {
-          "card_id": "Dub",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Vision of the Future",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
           ]
         },
         {
@@ -3445,15 +3367,15 @@
           ]
         }
       ],
-      "mapped_not_executable_copies": 9,
-      "mapped_not_executable_unique_cards": 3,
+      "mapped_not_executable_copies": 2,
+      "mapped_not_executable_unique_cards": 1,
       "name": "I HATE DOGS",
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 20,
+          "affected_copies": 6,
           "affected_decks": 1,
-          "affected_unique_cards": 6,
+          "affected_unique_cards": 2,
           "category": "target_choice_prompts"
         },
         {
@@ -3509,76 +3431,6 @@
           "stored_unsupported_blockers": [
             "unsupported_effect:grant-discard-inkability",
             "unsupported_static_effect"
-          ]
-        },
-        {
-          "card_id": "GGr",
-          "count": 3,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Develop Your Brain",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
-        },
-        {
-          "card_id": "Dub",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Vision of the Future",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
           ]
         },
         {
@@ -3743,14 +3595,6 @@
       ],
       "top_blockers_by_copies": [
         {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 7
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 7
-        },
-        {
           "blocker": "unsupported_ability:unknown",
           "count": 4
         },
@@ -3772,14 +3616,6 @@
         }
       ],
       "top_blockers_by_unique_cards": [
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 2
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 2
-        },
         {
           "blocker": "keyword:SING_TOGETHER",
           "count": 1
@@ -3914,17 +3750,9 @@
       "best_use": "coverage_discovery",
       "classification_source": "current_python_runtime",
       "deck_id": "rs_pawpsicles_maui_fiesta_2025_05_04",
-      "executable_copies": 41,
-      "executable_unique_cards": 11,
+      "executable_copies": 52,
+      "executable_unique_cards": 14,
       "fresh_runtime_blockers": [
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 11
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 7
-        },
         {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
@@ -3982,76 +3810,6 @@
           ]
         },
         {
-          "card_id": "GGr",
-          "count": 3,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Develop Your Brain",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
-        },
-        {
-          "card_id": "Dub",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Vision of the Future",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
-        },
-        {
           "card_id": "eF8",
           "count": 4,
           "fresh_runtime_blockers": [
@@ -4082,56 +3840,24 @@
             "unsupported_effect:banish",
             "unsupported_target:chosen"
           ]
-        },
-        {
-          "card_id": "r73",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "How Far I'll Go",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
         }
       ],
-      "mapped_not_executable_copies": 15,
-      "mapped_not_executable_unique_cards": 4,
+      "mapped_not_executable_copies": 4,
+      "mapped_not_executable_unique_cards": 1,
       "name": "Maui fiesta",
       "playability": "partially_executable",
       "recommended_engine_work": [
-        {
-          "affected_copies": 22,
-          "affected_decks": 1,
-          "affected_unique_cards": 6,
-          "category": "target_choice_prompts"
-        },
         {
           "affected_copies": 4,
           "affected_decks": 1,
           "affected_unique_cards": 1,
           "category": "activated_abilities"
+        },
+        {
+          "affected_copies": 4,
+          "affected_decks": 1,
+          "affected_unique_cards": 1,
+          "category": "target_choice_prompts"
         }
       ],
       "resolved_unique_cards": 16,
@@ -4183,76 +3909,6 @@
           ]
         },
         {
-          "card_id": "GGr",
-          "count": 3,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Develop Your Brain",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
-        },
-        {
-          "card_id": "Dub",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Vision of the Future",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
-        },
-        {
           "card_id": "eF8",
           "count": 4,
           "fresh_runtime_blockers": [
@@ -4283,38 +3939,6 @@
             "unsupported_effect:banish",
             "unsupported_target:chosen"
           ]
-        },
-        {
-          "card_id": "r73",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "How Far I'll Go",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
         }
       ],
       "schema_version": 1,
@@ -4433,14 +4057,6 @@
       ],
       "top_blockers_by_copies": [
         {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 11
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 7
-        },
-        {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
         },
@@ -4450,14 +4066,6 @@
         }
       ],
       "top_blockers_by_unique_cards": [
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 2
-        },
         {
           "blocker": "unsupported_cost:banishSelf",
           "count": 1
@@ -4478,17 +4086,9 @@
       "best_use": "coverage_discovery",
       "classification_source": "current_python_runtime",
       "deck_id": "rs_songs_daniele_2026_04_04",
-      "executable_copies": 40,
-      "executable_unique_cards": 10,
+      "executable_copies": 52,
+      "executable_unique_cards": 13,
       "fresh_runtime_blockers": [
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 12
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 12
-        },
         {
           "blocker": "unsupported_effect:put-into-inkwell",
           "count": 4
@@ -4499,76 +4099,6 @@
         }
       ],
       "fresh_runtime_blockers_by_card": [
-        {
-          "card_id": "GGr",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Develop Your Brain",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
-        },
-        {
-          "card_id": "Dub",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Vision of the Future",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
-        },
         {
           "card_id": "EtL",
           "count": 4,
@@ -4624,52 +4154,17 @@
           "stored_unsupported_blockers": [
             "unsupported_effect:put-into-inkwell"
           ]
-        },
-        {
-          "card_id": "Cxc",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Dig a Little Deeper",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
         }
       ],
-      "mapped_not_executable_copies": 16,
-      "mapped_not_executable_unique_cards": 4,
+      "mapped_not_executable_copies": 4,
+      "mapped_not_executable_unique_cards": 1,
       "name": "Ruby Sapphire",
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 28,
+          "affected_copies": 4,
           "affected_decks": 1,
-          "affected_unique_cards": 7,
+          "affected_unique_cards": 1,
           "category": "target_choice_prompts"
         },
         {
@@ -4682,76 +4177,6 @@
       "resolved_unique_cards": 15,
       "runtime_blockers_by_card": [
         {
-          "card_id": "GGr",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Develop Your Brain",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
-        },
-        {
-          "card_id": "Dub",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Vision of the Future",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ]
-        },
-        {
           "card_id": "EtL",
           "count": 4,
           "fresh_runtime_blockers": [
@@ -4805,41 +4230,6 @@
           "stored_source_execution_status": "unsupported_engine_mechanic",
           "stored_unsupported_blockers": [
             "unsupported_effect:put-into-inkwell"
-          ]
-        },
-        {
-          "card_id": "Cxc",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "full_name": "Dig a Little Deeper",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:destination",
-            "unsupported_resolution_requirement:ordering"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:destination",
-            "pending:ordering"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:scry"
           ]
         }
       ],
@@ -4919,14 +4309,6 @@
       ],
       "top_blockers_by_copies": [
         {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 12
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 12
-        },
-        {
           "blocker": "unsupported_effect:put-into-inkwell",
           "count": 4
         },
@@ -4936,14 +4318,6 @@
         }
       ],
       "top_blockers_by_unique_cards": [
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 3
-        },
         {
           "blocker": "unsupported_effect:put-into-inkwell",
           "count": 1
@@ -5213,16 +4587,16 @@
   "partially_executable_decks": 11,
   "recommended_engine_work_order": [
     {
-      "affected_copies": 96,
-      "affected_decks": 9,
-      "affected_unique_cards": 27,
-      "category": "target_choice_prompts"
-    },
-    {
       "affected_copies": 46,
       "affected_decks": 6,
       "affected_unique_cards": 12,
       "category": "activated_abilities"
+    },
+    {
+      "affected_copies": 40,
+      "affected_decks": 9,
+      "affected_unique_cards": 12,
+      "category": "target_choice_prompts"
     },
     {
       "affected_copies": 38,
@@ -5253,14 +4627,6 @@
   "schema_version": 1,
   "source_only_decks": 0,
   "top_blockers_by_copies": [
-    {
-      "blocker": "unsupported_resolution_requirement:ordering",
-      "count": 30
-    },
-    {
-      "blocker": "unsupported_resolution_requirement:destination",
-      "count": 26
-    },
     {
       "blocker": "unsupported_target:selector:chosen",
       "count": 22
@@ -5356,15 +4722,7 @@
       "count": 3
     },
     {
-      "blocker": "unsupported_resolution_requirement:destination",
-      "count": 3
-    },
-    {
       "blocker": "unsupported_resolution_requirement:opponent_choice",
-      "count": 3
-    },
-    {
-      "blocker": "unsupported_resolution_requirement:ordering",
       "count": 3
     },
     {
@@ -5418,15 +4776,7 @@
   ],
   "top_blockers_by_unique_cards": [
     {
-      "blocker": "unsupported_resolution_requirement:ordering",
-      "count": 8
-    },
-    {
       "blocker": "unsupported_ability:unknown",
-      "count": 7
-    },
-    {
-      "blocker": "unsupported_resolution_requirement:destination",
       "count": 7
     },
     {

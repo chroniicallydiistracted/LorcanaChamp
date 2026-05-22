@@ -83,6 +83,7 @@ from .pending_effects import (
     resolve_pending_effect_choice,
     resolve_pending_effect_optional,
     resolve_scry_ordering,
+    resolve_scry_destinations,
     resolve_search_selection,
     resolve_reveal_routing,
     resolve_named_card,
@@ -520,18 +521,31 @@ class GameEngine:
                     ))
                 elif requirement_kind == "scry_ordering":
                     candidate_ids = tuple(getattr(raw_requirement, "candidate_ids", ()))
-                    for ordered_cards in itertools.permutations(candidate_ids):
-                        for top_count in range(len(candidate_ids) + 1):
+                    destination_rules = tuple(getattr(raw_requirement, "destinations", ()) or ())
+                    if destination_rules:
+                        for destinations in self._scry_destination_choices(candidate_ids, destination_rules):
                             actions.append(Action(
                                 ACTION_RESOLVE_PENDING_EFFECT,
                                 actor=player,
                                 source=pe.source_id,
                                 choice={
                                     "pending_effect_id": pe.id,
-                                    "top_cards": ordered_cards[:top_count],
-                                    "bottom_cards": ordered_cards[top_count:],
+                                    "destinations": destinations,
                                 }
                             ))
+                    else:
+                        for ordered_cards in itertools.permutations(candidate_ids):
+                            for top_count in range(len(candidate_ids) + 1):
+                                actions.append(Action(
+                                    ACTION_RESOLVE_PENDING_EFFECT,
+                                    actor=player,
+                                    source=pe.source_id,
+                                    choice={
+                                        "pending_effect_id": pe.id,
+                                        "top_cards": ordered_cards[:top_count],
+                                        "bottom_cards": ordered_cards[top_count:],
+                                    }
+                                ))
                 elif requirement_kind == "search_selection":
                     candidate_ids = tuple(getattr(raw_requirement, "candidate_ids", ()) or pe.choice_options)
                     for selected_card_id in candidate_ids:
@@ -2180,6 +2194,59 @@ class GameEngine:
                     targets.update(self._effect_target_kinds(effect.effects))
         return targets
 
+    def _scry_destination_choices(
+        self,
+        candidate_ids: tuple[int, ...],
+        destination_rules: tuple[dict[str, Any], ...],
+    ) -> tuple[tuple[dict[str, Any], ...], ...]:
+        """Enumerate legal structured scry destination choices for small pending sets."""
+        if not candidate_ids:
+            return (({"zone": "deck-bottom", "cards": ()},),)
+
+        choices: list[tuple[dict[str, Any], ...]] = []
+
+        def bounds(rule: dict[str, Any]) -> tuple[int, int]:
+            minimum = max(0, int(rule.get("min", 0) or 0))
+            maximum = int(rule.get("max", len(candidate_ids)) or len(candidate_ids))
+            return minimum, max(minimum, min(maximum, len(candidate_ids)))
+
+        def rec(index: int, remaining: tuple[int, ...], selected: list[dict[str, Any]]) -> None:
+            if index >= len(destination_rules):
+                if not remaining:
+                    choices.append(tuple(dict(item) for item in selected))
+                return
+
+            rule = destination_rules[index]
+            zone = str(rule.get("zone") or "")
+            if not zone:
+                rec(index + 1, remaining, selected)
+                return
+
+            if rule.get("remainder"):
+                ordered_remainder = (
+                    itertools.permutations(remaining)
+                    if rule.get("ordering") == "player-choice" and len(remaining) > 1
+                    else (remaining,)
+                )
+                for cards in ordered_remainder:
+                    selected.append({"zone": zone, "cards": tuple(cards)})
+                    rec(index + 1, (), selected)
+                    selected.pop()
+                return
+
+            minimum, maximum = bounds(rule)
+            for count in range(minimum, maximum + 1):
+                if count > len(remaining):
+                    continue
+                for cards in itertools.permutations(remaining, count):
+                    next_remaining = tuple(card_id for card_id in remaining if card_id not in cards)
+                    selected.append({"zone": zone, "cards": tuple(cards)})
+                    rec(index + 1, next_remaining, selected)
+                    selected.pop()
+
+        rec(0, candidate_ids, [])
+        return tuple(choices)
+
     def _resolve_effects(self, state: GameState, player: int, source: int, target: int | None, *, choice: Any = None) -> None:
         card = self.card_def(state, source)
         self.effect_resolver.resolve_many(state, card.effects, EffectResolutionContext(actor=player, source=source, target=target, choice=choice))
@@ -2475,9 +2542,18 @@ class GameEngine:
         }:
             try:
                 if requirement_kind == "scry_ordering":
-                    top_cards = tuple(action.choice.get("top_cards", ()))
-                    bottom_cards = tuple(action.choice.get("bottom_cards", ()))
-                    resolve_scry_ordering(state, pending_id, top_cards, bottom_cards, engine=self)
+                    destinations = action.choice.get("destinations")
+                    if destinations is not None:
+                        resolve_scry_destinations(
+                            state,
+                            pending_id,
+                            tuple(dict(destination) for destination in destinations),
+                            engine=self,
+                        )
+                    else:
+                        top_cards = tuple(action.choice.get("top_cards", ()))
+                        bottom_cards = tuple(action.choice.get("bottom_cards", ()))
+                        resolve_scry_ordering(state, pending_id, top_cards, bottom_cards, engine=self)
 
                 elif requirement_kind == "search_selection":
                     selected_card_id = action.choice.get("selected_card_id")

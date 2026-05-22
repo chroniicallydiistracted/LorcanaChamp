@@ -80,6 +80,64 @@ def _move_pending_card(
     )
 
 
+def _move_scry_card_to_destination(
+    state: GameState,
+    engine: GameEngine | None,
+    card_id: int,
+    rule: dict[str, Any],
+    *,
+    actor: int,
+    source_id: int | None,
+) -> None:
+    if engine is None:
+        raise ValueError("Scry destination movement requires a GameEngine")
+
+    from lorcana_bot.constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_INKWELL, ZONE_PLAY
+
+    zone = str(rule.get("zone") or "")
+    if zone == "hand":
+        _move_pending_card(state, engine, card_id, ZONE_HAND, actor=actor, source_id=source_id)
+    elif zone == "discard":
+        _move_pending_card(state, engine, card_id, ZONE_DISCARD, actor=actor, source_id=source_id)
+    elif zone == "inkwell":
+        engine._put_into_inkwell_eventful(
+            state,
+            card_id,
+            actor=actor,
+            source_id=source_id,
+            queue_triggers=False,
+        )
+        if rule.get("exerted") is True:
+            state.cards[card_id].exerted = True
+    elif zone == "play":
+        _move_pending_card(state, engine, card_id, ZONE_PLAY, actor=actor, source_id=source_id)
+        if rule.get("entersExerted") is True or rule.get("enters_exerted") is True:
+            state.cards[card_id].exerted = True
+    elif zone == "deck-top":
+        engine._move_card_eventful(
+            state,
+            card_id,
+            ZONE_DECK,
+            actor=actor,
+            source_id=source_id,
+            controller=state.cards[card_id].owner,
+            index=0,
+            queue_triggers=False,
+        )
+    elif zone == "deck-bottom":
+        engine._move_card_eventful(
+            state,
+            card_id,
+            ZONE_DECK,
+            actor=actor,
+            source_id=source_id,
+            controller=state.cards[card_id].owner,
+            queue_triggers=False,
+        )
+    else:
+        raise ValueError(f"Unsupported scry destination zone {zone!r}")
+
+
 @dataclass(slots=True)
 class TargetRequirement:
     """Describes a required target for a pending effect."""
@@ -153,6 +211,7 @@ class ScryRequirement:
     visibility: str = "private"  # "private" (chooser only) or "public"
     chooser_id: int = 0  # Who is scrying
     deck_owner: int = 0  # Whose deck is being scried
+    destinations: tuple[dict[str, Any], ...] = ()  # Lorcanito scry destination rules
 
     @property
     def requires_input(self) -> bool:
@@ -657,6 +716,7 @@ def create_scry_pending_effect(
     source_card_id: str | None,
     amount: int,
     *,
+    destinations: tuple[dict[str, Any], ...] = (),
     origin: str = "scry",
 ) -> PendingEffect:
     """Create a scry pending effect with proper requirement tracking.
@@ -691,6 +751,7 @@ def create_scry_pending_effect(
         visibility="private",
         chooser_id=chooser_id,
         deck_owner=deck_owner,
+        destinations=destinations,
     )
 
     # Create the pending effect with empty effects (resolved via scry_req)
@@ -711,11 +772,122 @@ def create_scry_pending_effect(
         raw={
             "requirement": scry_req,
             "requirement_kind": "scry_ordering",
+            "destination_rules": destinations,
         },
     )
 
     state.pending_effects.append(pending)
     return pending
+
+
+def _normalize_destination_cards(cards: Any) -> tuple[int, ...]:
+    if cards is None:
+        return ()
+    if isinstance(cards, int):
+        return (cards,)
+    if isinstance(cards, (list, tuple)):
+        return tuple(int(card_id) for card_id in cards)
+    return (int(cards),)
+
+
+def _normalize_scry_destination_input(destinations: Any) -> tuple[dict[str, Any], ...]:
+    if not isinstance(destinations, (list, tuple)):
+        return ()
+    normalized: list[dict[str, Any]] = []
+    for destination in destinations:
+        if not isinstance(destination, dict):
+            continue
+        zone = destination.get("zone")
+        if not isinstance(zone, str) or not zone:
+            continue
+        normalized.append({
+            "zone": zone,
+            "cards": _normalize_destination_cards(destination.get("cards")),
+        })
+    return tuple(normalized)
+
+
+def _destination_min(rule: dict[str, Any]) -> int:
+    value = rule.get("min", 0)
+    try:
+        return max(0, int(value))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _destination_max(rule: dict[str, Any], fallback: int) -> int:
+    value = rule.get("max")
+    if value is None:
+        return fallback
+    try:
+        return max(0, int(value))
+    except (TypeError, ValueError):
+        return fallback
+
+
+def _validate_scry_destination_cards(req: ScryRequirement, selected: tuple[int, ...]) -> None:
+    for cid in selected:
+        if cid not in req.candidate_ids:
+            raise ValueError(f"Card {cid} is not a valid scry candidate")
+    if len(set(selected)) != len(selected):
+        raise ValueError("Each scry candidate can be assigned to only one destination")
+
+
+def _resolve_scry_destination_assignments(
+    req: ScryRequirement,
+    destinations: tuple[dict[str, Any], ...],
+) -> tuple[dict[str, Any], ...]:
+    """Validate and expand Lorcanito-style scry destination input.
+
+    The caller supplies explicitly selected cards per zone. Destination rules
+    with ``remainder`` receive any looked-at cards not already assigned.
+    """
+    explicit_selected = tuple(
+        card_id
+        for destination in destinations
+        for card_id in _normalize_destination_cards(destination.get("cards"))
+    )
+    _validate_scry_destination_cards(req, explicit_selected)
+
+    queued_by_zone: dict[str, list[tuple[int, ...]]] = {}
+    for destination in destinations:
+        queued_by_zone.setdefault(str(destination["zone"]), []).append(
+            _normalize_destination_cards(destination.get("cards")),
+        )
+
+    assigned: set[int] = set()
+    resolved: list[dict[str, Any]] = []
+    for rule in req.destinations:
+        zone = str(rule.get("zone") or "")
+        if not zone:
+            continue
+        queued = queued_by_zone.get(zone, [])
+        requested = queued.pop(0) if queued else ()
+        _validate_scry_destination_cards(req, requested)
+        cards = list(requested)
+        for card_id in cards:
+            assigned.add(card_id)
+
+        max_cards = _destination_max(rule, len(req.candidate_ids))
+        if len(cards) > max_cards:
+            raise ValueError(f"Too many cards were selected for scry destination {zone}")
+
+        if rule.get("remainder"):
+            remaining_slots = max(0, max_cards - len(cards))
+            remainder_cards = [card_id for card_id in req.candidate_ids if card_id not in assigned]
+            cards.extend(remainder_cards[:remaining_slots])
+            assigned.update(cards)
+
+        if len(cards) < _destination_min(rule):
+            raise ValueError(f"Not enough cards were selected for scry destination {zone}")
+
+        resolved.append({"rule": rule, "zone": zone, "cards": tuple(cards)})
+
+    if any(queued for queued in queued_by_zone.values()):
+        raise ValueError("Selected scry destinations do not match this effect")
+    if set(assigned) != set(req.candidate_ids):
+        raise ValueError("Scry destination selection must assign every looked-at card")
+    return tuple(resolved)
 
 
 def create_search_pending_effect(
@@ -1039,6 +1211,59 @@ def resolve_scry_ordering(
             "top_count": len(top_cards),
             "bottom_count": len(bottom_cards),
             "private": True,  # Card identities not in public log
+        },
+    )
+
+
+def resolve_scry_destinations(
+    state: GameState,
+    pending_id: str,
+    destinations: tuple[dict[str, Any], ...],
+    *,
+    engine: GameEngine | None = None,
+) -> None:
+    """Resolve a scry pending effect using Lorcanito-style destinations."""
+    pe = get_pending_effect_by_id(state, pending_id)
+    if pe is None:
+        raise ValueError(f"Pending effect {pending_id} not found")
+
+    req = pe.raw.get("requirement")
+    if not isinstance(req, ScryRequirement):
+        raise ValueError(f"Pending effect {pending_id} is not a scry")
+    if not req.destinations:
+        raise ValueError(f"Pending effect {pending_id} does not define scry destinations")
+
+    normalized_destinations = _normalize_scry_destination_input(destinations)
+    resolved_assignments = _resolve_scry_destination_assignments(req, normalized_destinations)
+
+    for assignment in resolved_assignments:
+        rule = assignment["rule"]
+        for card_id in assignment["cards"]:
+            _move_scry_card_to_destination(
+                state,
+                engine,
+                card_id,
+                rule,
+                actor=req.chooser_id,
+                source_id=pe.source_id,
+            )
+
+    pe.raw.setdefault("resolution_input", {})["destinations"] = [
+        {"zone": assignment["zone"], "cards": tuple(assignment["cards"])}
+        for assignment in resolved_assignments
+    ]
+
+    _emit_pending_event(
+        state,
+        engine,
+        "SCRY_RESOLVED",
+        actor=req.chooser_id,
+        source=req.deck_owner,
+        target=None,
+        payload={
+            "count": req.amount,
+            "destination_count": len(resolved_assignments),
+            "private": True,
         },
     )
 

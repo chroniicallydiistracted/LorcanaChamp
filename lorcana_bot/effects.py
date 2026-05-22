@@ -524,6 +524,9 @@ class EffectResolver:
             return
 
         # Create proper scry pending effect with requirement tracking
+        source_raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        raw_destinations = source_raw.get("destinations") if isinstance(source_raw, dict) else None
+        destinations = tuple(dict(destination) for destination in raw_destinations if isinstance(destination, dict)) if isinstance(raw_destinations, list) else ()
         create_scry_pending_effect(
             state=state,
             controller_id=context.actor,
@@ -531,6 +534,7 @@ class EffectResolver:
             source_id=context.source,
             source_card_id=self.engine.card_def(state, context.source).id if context.source else None,
             amount=amount,
+            destinations=destinations,
             origin="scry",
         )
 

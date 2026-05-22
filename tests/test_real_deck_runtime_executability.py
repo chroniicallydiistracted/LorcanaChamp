@@ -154,6 +154,35 @@ def test_unsupported_effect_fails_with_exact_fresh_blocker():
     assert deck_result.blockers_by_copies == {"unsupported_effect:create-replacement-effect": 4}
 
 
+def test_source_scry_destination_and_ordering_requirements_are_currently_executable():
+    scry = SourceEffectDef(
+        kind="scry",
+        amount=2,
+        raw={
+            "type": "scry",
+            "amount": 2,
+            "destinations": [
+                {"zone": "hand", "min": 1, "max": 1},
+                {"zone": "deck-bottom", "remainder": True, "ordering": "player-choice"},
+            ],
+        },
+        mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
+        execution_status=ExecutionStatus.UNSUPPORTED_CHOICE,
+    )
+    card_def = _card("scry", card_type="action", source_effects=(scry,), effects=())
+
+    result = classify_card_runtime_support(
+        card_def,
+        _resolved_card("scry", blockers=("unsupported_resolution_requirement:destination", "unsupported_resolution_requirement:ordering")),
+    )
+
+    assert result.status == "executable"
+    assert "unsupported_resolution_requirement:destination" not in result.blockers
+    assert "unsupported_resolution_requirement:ordering" not in result.blockers
+    assert "pending:scry_destinations" in result.runtime_paths_verified
+    assert "automation:RESOLVE_EFFECT" in result.runtime_paths_verified
+
+
 def test_suite_report_uses_fresh_blockers_and_keeps_stale_fields_separate():
     static = SourceStaticEffectDef(
         kind="cost-reduction",

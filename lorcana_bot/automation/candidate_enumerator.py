@@ -520,6 +520,19 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
         choice_index = choice.get("choice_index")
         named_card = choice.get("named_card")
         destination = choice.get("destination")
+        destinations_input = choice.get("destinations")
+        structured_destinations = tuple(
+            {
+                "zone": str(destination_item.get("zone")),
+                "cards": tuple(destination_item.get("cards", ())),
+            }
+            for destination_item in destinations_input
+            if isinstance(destination_item, dict) and destination_item.get("zone")
+        ) if isinstance(destinations_input, (list, tuple)) else ()
+        stable_destinations = tuple(
+            f"{destination['zone']}:{','.join(str(card_id) for card_id in destination['cards'])}"
+            for destination in structured_destinations
+        )
         amount = choice.get("amount")
         slotted_targets = _normalize_slotted_targets_for_candidate(choice.get("slotted_targets"))
         flat_slotted_targets: tuple[int, ...] = ()
@@ -543,6 +556,7 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
             "bottom_cards": tuple(choice.get("bottom_cards", ())),
             "named_card": named_card,
             "destination": destination,
+            "destinations": structured_destinations,
             "amount": amount,
             "targets": targets,
             "discard_card_ids": discard_card_ids,
@@ -554,6 +568,8 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
         label = "Resolve pending effect"
         if named_card is not None:
             label = f"Name {named_card}"
+        elif structured_destinations:
+            label = "Choose scry destinations"
         elif destination is not None:
             label = f"Choose {destination}"
         elif choice.get("selected_card_id") is not None:
@@ -580,6 +596,7 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
                 bottom_cards=tuple(choice.get("bottom_cards", ())),
                 named_card=named_card,
                 destination=destination,
+                destinations=stable_destinations,
                 amount=amount,
                 targets=targets,
                 discard_card_ids=discard_card_ids,

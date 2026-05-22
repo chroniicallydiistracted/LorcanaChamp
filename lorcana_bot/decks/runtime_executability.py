@@ -419,6 +419,17 @@ def _classify_effect(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]
     if isinstance(effect, SourceEffectDef):
         requirements = analyze_resolution_requirements(effect)
         for requirement in requirements.unsupported_requirements:
+            if _source_scry_requirement_supported(effect, requirement):
+                statuses.append("executable")
+                required.append(f"pending:{requirement}")
+                verified.extend((
+                    "legal_actions:RESOLVE_PENDING_EFFECT",
+                    "apply_action:RESOLVE_PENDING_EFFECT",
+                    "pending:scry_destinations",
+                    "automation:RESOLVE_EFFECT",
+                ))
+                evidence.append(f"scry_requirement_supported:{requirement}")
+                continue
             statuses.append("projected_but_requires_pending_input")
             blockers.append(f"unsupported_resolution_requirement:{requirement}")
             required.append(f"pending:{requirement}")
@@ -432,6 +443,24 @@ def _classify_effect(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]
         verified.extend(child_verified)
 
     return (_combine_statuses(statuses), tuple(sorted(set(blockers))), tuple(sorted(set(evidence))), tuple(sorted(set(required))), tuple(sorted(set(verified))))
+
+
+def _source_scry_requirement_supported(effect: SourceEffectDef, requirement: str) -> bool:
+    if effect.kind != "scry" or requirement not in {"destination", "ordering"}:
+        return False
+    destinations = effect.raw.get("destinations")
+    if not isinstance(destinations, list) or not destinations:
+        return requirement == "ordering"
+    supported_zones = {"hand", "deck-bottom", "deck-top", "discard", "inkwell"}
+    for destination in destinations:
+        if not isinstance(destination, dict):
+            return False
+        zone = destination.get("zone")
+        if zone not in supported_zones:
+            return False
+        if destination.get("filter") or destination.get("filters"):
+            return False
+    return True
 
 
 def _classify_condition(condition: Any | None) -> tuple[RuntimeSupportStatus, tuple[str, ...]]:

@@ -632,6 +632,41 @@ class TestPendingChoiceRoundTrip:
         assert list(result_action.choice.get("top_cards")) == [100, 101]
         assert list(result_action.choice.get("bottom_cards")) == [102]
 
+    def test_structured_scry_destinations_round_trip(self):
+        """Microfix 13: structured scry destinations round-trip through automation."""
+        mock_state = self._make_mock_state_with_cards()
+        mock_engine = self._make_mock_engine()
+
+        destinations = [
+            {"zone": "hand", "cards": [100]},
+            {"zone": "deck-bottom", "cards": [101, 102]},
+        ]
+        action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            source=1,
+            choice={
+                "pending_effect_id": "pe_scry_destinations",
+                "destinations": destinations,
+            },
+        )
+
+        candidate = _candidate_from_action(mock_state, mock_engine, action)
+
+        assert candidate is not None
+        assert candidate.metadata.get("destinations") == (
+            {"zone": "hand", "cards": (100,)},
+            {"zone": "deck-bottom", "cards": (101, 102)},
+        )
+
+        result_action = candidate_to_action(candidate)
+
+        assert result_action.kind == ACTION_RESOLVE_PENDING_EFFECT
+        assert result_action.choice["destinations"] == (
+            {"zone": "hand", "cards": (100,)},
+            {"zone": "deck-bottom", "cards": (101, 102)},
+        )
+
     def test_special_microfix_4_search_selection_round_trips(self):
         """B9: Special Microfix 4 search_selection pending actions still round-trip."""
         mock_state = self._make_mock_state_with_cards()

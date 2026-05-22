@@ -213,6 +213,18 @@
       ]
     },
     {
+      "card_id": "Cxc",
+      "decks": [
+        "rs_songs_daniele_2026_04_04"
+      ],
+      "fresh_blockers": [],
+      "name": "Dig a Little Deeper",
+      "old_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
+      ]
+    },
+    {
       "card_id": "D7f",
       "decks": [
         "as_challengers_purple_steel_leipzig_2026_04_18",
@@ -262,6 +274,20 @@
       ]
     },
     {
+      "card_id": "Dub",
+      "decks": [
+        "es_control_i_hate_dogs_imola_2026_04_11",
+        "rs_pawpsicles_maui_fiesta_2025_05_04",
+        "rs_songs_daniele_2026_04_04"
+      ],
+      "fresh_blockers": [],
+      "name": "Vision of the Future",
+      "old_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
+      ]
+    },
+    {
       "card_id": "EZO",
       "decks": [
         "es_control_i_hate_dogs_imola_2026_04_11"
@@ -307,6 +333,20 @@
       "old_blockers": [
         "unsupported_static_effect",
         "unsupported_trigger"
+      ]
+    },
+    {
+      "card_id": "GGr",
+      "decks": [
+        "es_control_i_hate_dogs_imola_2026_04_11",
+        "rs_pawpsicles_maui_fiesta_2025_05_04",
+        "rs_songs_daniele_2026_04_04"
+      ],
+      "fresh_blockers": [],
+      "name": "Develop Your Brain",
+      "old_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
       ]
     },
     {
@@ -870,6 +910,18 @@
       "name": "Doc - Bold Knight",
       "old_blockers": [
         "unsupported_trigger"
+      ]
+    },
+    {
+      "card_id": "r73",
+      "decks": [
+        "rs_pawpsicles_maui_fiesta_2025_05_04"
+      ],
+      "fresh_blockers": [],
+      "name": "How Far I'll Go",
+      "old_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:scry"
       ]
     },
     {
@@ -2064,14 +2116,6 @@
       "deck_playability_before": "partially_executable",
       "fresh_blockers_from_current_carddef": [
         {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 7
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 7
-        },
-        {
           "blocker": "unsupported_ability:unknown",
           "count": 4
         },
@@ -2143,14 +2187,6 @@
         }
       ],
       "remaining_true_blockers": [
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 7
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 7
-        },
         {
           "blocker": "unsupported_ability:unknown",
           "count": 4
@@ -2308,14 +2344,6 @@
       "deck_playability_before": "partially_executable",
       "fresh_blockers_from_current_carddef": [
         {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 11
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 7
-        },
-        {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
         },
@@ -2383,14 +2411,6 @@
         }
       ],
       "remaining_true_blockers": [
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 11
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 7
-        },
         {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
@@ -2461,14 +2481,6 @@
       "deck_playability_before": "partially_executable",
       "fresh_blockers_from_current_carddef": [
         {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 12
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 12
-        },
-        {
           "blocker": "unsupported_effect:put-into-inkwell",
           "count": 4
         },
@@ -2516,14 +2528,6 @@
         }
       ],
       "remaining_true_blockers": [
-        {
-          "blocker": "unsupported_resolution_requirement:destination",
-          "count": 12
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:ordering",
-          "count": 12
-        },
         {
           "blocker": "unsupported_effect:put-into-inkwell",
           "count": 4
@@ -2703,14 +2707,6 @@
     }
   ],
   "fresh_blockers_from_current_carddef": [
-    {
-      "blocker": "unsupported_resolution_requirement:ordering",
-      "count": 30
-    },
-    {
-      "blocker": "unsupported_resolution_requirement:destination",
-      "count": 26
-    },
     {
       "blocker": "unsupported_target:selector:chosen",
       "count": 22
@@ -2959,14 +2955,6 @@
     }
   ],
   "remaining_true_blockers": [
-    {
-      "blocker": "unsupported_resolution_requirement:ordering",
-      "count": 30
-    },
-    {
-      "blocker": "unsupported_resolution_requirement:destination",
-      "count": 26
-    },
     {
       "blocker": "unsupported_target:selector:chosen",
       "count": 22

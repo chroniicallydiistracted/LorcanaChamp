@@ -123,7 +123,7 @@ def candidate_to_action(candidate: AutomatedActionCandidate) -> Action:
         if candidate.enter_play_exerted is not None:
             choice["enter_play_exerted"] = candidate.enter_play_exerted
 
-        for key in ("selected_card_id", "top_cards", "bottom_cards", "destination"):
+        for key in ("selected_card_id", "top_cards", "bottom_cards", "destination", "destinations"):
             if candidate.metadata and key in candidate.metadata:
                 choice[key] = candidate.metadata[key]
 
