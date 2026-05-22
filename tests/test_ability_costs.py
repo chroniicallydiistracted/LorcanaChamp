@@ -371,26 +371,22 @@ class TestBanishSelfCost:
 
 
 class TestDiscardCost:
-    """Test discard N cards cost validation and payment.
-
-    Per B15, non-random discard costs require a choice prompt (pending cost-selection)
-    which is not yet fully supported. So validate_cost_payable returns False for
-    non-random discard costs. This is scaffold_only behavior — the cost is blocked
-    until pending cost-selection is implemented.
-    """
+    """Test discard N cards cost validation and payment."""
 
     def test_discard_cost_requires_choice_prompt(self):
-        """Discard cost requires a choice prompt (scaffold_only per B15)."""
+        """Discard cost is payable only through the pending choice path."""
         state = GameState(
             players=[PlayerState(), PlayerState()],
             cards={
                 1: CardInstance(instance_id=1, card_id="hand1", owner=0, controller=0),
                 2: CardInstance(instance_id=2, card_id="hand2", owner=0, controller=0),
+                3: CardInstance(instance_id=3, card_id="test", owner=0, controller=0),
             },
         )
         state.players[0].hand = [1, 2]
         state.cards[1].zone = ZONE_HAND
         state.cards[2].zone = ZONE_HAND
+        state.cards[3].zone = ZONE_PLAY
 
         engine = MagicMock(spec=GameEngine)
 
@@ -405,10 +401,9 @@ class TestDiscardCost:
             condition=None,
         )
 
-        # B15: Non-random discard requires choice prompt — marked scaffold_only
         can_pay, reason = validate_cost_payable(state, engine, ability, ability.costs[0])
-        assert can_pay is False
-        assert "choice prompt" in reason.lower() or "not yet supported" in reason.lower()
+        assert can_pay is True
+        assert reason == ""
 
     def test_random_discard_cost_payable_with_sufficient_cards(self):
         """Random discard cost is payable when player has enough cards."""

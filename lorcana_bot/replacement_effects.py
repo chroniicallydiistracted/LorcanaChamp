@@ -77,6 +77,9 @@ class ReplacementEffectEntry:
     replacement_effect: str | None = None  # "return_to_hand", "discard", "ready"
     # Usage tracking key
     usage_key: str | None = None  # e.g., "prevent_next_1"
+    event_kinds: tuple[str, ...] = ()
+    consume_on_apply: bool = False
+    duration: str | None = None
 
     @property
     def identifier(self) -> str:
@@ -254,8 +257,13 @@ def evaluate_prevention(
     description = None
 
     # Check all replacement effects for the target
-    for effect in registry.effects:
+    consumed: list[ReplacementEffectEntry] = []
+    for effect in tuple(registry.effects):
         if effect.effect_type == ReplacementEffectType.PREVENT_DAMAGE:
+            if effect.event_kinds and damage_event.was_challenge and "challenge-damage" not in effect.event_kinds:
+                continue
+            if effect.event_kinds and not damage_event.was_challenge and "damage" not in effect.event_kinds:
+                continue
             if registry._applies_to(state, damage_event.target_id, effect):
                 # Check once-per-turn
                 if not registry.check_and_use_once_per_turn(state, effect, target_controller):
@@ -265,6 +273,11 @@ def evaluate_prevention(
                 prevent_amount = min(effect.amount, damage_event.current_amount)
                 total_prevented += prevent_amount
                 description = f"prevent {prevent_amount} damage"
+                if effect.consume_on_apply and prevent_amount > 0:
+                    consumed.append(effect)
+
+    if consumed:
+        registry.effects = [effect for effect in registry.effects if effect not in consumed]
 
     return total_prevented, description
 
@@ -654,3 +667,4 @@ def cleanup_replacement_effects_on_turn_end(state: GameState) -> None:
     """Clean up replacement effect usage at the end of a turn."""
     registry = get_registry(state)
     registry.reset_usage_for_turn(state, state.turn_number)
+    registry.effects = [effect for effect in registry.effects if effect.duration not in {"this-turn", "this_turn"}]

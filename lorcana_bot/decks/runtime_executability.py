@@ -59,7 +59,14 @@ class DeckRuntimeSupport:
     fresh_blockers_by_copies: dict[str, int] = field(default_factory=dict)
 
 
-SUPPORTED_STATIC_EFFECT_KINDS = frozenset({"modify_stat", "gain_keyword", "cost_reduction", "restriction"})
+SUPPORTED_STATIC_EFFECT_KINDS = frozenset({
+    "modify_stat",
+    "gain_keyword",
+    "cost_reduction",
+    "restriction",
+    "grant_abilities_while_here",
+    "grant_discard_inkability",
+})
 SUPPORTED_REPLACEMENT_EFFECT_KINDS = frozenset({"prevent_damage", "replace_banish", "cannot_be_challenged", "cannot_be_targeted"})
 SUPPORTED_EFFECT_CONDITIONS = frozenset(
     {
@@ -161,7 +168,7 @@ def classify_card_runtime_support(card_def: CardDef, resolved_card: ResolvedDeck
         elif ability.kind == AbilityKind.ACTION:
             add(*_classify_effect_collection(ability.effects, base_required=("EffectResolver",)))
         else:
-            add("unsupported", (f"unsupported_ability:{ability.kind}",), evidence_items=("unknown_source_ability_kind",))
+            add("unsupported", (_unknown_source_ability_blocker(ability),), evidence_items=("unknown_source_ability_kind",))
 
     if not card_def.source_abilities:
         add(*_classify_effect_collection(card_def.source_effects, base_required=("EffectResolver",)))
@@ -287,8 +294,21 @@ def _classify_activated_ability(ability: Any) -> tuple[RuntimeSupportStatus, tup
             statuses.append("unsupported")
             blockers.append(f"unsupported_cost:{cost.kind}")
         elif engine_kind == "discard":
-            statuses.append("projected_but_requires_pending_input")
-            blockers.append("unsupported_cost:discard_choice")
+            if _source_discard_cost_shape_supported(ability, cost):
+                statuses.append("executable")
+            else:
+                statuses.append("unsupported")
+                blockers.append(f"unsupported_cost:{cost.kind}")
+        elif engine_kind == "discard_chosen":
+            if any(
+                to_engine_cost_kind(str(other.kind)) == "discard"
+                and _source_discard_cost_shape_supported(ability, other)
+                for other in getattr(ability, "costs", ()) or ()
+            ):
+                statuses.append("executable")
+            else:
+                statuses.append("unsupported")
+                blockers.append(f"unsupported_cost:{cost.kind}")
         else:
             statuses.append("executable")
     effect_status, effect_blockers, _, _, _ = _classify_effect_collection(ability.effects, base_required=("EffectResolver",))
@@ -302,6 +322,25 @@ def _classify_activated_ability(ability: Any) -> tuple[RuntimeSupportStatus, tup
         ("legal_actions:USE_ABILITY", "apply_action:USE_ABILITY", "cost_payment", "EffectResolver", "automation:USE_ABILITY"),
         ("legal_actions:USE_ABILITY", "apply_action:USE_ABILITY", "cost_payment", "EffectResolver", "automation:USE_ABILITY") if status == "executable" else ("legal_actions:USE_ABILITY", "apply_action:USE_ABILITY"),
     )
+
+
+def _unknown_source_ability_blocker(ability: Any) -> str:
+    raw = getattr(ability, "raw", {}) or {}
+    raw_expression = str(raw.get("rawExpression") or "")
+    raw_object = raw.get("raw")
+    if isinstance(raw_object, dict):
+        raw_expression += "\n" + str(raw_object.get("tsObject") or raw_object)
+    for token in (
+        "grant-abilities-while-here",
+        "grant-ability",
+        "shuffle-into-deck",
+        "cost-reduction",
+        "optional",
+    ):
+        if token in raw_expression:
+            return f"unsupported_ability_parse:{token}"
+    ability_kind = getattr(ability, "kind", "unknown")
+    return f"unsupported_ability:{ability_kind}"
 
 
 def _classify_static_ability(ability: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...], tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
@@ -330,11 +369,27 @@ def _classify_source_static_effect(static_effect: Any) -> tuple[RuntimeSupportSt
 def _classify_static_effect_kind(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]]:
     raw_kind = str(getattr(effect, "kind", "unknown"))
     kind = to_engine_static_kind(raw_kind)
-    if getattr(effect, "condition", None) is not None:
+    condition = getattr(effect, "condition", None)
+    if condition is not None and not _source_static_condition_shape_supported(effect, condition):
         return ("scaffold_only", (f"unsupported_static_condition:{_condition_kind(effect.condition)}",))
     if kind in SUPPORTED_STATIC_EFFECT_KINDS:
         return ("executable", ())
     return ("scaffold_only", (f"unsupported_static_effect:{raw_kind}",))
+
+
+def _source_static_condition_shape_supported(effect: Any, condition: Any) -> bool:
+    """Exact current static condition shapes with implemented runtime paths."""
+    kind = to_engine_static_kind(str(getattr(effect, "kind", "unknown")))
+    if kind != "restriction":
+        return False
+    raw = getattr(effect, "raw", {}) or {}
+    raw_condition = getattr(condition, "raw", None) or condition
+    if not isinstance(raw_condition, dict):
+        return False
+    restriction = str(raw.get("restriction") or raw.get("restriction_type") or raw.get("restrictionType") or "")
+    if restriction != "cant-be-dealt-damage":
+        return False
+    return raw_condition.get("type") == "not" and str(raw_condition.get("condition", {})).find("being-challenged") >= 0
 
 
 def _classify_replacement_ability(ability: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...], tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
@@ -402,6 +457,14 @@ def _classify_effect(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]
         statuses.append("unsupported")
         blockers.append("unsupported_effect:put-into-inkwell")
         required.append("eventful:put_into_inkwell")
+    elif engine_kind == "move_damage" and not _source_move_damage_shape_supported(effect):
+        statuses.append("unsupported")
+        blockers.append("unsupported_effect:move-damage")
+        required.append("eventful:move_damage")
+    elif engine_kind == "create_replacement_effect" and not _source_create_replacement_shape_supported(effect):
+        statuses.append("unsupported")
+        blockers.append(f"unsupported_effect:{source_kind}")
+        required.append("replacement_registry")
     elif engine_kind not in SUPPORTED_EFFECT_KINDS:
         statuses.append("unsupported")
         blockers.append(f"unsupported_effect:{source_kind}")
@@ -421,6 +484,19 @@ def _classify_effect(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]
                 "targeting:protection_filters",
             ))
             evidence.append("source_target_shape_supported:chosen")
+        elif _source_all_target_shape_supported(target):
+            statuses.append("executable")
+            required.append("targeting:selector_all")
+            verified.extend((
+                "targeting:selector_all",
+                "EffectResolver:all_targets",
+            ))
+            evidence.append("source_target_shape_supported:all")
+        elif _source_previous_target_shape_supported(target):
+            statuses.append("executable")
+            required.append("targeting:previous_target")
+            verified.append("EffectResolver:current_targets")
+            evidence.append("source_target_shape_supported:previous_target")
         else:
             statuses.append("projected_but_requires_pending_input")
             blockers.append(f"unsupported_target:{getattr(target, 'kind', 'unknown')}:{getattr(target, 'selector', None) or getattr(target, 'alias', None) or 'unknown'}")
@@ -476,13 +552,64 @@ def _source_put_into_inkwell_shape_supported(effect: Any) -> bool:
     if target is None:
         return False
     raw = getattr(effect, "raw", {}) or {}
-    if raw.get("source") not in {None, "chosen-character"}:
+    source = raw.get("source")
+    if source == "hand":
+        pass
+    elif isinstance(source, dict):
+        if not _raw_chosen_target_shape_supported(source):
+            return False
+    elif source not in {None, "chosen-character"}:
         return False
     if raw.get("facedown") not in {None, True}:
         return False
     if raw.get("exerted") not in {None, True, False}:
         return False
+    return source == "hand" or isinstance(source, dict) or _source_target_shape_supported(target)
+
+
+def _raw_chosen_target_shape_supported(target: dict[str, Any]) -> bool:
+    if target.get("selector") != "chosen":
+        return False
+    zones = tuple(target.get("zones", (target.get("zone"),) if target.get("zone") else ("play",)))
+    if any(zone != "play" for zone in zones):
+        return False
+    card_types = tuple(target.get("cardTypes", (target.get("cardType"),) if target.get("cardType") else ()))
+    return not card_types or all(card_type in {"character", "item", "location"} for card_type in card_types)
+
+
+def _source_move_damage_shape_supported(effect: Any) -> bool:
+    raw = getattr(effect, "raw", {}) or {}
+    if not (isinstance(raw.get("from"), dict) and raw["from"].get("ref") == "self"):
+        return False
+    amount = raw.get("amount")
+    if not (isinstance(amount, dict) and amount.get("type") == "up-to"):
+        return False
+    try:
+        if int(amount.get("value") or 0) <= 0:
+            return False
+    except (TypeError, ValueError):
+        return False
+    target = raw.get("to")
+    if isinstance(target, dict):
+        if target.get("selector") != "chosen":
+            return False
+        zones = tuple(target.get("zones", (target.get("zone"),) if target.get("zone") else ("play",)))
+        if any(zone != "play" for zone in zones):
+            return False
+        card_types = tuple(target.get("cardTypes", (target.get("cardType"),) if target.get("cardType") else ()))
+        return bool(card_types) and all(card_type in {"character"} for card_type in card_types)
     return _source_target_shape_supported(target)
+
+
+def _source_create_replacement_shape_supported(effect: Any) -> bool:
+    raw = getattr(effect, "raw", {}) or {}
+    replacement = raw.get("replacement")
+    return (
+        isinstance(replacement, dict)
+        and replacement.get("type") == "prevent-damage"
+        and replacement.get("targetRef") == "source"
+        and set(replacement.get("eventKinds", ()) or ()) <= {"challenge-damage"}
+    )
 
 
 def _source_target_shape_supported(target: Any) -> bool:
@@ -492,9 +619,9 @@ def _source_target_shape_supported(target: Any) -> bool:
         return False
     raw = getattr(target, "raw", {}) or {}
     zones = tuple(raw.get("zones", (raw.get("zone"),) if raw.get("zone") else ("play",)))
-    if any(zone != "play" for zone in zones):
+    if any(zone not in {"play", "discard"} for zone in zones):
         return False
-    if "cardTypes" not in raw and "cardType" not in raw:
+    if "cardTypes" not in raw and "cardType" not in raw and all(zone == "play" for zone in zones):
         return False
     card_types = tuple(raw.get("cardTypes", (raw.get("cardType"),) if raw.get("cardType") else ()))
     if any(card_type not in {"character", "item", "location"} for card_type in card_types):
@@ -511,9 +638,72 @@ def _source_target_shape_supported(target: Any) -> bool:
     for filter_def in filters or ():
         if not isinstance(filter_def, dict):
             return False
+        if filter_def.get("type") not in {None, "damaged", "exerted", "ready", "strength-comparison", "cost-comparison", "classification", "has-classification", "has-keyword", "card-type"}:
+            return False
+    return True
+
+
+def _source_previous_target_shape_supported(target: Any) -> bool:
+    raw = getattr(target, "raw", None)
+    return isinstance(raw, dict) and raw.get("ref") == "previous-target"
+
+
+def _source_all_target_shape_supported(target: Any) -> bool:
+    if getattr(target, "kind", None) != "selector" or getattr(target, "selector", None) != "all":
+        return False
+    raw = getattr(target, "raw", {}) or {}
+    zones = tuple(raw.get("zones", (raw.get("zone"),) if raw.get("zone") else ("play",)))
+    if not zones or any(zone in {"under", "underneath"} for zone in zones):
+        return False
+    if any(zone not in {"play", "discard", "hand", "inkwell"} for zone in zones):
+        return False
+    card_types = tuple(raw.get("cardTypes", (raw.get("cardType"),) if raw.get("cardType") else ()))
+    if any(card_type not in {"character", "item", "location"} for card_type in card_types):
+        return False
+    count = raw.get("count", "all")
+    if count not in {"all", None}:
+        return False
+    filters = raw.get("filters", raw.get("filter", ()))
+    if isinstance(filters, dict):
+        filters = (filters,)
+    for filter_def in filters or ():
+        if not isinstance(filter_def, dict):
+            return False
         if filter_def.get("type") not in {None, "damaged", "exerted", "ready", "strength-comparison", "cost-comparison", "classification", "has-classification", "card-type"}:
             return False
     return True
+
+
+def _source_discard_cost_shape_supported(ability: Any, cost: Any) -> bool:
+    raw = getattr(cost, "raw", {}) or {}
+    if raw.get("random") is True or raw.get("random_discard") is True:
+        return True
+    amount = getattr(cost, "amount", None)
+    if amount is None:
+        return False
+    try:
+        if int(amount) <= 0:
+            return False
+    except (TypeError, ValueError):
+        return False
+    return any(to_engine_cost_kind(str(other.kind)) == "discard_chosen" for other in getattr(ability, "costs", ()) or ())
+
+
+def _source_sing_together_shape_supported(card: CardDef) -> bool:
+    if card.card_type != "action":
+        return False
+    for keyword in card.keyword_defs:
+        name = str(keyword.keyword).replace("_", "").upper()
+        if name != "SINGTOGETHER":
+            continue
+        value = keyword.value
+        if value is None:
+            value = keyword.raw.get("value") if isinstance(keyword.raw, dict) else None
+        try:
+            return int(value) > 0
+        except (TypeError, ValueError):
+            return False
+    return False
 
 
 def _source_opponent_choice_requirement_supported(effect: SourceEffectDef) -> bool:
@@ -602,10 +792,14 @@ def _classify_keywords(card: CardDef) -> tuple[RuntimeSupportStatus, tuple[str, 
         required.extend(("legal_actions:SING_SONG", "apply_action:SING_SONG", "singer_exert_cost", "EffectResolver", "automation:SING_SONG"))
         verified.extend(("legal_actions:SING_SONG", "apply_action:SING_SONG", "singer_exert_cost", "EffectResolver", "automation:SING_SONG"))
     if "SING_TOGETHER" in names or "SINGTOGETHER" in names:
-        statuses.append("unsupported")
-        blockers.append("keyword:SING_TOGETHER")
-        evidence.append("sing_together:not_implemented")
-        required.append("multi_singer_prompt")
+        required.extend(("legal_actions:SING_TOGETHER", "apply_action:SING_TOGETHER", "automation:SING_TOGETHER"))
+        if _source_sing_together_shape_supported(card):
+            statuses.append("executable")
+            evidence.append("sing_together:multi_singer_groups")
+            verified.extend(("legal_actions:SING_TOGETHER", "apply_action:SING_TOGETHER", "automation:SING_TOGETHER"))
+        else:
+            statuses.append("unsupported")
+            blockers.append("unsupported_sing_together:shape")
     if not statuses:
         return None
     return (_combine_statuses(statuses), tuple(sorted(set(blockers))), tuple(sorted(set(evidence))), tuple(sorted(set(required))), tuple(sorted(set(verified))))

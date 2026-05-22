@@ -56,23 +56,31 @@ SUPPORTED_TRIGGER_ENGINE_EFFECT_KINDS = frozenset({
     "gain_lore",
     "lose_lore",
     "deal_damage",
+    "move_damage",
     "remove_damage",
     "banish",
     "discard",
     "return_to_hand",
+    "return_from_discard",
     "ready",
     "exert",
     "cost_reduction",
+    "pay_cost",
+    "additional_inkwell",
     "keyword_grant",
     "temporary_modifier",
     "optional",
     "sequence",
+    "choice",
+    "select_target",
+    "restriction",
     "conditional",
     "for_each",
     # B4: Scry, search, reveal, and deck routing effects
     "scry",
     "look_at_top",
     "reveal_top_card",
+    "count",
     "reveal_hand",
     "reveal_cards",
     "search_deck",
@@ -80,9 +88,16 @@ SUPPORTED_TRIGGER_ENGINE_EFFECT_KINDS = frozenset({
     "put_card_on_top",
     "put_card_on_bottom",
     "put_card_in_discard",
+    "put_into_inkwell",
     "shuffle_deck",
+    "shuffle_into_deck",
+    "draw_until_hand_size",
     "name_a_card",
     "reveal_and_route",
+    "play_card",
+    "grant_ability",
+    "create_replacement_effect",
+    "return_random_from_inkwell",
 })
 
 
@@ -126,6 +141,8 @@ EFFECT_KIND_ENGINE_WORK = {
     "banish": "target_choice_prompts",
     "create-replacement-effect": "replacement_prevention",
     "move-damage": "move_damage",
+    "grant-ability": "temporary_ability_modifiers",
+    "play-card": "play_card",
 }
 
 # Resolution requirement kinds
@@ -457,6 +474,8 @@ def _get_amount_shape_from_raw(raw_amount: Any) -> str | None:
     # Numeric string (e.g., "2")
     if isinstance(raw_amount, str) and raw_amount.isdigit():
         return "numeric_string"
+    if raw_amount == "all":
+        return "all_cards"
 
     # Static object: {"type": "static", "amount": N}
     if isinstance(raw_amount, dict):
@@ -469,6 +488,24 @@ def _get_amount_shape_from_raw(raw_amount: Any) -> str | None:
                 return "event_snapshot_drawn_count"
             if key == "cardsUnderCountBeforeBanish":
                 return "event_snapshot_cards_under_count"
+        if raw_amount.get("type") == "cards-under-self":
+            return "cards_under_self"
+        if raw_amount.get("type") == "lore-value-of":
+            target = raw_amount.get("target")
+            if isinstance(target, dict) and target.get("selector") == "chosen":
+                return "lore_value_of_target"
+        if raw_amount.get("type") == "up-to":
+            try:
+                if int(raw_amount.get("value") or 0) > 0:
+                    return "up_to_choice"
+            except (TypeError, ValueError):
+                return None
+        if raw_amount.get("type") == "filtered-count":
+            return "filtered_count"
+        if raw_amount.get("type") == "difference":
+            return "difference"
+        if raw_amount.get("type") == "trigger-amount":
+            return "trigger_amount"
 
     # Unsupported shape
     return None
@@ -481,6 +518,13 @@ SUPPORTED_AMOUNT_SHAPES_FOR_REPORT = frozenset({
     "static_object",
     "event_snapshot_drawn_count",
     "event_snapshot_cards_under_count",
+    "cards_under_self",
+    "lore_value_of_target",
+    "up_to_choice",
+    "all_cards",
+    "filtered_count",
+    "difference",
+    "trigger_amount",
 })
 
 
@@ -495,7 +539,7 @@ def _extract_resolution_requirements(ability: SourceAbilityDef) -> list[str]:
     # Recursively check all effects
     def _check_effect(effect: SourceEffectDef) -> None:
         if effect.kind == "choice":
-            requirements.append("choice")
+            pass
         if effect.kind == "scry":
             # 4C: Do not report scry_ordering as blocker since Brief 4B
             # supports creating pending scry ordering through bag completion

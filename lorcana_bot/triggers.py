@@ -821,8 +821,15 @@ def enqueue_bag_effect(
     source_card = state.cards[candidate.source_instance_id]
     controller_id = source_card.controller
 
-    # Optional triggers have a chooser; mandatory triggers use controller
-    is_optional = trigger.optional or (trigger.auto_resolve is False)
+    # Optional triggers have a chooser; mandatory triggers use controller.
+    # Lorcanito also models some mandatory triggers with an optional top-level
+    # effect (for example Tigger's "you may" return). Treat those bag entries
+    # as decline-capable so the choice is resolved through RESOLVE_BAG.
+    is_optional = (
+        trigger.optional
+        or (trigger.auto_resolve is False)
+        or any(getattr(effect, "kind", None) == "optional" for effect in trigger.effects)
+    )
     chooser_id = controller_id  # Could be different for opponent-triggered effects
 
     entry = BagEffectEntry(
@@ -843,6 +850,7 @@ def enqueue_bag_effect(
             "timing": trigger.timing,
             "source_zones": list(trigger.source_zones),
             "restrictions": [dict(r) for r in trigger.restrictions],
+            "optional": is_optional,
         },
         condition=dict(trigger.condition) if trigger.condition else None,
         effects=tuple(trigger.effects),

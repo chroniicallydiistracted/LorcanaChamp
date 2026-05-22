@@ -21,6 +21,7 @@ import random
 from typing import TYPE_CHECKING, Any
 
 from lorcana_bot.card_logic.costs import SourceCostDef
+from lorcana_bot.card_logic.effect_utils import to_engine_cost_kind
 
 if TYPE_CHECKING:
     from lorcana_bot.abilities import ActivatedAbility
@@ -44,6 +45,7 @@ SUPPORTED_COST_KINDS = frozenset({
     "ink",
     "banish_self",
     "discard",
+    "discard_chosen",
     "spend_ink",
     "exert",
     "ready",
@@ -69,7 +71,7 @@ def validate_cost_payable(
     Returns:
         Tuple of (can_pay, reason_if_not)
     """
-    cost_kind = cost.kind.lower().replace("-", "_").replace(" ", "_")
+    cost_kind = to_engine_cost_kind(cost.kind)
     source_id = ability.source_instance_id
 
     # Check if cost kind is supported
@@ -88,6 +90,8 @@ def validate_cost_payable(
         return _validate_banish_self(state, source_id)
     elif cost_kind == "discard":
         return _validate_discard_cost(state, engine, ability, amount)
+    elif cost_kind == "discard_chosen":
+        return _validate_discard_chosen_marker(ability)
     elif cost_kind == "tap":
         # Tapping is equivalent to exerting in Lorcana
         return _validate_exert_source(state, source_id)
@@ -141,22 +145,30 @@ def _validate_discard_cost(
 ) -> tuple[bool, str]:
     """Validate that the player has enough cards to discard.
 
-    Note: Discard costs require choice prompts (pending effects) for strategic play.
-    Without pending cost-selection support, discard costs are NOT supported.
+    Chosen discard costs are paid through an activated-cost pending effect.
+    Random discard is supported only when the source explicitly marks it random.
     """
-    # Discard costs require player choice - mark as unsupported for now
-    # unless explicitly marked as random in the raw cost data
     raw = getattr(ability, 'raw', {}) or {}
+    if ability.source_instance_id not in state.cards:
+        return False, "Source card not found"
+    player = state.cards[ability.source_instance_id].controller
+    hand_size = len(state.players[player].hand)
+    if hand_size < amount:
+        return False, f"Not enough cards to discard: need {amount}, have {hand_size}"
+
     if raw.get('random_discard'):
-        # Only allow random discard if explicitly marked
-        player = state.cards[ability.source_instance_id].controller
-        hand_size = len(state.players[player].hand)
-        if hand_size < amount:
-            return False, f"Not enough cards to discard: need {amount}, have {hand_size}"
         return True, ""
 
-    # Non-random discard requires choice prompt / pending cost selection
-    return False, "Discard cost requires choice prompt (not yet supported)"
+    # Non-random discard is payable, but payment must be deferred to a pending
+    # cost-selection path so no card is discarded before all costs/effects pass.
+    return True, ""
+
+
+def _validate_discard_chosen_marker(ability: ActivatedAbility) -> tuple[bool, str]:
+    has_discard_amount = any(to_engine_cost_kind(cost.kind) == "discard" for cost in ability.costs)
+    if not has_discard_amount:
+        return False, "discardChosen requires discardCards"
+    return True, ""
 
 
 def pay_cost(
@@ -176,7 +188,7 @@ def pay_cost(
     Raises:
         CostPaymentError: If the cost cannot be paid
     """
-    cost_kind = cost.kind.lower().replace("-", "_").replace(" ", "_")
+    cost_kind = to_engine_cost_kind(cost.kind)
     source_id = ability.source_instance_id
     amount = int(cost.amount) if cost.amount else 1
 
@@ -188,6 +200,8 @@ def pay_cost(
         _pay_banish_self(state, source_id, engine)
     elif cost_kind == "discard":
         _pay_discard_cost(state, engine, ability, amount)
+    elif cost_kind == "discard_chosen":
+        return
     elif cost_kind == "tap":
         _pay_exert_source(state, source_id, engine)
     else:

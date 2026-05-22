@@ -1,5 +1,5 @@
 {
-  "confidence": "medium",
+  "confidence": "low",
   "do_not_prioritize_yet": [
     {
       "milestone": "replacement_prevention",
@@ -12,43 +12,15 @@
   ],
   "ranked_candidates": [
     {
-      "copies_affected": 4,
-      "deck_presence": 2,
+      "copies_affected": 0,
+      "deck_presence": 0,
       "dependencies": [],
       "milestone": "target_choice_prompts",
       "notes": "",
-      "representative_blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "representative_blockers": [],
       "representative_cards": [],
-      "score": 62,
-      "unique_cards_affected": 2
-    },
-    {
-      "copies_affected": 8,
-      "deck_presence": 2,
-      "dependencies": [],
-      "milestone": "replacement_prevention",
-      "notes": "",
-      "representative_blockers": [
-        "unsupported_trigger_effect:create-replacement-effect"
-      ],
-      "representative_cards": [],
-      "score": 24,
-      "unique_cards_affected": 1
-    },
-    {
-      "copies_affected": 2,
-      "deck_presence": 1,
-      "dependencies": [],
-      "milestone": "other_source_execution",
-      "notes": "",
-      "representative_blockers": [
-        "unsupported_trigger_effect:or"
-      ],
-      "representative_cards": [],
-      "score": 21,
-      "unique_cards_affected": 1
+      "score": 20,
+      "unique_cards_affected": 0
     },
     {
       "copies_affected": 0,
@@ -142,6 +114,17 @@
       "copies_affected": 0,
       "deck_presence": 0,
       "dependencies": [],
+      "milestone": "other_source_execution",
+      "notes": "",
+      "representative_blockers": [],
+      "representative_cards": [],
+      "score": 0,
+      "unique_cards_affected": 0
+    },
+    {
+      "copies_affected": 0,
+      "deck_presence": 0,
+      "dependencies": [],
       "milestone": "pending_effect_prompts",
       "notes": "",
       "representative_blockers": [],
@@ -170,9 +153,20 @@
       "representative_cards": [],
       "score": -10,
       "unique_cards_affected": 0
+    },
+    {
+      "copies_affected": 0,
+      "deck_presence": 0,
+      "dependencies": [],
+      "milestone": "replacement_prevention",
+      "notes": "",
+      "representative_blockers": [],
+      "representative_cards": [],
+      "score": -25,
+      "unique_cards_affected": 0
     }
   ],
-  "reason": "Recommended based on copy/unique/deck impact scoring. Top blocker: unsupported_trigger_resolution_requirement:amount",
+  "reason": "Recommended based on copy/unique/deck impact scoring. Top blocker: unknown",
   "recommended_next_milestone": "target_choice_prompts",
   "schema_version": 1
 }

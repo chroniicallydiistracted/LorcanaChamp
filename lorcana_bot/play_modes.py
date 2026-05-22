@@ -228,6 +228,91 @@ def can_sing_song(
     return True, ""
 
 
+def get_sing_together_threshold(state: GameState, engine: GameEngine, song_card_id: int) -> int | None:
+    song = engine.card_def(state, song_card_id)
+    if not is_song_card(engine, song_card_id, state):
+        return None
+    threshold = _parse_sing_together_threshold(tuple(getattr(song, "keywords", ()) or ()))
+    if threshold is not None:
+        return threshold
+    for keyword in getattr(song, "keyword_defs", ()) or ():
+        if str(getattr(keyword, "keyword", "")).upper() in {"SINGTOGETHER", "SING_TOGETHER"}:
+            value = getattr(keyword, "value", None)
+            if value is not None:
+                return int(value)
+    text = " ".join(str(part) for part in (getattr(song, "text", "") or "", getattr(song, "rules_text", "") or ""))
+    import re
+    match = re.search(r"\bSing Together\s+(\d+)\b", text, re.IGNORECASE)
+    return int(match.group(1)) if match else None
+
+
+def singer_threshold_for_song(state: GameState, engine: GameEngine, singer_id: int) -> int | None:
+    inst = state.cards.get(singer_id)
+    if inst is None or inst.zone != "play" or inst.exerted or inst.drying:
+        return None
+    card = engine.card_def(state, singer_id)
+    if card.card_type != CARD_CHARACTER:
+        return None
+    singer_info = get_singer_info(state, engine, singer_id)
+    return max(int(card.cost or 0), singer_info.threshold if singer_info else 0)
+
+
+def sing_together_groups(state: GameState, engine: GameEngine, player: int, song_card_id: int) -> tuple[tuple[int, ...], ...]:
+    threshold = get_sing_together_threshold(state, engine, song_card_id)
+    if threshold is None:
+        return ()
+    ready = []
+    for cid in state.players[player].play:
+        value = singer_threshold_for_song(state, engine, cid)
+        if value is not None and value > 0:
+            ready.append((cid, value))
+    groups: list[tuple[int, ...]] = []
+    from itertools import combinations
+    for size in range(1, len(ready) + 1):
+        for combo in combinations(ready, size):
+            if sum(value for _, value in combo) >= threshold:
+                groups.append(tuple(cid for cid, _ in combo))
+    return tuple(groups)
+
+
+def execute_sing_together_song(
+    state: GameState,
+    engine: GameEngine,
+    singer_ids: tuple[int, ...],
+    song_card_id: int,
+) -> None:
+    if not singer_ids:
+        raise ValueError("Sing Together requires at least one singer")
+    player = state.cards[song_card_id].controller
+    legal_groups = sing_together_groups(state, engine, player, song_card_id)
+    if singer_ids not in legal_groups:
+        raise ValueError("Invalid Sing Together singer group")
+
+    for singer_id in singer_ids:
+        engine._exert_eventful(state, singer_id, actor=player, source_id=singer_id, emit_event=False)
+
+    from_zone = state.cards[song_card_id].zone
+    engine._move_card_eventful(state, song_card_id, "discard", actor=player)
+    engine._resolve_effects(state, player, song_card_id, None)
+    engine.emit_event(
+        state,
+        "CARD_PLAYED",
+        actor=player,
+        source=song_card_id,
+        target=singer_ids[0],
+        payload={
+            "player_id": player,
+            "subject_card_id": song_card_id,
+            "card_type": "action",
+            "played_from": from_zone,
+            "played_to": "discard",
+            "sung": True,
+            "cost_type": "singTogether",
+            "singer_ids": list(singer_ids),
+        },
+    )
+
+
 # B12: Shift stack helpers
 
 def is_card_under(state: GameState, card_id: int) -> bool:

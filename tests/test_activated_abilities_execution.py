@@ -8,7 +8,7 @@ from lorcana_bot.cards import CardDef, CardDatabase
 from lorcana_bot.engine import GameEngine, IllegalActionError
 from lorcana_bot.constants import (
     ZONE_PLAY, ZONE_INKWELL, ZONE_HAND, ZONE_DISCARD, ZONE_DECK,
-    ACTION_USE_ABILITY, PHASE_MAIN,
+    ACTION_USE_ABILITY, ACTION_RESOLVE_PENDING_EFFECT, PHASE_MAIN,
 )
 from lorcana_bot.actions import Action
 
@@ -52,6 +52,24 @@ def _make_source_cost(kind: str, amount: int = 1) -> SourceCostDef:
         kind=kind,
         amount=amount,
         raw={},
+    )
+
+
+def _chosen_character_target() -> SourceTargetDef:
+    return SourceTargetDef(
+        kind="selector",
+        selector="chosen",
+        count=1,
+        owner="any",
+        zones=("play",),
+        card_types=("character",),
+        raw={
+            "selector": "chosen",
+            "count": 1,
+            "owner": "any",
+            "zones": ["play"],
+            "cardTypes": ["character"],
+        },
     )
 
 
@@ -277,6 +295,87 @@ class TestAbilityEffectResolution:
 
         # Should have drawn 2 cards
         assert len(next_state.players[0].hand) == 2
+
+    def test_discard_chosen_cost_creates_pending_then_resolves_effect(self):
+        """Chosen discard cost is selected through legal_actions before effects resolve."""
+        db = MagicMock(spec=CardDatabase)
+        card_def = _make_card_def("angel", abilities=[
+            _make_source_ability(
+                "good_aim",
+                costs=[_make_source_cost("discardCards", 1), _make_source_cost("discardChosen", True)],
+                effects=[_make_source_effect("deal-damage", target=_chosen_character_target(), amount=2)],
+            )
+        ])
+        hand_def = _make_card_def("fodder", card_type="action")
+        target_def = _make_card_def("target", card_type="character")
+        db.get.side_effect = lambda card_id: {
+            "angel": card_def,
+            "fodder": hand_def,
+            "target": target_def,
+        }[card_id]
+
+        engine = GameEngine(db)
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={
+                1: CardInstance(instance_id=1, card_id="angel", owner=0, controller=0),
+                2: CardInstance(instance_id=2, card_id="fodder", owner=0, controller=0),
+                3: CardInstance(instance_id=3, card_id="target", owner=1, controller=1),
+            },
+        )
+        state.cards[1].zone = ZONE_PLAY
+        state.cards[2].zone = ZONE_HAND
+        state.cards[3].zone = ZONE_PLAY
+        state.players[0].play = [1]
+        state.players[0].hand = [2]
+        state.players[1].play = [3]
+        state.phase = PHASE_MAIN
+        state.active_player = 0
+
+        legal = engine.legal_actions(state, 0)
+        use = next(action for action in legal if action.kind == ACTION_USE_ABILITY and action.target == 3)
+        assert use.target == 3
+
+        pending_state = engine.apply_action(state, use)
+        assert len(pending_state.pending_effects) == 1
+        assert pending_state.cards[2].zone == ZONE_HAND
+        assert pending_state.cards[3].damage == 0
+
+        resolve = next(
+            action for action in engine.legal_actions(pending_state, 0)
+            if action.kind == ACTION_RESOLVE_PENDING_EFFECT
+        )
+        assert resolve.choice["discard_card_ids"] == (2,)
+
+        resolved = engine.apply_action(pending_state, resolve)
+        assert resolved.cards[2].zone == ZONE_DISCARD
+        assert resolved.cards[3].zone == ZONE_DISCARD
+        assert not resolved.pending_effects
+
+    def test_unsupported_effect_blocks_before_cost_payment(self):
+        db = MagicMock(spec=CardDatabase)
+        card_def = _make_card_def("bad", abilities=[
+            _make_source_ability(
+                "bad_ability",
+                costs=[_make_source_cost("banish_self")],
+                effects=[_make_source_effect("totally-unsupported")],
+            )
+        ])
+        db.get.return_value = card_def
+        engine = GameEngine(db)
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={1: CardInstance(instance_id=1, card_id="bad", owner=0, controller=0)},
+        )
+        state.cards[1].zone = ZONE_PLAY
+        state.players[0].play = [1]
+        state.phase = PHASE_MAIN
+        state.active_player = 0
+
+        action = Action(ACTION_USE_ABILITY, actor=0, source=1, choice={"ability_id": "bad_ability", "ability_index": 0})
+        with pytest.raises(Exception):
+            engine.apply_action(state, action)
+        assert state.cards[1].zone == ZONE_PLAY
 
 
 class TestOncePerTurnTracking:

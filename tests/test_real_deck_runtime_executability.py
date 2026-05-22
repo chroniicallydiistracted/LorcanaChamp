@@ -2,12 +2,13 @@ from lorcana_bot.card_logic import (
     ExecutionStatus,
     MappingStatus,
     SourceAbilityDef,
+    SourceCostDef,
     SourceEffectDef,
     SourceStaticEffectDef,
     SourceTargetDef,
     SourceTriggerDef,
 )
-from lorcana_bot.cards import CardDef
+from lorcana_bot.cards import CardDef, KeywordDef
 from lorcana_bot.decks.deck_mapping_report import build_suite_mapping_report
 from lorcana_bot.decks.deck_schema import ResolvedDeck, ResolvedDeckCard
 from lorcana_bot.decks.runtime_executability import classify_card_runtime_support, classify_deck_runtime_support
@@ -221,6 +222,120 @@ def test_supported_lorcanito_chosen_target_shape_no_longer_blocks():
     assert "targeting:chosen_selector" in result.runtime_paths_verified
 
 
+def test_supported_discard_chosen_cost_shape_no_longer_blocks():
+    ability = SourceAbilityDef(
+        id="discard",
+        kind="activated",
+        costs=(
+            SourceCostDef(kind="discardCards", amount=1),
+            SourceCostDef(kind="discardChosen", amount=1),
+        ),
+        effects=(SourceEffectDef(kind="draw", amount=1, mapping_status=MappingStatus.STRUCTURALLY_MAPPED),),
+    )
+    card_def = _card("discard-cost", source_abilities=(ability,))
+
+    result = classify_card_runtime_support(
+        card_def,
+        _resolved_card("discard-cost", blockers=("unsupported_cost:discardCards", "unsupported_cost:discardChosen")),
+    )
+
+    assert result.status == "executable"
+    assert result.blockers == ()
+    assert "unsupported_cost:discardCards" in result.stale_blockers_ignored
+    assert "unsupported_cost:discardChosen" in result.stale_blockers_ignored
+
+
+def test_discard_chosen_marker_without_discard_amount_stays_blocked():
+    ability = SourceAbilityDef(
+        id="bad-discard",
+        kind="activated",
+        costs=(SourceCostDef(kind="discardChosen", amount=1),),
+        effects=(SourceEffectDef(kind="draw", amount=1, mapping_status=MappingStatus.STRUCTURALLY_MAPPED),),
+    )
+    card_def = _card("bad-discard", source_abilities=(ability,))
+
+    result = classify_card_runtime_support(card_def)
+
+    assert result.status == "unsupported"
+    assert result.blockers == ("unsupported_cost:discardChosen",)
+
+
+def test_supported_selector_all_shape_no_longer_blocks():
+    target = SourceTargetDef(
+        kind="selector",
+        selector="all",
+        raw={
+            "selector": "all",
+            "count": "all",
+            "owner": "opponent",
+            "zones": ["play"],
+            "cardTypes": ["character"],
+            "filter": [{"type": "strength-comparison", "comparison": "less-or-equal", "value": 2}],
+        },
+        execution_status=ExecutionStatus.UNSUPPORTED_TARGETING,
+    )
+    effect = SourceEffectDef(kind="put-on-bottom", target=target, mapping_status=MappingStatus.STRUCTURALLY_MAPPED)
+    card_def = _card("all-target", card_type="action", strength=None, willpower=None, lore=None, source_effects=(effect,))
+
+    result = classify_card_runtime_support(card_def, _resolved_card("all-target", blockers=("unsupported_target:selector:all",)))
+
+    assert result.status == "executable"
+    assert "unsupported_target:selector:all" not in result.blockers
+    assert "targeting:selector_all" in result.runtime_paths_verified
+
+
+def test_selector_all_under_zone_stays_blocked():
+    target = SourceTargetDef(
+        kind="selector",
+        selector="all",
+        raw={"selector": "all", "count": "all", "zones": ["under"], "cardTypes": ["character"]},
+        execution_status=ExecutionStatus.UNSUPPORTED_TARGETING,
+    )
+    effect = SourceEffectDef(kind="banish", target=target, mapping_status=MappingStatus.STRUCTURALLY_MAPPED)
+    card_def = _card("bad-all", card_type="action", strength=None, willpower=None, lore=None, source_effects=(effect,))
+
+    result = classify_card_runtime_support(card_def)
+
+    assert result.status == "projected_but_requires_pending_input"
+    assert result.blockers == ("unsupported_target:selector:all",)
+
+
+def test_supported_sing_together_shape_no_longer_blocks():
+    card_def = _card(
+        "sing-together",
+        card_type="action",
+        strength=None,
+        willpower=None,
+        lore=None,
+        keywords=("SING_TOGETHER",),
+        keyword_defs=(KeywordDef(keyword="SING_TOGETHER", value=8),),
+        source_effects=(SourceEffectDef(kind="draw", amount=1, mapping_status=MappingStatus.STRUCTURALLY_MAPPED),),
+    )
+
+    result = classify_card_runtime_support(card_def, _resolved_card("sing-together", blockers=("keyword:SING_TOGETHER",)))
+
+    assert result.status == "executable"
+    assert "keyword:SING_TOGETHER" in result.stale_blockers_ignored
+    assert "legal_actions:SING_TOGETHER" in result.runtime_paths_verified
+
+
+def test_sing_together_without_numeric_keyword_value_stays_blocked():
+    card_def = _card(
+        "bad-sing-together",
+        card_type="action",
+        strength=None,
+        willpower=None,
+        lore=None,
+        keywords=("SING_TOGETHER",),
+        source_effects=(SourceEffectDef(kind="draw", amount=1, mapping_status=MappingStatus.STRUCTURALLY_MAPPED),),
+    )
+
+    result = classify_card_runtime_support(card_def)
+
+    assert result.status == "unsupported"
+    assert result.blockers == ("unsupported_sing_together:shape",)
+
+
 def test_unsupported_chosen_target_shape_stays_blocked():
     target = SourceTargetDef(
         kind="selector",
@@ -274,6 +389,22 @@ def test_unsupported_put_into_inkwell_shape_stays_blocked():
 
     assert result.status == "unsupported"
     assert result.blockers == ("unsupported_effect:put-into-inkwell",)
+
+
+def test_parse_preserved_unknown_ability_reports_exact_source_shape():
+    ability = SourceAbilityDef(
+        id="unknown",
+        kind="unknown",
+        raw={
+            "rawExpression": '{ type: "static", effect: { type: "grant-abilities-while-here" } }',
+        },
+    )
+    card_def = _card("unknown", source_abilities=(ability,))
+
+    result = classify_card_runtime_support(card_def)
+
+    assert result.status == "unsupported"
+    assert result.blockers == ("unsupported_ability_parse:grant-abilities-while-here",)
 
 
 def test_actual_opponent_choice_requirement_is_supported_but_unrelated_choices_are_not_tagged():

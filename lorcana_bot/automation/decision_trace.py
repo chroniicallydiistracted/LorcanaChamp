@@ -162,6 +162,7 @@ PRIVATE_TRACE_KEYS = {
     "candidate_ids",
     "card_candidate_ids",
     "target_candidate_ids",
+    "discard_card_ids",
     "reveal_window_ids",
     "revealed_card_ids",
 }

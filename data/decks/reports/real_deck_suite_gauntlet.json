@@ -1,24 +1,1338 @@
 {
   "classification_source": "current_python_runtime",
   "deck_playability": {
-    "aa_evasives_raging_storm_2026_02_23": "partially_executable",
-    "aa_lantern_zan_syed_2025_12_06": "partially_executable",
-    "ae_aggro_zan_syed_sao_paulo_2026_04_25": "partially_executable",
-    "as_challengers_purple_steel_leipzig_2026_04_18": "partially_executable",
-    "as_evasive_aotp_stockholm_2026_04_25": "partially_executable",
-    "as_steelsong_brian_law_taipei_2026_03_14": "partially_executable",
-    "as_value_harlan_2026_04_04": "partially_executable",
-    "es_control_i_hate_dogs_imola_2026_04_11": "partially_executable",
+    "aa_evasives_raging_storm_2026_02_23": "fully_executable",
+    "aa_lantern_zan_syed_2025_12_06": "fully_executable",
+    "ae_aggro_zan_syed_sao_paulo_2026_04_25": "fully_executable",
+    "as_challengers_purple_steel_leipzig_2026_04_18": "fully_executable",
+    "as_evasive_aotp_stockholm_2026_04_25": "fully_executable",
+    "as_steelsong_brian_law_taipei_2026_03_14": "fully_executable",
+    "as_value_harlan_2026_04_04": "fully_executable",
+    "es_control_i_hate_dogs_imola_2026_04_11": "fully_executable",
     "ps_burn_matt_w_2026_03_21": "fully_executable",
-    "rs_pawpsicles_maui_fiesta_2025_05_04": "partially_executable",
+    "rs_pawpsicles_maui_fiesta_2025_05_04": "fully_executable",
     "rs_songs_daniele_2026_04_04": "fully_executable",
-    "sr_aggro_damien_2026_01_31": "partially_executable"
+    "sr_aggro_damien_2026_01_31": "fully_executable"
   },
-  "games_run": 2,
+  "games_run": 132,
   "matchups": [
     {
-      "action_count": 77,
-      "deck_id_player_0": "ps_burn_matt_w_2026_03_21",
+      "action_count": 92,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "aa_lantern_zan_syed_2025_12_06",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        14,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 69,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "aa_lantern_zan_syed_2025_12_06",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        13,
+        5
+      ],
+      "not_strength_valid": false,
+      "reason": "player_1_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 0
+    },
+    {
+      "action_count": 19,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        3,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_1_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 6,
+      "winner": 0
+    },
+    {
+      "action_count": 6,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        0,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_1_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 2,
+      "winner": 0
+    },
+    {
+      "action_count": 121,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        19,
+        18
+      ],
+      "not_strength_valid": false,
+      "reason": "player_1_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 24,
+      "winner": 0
+    },
+    {
+      "action_count": 80,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        11,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 14,
+      "winner": 1
+    },
+    {
+      "action_count": 139,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        17,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 22,
+      "winner": 1
+    },
+    {
+      "action_count": 98,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        14
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 17,
+      "winner": 0
+    },
+    {
+      "action_count": 91,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        14
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 78,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        9
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 93,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        17
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 75,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        14,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 14,
+      "winner": 1
+    },
+    {
+      "action_count": 99,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        12,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 18,
+      "winner": 1
+    },
+    {
+      "action_count": 76,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 17,
+      "winner": 0
+    },
+    {
+      "action_count": 79,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        11,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 14,
+      "winner": 1
+    },
+    {
+      "action_count": 74,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        9,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 1
+    },
+    {
+      "action_count": 118,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        21,
+        15
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 23,
+      "winner": 0
+    },
+    {
+      "action_count": 104,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        12,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 22,
+      "winner": 1
+    },
+    {
+      "action_count": 107,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        18,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 97,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        2
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 17,
+      "winner": 0
+    },
+    {
+      "action_count": 50,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        2,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 1
+    },
+    {
+      "action_count": 59,
+      "deck_id_player_0": "aa_evasives_raging_storm_2026_02_23",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        1,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 1
+    },
+    {
+      "action_count": 71,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        9,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 1
+    },
+    {
+      "action_count": 63,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        0,
+        11
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 1
+    },
+    {
+      "action_count": 96,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        13,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 24,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        1,
+        2
+      ],
+      "not_strength_valid": false,
+      "reason": "player_1_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 8,
+      "winner": 0
+    },
+    {
+      "action_count": 100,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        13
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 97,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        3
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 95,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        11,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 55,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        2,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 10,
+      "winner": 1
+    },
+    {
+      "action_count": 87,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        14
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 68,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        6,
+        17
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 1
+    },
+    {
+      "action_count": 96,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        21,
+        11
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 17,
+      "winner": 0
+    },
+    {
+      "action_count": 109,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        13
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 19,
+      "winner": 0
+    },
+    {
+      "action_count": 69,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        3,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 1
+    },
+    {
+      "action_count": 60,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        4,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 1
+    },
+    {
+      "action_count": 103,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        19,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_1_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 0
+    },
+    {
+      "action_count": 94,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        7,
+        5
+      ],
+      "not_strength_valid": false,
+      "reason": "player_1_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 20,
+      "winner": 0
+    },
+    {
+      "action_count": 106,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        8
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 19,
+      "winner": 0
+    },
+    {
+      "action_count": 106,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        15,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 18,
+      "winner": 1
+    },
+    {
+      "action_count": 101,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        11,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 18,
+      "winner": 1
+    },
+    {
+      "action_count": 67,
+      "deck_id_player_0": "aa_lantern_zan_syed_2025_12_06",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        4,
+        13
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 1
+    },
+    {
+      "action_count": 9,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        0,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 3,
+      "winner": 1
+    },
+    {
+      "action_count": 65,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        2
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 11,
+      "winner": 0
+    },
+    {
+      "action_count": 88,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        7
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 82,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        9,
+        7
+      ],
+      "not_strength_valid": false,
+      "reason": "player_1_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 18,
+      "winner": 0
+    },
+    {
+      "action_count": 107,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        15,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 65,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        5
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 9,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        0,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 3,
+      "winner": 1
+    },
+    {
+      "action_count": 44,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        5,
+        4
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 9,
+      "winner": 1
+    },
+    {
+      "action_count": 20,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        1,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 5,
+      "winner": 1
+    },
+    {
+      "action_count": 83,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        14,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 17,
+      "winner": 1
+    },
+    {
+      "action_count": 82,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        14
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 76,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        22,
+        16
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 11,
+      "winner": 0
+    },
+    {
+      "action_count": 3,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        0,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 1,
+      "winner": 1
+    },
+    {
+      "action_count": 67,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        4
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 11,
+      "winner": 0
+    },
+    {
+      "action_count": 57,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        2
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 12,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        2,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 3,
+      "winner": 1
+    },
+    {
+      "action_count": 90,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        1,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 20,
+      "winner": 1
+    },
+    {
+      "action_count": 13,
+      "deck_id_player_0": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        1,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 3,
+      "winner": 1
+    },
+    {
+      "action_count": 36,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        9,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 9,
+      "winner": 1
+    },
+    {
+      "action_count": 30,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        5,
+        1
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 7,
+      "winner": 1
+    },
+    {
+      "action_count": 88,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        16,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 84,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        11
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 78,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        9
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 78,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        11
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 68,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        4
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 118,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        17,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 20,
+      "winner": 1
+    },
+    {
+      "action_count": 36,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        4,
+        6
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 7,
+      "winner": 1
+    },
+    {
+      "action_count": 102,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        12
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 108,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        12,
+        4
+      ],
+      "not_strength_valid": false,
+      "reason": "player_1_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 26,
+      "winner": 0
+    },
+    {
+      "action_count": 52,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 11,
+      "winner": 0
+    },
+    {
+      "action_count": 62,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        2
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 46,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
       "deck_id_player_1": "rs_songs_daniele_2026_04_04",
       "deck_playability_player_0": "fully_executable",
       "deck_playability_player_1": "fully_executable",
@@ -35,8 +1349,638 @@
       "winner": 0
     },
     {
-      "action_count": 61,
-      "deck_id_player_0": "ps_burn_matt_w_2026_03_21",
+      "action_count": 83,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        14,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 68,
+      "deck_id_player_0": "as_challengers_purple_steel_leipzig_2026_04_18",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        11,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 14,
+      "winner": 1
+    },
+    {
+      "action_count": 66,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        4,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 1
+    },
+    {
+      "action_count": 78,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        3,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 10,
+      "winner": 1
+    },
+    {
+      "action_count": 88,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        12,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 14,
+      "winner": 1
+    },
+    {
+      "action_count": 101,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        18
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 94,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        8
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 19,
+      "winner": 0
+    },
+    {
+      "action_count": 97,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        21,
+        8
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 17,
+      "winner": 0
+    },
+    {
+      "action_count": 94,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        16,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 18,
+      "winner": 1
+    },
+    {
+      "action_count": 80,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        12,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 14,
+      "winner": 1
+    },
+    {
+      "action_count": 100,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        15
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 17,
+      "winner": 0
+    },
+    {
+      "action_count": 73,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        16,
+        4
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 1
+    },
+    {
+      "action_count": 72,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 63,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        7,
+        2
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 1
+    },
+    {
+      "action_count": 93,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        12,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 84,
+      "deck_id_player_0": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        12,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 85,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        13,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 14,
+      "winner": 1
+    },
+    {
+      "action_count": 96,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "as_value_harlan_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        13,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 14,
+      "winner": 1
+    },
+    {
+      "action_count": 93,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        7
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 17,
+      "winner": 0
+    },
+    {
+      "action_count": 81,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        4
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 72,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        9,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 1
+    },
+    {
+      "action_count": 80,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        5
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 11,
+      "winner": 0
+    },
+    {
+      "action_count": 75,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 65,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        21,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 11,
+      "winner": 0
+    },
+    {
+      "action_count": 76,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        3
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 59,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 90,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        10,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 18,
+      "winner": 1
+    },
+    {
+      "action_count": 93,
+      "deck_id_player_0": "as_steelsong_brian_law_taipei_2026_03_14",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        10,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 18,
+      "winner": 1
+    },
+    {
+      "action_count": 90,
+      "deck_id_player_0": "as_value_harlan_2026_04_04",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        6
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 64,
+      "deck_id_player_0": "as_value_harlan_2026_04_04",
+      "deck_id_player_1": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 85,
+      "deck_id_player_0": "as_value_harlan_2026_04_04",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        12
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 82,
+      "deck_id_player_0": "as_value_harlan_2026_04_04",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        7
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 60,
+      "deck_id_player_0": "as_value_harlan_2026_04_04",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 11,
+      "winner": 0
+    },
+    {
+      "action_count": 63,
+      "deck_id_player_0": "as_value_harlan_2026_04_04",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 11,
+      "winner": 0
+    },
+    {
+      "action_count": 77,
+      "deck_id_player_0": "as_value_harlan_2026_04_04",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        4
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 56,
+      "deck_id_player_0": "as_value_harlan_2026_04_04",
       "deck_id_player_1": "rs_songs_daniele_2026_04_04",
       "deck_playability_player_0": "fully_executable",
       "deck_playability_player_1": "fully_executable",
@@ -51,6 +1995,402 @@
       "stored_deck_playability_player_1": "partially_executable",
       "turns": 11,
       "winner": 0
+    },
+    {
+      "action_count": 99,
+      "deck_id_player_0": "as_value_harlan_2026_04_04",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        15
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 19,
+      "winner": 0
+    },
+    {
+      "action_count": 104,
+      "deck_id_player_0": "as_value_harlan_2026_04_04",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        12,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 20,
+      "winner": 1
+    },
+    {
+      "action_count": 69,
+      "deck_id_player_0": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        0,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 18,
+      "winner": 1
+    },
+    {
+      "action_count": 83,
+      "deck_id_player_0": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_id_player_1": "ps_burn_matt_w_2026_03_21",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        2,
+        22
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 14,
+      "winner": 1
+    },
+    {
+      "action_count": 123,
+      "deck_id_player_0": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        12,
+        22
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 28,
+      "winner": 1
+    },
+    {
+      "action_count": 125,
+      "deck_id_player_0": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        21,
+        15
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 27,
+      "winner": 0
+    },
+    {
+      "action_count": 86,
+      "deck_id_player_0": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        1
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 19,
+      "winner": 0
+    },
+    {
+      "action_count": 105,
+      "deck_id_player_0": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        6
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 19,
+      "winner": 0
+    },
+    {
+      "action_count": 69,
+      "deck_id_player_0": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        2,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 71,
+      "deck_id_player_0": "es_control_i_hate_dogs_imola_2026_04_11",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        0,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 16,
+      "winner": 1
+    },
+    {
+      "action_count": 48,
+      "deck_id_player_0": "ps_burn_matt_w_2026_03_21",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 9,
+      "winner": 0
+    },
+    {
+      "action_count": 48,
+      "deck_id_player_0": "ps_burn_matt_w_2026_03_21",
+      "deck_id_player_1": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        1
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 11,
+      "winner": 0
+    },
+    {
+      "action_count": 73,
+      "deck_id_player_0": "ps_burn_matt_w_2026_03_21",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        7
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 84,
+      "deck_id_player_0": "ps_burn_matt_w_2026_03_21",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        21,
+        6
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 0
+    },
+    {
+      "action_count": 91,
+      "deck_id_player_0": "ps_burn_matt_w_2026_03_21",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        9
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 17,
+      "winner": 0
+    },
+    {
+      "action_count": 105,
+      "deck_id_player_0": "ps_burn_matt_w_2026_03_21",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        16,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 20,
+      "winner": 1
+    },
+    {
+      "action_count": 72,
+      "deck_id_player_0": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        9,
+        4
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 15,
+      "winner": 1
+    },
+    {
+      "action_count": 60,
+      "deck_id_player_0": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        5,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "player_0_conceded",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 1
+    },
+    {
+      "action_count": 114,
+      "deck_id_player_0": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        5,
+        21
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 26,
+      "winner": 1
+    },
+    {
+      "action_count": 75,
+      "deck_id_player_0": "rs_pawpsicles_maui_fiesta_2025_05_04",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        4,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 14,
+      "winner": 1
+    },
+    {
+      "action_count": 68,
+      "deck_id_player_0": "rs_songs_daniele_2026_04_04",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        2,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 1
+    },
+    {
+      "action_count": 59,
+      "deck_id_player_0": "rs_songs_daniele_2026_04_04",
+      "deck_id_player_1": "sr_aggro_damien_2026_01_31",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        0,
+        20
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 12,
+      "winner": 1
     }
   ],
   "not_strength_valid": false,

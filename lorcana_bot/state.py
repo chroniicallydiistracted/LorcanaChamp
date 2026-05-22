@@ -49,6 +49,7 @@ class CardInstance:
     was_challenged_this_turn: bool = False
     temporary_keywords: list[str] = field(default_factory=list)
     temporary_modifiers: dict[str, int] = field(default_factory=dict)
+    temporary_granted_abilities: list[Any] = field(default_factory=list)
     # B12: Shift stack support — cards placed under this card (shifted onto)
     cards_under: list[int] = field(default_factory=list)
     # B12: The instance ID of the shifted card this card is under (None if top of stack)

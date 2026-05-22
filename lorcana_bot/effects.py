@@ -36,30 +36,36 @@ class EffectResolver:
                 self.resolve_many(state, effect.effects, context)
         elif kind == "choice":
             self._resolve_choice(state, effect, context)
+        elif kind == "select_target":
+            return
+        elif kind == "restriction":
+            self._resolve_restriction(state, effect, context)
         elif kind == "conditional":
             if self._condition_matches(state, effect, context):
                 self.resolve_many(state, effect.effects, context)
         elif kind == "for_each":
             self._resolve_for_each(state, effect, context)
         elif kind == "draw":
-            self.engine.draw_cards(
-                state,
-                self._target_player(state, effect, context),
-                self._amount(effect, context),
-                private=True,
-            )
+            for player in self._target_players(state, effect, context):
+                self.engine.draw_cards(state, player, self._amount(state, effect, context), private=True)
+        elif kind == "draw_until_hand_size":
+            for player in self._target_players(state, effect, context):
+                target_size = self._draw_until_hand_size(effect)
+                needed = max(0, target_size - len(state.players[player].hand))
+                if needed:
+                    self.engine.draw_cards(state, player, needed, private=True)
         elif kind == "gain_lore":
             self.engine._gain_lore_eventful(
                 state,
                 self._target_player(state, effect, context),
-                self._amount(effect, context),
+                self._amount(state, effect, context),
                 source_id=context.source,
             )
         elif kind == "lose_lore":
             self.engine._lose_lore_eventful(
                 state,
                 self._target_player(state, effect, context),
-                self._amount(effect, context),
+                self._amount(state, effect, context),
                 source_id=context.source,
             )
         elif kind == "deal_damage":
@@ -68,17 +74,19 @@ class EffectResolver:
                     state,
                     target_id=target,
                     source_id=context.source,
-                    amount=self._amount(effect, context),
+                    amount=self._amount(state, effect, context),
                     actor=context.actor,
                     is_challenge=False,
                     apply_resist=True,
                 )
+        elif kind == "move_damage":
+            self._resolve_move_damage(state, effect, context)
         elif kind == "remove_damage":
             for target in self._target_cards(state, effect, context):
                 self.engine._remove_damage_eventful(
                     state,
                     target,
-                    self._amount(effect, context),
+                    self._amount(state, effect, context),
                     actor=context.actor,
                     source_id=context.source,
                 )
@@ -101,6 +109,8 @@ class EffectResolver:
                     actor=context.actor,
                     source_id=context.source,
                 )
+        elif kind == "return_from_discard":
+            self._resolve_return_from_discard(state, effect, context)
         elif kind == "ready":
             for target in self._target_cards(state, effect, context):
                 self.engine._ready_eventful(
@@ -121,11 +131,17 @@ class EffectResolver:
         elif kind == "cost_reduction":
             state.players[context.actor].cost_reductions.append(
                 {
-                    "amount": self._amount(effect, context),
+                    "amount": self._amount(state, effect, context),
                     "card_type": effect.value if isinstance(effect.value, str) else None,
                     "duration": effect.duration or "this_turn",
                 }
             )
+        elif kind == "additional_inkwell":
+            allowance = int(effect.amount or 1)
+            key = f"additional_inkwell:{context.actor}"
+            state.turn_metadata[key] = int(state.turn_metadata.get(key, 0) or 0) + allowance
+        elif kind == "pay_cost":
+            self._resolve_pay_cost(state, effect, context)
         elif kind == "keyword_grant":
             keyword = self._keyword(effect)
             for target in self._target_cards(state, effect, context):
@@ -140,6 +156,8 @@ class EffectResolver:
             self._resolve_look_at_top(state, effect, context)
         elif kind == "reveal_top_card":
             self._resolve_reveal_top_card(state, effect, context)
+        elif kind == "count":
+            self._resolve_count(state, effect, context)
         elif kind == "reveal_hand":
             self._resolve_reveal_hand(state, effect, context)
         elif kind == "reveal_cards":
@@ -156,12 +174,26 @@ class EffectResolver:
             self._resolve_put_card_in_discard(state, effect, context)
         elif kind == "shuffle_deck":
             self._resolve_shuffle_deck(state, effect, context)
+        elif kind == "shuffle_into_deck":
+            self._resolve_shuffle_into_deck(state, effect, context)
         elif kind == "name_a_card":
             self._resolve_name_a_card(state, effect, context)
         elif kind == "reveal_and_route":
             self._resolve_reveal_and_route(state, effect, context)
         elif kind == "put_into_inkwell":
             self._resolve_put_into_inkwell(state, effect, context)
+        elif kind == "play_card":
+            self._resolve_play_card(state, effect, context)
+        elif kind == "grant_ability":
+            self._resolve_grant_ability(state, effect, context)
+        elif kind == "grant_abilities_while_here":
+            return
+        elif kind == "grant_discard_inkability":
+            return
+        elif kind == "create_replacement_effect":
+            self._resolve_create_replacement_effect(state, effect, context)
+        elif kind == "return_random_from_inkwell":
+            self._resolve_return_random_from_inkwell(state, effect, context)
 
     def _resolve_choice(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         if not effect.effects:
@@ -237,8 +269,7 @@ class EffectResolver:
                 )
             return
 
-        player = self._target_player(state, effect, context)
-        amount = self._amount(effect, context)
+        players = self._target_players(state, effect, context)
 
         # Determine if explicit choice is required
         # Rule 1: If effect.raw["chosen"] is true, create pending discard_choice
@@ -249,6 +280,10 @@ class EffectResolver:
         requires_explicit_choice = is_chosen or chosen_by is not None
 
         if requires_explicit_choice:
+            if len(players) != 1:
+                raise EffectResolutionError("Explicit discard choice requires one target player")
+            player = players[0]
+            amount = self._discard_amount_for_player(state, effect, context, player)
             # Build discard candidates from the target player's hand
             candidate_ids = tuple(state.players[player].hand)
 
@@ -287,14 +322,22 @@ class EffectResolver:
             return
 
         # No explicit choice required - preserve deterministic behavior
-        for _ in range(min(amount, len(state.players[player].hand))):
-            self.engine._discard_eventful(
-                state,
-                state.players[player].hand[0],
-                actor=player,
-                source_id=context.source,
-                reason="effect",
-            )
+        for player in players:
+            amount = self._discard_amount_for_player(state, effect, context, player)
+            for _ in range(min(amount, len(state.players[player].hand))):
+                self.engine._discard_eventful(
+                    state,
+                    state.players[player].hand[0],
+                    actor=player,
+                    source_id=context.source,
+                    reason="effect",
+                )
+
+    def _discard_amount_for_player(self, state: GameState, effect: EffectDef, context: EffectResolutionContext, player: int) -> int:
+        raw_source = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        if isinstance(raw_source, dict) and raw_source.get("amount") == "all":
+            return len(state.players[player].hand)
+        return self._amount(state, effect, context)
 
     def _temporary_modifier(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         if not isinstance(effect.value, dict):
@@ -343,6 +386,11 @@ class EffectResolver:
         return targets
 
     def _target_player(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> int:
+        if effect.target == "card_owner":
+            target_ids = context.current_targets or ((context.target,) if context.target is not None else ())
+            if not target_ids:
+                raise EffectResolutionError("CARD_OWNER target requires selected card context")
+            return state.cards[int(target_ids[0])].owner
         descriptor = self._normalize_player_target(effect.target)
         if descriptor is None:
             raise EffectResolutionError(f"Unsupported player target {effect.target!r} for {effect.kind}")
@@ -365,9 +413,21 @@ class EffectResolver:
             )
         return candidates[0]
 
+    def _target_players(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> tuple[int, ...]:
+        descriptor = self._normalize_player_target(effect.target)
+        if descriptor is not None and descriptor.selector == "each_player":
+            from .targeting import resolve_candidate_player_ids
+            return tuple(resolve_candidate_player_ids(state, descriptor, self._target_query_context(context)))
+        return (self._target_player(state, effect, context),)
+
     def _normalize_effect_target(self, raw_target: Any):
         from .targeting import normalize_target_descriptor
 
+        raw = getattr(raw_target, "raw", None)
+        if isinstance(raw, dict) and raw.get("ref") == "previous-target":
+            return normalize_target_descriptor("current_targets")
+        if isinstance(raw_target, dict) and raw_target.get("ref") == "previous-target":
+            return normalize_target_descriptor("current_targets")
         target = "target" if raw_target is None else raw_target
         descriptor = normalize_target_descriptor(target)
         if descriptor is not None:
@@ -447,7 +507,7 @@ class EffectResolver:
 
         return list(resolve_candidate_card_ids(state, self.engine, descriptor, self._target_query_context(context)))
 
-    def _amount(self, effect: EffectDef, context: EffectResolutionContext) -> int:
+    def _amount(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> int:
         """Resolve effect amount from various supported shapes.
 
         Supported shapes:
@@ -467,6 +527,9 @@ class EffectResolver:
             if isinstance(raw_amount, str):
                 if raw_amount.isdigit():
                     return int(raw_amount)
+                if raw_amount == "all":
+                    player = self._target_player(state, effect, context)
+                    return len(state.players[player].hand)
                 raise EffectResolutionError(f"Unsupported amount shape: {raw_amount!r}")
 
         # Check for object-style amount in raw
@@ -487,6 +550,27 @@ class EffectResolver:
                     if value is not None:
                         return int(value)
                     raise EffectResolutionError(f"Event snapshot amount key {key!r} was not present")
+            elif amount_type == "cards-under-self":
+                if context.source is None or context.source not in state.cards:
+                    raise EffectResolutionError("cards-under-self amount requires source")
+                return len(state.cards[context.source].cards_under)
+            elif amount_type == "lore-value-of":
+                target_ids = context.current_targets or ((context.target,) if context.target is not None else ())
+                if not target_ids:
+                    raise EffectResolutionError("lore-value-of amount requires selected target")
+                return self.engine.effective_lore(state, int(target_ids[0]))
+            elif amount_type == "filtered-count":
+                return self._filtered_count_amount(state, raw_amount, context)
+            elif amount_type == "characters-in-play":
+                controller = context.actor if raw_amount.get("controller") in {None, "you"} else state.opponent(context.actor)
+                return sum(1 for cid in state.players[controller].play if self.engine.card_def(state, cid).card_type == "character")
+            elif amount_type == "difference":
+                left = self._amount_operand_value(state, raw_amount.get("left"), context)
+                right = self._amount_operand_value(state, raw_amount.get("right"), context)
+                value = right - left if raw_amount.get("invert") else left - right
+                return max(0, int(value))
+            elif amount_type == "trigger-amount":
+                return int(state.turn_metadata.get(f"trigger_amount:{context.source}", 0) or 0)
 
         # Check direct amount - only if raw["amount"] was not present
         if raw_amount is None and effect.amount is not None:
@@ -500,10 +584,239 @@ class EffectResolver:
             f"{{'type': 'event-snapshot', 'key': 'KEY_NAME'}}"
         )
 
+    def _amount_operand_value(self, state: GameState, operand: Any, context: EffectResolutionContext) -> int:
+        if not isinstance(operand, dict):
+            return 0
+        controller = context.actor
+        if operand.get("controller") == "opponent":
+            controller = state.opponent(context.actor)
+        if operand.get("type") == "cards-in-hand":
+            return len(state.players[controller].hand)
+        return 0
+
+    def _filtered_count_amount(self, state: GameState, raw_amount: dict[str, Any], context: EffectResolutionContext) -> int:
+        owner = raw_amount.get("owner")
+        controller_filter = None
+        if owner == "you":
+            controller_filter = context.actor
+        elif owner == "opponent":
+            controller_filter = state.opponent(context.actor)
+        zones = tuple(raw_amount.get("zones") or ("play",))
+        card_type = raw_amount.get("cardType")
+        exclude_self = bool(raw_amount.get("excludeSelf"))
+        filters = raw_amount.get("filters") or ()
+        if isinstance(filters, dict):
+            filters = (filters,)
+        count = 0
+        for cid, inst in state.cards.items():
+            if inst.zone not in zones:
+                continue
+            if controller_filter is not None and inst.controller != controller_filter:
+                continue
+            if exclude_self and cid == context.source:
+                continue
+            cdef = self.engine.card_def(state, cid)
+            if card_type and cdef.card_type != card_type:
+                continue
+            if not self._amount_filters_match(cdef, filters):
+                continue
+            count += 1
+        return count * int(raw_amount.get("multiplier") or 1)
+
+    def _amount_filters_match(self, cdef: Any, filters: tuple[Any, ...]) -> bool:
+        for filter_def in filters:
+            if not isinstance(filter_def, dict):
+                return False
+            if filter_def.get("type") in {"has-name", "name"} and filter_def.get("name") not in {cdef.full_name, cdef.name, cdef.simple_name}:
+                return False
+        return True
+
     def _keyword(self, effect: EffectDef) -> str:
         if not effect.keyword:
             raise EffectResolutionError("keyword_grant requires keyword")
         return effect.keyword.strip().upper().replace(" ", "_")
+
+    def _resolve_shuffle_into_deck(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        for target in self._target_cards(state, effect, context):
+            owner = state.cards[target].owner
+            self.engine._move_card_eventful(
+                state,
+                target,
+                ZONE_DECK,
+                actor=context.actor,
+                source_id=context.source,
+                controller=owner,
+                queue_triggers=False,
+            )
+            self.engine._shuffle_deck(state, owner, salt=f"shuffle_into_deck:{context.source}:{target}")
+
+    def _resolve_play_card(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        if raw.get("from") != "discard" or raw.get("cost") != "free" or raw.get("cardType") != "character":
+            raise EffectResolutionError("Unsupported play-card shape")
+        target_ids = context.current_targets or ((context.target,) if context.target is not None else ())
+        if len(target_ids) != 1:
+            raise EffectResolutionError("play-card requires exactly one selected card")
+        target = int(target_ids[0])
+        inst = state.cards[target]
+        if inst.owner != context.actor or inst.zone != ZONE_DISCARD:
+            raise EffectResolutionError("play-card target must be your character in discard")
+        card = self.engine.card_def(state, target)
+        if card.card_type != "character":
+            raise EffectResolutionError("play-card target must be a character")
+        self.engine._move_card_eventful(state, target, ZONE_PLAY, actor=context.actor, controller=context.actor)
+        self.engine._ready_eventful(state, target, actor=context.actor, source_id=context.source, emit_event=False)
+        inst.damage = 0
+        inst.drying = True
+        inst.just_played = True
+        inst.played_cost_type = "free"
+        self.engine._register_lifecycle_effects_for_public_permanent(state, target)
+        self.engine.emit_event(
+            state,
+            "CARD_PLAYED",
+            actor=context.actor,
+            source=target,
+            payload={
+                "player_id": context.actor,
+                "subject_card_id": target,
+                "card_type": card.card_type,
+                "played_from": ZONE_DISCARD,
+                "played_to": ZONE_PLAY,
+                "used_shift": False,
+                "sung": False,
+                "free": True,
+                "source_card_id": context.source,
+            },
+        )
+
+    def _resolve_move_damage(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        from_ref = raw.get("from")
+        to_target = raw.get("to")
+        raw_amount = raw.get("amount")
+        if not (isinstance(from_ref, dict) and from_ref.get("ref") == "self"):
+            raise EffectResolutionError("Unsupported move-damage source")
+        if not (isinstance(raw_amount, dict) and raw_amount.get("type") == "up-to"):
+            raise EffectResolutionError("Unsupported move-damage amount")
+        source = context.source
+        if source is None:
+            raise EffectResolutionError("move-damage requires a source")
+        target_ids = context.current_targets or ((context.target,) if context.target is not None else ())
+        if len(target_ids) != 1:
+            raise EffectResolutionError("move-damage requires exactly one target")
+        amount_choice = int(context.choice or 0)
+        maximum = min(int(raw_amount.get("value") or 0), state.cards[source].damage)
+        if amount_choice < 0 or amount_choice > maximum:
+            raise EffectResolutionError("move-damage amount outside legal range")
+        if amount_choice == 0:
+            return
+        self.engine._remove_damage_eventful(state, source, amount_choice, actor=context.actor, source_id=source)
+        moved_effect = EffectDef("deal_damage", amount_choice, to_target, raw={"moved_damage": True})
+        for target in self._target_cards(state, moved_effect, context):
+            self.engine._deal_damage_eventful(
+                state,
+                target_id=target,
+                source_id=source,
+                amount=amount_choice,
+                actor=context.actor,
+                is_challenge=False,
+                apply_resist=False,
+            )
+
+    def _resolve_return_from_discard(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        if raw.get("target") not in {"CONTROLLER", "controller"}:
+            raise EffectResolutionError("Unsupported return-from-discard target")
+        card_type = raw.get("cardType")
+        target_ids = tuple(context.current_targets or ((context.target,) if context.target is not None else ()))
+        if len(target_ids) != 1:
+            raise EffectResolutionError("return-from-discard requires exactly one selected card")
+        target = int(target_ids[0])
+        if state.cards[target].zone != ZONE_DISCARD or state.cards[target].owner != context.actor:
+            raise EffectResolutionError("return-from-discard target must be in your discard")
+        if card_type and self.engine.card_def(state, target).card_type != card_type:
+            raise EffectResolutionError("return-from-discard target card type mismatch")
+        self.engine._move_card_eventful(state, target, ZONE_HAND, actor=context.actor, source_id=context.source)
+
+    def _resolve_restriction(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        if raw.get("restriction") != "cant-quest" or raw.get("duration") not in {None, "this-turn", "this_turn"}:
+            raise EffectResolutionError("Unsupported restriction effect")
+        blocked = set(state.turn_metadata.get("cant_quest_until_turn_end", ()) or ())
+        for target in self._target_cards(state, effect, context):
+            blocked.add(target)
+        state.turn_metadata["cant_quest_until_turn_end"] = tuple(sorted(blocked))
+
+    def _resolve_pay_cost(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        cost = raw.get("cost")
+        child_raw = raw.get("effect")
+        if not (isinstance(cost, dict) and set(cost) == {"ink"} and isinstance(child_raw, dict)):
+            raise EffectResolutionError("Unsupported pay-cost shape")
+        ink = int(cost.get("ink") or 0)
+        if ink < 0 or self.engine.available_ink(state, context.actor) < ink:
+            raise EffectResolutionError("Cannot pay pay-cost ink")
+        from lorcana_bot.importers.lorcanito_source_mapper import map_raw_effect
+
+        child = map_raw_effect(child_raw)
+        if child is None:
+            raise EffectResolutionError("Unsupported pay-cost child effect")
+        self.engine._pay_ink(state, context.actor, ink)
+        self.resolve(state, EffectDef(
+            kind=child.kind.replace("-", "_"),
+            amount=child.amount or 0,
+            target=child.target,
+            effects=tuple(EffectDef(
+                kind=nested.kind.replace("-", "_"),
+                amount=nested.amount or 0,
+                target=nested.target,
+                raw=nested.raw,
+            ) for nested in child.effects),
+            raw=child.raw,
+        ), context)
+
+    def _resolve_grant_ability(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        ability_raw = raw.get("ability")
+        if ability_raw == "gain-lore-when-challenging":
+            for target in self._target_cards(state, effect, context):
+                state.cards[target].temporary_granted_abilities.append({
+                    "type": "gain-lore-when-challenging",
+                    "amount": 1,
+                    "duration": raw.get("duration") or "this-turn",
+                })
+            return
+        if not isinstance(ability_raw, dict):
+            raise EffectResolutionError("grant-ability requires raw ability")
+        from lorcana_bot.importers.lorcanito_source_mapper import map_raw_ability
+
+        granted = map_raw_ability(ability_raw)
+        for target in self._target_cards(state, effect, context):
+            state.cards[target].temporary_granted_abilities.append(granted)
+
+    def _resolve_create_replacement_effect(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        replacement = raw.get("replacement")
+        if not isinstance(replacement, dict):
+            raise EffectResolutionError("create-replacement-effect requires replacement")
+        if replacement.get("type") != "prevent-damage" or replacement.get("targetRef") != "source":
+            raise EffectResolutionError("Unsupported create-replacement-effect shape")
+        from lorcana_bot.replacement_effects import ReplacementEffectEntry, ReplacementEffectType, register_replacement_effect
+
+        register_replacement_effect(
+            state,
+            ReplacementEffectEntry(
+                source_id=int(context.source) if context.source is not None else -1,
+                effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+                target_mode="self",
+                amount=999,
+                replacement_effect="prevent_damage",
+                usage_key=f"trigger_prevent_damage:{context.pending_trigger_id or context.source}",
+                event_kinds=tuple(replacement.get("eventKinds", ()) or ()),
+                consume_on_apply=bool(replacement.get("consumeOnApply")),
+                duration=str(raw.get("duration") or "this-turn"),
+            ),
+        )
 
     # B4: Scry, search, reveal, and deck routing effect handlers
     # These effects typically require pending player input for ordering/routing
@@ -521,7 +834,7 @@ class EffectResolver:
         """
         from .pending_effects import create_scry_pending_effect
 
-        amount = self._amount(effect, context)
+        amount = self._amount(state, effect, context)
         if amount <= 0:
             return
 
@@ -548,7 +861,7 @@ class EffectResolver:
         """
         # Look at top cards - this is for triggering player info only
         # Cards stay on deck, just the player gets to see them
-        amount = self._amount(effect, context)
+        amount = self._amount(state, effect, context)
         player_deck = state.players[context.actor].deck
 
         # Emit reveal event for the looked-at cards (private info)
@@ -572,54 +885,79 @@ class EffectResolver:
 
         The card identity becomes public and is routed according to effect.value.
         """
-        amount = self._amount(effect, context)
+        amount = self._amount(state, effect, context)
         if amount <= 0:
             amount = 1
 
-        player = self._target_player(state, effect, context)
-        player_deck = state.players[player].deck
+        revealed_for_effect: list[int] = []
+        for player in self._target_players(state, effect, context):
+            player_deck = state.players[player].deck
 
-        if not player_deck:
-            return
+            if not player_deck:
+                continue
 
-        # Reveal top card(s)
-        revealed_cards = []
-        for i in range(min(amount, len(player_deck))):
-            cid = player_deck[i]
-            inst = state.cards[cid]
+            # Reveal top card(s)
+            revealed_cards = []
+            for i in range(min(amount, len(player_deck))):
+                cid = player_deck[i]
+                inst = state.cards[cid]
 
-            # Mark as revealed (public info)
-            inst.revealed = True
-            revealed_cards.append(cid)
+                # Mark as revealed (public info)
+                inst.revealed = True
+                revealed_cards.append(cid)
+                revealed_for_effect.append(cid)
 
-            # Emit public reveal event
-            self.engine.emit_event(
-                state,
-                "CARD_REVEALED",
-                actor=player,
-                source=cid,
-                payload={
-                    "card_id": cid,
-                    "card_def_id": inst.card_id,
-                    "from_zone": ZONE_DECK,
-                    "player": player,
-                },
-            )
+                # Emit public reveal event
+                self.engine.emit_event(
+                    state,
+                    "CARD_REVEALED",
+                    actor=player,
+                    source=cid,
+                    payload={
+                        "card_id": cid,
+                        "card_def_id": inst.card_id,
+                        "from_zone": ZONE_DECK,
+                        "player": player,
+                    },
+                )
 
-        # Route the revealed card(s) according to effect value
-        if effect.value:
-            destination = str(effect.value)
-            for cid in revealed_cards:
-                if destination == "hand":
-                    self.engine._move_card_eventful(state, cid, ZONE_HAND, actor=player, source_id=context.source)
-                elif destination == "discard":
-                    self.engine._move_card_eventful(state, cid, ZONE_DISCARD, actor=player, source_id=context.source)
-                elif destination == "play":
-                    # Only characters can go to play
-                    cdef = self.engine.card_def(state, cid)
-                    if cdef.card_type == "character":
-                        self.engine._move_card_eventful(state, cid, ZONE_PLAY, actor=player, source_id=context.source)
-                # put_on_top and put_on_bottom handled separately
+            # Route the revealed card(s) according to effect value
+            if effect.value:
+                destination = str(effect.value)
+                for cid in revealed_cards:
+                    if destination == "hand":
+                        self.engine._move_card_eventful(state, cid, ZONE_HAND, actor=player, source_id=context.source)
+                    elif destination == "discard":
+                        self.engine._move_card_eventful(state, cid, ZONE_DISCARD, actor=player, source_id=context.source)
+                    elif destination == "play":
+                        # Only characters can go to play
+                        cdef = self.engine.card_def(state, cid)
+                        if cdef.card_type == "character":
+                            self.engine._move_card_eventful(state, cid, ZONE_PLAY, actor=player, source_id=context.source)
+                    # put_on_top and put_on_bottom handled separately
+        state.turn_metadata[f"revealed_for_effect:{context.source}"] = tuple(revealed_for_effect)
+
+    def _resolve_count(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        if raw.get("what") != "distinct-revealed-ink-types":
+            raise EffectResolutionError("Unsupported count effect")
+        revealed = tuple(state.turn_metadata.get(f"revealed_for_effect:{context.source}", ()) or ())
+        inks = {self.engine.card_def(state, cid).ink for cid in revealed if cid in state.cards}
+        state.turn_metadata[f"trigger_amount:{context.source}"] = len(inks)
+
+    def _resolve_return_random_from_inkwell(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        leave = int(raw.get("leave") or 0)
+        import random
+
+        for player in self._target_players(state, effect, context):
+            inkwell = list(state.players[player].inkwell)
+            if len(inkwell) <= leave:
+                continue
+            rng = random.Random(f"{state.seed}:return_random_from_inkwell:{context.source}:{player}:{state.turn_number}")
+            rng.shuffle(inkwell)
+            for cid in inkwell[:len(inkwell) - leave]:
+                self.engine._move_card_eventful(state, cid, ZONE_HAND, actor=player, source_id=context.source)
 
     def _resolve_reveal_hand(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle reveal_hand effect - reveal all cards in hand.
@@ -815,14 +1153,16 @@ class EffectResolver:
     def _resolve_put_card_on_bottom(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle put_card_on_bottom effect - move card to bottom of deck.
 
-        The card to move is determined by context.choice or the pending effect selection.
+        Moves all resolved targets for selector:all shapes, or a selected
+        context.choice card for legacy pending routing.
         """
-        # The card to move should be specified in context.choice
-        card_id = context.choice
-        if card_id is None:
-            return
+        targets = self._target_cards(state, effect, context, require_target=False)
+        if not targets and context.choice is not None:
+            targets = [int(context.choice)]
 
-        if card_id in state.cards:
+        for card_id in targets:
+            if card_id not in state.cards:
+                continue
             self.engine._move_card_eventful(
                 state,
                 card_id,
@@ -832,10 +1172,29 @@ class EffectResolver:
                 controller=state.cards[card_id].owner,
             )
 
+    def _draw_until_hand_size(self, effect: EffectDef) -> int:
+        raw = effect.raw or {}
+        source_raw = raw.get("raw") if isinstance(raw.get("raw"), dict) else raw
+        for key in ("size", "target_size", "hand_size", "value"):
+            if key in source_raw:
+                return int(source_raw[key])
+        if effect.value is not None:
+            return int(effect.value)
+        if effect.amount:
+            return int(effect.amount)
+        raise EffectResolutionError("draw_until_hand_size requires target hand size")
+
     def _resolve_put_into_inkwell(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         source_raw = self._source_raw(effect)
         exerted = bool(source_raw.get("exerted", True))
-        for target in self._target_cards(state, effect, context):
+        source_shape = source_raw.get("source")
+        if source_shape == "hand" or isinstance(source_shape, dict):
+            targets = tuple(context.current_targets or ((context.target,) if context.target is not None else ()))
+            if not targets:
+                raise EffectResolutionError("put-into-inkwell requires selected source card")
+        else:
+            targets = tuple(self._target_cards(state, effect, context))
+        for target in targets:
             owner = state.cards[target].owner
             self.engine._put_into_inkwell_eventful(
                 state,

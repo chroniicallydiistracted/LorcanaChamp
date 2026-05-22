@@ -462,6 +462,8 @@ def parse_static_effects_from_card(
                 amount = source_effect_amount(source_effect)
                 if amount is None:
                     amount = int(raw.get("value") or raw.get("reduction") or 0)
+                if not isinstance(amount, (int, float, str)) or (isinstance(amount, str) and not amount.isdigit()):
+                    continue
 
                 card_type = (
                     raw.get("cardType")

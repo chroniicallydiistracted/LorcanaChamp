@@ -417,24 +417,27 @@ def _candidate_from_action(state: GameState, engine: GameEngine, action: Action)
     if action.kind == "SING_SONG":
         song_def = engine.card_def(state, action.card)
         singer_def = engine.card_def(state, action.source) if action.source else None
+        singer_ids = tuple((action.choice or {}).get("singer_ids", ())) or ((action.source,) if action.source else ())
+        mode = (action.choice or {}).get("mode", "sing")
         return AutomatedActionCandidate(
             family=AutomatedActionFamily.SING_SONG,
             actor=actor,
             stable_key=make_stable_key(
                 AutomatedActionFamily.SING_SONG, actor,
                 song=action.card, song_id=song_def.id,
-                singer=action.source, singer_id=singer_def.id if singer_def else None,
+                singers=singer_ids,
             ),
             card_instance_id=action.card,
             source_card_id=song_def.id,
             source_instance_id=action.source,
-            singer_instance_ids=(action.source,) if action.source else (),
-            payment_mode="sing",
+            singer_instance_ids=singer_ids,
+            payment_mode=str(mode),
             label=f"Sing {song_def.full_name} with {singer_def.full_name if singer_def else 'singer'}",
             metadata={
                 "song_id": song_def.id,
                 "singer_id": singer_def.id if singer_def else None,
-                "payment_mode": "sing",
+                "singer_ids": singer_ids,
+                "payment_mode": mode,
             },
         )
     if action.kind == "PLAY_SHIFTED":

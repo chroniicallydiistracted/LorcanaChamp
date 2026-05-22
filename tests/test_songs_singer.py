@@ -17,9 +17,12 @@ from lorcana_bot.play_modes import (
     get_singer_info,
     can_sing_song,
     execute_sing_song,
+    execute_sing_together_song,
     is_song_card,
+    sing_together_groups,
     SingerInfo,
 )
+from lorcana_bot.constants import ACTION_SING_SONG, PHASE_MAIN
 
 
 def _make_test_card(
@@ -441,6 +444,60 @@ class TestExecuteSingSong:
         ]
         assert len(sung_events) == 1
         assert sung_events[0].payload.get("singer_id") == 1
+
+
+class TestSingTogether:
+    def _setup_sing_together_state(self) -> tuple[GameEngine, GameState]:
+        cards = [
+            _make_test_card("song", "Under the Sea", "action", 8, keywords=("SING_TOGETHER(8)",), action_subtype="song"),
+            _make_test_card("five", "Five Cost", "character", 5, strength=2, willpower=5, lore=1),
+            _make_test_card("three", "Three Cost", "character", 3, strength=2, willpower=3, lore=1),
+            _make_test_card("small", "Small Cost", "character", 1, strength=1, willpower=1, lore=1),
+        ]
+        engine = GameEngine(CardDatabase(cards))
+        state = GameState(players=[PlayerState(), PlayerState()], cards={})
+        state.cards[1] = CardInstance(instance_id=1, card_id="song", owner=0, controller=0, zone="hand")
+        state.players[0].hand.append(1)
+        state.cards[2] = CardInstance(instance_id=2, card_id="five", owner=0, controller=0, zone="play")
+        state.cards[3] = CardInstance(instance_id=3, card_id="three", owner=0, controller=0, zone="play")
+        state.cards[4] = CardInstance(instance_id=4, card_id="small", owner=0, controller=0, zone="play")
+        state.players[0].play.extend([2, 3, 4])
+        state.phase = PHASE_MAIN
+        state.active_player = 0
+        return engine, state
+
+    def test_two_singers_can_jointly_sing_sing_together_song(self):
+        engine, state = self._setup_sing_together_state()
+
+        groups = sing_together_groups(state, engine, 0, 1)
+        assert (2, 3) in groups
+
+        execute_sing_together_song(state, engine, (2, 3), 1)
+        assert state.cards[2].exerted is True
+        assert state.cards[3].exerted is True
+        assert state.cards[1].zone == "discard"
+        event = next(event for event in reversed(state.event_log) if event.event_type == "CARD_PLAYED")
+        assert event.payload["cost_type"] == "singTogether"
+        assert event.payload["singer_ids"] == [2, 3]
+
+    def test_invalid_sing_together_group_rejected_before_exerting(self):
+        engine, state = self._setup_sing_together_state()
+
+        with pytest.raises(ValueError):
+            execute_sing_together_song(state, engine, (2,), 1)
+
+        assert state.cards[2].exerted is False
+        assert state.cards[1].zone == "hand"
+
+    def test_legal_actions_and_automation_shape_include_singer_group(self):
+        engine, state = self._setup_sing_together_state()
+
+        actions = engine.legal_actions(state, 0)
+        action = next(
+            action for action in actions
+            if action.kind == ACTION_SING_SONG and action.choice and action.choice.get("mode") == "singTogether"
+        )
+        assert action.choice["singer_ids"] == (2, 3)
 
 
 if __name__ == "__main__":

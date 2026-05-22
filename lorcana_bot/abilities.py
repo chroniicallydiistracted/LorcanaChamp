@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 from lorcana_bot.card_logic import SourceAbilityDef
+from lorcana_bot.card_logic.effect_utils import to_engine_cost_kind, to_engine_effect_kind
 from lorcana_bot.card_logic.costs import SourceCostDef
 from lorcana_bot.cards import EffectDef
 
@@ -80,6 +81,7 @@ def get_activated_abilities_for_card(
     state: GameState,
     card_instance_id: int,
     card_def: Any,
+    engine: GameEngine | None = None,
 ) -> list[ActivatedAbility]:
     """Get all activated abilities on a card.
 
@@ -109,26 +111,116 @@ def get_activated_abilities_for_card(
             )
             abilities.append(ability)
 
+    for idx, src_ability in enumerate(getattr(state.cards[card_instance_id], "temporary_granted_abilities", ()) or ()):
+        if src_ability.kind != "activated":
+            continue
+        abilities.append(ActivatedAbility(
+            source_instance_id=card_instance_id,
+            source_card_id=card_def.id,
+            ability_id=f"temporary:{src_ability.id or idx}",
+            ability_index=10_000 + idx,
+            name=src_ability.name,
+            costs=src_ability.costs,
+            effects=src_ability.effects,
+            condition=src_ability.condition,
+            raw=dict(src_ability.raw),
+        ))
+
+    if engine is not None:
+        abilities.extend(_static_granted_abilities_for_card(state, engine, card_instance_id, card_def))
+
     # Also check legacy activated_abilities attribute
     for idx, legacy in enumerate(getattr(card_def, 'activated_abilities', []) or []):
         # Skip if already added from source_abilities
         if any(a.ability_index == idx and a.source_card_id == card_def.id for a in abilities):
             continue
 
+        legacy_raw = legacy if isinstance(legacy, dict) else {
+            "id": getattr(legacy, "id", f"legacy_ability_{idx}"),
+            "name": getattr(legacy, "name", None),
+        }
         ability = ActivatedAbility(
             source_instance_id=card_instance_id,
             source_card_id=card_def.id,
-            ability_id=legacy.get("id", f"legacy_ability_{idx}"),
+            ability_id=legacy_raw.get("id", f"legacy_ability_{idx}"),
             ability_index=idx,
-            name=legacy.get("name"),
+            name=legacy_raw.get("name"),
             costs=tuple(),  # Legacy format doesn't have structured costs
             effects=tuple(),
             condition=None,
-            raw=dict(legacy),
+            raw=dict(legacy_raw),
         )
         abilities.append(ability)
 
     return abilities
+
+
+def _static_granted_abilities_for_card(
+    state: GameState,
+    engine: GameEngine,
+    card_instance_id: int,
+    card_def: Any,
+) -> list[ActivatedAbility]:
+    abilities: list[ActivatedAbility] = []
+    for source_id, source_inst in state.cards.items():
+        if source_inst.zone != "play" or getattr(source_inst, "stack_parent_id", None) is not None:
+            continue
+        source_card_def = engine.card_def(state, source_id)
+        for source_ability in getattr(source_card_def, "source_abilities", ()) or ():
+            if getattr(source_ability, "kind", None) != "static":
+                continue
+            for effect in getattr(source_ability, "effects", ()) or ():
+                if getattr(effect, "kind", None) != "grant-abilities-while-here":
+                    continue
+                if not _grant_static_applies_to_target(state, engine, source_id, effect, card_instance_id, card_def):
+                    continue
+                raw_abilities = (getattr(effect, "raw", {}) or {}).get("abilities", ())
+                if not isinstance(raw_abilities, list):
+                    continue
+                from lorcana_bot.importers.lorcanito_source_mapper import map_raw_ability
+                for grant_idx, raw_ability in enumerate(raw_abilities):
+                    if not isinstance(raw_ability, dict):
+                        continue
+                    granted = map_raw_ability(raw_ability)
+                    if granted.kind != "activated":
+                        continue
+                    abilities.append(ActivatedAbility(
+                        source_instance_id=card_instance_id,
+                        source_card_id=card_def.id,
+                        ability_id=f"static:{source_id}:{granted.id or grant_idx}",
+                        ability_index=20_000 + source_id * 100 + grant_idx,
+                        name=granted.name,
+                        costs=granted.costs,
+                        effects=granted.effects,
+                        condition=granted.condition,
+                        raw=dict(granted.raw),
+                    ))
+    return abilities
+
+
+def _grant_static_applies_to_target(
+    state: GameState,
+    engine: GameEngine,
+    source_id: int,
+    effect: Any,
+    target_id: int,
+    target_card_def: Any,
+) -> bool:
+    target_raw = (getattr(effect, "raw", {}) or {}).get("target")
+    source_controller = state.cards[source_id].controller
+    target_inst = state.cards[target_id]
+    if target_inst.zone != "play":
+        return False
+    if target_raw == "YOUR_OTHER_EVASIVE_CHARACTERS":
+        return (
+            target_id != source_id
+            and target_inst.controller == source_controller
+            and target_card_def.card_type == "character"
+            and engine.has_keyword(state, target_id, "EVASIVE")
+        )
+    if target_raw == "CHARACTERS_HERE":
+        return target_card_def.card_type == "character" and target_inst.location_instance_id == source_id
+    return False
 
 
 def can_use_ability_this_turn(state: GameState, ability: ActivatedAbility) -> bool:
@@ -172,7 +264,7 @@ def get_available_abilities_for_player(
             continue
 
         card_def = engine.card_def(state, cid)
-        card_abilities = get_activated_abilities_for_card(state, cid, card_def)
+        card_abilities = get_activated_abilities_for_card(state, cid, card_def, engine)
 
         for ability in card_abilities:
             # Check once-per-turn restriction
@@ -249,6 +341,8 @@ def execute_ability_effects(
     state: GameState,
     engine: GameEngine,
     ability: ActivatedAbility,
+    *,
+    selected_targets: tuple[int, ...] = (),
 ) -> None:
     """Execute the effects of an activated ability.
 
@@ -267,7 +361,7 @@ def execute_ability_effects(
     context = EffectResolutionContext(
         actor=state.cards[ability.source_instance_id].controller,
         source=ability.source_instance_id,
-        target=None,
+        target=selected_targets[0] if selected_targets else None,
         choice=None,
         optional_choices={},
         event=None,
@@ -275,7 +369,7 @@ def execute_ability_effects(
         pending_trigger_id=None,
         trigger_source=None,
         trigger_subject=None,
-        current_targets=(),  # Empty tuple for activated abilities
+        current_targets=selected_targets,
     )
 
     # Convert source effects to EffectDef if needed
@@ -304,15 +398,15 @@ def _convert_source_effects(source_effects: tuple[Any, ...]) -> tuple["EffectDef
         else:
             # Convert from SourceEffectDef
             # Use alias mapping if available, otherwise use selector
-            target_selector = None
+            target_selector: Any = None
             if src_effect.target:
                 if src_effect.target.alias:
                     target_selector = TARGET_ALIAS_MAP.get(src_effect.target.alias, src_effect.target.alias)
                 elif src_effect.target.selector:
-                    target_selector = src_effect.target.selector
+                    target_selector = dict(src_effect.target.raw) if src_effect.target.raw else src_effect.target.selector
 
             effect_def = EffectDef(
-                kind=src_effect.kind,
+                kind=to_engine_effect_kind(src_effect.kind),
                 target=target_selector,
                 amount=src_effect.amount,
                 # value and keyword are not in SourceEffectDef, pass through raw
@@ -322,6 +416,7 @@ def _convert_source_effects(source_effects: tuple[Any, ...]) -> tuple["EffectDef
                 optional=src_effect.optional,
                 condition=src_effect.condition,
                 duration=src_effect.duration if hasattr(src_effect, 'duration') else None,
+                raw=dict(getattr(src_effect, "raw", {}) or {}),
             )
             effect_defs.append(effect_def)
 
@@ -337,6 +432,8 @@ TARGET_ALIAS_MAP = {
     "SELF": "self",
     "EVENT_SOURCE": "event_source",
     "EVENT_TARGET": "event_target",
+    "TRIGGER_SUBJECT": "trigger_subject",
+    "CARD_OWNER": "card_owner",
     "CHOSEN_CHARACTER": "chosen_character",
     "CHOSEN_OPPOSING_CHARACTER": "chosen_opposing_character",
     "YOUR_CHARACTERS": "your_characters",
@@ -371,19 +468,22 @@ def validate_effects_supported(ability: ActivatedAbility) -> tuple[bool, str]:
 
     for effect in ability.effects:
         # Check effect kind is supported
-        if not _is_effect_kind_supported(effect.kind):
+        engine_kind = to_engine_effect_kind(effect.kind)
+        if not _is_effect_kind_supported(engine_kind):
             return False, f"Unsupported effect kind: {effect.kind}"
 
         # Check target is supported (no choice prompts required)
         if effect.target:
             alias = effect.target.alias
-            if alias in UNSUPPORTED_TARGET_ALIASES:
-                return False, f"Target requires choice prompt: {alias}"
             if alias and alias not in TARGET_ALIAS_MAP:
                 # Unknown alias might be fine, but check selector
                 selector = effect.target.selector
                 if selector and selector not in {"self", "controller", "opponent", "each_opponent"}:
                     return False, f"Unsupported target: {alias or selector}"
+            elif not alias and effect.target.selector:
+                from lorcana_bot.targeting import normalize_target_descriptor
+                if normalize_target_descriptor(effect.target.raw or effect.target.selector) is None:
+                    return False, f"Unsupported target: {effect.target.selector}"
 
         # Recursively check child effects
         if effect.effects:
@@ -428,6 +528,7 @@ def _is_effect_kind_supported(kind: str) -> bool:
         "put_card_in_hand",
         "put_card_on_top",
         "put_card_on_bottom",
+        "draw_until_hand_size",
         "cost_reduction",
         "keyword_grant",
         "temporary_modifier",
@@ -443,6 +544,8 @@ def use_ability(
     state: GameState,
     engine: GameEngine,
     ability: ActivatedAbility,
+    *,
+    selected_targets: tuple[int, ...] = (),
 ) -> AbilityUseResult:
     """Execute an activated ability: validate costs, pay costs, resolve effects.
 
@@ -455,6 +558,13 @@ def use_ability(
         AbilityUseResult indicating success or failure
     """
     from lorcana_bot.costs import validate_cost_payable
+
+    effects_supported, effect_reason = validate_effects_supported(ability)
+    if not effects_supported:
+        return AbilityUseResult(
+            success=False,
+            error_message=effect_reason,
+        )
 
     # Validate costs are payable
     for cost in ability.costs:
@@ -483,7 +593,7 @@ def use_ability(
 
     # Execute effects
     try:
-        execute_ability_effects(state, engine, ability)
+        execute_ability_effects(state, engine, ability, selected_targets=selected_targets)
         return AbilityUseResult(
             success=True,
             costs_paid=paid_costs,

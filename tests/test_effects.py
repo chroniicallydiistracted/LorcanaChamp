@@ -16,6 +16,7 @@ from lorcana_bot.constants import (
     ZONE_DISCARD,
     ZONE_HAND,
     ZONE_PLAY,
+    ZONE_UNDER,
 )
 from lorcana_bot.effect_types import EffectResolutionContext
 from lorcana_bot.engine import GameEngine
@@ -180,6 +181,60 @@ def test_ready_exert_discard_and_for_each_effects():
     state = engine.apply_action(state, find_action(engine.legal_actions(state), ACTION_PLAY_CARD, card=foreach))
     assert state.cards[ally].exerted is False
     assert state.cards[target].exerted is True
+
+
+def test_draw_until_hand_size_draws_only_to_target_size():
+    engine, state = setup_effect_game()
+    source = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+    state.players[0].hand = state.players[0].hand[:1]
+    before = len(state.players[0].hand)
+
+    effect = EffectDef("draw_until_hand_size", target="controller", raw={"size": 3})
+    engine.effect_resolver.resolve(state, effect, EffectResolutionContext(actor=0, source=source))
+
+    assert before == 1
+    assert len(state.players[0].hand) == 3
+
+    engine.effect_resolver.resolve(state, effect, EffectResolutionContext(actor=0, source=source))
+    assert len(state.players[0].hand) == 3
+
+
+def test_cards_under_self_amount_shape_reaches_effect_resolution():
+    engine, state = setup_effect_game()
+    source = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+    under_1 = put_card(state, engine, 0, "Filler", ZONE_UNDER)
+    under_2 = put_card(state, engine, 0, "Filler", ZONE_UNDER)
+    state.cards[source].cards_under = [under_1, under_2]
+
+    effect = EffectDef("draw", target="controller", raw={"amount": {"type": "cards-under-self"}})
+    before = len(state.players[0].hand)
+    engine.effect_resolver.resolve(state, effect, EffectResolutionContext(actor=0, source=source))
+
+    assert len(state.players[0].hand) == before + 2
+
+def test_selector_all_put_on_bottom_moves_all_matching_opposing_characters():
+    engine, state = setup_effect_game()
+    source = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
+    small = put_card(state, engine, 1, "Target", ZONE_PLAY, exerted=False, drying=False)
+    big = put_card(state, engine, 1, "Big Character", ZONE_PLAY, exerted=False, drying=False)
+    own = put_card(state, engine, 0, "Filler", ZONE_PLAY, exerted=False, drying=False)
+
+    effect = EffectDef(
+        "put_card_on_bottom",
+        target={
+            "selector": "all",
+            "count": "all",
+            "owner": "opponent",
+            "zones": ["play"],
+            "cardTypes": ["character"],
+            "filter": [{"type": "strength-comparison", "comparison": "less-or-equal", "value": 2}],
+        },
+    )
+    engine.effect_resolver.resolve(state, effect, EffectResolutionContext(actor=0, source=source))
+
+    assert state.cards[small].zone == ZONE_DECK
+    assert state.cards[big].zone == ZONE_PLAY
+    assert state.cards[own].zone == ZONE_PLAY
 
 
 def test_cost_reduction_keyword_grant_and_temporary_modifier_affect_legal_play_and_challenge():

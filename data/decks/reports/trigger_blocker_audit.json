@@ -11,10 +11,8 @@
       "ability_kind": "triggered",
       "ability_name": "ANCIENT SKILLS",
       "appears_in_deck": true,
-      "blocker_family": "effect_unsupported",
-      "blockers": [
-        "unsupported_trigger_effect:create-replacement-effect"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_s33",
       "card_count": 4,
       "card_id": "YW7",
@@ -30,11 +28,11 @@
       "effect_kinds": [
         "create-replacement-effect"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Rafiki - Mystical Fighter",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_effect:create-replacement-effect",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -81,9 +79,7 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "replacement_prevention"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "challenge",
@@ -246,7 +242,8 @@
       "deck_name": "Set 11 - Amber/Amethyst - Raging Storm",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "move-damage"
       ],
       "execution_status": "executable",
       "full_name": "Cheshire Cat - Inexplicable",
@@ -334,7 +331,9 @@
       "deck_name": "Set 11 - Amber/Amethyst - Raging Storm",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "sequence"
+        "sequence",
+        "reveal-hand",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Timon - Snowball Swiper",
@@ -381,7 +380,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "OPPONENT",
+        "OPPONENT"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -444,6 +446,96 @@
       "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF",
+      "trigger_source_zones": [
+        "play"
+      ],
+      "trigger_timing": "when"
+    },
+    {
+      "ability_id": "3b3-1",
+      "ability_index": 0,
+      "ability_kind": "triggered",
+      "ability_name": "SPLENDERIFFIC BOUNCE",
+      "appears_in_deck": true,
+      "blocker_family": "unknown",
+      "blockers": [],
+      "canonical_id": "ci_F3L",
+      "card_count": 3,
+      "card_id": "IyC",
+      "card_name": "Tigger - Bouncing All the Way",
+      "card_type": "character",
+      "card_version": "Bouncing All the Way",
+      "condition_kinds": [],
+      "copy_weight": 3,
+      "cost_kinds": [],
+      "deck_id": "aa_evasives_raging_storm_2026_02_23",
+      "deck_name": "Set 11 - Amber/Amethyst - Raging Storm",
+      "deck_presence_weight": 1,
+      "effect_kinds": [
+        "optional",
+        "return-to-hand"
+      ],
+      "execution_status": "executable",
+      "full_name": "Tigger - Bouncing All the Way",
+      "ink": "amethyst",
+      "primary_blocker": null,
+      "projection_status": "projected",
+      "raw_ability": {
+        "_parseWarning": "ability_object_parse_failed",
+        "_source_index": 0,
+        "effect": {
+          "chooser": "CONTROLLER",
+          "effect": {
+            "target": {
+              "cardTypes": [
+                "character",
+                "item",
+                "location"
+              ],
+              "count": 1,
+              "filter": [
+                {
+                  "comparison": "less-or-equal",
+                  "type": "cost-comparison",
+                  "value": 2
+                }
+              ],
+              "owner": "any",
+              "selector": "chosen",
+              "zones": [
+                "play"
+              ]
+            },
+            "type": "return-to-hand"
+          },
+          "type": "optional"
+        },
+        "id": "3b3-1",
+        "name": "SPLENDERIFFIC BOUNCE",
+        "raw": {
+          "tsObject": "{\n      id: \"3b3-1\",\n      effect: {\n        chooser: \"CONTROLLER\",\n        effect: {\n          target: {\n            cardTypes: [\"character\", \"item\", \"location\"],\n            count: 1,\n            owner: \"any\",\n            selector: \"chosen\",\n            zones: [\"play\"],\n            filter: [\n              {\n                type: \"cost-comparison\",\n                comparison: \"less-or-equal\",\n                value: 2,\n              },\n            ],\n          },\n          type: \"return-to-hand\",\n        },\n        type: \"optional\",\n      },\n      name: \"SPLENDERIFFIC BOUNCE\",\n      trigger: {\n        event: \"play\",\n        on: \"SELF\",\n        timing: \"when\",\n      },\n      type: \"triggered\",\n      text: \"SPLENDERIFFIC BOUNCE When you play this character, you may return chosen character, item, or location with cost 2 or less to their player's hand.\",\n    }"
+        },
+        "rawExpression": "{\n      id: \"3b3-1\",\n      effect: {\n        chooser: \"CONTROLLER\",\n        effect: {\n          target: {\n            cardTypes: [\"character\", \"item\", \"location\"],\n            count: 1,\n            owner: \"any\",\n            selector: \"chosen\",\n            zones: [\"play\"],\n            filter: [\n              {\n                type: \"cost-comparison\",\n                comparison: \"less-or-equal\",\n                value: 2,\n              },\n            ],\n          },\n          type: \"return-to-hand\",\n        },\n        type: \"optional\",\n      },\n      name: \"SPLENDERIFFIC BOUNCE\",\n      trigger: {\n        event: \"play\",\n        on: \"SELF\",\n        timing: \"when\",\n      },\n      type: \"triggered\",\n      text: \"SPLENDERIFFIC BOUNCE When you play this character, you may return chosen character, item, or location with cost 2 or less to their player's hand.\",\n    }",
+        "text": "SPLENDERIFFIC BOUNCE When you play this character, you may return chosen character, item, or location with cost 2 or less to their player's hand.",
+        "trigger": {
+          "event": "play",
+          "on": "SELF",
+          "timing": "when"
+        },
+        "type": "triggered"
+      },
+      "raw_trigger": {
+        "event": "play",
+        "on": "SELF",
+        "timing": "when"
+      },
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
+      "target_kinds": [
+        "chosen"
       ],
       "trigger_event": "play",
       "trigger_on": "SELF",
@@ -545,7 +637,12 @@
       "deck_name": "Set 11 - Amber/Amethyst - Raging Storm",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "select-target",
+        "choice",
+        "put-on-bottom",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Hades - Looking for a Deal",
@@ -606,7 +703,11 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CHOSEN_OPPOSING_CHARACTER",
+        "unknown",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -635,7 +736,10 @@
       "deck_name": "Set 11 - Amber/Amethyst - Raging Storm",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "sequence"
+        "sequence",
+        "exert",
+        "draw-until-hand-size",
+        "draw-until-hand-size"
       ],
       "execution_status": "executable",
       "full_name": "Demona - Scourge of the Wyvern Clan",
@@ -691,7 +795,11 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "all",
+        "CONTROLLER",
+        "OPPONENT"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -705,10 +813,8 @@
       "ability_kind": "triggered",
       "ability_name": "ANCIENT SKILLS",
       "appears_in_deck": true,
-      "blocker_family": "effect_unsupported",
-      "blockers": [
-        "unsupported_trigger_effect:create-replacement-effect"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_s33",
       "card_count": 4,
       "card_id": "YW7",
@@ -724,11 +830,11 @@
       "effect_kinds": [
         "create-replacement-effect"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Rafiki - Mystical Fighter",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_effect:create-replacement-effect",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "effect": {
@@ -775,9 +881,7 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "replacement_prevention"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "challenge",
@@ -938,7 +1042,8 @@
       "deck_name": "Amber Amethyst",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "move-damage"
       ],
       "execution_status": "executable",
       "full_name": "Cheshire Cat - Inexplicable",
@@ -1143,10 +1248,8 @@
       "ability_kind": "triggered",
       "ability_name": "A LITTLE GAME",
       "appears_in_deck": true,
-      "blocker_family": "effect_unsupported",
-      "blockers": [
-        "unsupported_trigger_effect:or"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_jUU",
       "card_count": 2,
       "card_id": "jUU",
@@ -1160,13 +1263,15 @@
       "deck_name": "Amber Amethyst",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "or"
+        "or",
+        "banish",
+        "return-to-hand"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Madam Mim - Elephant",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_effect:or",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -1213,11 +1318,12 @@
         "on": "SELF",
         "timing": "when"
       },
-      "recommended_engine_work": [
-        "other_source_execution"
-      ],
+      "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "SELF",
+        "chosen"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -1246,7 +1352,8 @@
       "deck_name": "Amber Amethyst",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "move-damage"
       ],
       "execution_status": "executable",
       "full_name": "Madam Mim - Elephant",
@@ -1474,7 +1581,12 @@
       "deck_name": "Amber Amethyst",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "select-target",
+        "choice",
+        "put-on-bottom",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Hades - Looking for a Deal",
@@ -1535,7 +1647,11 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CHOSEN_OPPOSING_CHARACTER",
+        "unknown",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -1564,7 +1680,10 @@
       "deck_name": "Amber Amethyst",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "sequence"
+        "sequence",
+        "exert",
+        "draw-until-hand-size",
+        "draw-until-hand-size"
       ],
       "execution_status": "executable",
       "full_name": "Demona - Scourge of the Wyvern Clan",
@@ -1620,7 +1739,91 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "all",
+        "CONTROLLER",
+        "OPPONENT"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF",
+      "trigger_source_zones": [
+        "play"
+      ],
+      "trigger_timing": "when"
+    },
+    {
+      "ability_id": "i7B-2",
+      "ability_index": 1,
+      "ability_kind": "triggered",
+      "ability_name": "MONEY EVERYWHERE",
+      "appears_in_deck": true,
+      "blocker_family": "unknown",
+      "blockers": [],
+      "canonical_id": "ci_i7B",
+      "card_count": 1,
+      "card_id": "i7B",
+      "card_name": "Donald Duck - Coin Collector",
+      "card_type": "character",
+      "card_version": "Coin Collector",
+      "condition_kinds": [],
+      "copy_weight": 1,
+      "cost_kinds": [],
+      "deck_id": "aa_lantern_zan_syed_2025_12_06",
+      "deck_name": "Amber Amethyst",
+      "deck_presence_weight": 1,
+      "effect_kinds": [
+        "grant-ability"
+      ],
+      "execution_status": "executable",
+      "full_name": "Donald Duck - Coin Collector",
+      "ink": "amber",
+      "primary_blocker": null,
+      "projection_status": "projected",
+      "raw_ability": {
+        "_parseWarning": "ability_object_parse_failed",
+        "_source_index": 1,
+        "effect": {
+          "ability": {
+            "cost": {
+              "exert": true
+            },
+            "effect": {
+              "amount": 1,
+              "target": "CONTROLLER",
+              "type": "draw"
+            },
+            "id": "draw-a-card-when-exerted",
+            "text": "{E} \u2014 Draw a card.",
+            "type": "activated"
+          },
+          "duration": "this-turn",
+          "target": "YOUR_OTHER_CHARACTERS",
+          "type": "grant-ability"
+        },
+        "id": "i7B-2",
+        "name": "MONEY EVERYWHERE",
+        "raw": {
+          "tsObject": "{\n      id: \"i7B-2\",\n      name: \"MONEY EVERYWHERE\",\n      text: 'MONEY EVERYWHERE When you play this character, your other characters gain \"{E} \u2014 Draw a card\" this turn.',\n      trigger: {\n        event: \"play\",\n        on: \"SELF\",\n        timing: \"when\",\n      },\n      type: \"triggered\",\n      effect: {\n        type: \"grant-ability\",\n        ability: {\n          type: \"activated\",\n          id: \"draw-a-card-when-exerted\",\n          cost: {\n            exert: true,\n          },\n          effect: {\n            type: \"draw\",\n            amount: 1,\n            target: \"CONTROLLER\",\n          },\n          text: \"{E} \u2014 Draw a card.\",\n        },\n        duration: \"this-turn\",\n        target: \"YOUR_OTHER_CHARACTERS\",\n      },\n    }"
+        },
+        "rawExpression": "{\n      id: \"i7B-2\",\n      name: \"MONEY EVERYWHERE\",\n      text: 'MONEY EVERYWHERE When you play this character, your other characters gain \"{E} \u2014 Draw a card\" this turn.',\n      trigger: {\n        event: \"play\",\n        on: \"SELF\",\n        timing: \"when\",\n      },\n      type: \"triggered\",\n      effect: {\n        type: \"grant-ability\",\n        ability: {\n          type: \"activated\",\n          id: \"draw-a-card-when-exerted\",\n          cost: {\n            exert: true,\n          },\n          effect: {\n            type: \"draw\",\n            amount: 1,\n            target: \"CONTROLLER\",\n          },\n          text: \"{E} \u2014 Draw a card.\",\n        },\n        duration: \"this-turn\",\n        target: \"YOUR_OTHER_CHARACTERS\",\n      },\n    }",
+        "text": "MONEY EVERYWHERE When you play this character, your other characters gain \"{E} \u2014 Draw a card\" this turn.",
+        "trigger": {
+          "event": "play",
+          "on": "SELF",
+          "timing": "when"
+        },
+        "type": "triggered"
+      },
+      "raw_trigger": {
+        "event": "play",
+        "on": "SELF",
+        "timing": "when"
+      },
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
+      "target_kinds": [
+        "YOUR_OTHER_CHARACTERS"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -1649,7 +1852,10 @@
       "deck_name": "Amber Emerald",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "draw",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Bobby Zimuruski - Spray Cheese Kid",
@@ -1697,7 +1903,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -1726,7 +1935,8 @@
       "deck_name": "Amber Emerald",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "pay-cost"
       ],
       "execution_status": "executable",
       "full_name": "Finnick - Tiny Terror",
@@ -2084,7 +2294,8 @@
       "deck_name": "Amber Emerald",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "play-card"
       ],
       "execution_status": "executable",
       "full_name": "Lilo - Escape Artist",
@@ -2156,7 +2367,9 @@
       "deck_name": "Amber Emerald",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "sequence"
+        "sequence",
+        "reveal-hand",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Mowgli - Man Cub",
@@ -2203,7 +2416,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "OPPONENT",
+        "OPPONENT"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -2316,7 +2532,9 @@
       "deck_name": "Amber Emerald",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "sequence"
+        "sequence",
+        "reveal-hand",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Ursula - Deceiver",
@@ -2363,7 +2581,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "OPPONENT",
+        "OPPONENT"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -2476,7 +2697,8 @@
       "deck_name": "Amber Emerald",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "return-to-hand"
       ],
       "execution_status": "executable",
       "full_name": "Lady - Miss Park Avenue",
@@ -2530,7 +2752,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "chosen"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -2559,7 +2783,8 @@
       "deck_name": "Amber Emerald",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Tramp - Dapper Rascal",
@@ -2607,7 +2832,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "banish",
       "trigger_on": "YOUR_CHARACTERS",
       "trigger_source_zones": [
@@ -2636,7 +2863,10 @@
       "deck_name": "Amber Emerald",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "draw",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Tramp - Street-Smart Dog",
@@ -2701,7 +2931,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -2730,7 +2963,8 @@
       "deck_name": "Amber Emerald",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "return-to-hand"
       ],
       "execution_status": "executable",
       "full_name": "Emerald Chromicon",
@@ -2787,7 +3021,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "chosen"
+      ],
       "trigger_event": "banish",
       "trigger_on": "YOUR_CHARACTERS",
       "trigger_source_zones": [
@@ -2816,7 +3052,8 @@
       "deck_name": "Purple Steel",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "return-to-hand"
       ],
       "execution_status": "executable",
       "full_name": "Olaf - Helping Hand",
@@ -2861,7 +3098,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "chosen"
+      ],
       "trigger_event": "leave-play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -2890,7 +3129,10 @@
       "deck_name": "Purple Steel",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "discard",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Doc - Bold Knight",
@@ -2937,7 +3179,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -2951,10 +3196,8 @@
       "ability_kind": "triggered",
       "ability_name": "WHAT IS MY PATH?",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_o0i",
       "card_count": 2,
       "card_id": "o0i",
@@ -2970,11 +3213,11 @@
       "effect_kinds": [
         "gain-lore"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Pocahontas - Following the Wind",
       "ink": "amethyst",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 0,
         "effect": {
@@ -3017,12 +3260,8 @@
         "on": "SELF",
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [
         "CONTROLLER"
       ],
@@ -3054,7 +3293,8 @@
       "deck_name": "Purple Steel",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "move-damage"
       ],
       "execution_status": "executable",
       "full_name": "Cheshire Cat - Inexplicable",
@@ -3142,7 +3382,10 @@
       "deck_name": "Purple Steel",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "discard",
+        "conditional"
       ],
       "execution_status": "executable",
       "full_name": "Giant Cobra - Ghostly Serpent",
@@ -3196,7 +3439,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -3360,7 +3605,12 @@
       "deck_name": "Purple Steel",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "select-target",
+        "choice",
+        "put-on-bottom",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Hades - Looking for a Deal",
@@ -3421,7 +3671,11 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CHOSEN_OPPOSING_CHARACTER",
+        "unknown",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -3450,7 +3704,10 @@
       "deck_name": "Purple Steel",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "sequence"
+        "sequence",
+        "exert",
+        "draw-until-hand-size",
+        "draw-until-hand-size"
       ],
       "execution_status": "executable",
       "full_name": "Demona - Scourge of the Wyvern Clan",
@@ -3506,7 +3763,11 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "all",
+        "CONTROLLER",
+        "OPPONENT"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -3600,7 +3861,8 @@
       "deck_name": "AOTP",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "put-into-inkwell"
       ],
       "execution_status": "executable",
       "full_name": "Tipo - Growing Son",
@@ -3638,7 +3900,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -3667,7 +3931,8 @@
       "deck_name": "AOTP",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "move-damage"
       ],
       "execution_status": "executable",
       "full_name": "Cheshire Cat - Inexplicable",
@@ -3798,6 +4063,96 @@
       "trigger_timing": "when"
     },
     {
+      "ability_id": "3b3-1",
+      "ability_index": 0,
+      "ability_kind": "triggered",
+      "ability_name": "SPLENDERIFFIC BOUNCE",
+      "appears_in_deck": true,
+      "blocker_family": "unknown",
+      "blockers": [],
+      "canonical_id": "ci_F3L",
+      "card_count": 2,
+      "card_id": "IyC",
+      "card_name": "Tigger - Bouncing All the Way",
+      "card_type": "character",
+      "card_version": "Bouncing All the Way",
+      "condition_kinds": [],
+      "copy_weight": 2,
+      "cost_kinds": [],
+      "deck_id": "as_evasive_aotp_stockholm_2026_04_25",
+      "deck_name": "AOTP",
+      "deck_presence_weight": 1,
+      "effect_kinds": [
+        "optional",
+        "return-to-hand"
+      ],
+      "execution_status": "executable",
+      "full_name": "Tigger - Bouncing All the Way",
+      "ink": "amethyst",
+      "primary_blocker": null,
+      "projection_status": "projected",
+      "raw_ability": {
+        "_parseWarning": "ability_object_parse_failed",
+        "_source_index": 0,
+        "effect": {
+          "chooser": "CONTROLLER",
+          "effect": {
+            "target": {
+              "cardTypes": [
+                "character",
+                "item",
+                "location"
+              ],
+              "count": 1,
+              "filter": [
+                {
+                  "comparison": "less-or-equal",
+                  "type": "cost-comparison",
+                  "value": 2
+                }
+              ],
+              "owner": "any",
+              "selector": "chosen",
+              "zones": [
+                "play"
+              ]
+            },
+            "type": "return-to-hand"
+          },
+          "type": "optional"
+        },
+        "id": "3b3-1",
+        "name": "SPLENDERIFFIC BOUNCE",
+        "raw": {
+          "tsObject": "{\n      id: \"3b3-1\",\n      effect: {\n        chooser: \"CONTROLLER\",\n        effect: {\n          target: {\n            cardTypes: [\"character\", \"item\", \"location\"],\n            count: 1,\n            owner: \"any\",\n            selector: \"chosen\",\n            zones: [\"play\"],\n            filter: [\n              {\n                type: \"cost-comparison\",\n                comparison: \"less-or-equal\",\n                value: 2,\n              },\n            ],\n          },\n          type: \"return-to-hand\",\n        },\n        type: \"optional\",\n      },\n      name: \"SPLENDERIFFIC BOUNCE\",\n      trigger: {\n        event: \"play\",\n        on: \"SELF\",\n        timing: \"when\",\n      },\n      type: \"triggered\",\n      text: \"SPLENDERIFFIC BOUNCE When you play this character, you may return chosen character, item, or location with cost 2 or less to their player's hand.\",\n    }"
+        },
+        "rawExpression": "{\n      id: \"3b3-1\",\n      effect: {\n        chooser: \"CONTROLLER\",\n        effect: {\n          target: {\n            cardTypes: [\"character\", \"item\", \"location\"],\n            count: 1,\n            owner: \"any\",\n            selector: \"chosen\",\n            zones: [\"play\"],\n            filter: [\n              {\n                type: \"cost-comparison\",\n                comparison: \"less-or-equal\",\n                value: 2,\n              },\n            ],\n          },\n          type: \"return-to-hand\",\n        },\n        type: \"optional\",\n      },\n      name: \"SPLENDERIFFIC BOUNCE\",\n      trigger: {\n        event: \"play\",\n        on: \"SELF\",\n        timing: \"when\",\n      },\n      type: \"triggered\",\n      text: \"SPLENDERIFFIC BOUNCE When you play this character, you may return chosen character, item, or location with cost 2 or less to their player's hand.\",\n    }",
+        "text": "SPLENDERIFFIC BOUNCE When you play this character, you may return chosen character, item, or location with cost 2 or less to their player's hand.",
+        "trigger": {
+          "event": "play",
+          "on": "SELF",
+          "timing": "when"
+        },
+        "type": "triggered"
+      },
+      "raw_trigger": {
+        "event": "play",
+        "on": "SELF",
+        "timing": "when"
+      },
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
+      "target_kinds": [
+        "chosen"
+      ],
+      "trigger_event": "play",
+      "trigger_on": "SELF",
+      "trigger_source_zones": [
+        "play"
+      ],
+      "trigger_timing": "when"
+    },
+    {
       "ability_id": "dwf-3",
       "ability_index": 2,
       "ability_kind": "triggered",
@@ -3890,7 +4245,12 @@
       "deck_name": "AOTP",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "select-target",
+        "choice",
+        "put-on-bottom",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Hades - Looking for a Deal",
@@ -3951,7 +4311,11 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CHOSEN_OPPOSING_CHARACTER",
+        "unknown",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -3980,7 +4344,10 @@
       "deck_name": "AOTP",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "sequence"
+        "sequence",
+        "exert",
+        "draw-until-hand-size",
+        "draw-until-hand-size"
       ],
       "execution_status": "executable",
       "full_name": "Demona - Scourge of the Wyvern Clan",
@@ -4036,7 +4403,11 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "all",
+        "CONTROLLER",
+        "OPPONENT"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -4065,7 +4436,8 @@
       "deck_name": "AOTP",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "put-into-inkwell"
       ],
       "execution_status": "executable",
       "full_name": "Hades - Infernal Schemer",
@@ -4112,7 +4484,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "OPPONENT"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -4141,7 +4515,10 @@
       "deck_name": "Steel Amber",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "draw",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Mulan - Disguised Soldier",
@@ -4189,7 +4566,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -4218,7 +4598,10 @@
       "deck_name": "Steel Amber",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "discard",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Doc - Bold Knight",
@@ -4265,7 +4648,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -4426,7 +4812,8 @@
       "deck_name": "Steel Amber",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "play-card"
       ],
       "execution_status": "executable",
       "full_name": "Lilo - Escape Artist",
@@ -4498,7 +4885,9 @@
       "deck_name": "Steel Amber",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "sequence"
+        "sequence",
+        "reveal-hand",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Mowgli - Man Cub",
@@ -4545,7 +4934,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "OPPONENT",
+        "OPPONENT"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -4660,7 +5052,8 @@
       "deck_name": "Steel Amber",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Ariel - Ethereal Voice",
@@ -4723,7 +5116,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": {
         "cardType": "song",
@@ -4740,10 +5135,8 @@
       "ability_kind": "triggered",
       "ability_name": "COME SEE!",
       "appears_in_deck": true,
-      "blocker_family": "resolution_requirement",
-      "blockers": [
-        "unsupported_trigger_resolution_requirement:amount"
-      ],
+      "blocker_family": "unknown",
+      "blockers": [],
       "canonical_id": "ci_Ab7",
       "card_count": 2,
       "card_id": "Ab7",
@@ -4761,11 +5154,11 @@
       "effect_kinds": [
         "scry"
       ],
-      "execution_status": "mapped_not_executable",
+      "execution_status": "executable",
       "full_name": "Bambi - Ethereal Fawn",
       "ink": "amber",
-      "primary_blocker": "unsupported_trigger_resolution_requirement:amount",
-      "projection_status": "not_projected",
+      "primary_blocker": null,
+      "projection_status": "projected",
       "raw_ability": {
         "_source_index": 1,
         "condition": {
@@ -4823,12 +5216,8 @@
         ],
         "timing": "whenever"
       },
-      "recommended_engine_work": [
-        "target_choice_prompts"
-      ],
-      "resolution_requirements": [
-        "amount"
-      ],
+      "recommended_engine_work": [],
+      "resolution_requirements": [],
       "target_kinds": [],
       "trigger_event": "exert",
       "trigger_on": "SELF",
@@ -4860,7 +5249,8 @@
       "deck_name": "Steel Amber",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Stitch - Carefree Snowboarder",
@@ -4912,7 +5302,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "quest",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -5006,7 +5398,10 @@
       "deck_name": "AmberSteel Value",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "discard",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Doc - Bold Knight",
@@ -5053,7 +5448,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -5214,7 +5612,8 @@
       "deck_name": "AmberSteel Value",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "play-card"
       ],
       "execution_status": "executable",
       "full_name": "Lilo - Escape Artist",
@@ -5286,7 +5685,9 @@
       "deck_name": "AmberSteel Value",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "sequence"
+        "sequence",
+        "reveal-hand",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Mowgli - Man Cub",
@@ -5333,7 +5734,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "OPPONENT",
+        "OPPONENT"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -5448,7 +5852,8 @@
       "deck_name": "AmberSteel Value",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Ariel - Ethereal Voice",
@@ -5511,7 +5916,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": {
         "cardType": "song",
@@ -5545,7 +5952,8 @@
       "deck_name": "AmberSteel Value",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Stitch - Carefree Snowboarder",
@@ -5597,7 +6005,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "quest",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -5626,7 +6036,8 @@
       "deck_name": "I HATE DOGS",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "pay-cost"
       ],
       "execution_status": "executable",
       "full_name": "Clarabelle - Clumsy Guest",
@@ -5706,7 +6117,8 @@
       "deck_name": "I HATE DOGS",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "put-into-inkwell"
       ],
       "execution_status": "executable",
       "full_name": "Tipo - Growing Son",
@@ -5744,7 +6156,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -5775,7 +6189,10 @@
       "deck_name": "I HATE DOGS",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "put-into-inkwell",
+        "conditional"
       ],
       "execution_status": "executable",
       "full_name": "Cinderella - Dream Come True",
@@ -5838,7 +6255,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "end-turn",
       "trigger_on": "YOU",
       "trigger_source_zones": [
@@ -5867,7 +6286,8 @@
       "deck_name": "I HATE DOGS",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Donald Duck - Perfect Gentleman",
@@ -5903,7 +6323,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "start-turn",
       "trigger_on": "YOU",
       "trigger_source_zones": [
@@ -5932,7 +6354,8 @@
       "deck_name": "I HATE DOGS",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Donald Duck - Perfect Gentleman",
@@ -5968,7 +6391,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "OPPONENT"
+      ],
       "trigger_event": "start-turn",
       "trigger_on": "YOU",
       "trigger_source_zones": [
@@ -6127,7 +6552,8 @@
       "deck_name": "I HATE DOGS",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Clarabelle - Light on Her Hooves",
@@ -6186,7 +6612,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "end-turn",
       "trigger_on": "YOU",
       "trigger_source_zones": [
@@ -6293,7 +6721,8 @@
       "deck_name": "Burn",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Diablo - Obedient Raven",
@@ -6329,7 +6758,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "banish",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -6358,7 +6789,10 @@
       "deck_name": "Burn",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "draw",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Mulan - Disguised Soldier",
@@ -6406,7 +6840,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -6435,7 +6872,8 @@
       "deck_name": "Burn",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "return-to-hand"
       ],
       "execution_status": "executable",
       "full_name": "Olaf - Helping Hand",
@@ -6480,7 +6918,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "chosen"
+      ],
       "trigger_event": "leave-play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -6581,7 +7021,10 @@
       "deck_name": "Burn",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "discard",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Doc - Bold Knight",
@@ -6628,7 +7071,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -6739,7 +7185,10 @@
       "deck_name": "Burn",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "discard",
+        "conditional"
       ],
       "execution_status": "executable",
       "full_name": "Giant Cobra - Ghostly Serpent",
@@ -6793,7 +7242,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -6882,7 +7333,12 @@
       "deck_name": "Burn",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "select-target",
+        "choice",
+        "put-on-bottom",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Hades - Looking for a Deal",
@@ -6943,7 +7399,11 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CHOSEN_OPPOSING_CHARACTER",
+        "unknown",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -6972,7 +7432,10 @@
       "deck_name": "Burn",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "draw",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Zootopia - Police Headquarters",
@@ -7038,7 +7501,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER",
+        "CONTROLLER"
+      ],
       "trigger_event": "move",
       "trigger_on": "CHARACTERS_HERE",
       "trigger_source_zones": [
@@ -7067,7 +7533,8 @@
       "deck_name": "Maui fiesta",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "put-into-inkwell"
       ],
       "execution_status": "executable",
       "full_name": "Tipo - Growing Son",
@@ -7105,7 +7572,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -7206,7 +7675,8 @@
       "deck_name": "Maui fiesta",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "return-from-discard"
       ],
       "execution_status": "executable",
       "full_name": "Maui - Half-Shark",
@@ -7252,7 +7722,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "challenge",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -7424,7 +7896,8 @@
       "deck_name": "Maui fiesta",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "play-card"
       ],
       "execution_status": "executable",
       "full_name": "Tamatoa - Happy as a Clam",
@@ -7569,7 +8042,8 @@
       "deck_name": "Maui fiesta",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Pawpsicle",
@@ -7605,7 +8079,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -7634,7 +8110,8 @@
       "deck_name": "Ruby Sapphire",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "put-into-inkwell"
       ],
       "execution_status": "executable",
       "full_name": "Tipo - Growing Son",
@@ -7672,7 +8149,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -7785,7 +8264,9 @@
       "deck_name": "Ruby Sapphire",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "sequence"
+        "sequence",
+        "ready",
+        "restriction"
       ],
       "execution_status": "executable",
       "full_name": "Lilo - Causing an Uproar",
@@ -7839,7 +8320,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "chosen",
+        "unknown"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -7868,7 +8352,8 @@
       "deck_name": "Ruby Sapphire",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "return-from-discard"
       ],
       "execution_status": "executable",
       "full_name": "Maui - Half-Shark",
@@ -7914,7 +8399,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "challenge",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -8075,7 +8562,10 @@
       "deck_name": "Steel Ruby",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "sequence",
+        "draw",
+        "discard"
       ],
       "execution_status": "executable",
       "full_name": "Mulan - Disguised Soldier",
@@ -8123,7 +8613,10 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER",
+        "CONTROLLER"
+      ],
       "trigger_event": "play",
       "trigger_on": "SELF",
       "trigger_source_zones": [
@@ -8754,7 +9247,8 @@
       "deck_name": "Steel Ruby",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "banish"
       ],
       "execution_status": "executable",
       "full_name": "Pluto - Steel Champion",
@@ -8819,7 +9313,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "chosen"
+      ],
       "trigger_event": "play",
       "trigger_on": {
         "cardType": "character",
@@ -8858,7 +9354,8 @@
       "deck_name": "Steel Ruby",
       "deck_presence_weight": 1,
       "effect_kinds": [
-        "optional"
+        "optional",
+        "draw"
       ],
       "execution_status": "executable",
       "full_name": "Queen of Hearts - Sensing Weakness",
@@ -8904,7 +9401,9 @@
       },
       "recommended_engine_work": [],
       "resolution_requirements": [],
-      "target_kinds": [],
+      "target_kinds": [
+        "CONTROLLER"
+      ],
       "trigger_event": "challenge",
       "trigger_on": "YOUR_CHARACTERS",
       "trigger_source_zones": [
@@ -8918,8 +9417,8 @@
     "broad_unsupported_trigger_copies": 0,
     "deck_count": 12,
     "specific_trigger_blocker_copies": 0,
-    "trigger_blocked_card_copies": 14,
-    "trigger_blocked_unique_cards": 4,
+    "trigger_blocked_card_copies": 0,
+    "trigger_blocked_unique_cards": 0,
     "unclassified_trigger_blocker_copies": 0
   }
 }

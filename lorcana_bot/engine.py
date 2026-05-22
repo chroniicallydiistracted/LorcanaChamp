@@ -110,6 +110,8 @@ from .abilities import (
     use_ability,
     validate_ability_costs,
     ActivatedAbility,
+    execute_ability_effects,
+    validate_effects_supported,
 )
 from .static_effects import (
     effective_strength as static_effective_strength,
@@ -124,8 +126,12 @@ from .static_effects import (
     create_cost_reduction_effect,
 )
 from .replacement_effects import (
+    ReplacementEffectEntry,
+    ReplacementEffectType,
     register_replacement_effects_for_card,
+    register_replacement_effect,
     deregister_replacement_effects_from_card,
+    cleanup_replacement_effects_on_turn_end,
     deal_damage as replacement_deal_damage,
     banish_card as replacement_banish_card,
     check_cannot_be_challenged,
@@ -413,11 +419,15 @@ class GameEngine:
                     )
                     # Use raw_requirement if available, otherwise fall back to pe.raw
                     if raw_requirement is not None:
-                        min_cards = getattr(raw_requirement, "min_cards", 1)
+                        min_cards = getattr(raw_requirement, "min_cards", None)
                         max_cards = getattr(raw_requirement, "max_cards", None)
                     else:
-                        min_cards = (pe.raw or {}).get("min_cards", 1)
-                        max_cards = (pe.raw or {}).get("max_cards", None)
+                        min_cards = None
+                        max_cards = None
+                    if min_cards is None:
+                        min_cards = (pe.raw or {}).get("min_discard", (pe.raw or {}).get("min_cards", 1))
+                    if max_cards is None:
+                        max_cards = (pe.raw or {}).get("max_discard", (pe.raw or {}).get("max_cards", None))
                     if max_cards is None:
                         max_cards = len(card_candidates)
                     # Filter to cards in chooser's hand
@@ -661,13 +671,16 @@ class GameEngine:
             actions: list[Action] = []
             for entry in resolver_items:
                 is_optional = entry.optional
-                # Accept is always available
-                actions.append(Action(
-                    ACTION_RESOLVE_BAG,
-                    actor=player,
-                    source=entry.source_id,
-                    choice={"bag_id": entry.id, "accept": True}
-                ))
+                input_actions = self._bag_resolution_input_actions(state, player, entry)
+                if input_actions:
+                    actions.extend(input_actions)
+                else:
+                    actions.append(Action(
+                        ACTION_RESOLVE_BAG,
+                        actor=player,
+                        source=entry.source_id,
+                        choice={"bag_id": entry.id, "accept": True}
+                    ))
                 # Decline only for optional triggers
                 if is_optional:
                     actions.append(Action(
@@ -685,10 +698,16 @@ class GameEngine:
         actions = []
         ps = state.players[player]
 
-        if not state.turn_player_has_inked:
+        extra_ink_key = f"additional_inkwell:{player}"
+        extra_inks = int(state.turn_metadata.get(extra_ink_key, 0) or 0)
+        if not state.turn_player_has_inked or extra_inks > 0:
             for cid in ps.hand:
                 if self.card_def(state, cid).inkable:
                     actions.append(Action(ACTION_INK_CARD, actor=player, card=cid))
+            if self._can_ink_from_discard(state, player):
+                for cid in ps.discard:
+                    if self.card_def(state, cid).inkable:
+                        actions.append(Action(ACTION_INK_CARD, actor=player, card=cid))
 
         for cid in ps.hand:
             card = self.card_def(state, cid)
@@ -704,6 +723,7 @@ class GameEngine:
         from .play_modes import (
             is_song_card, get_singer_info, can_sing_song,
             get_shift_info, get_shift_targets, can_play_as_shift,
+            sing_together_groups,
         )
 
         # Generate SING_SONG actions for songs with singers
@@ -719,6 +739,14 @@ class GameEngine:
                             actions.append(Action(
                                 "SING_SONG", actor=player, card=song_cid, source=singer_cid
                             ))
+                for singer_group in sing_together_groups(state, self, player, song_cid):
+                    actions.append(Action(
+                        "SING_SONG",
+                        actor=player,
+                        card=song_cid,
+                        source=singer_group[0],
+                        choice={"mode": "singTogether", "singer_ids": singer_group},
+                    ))
 
         # Generate PLAY_SHIFTED actions for shift characters
         for shift_cid in ps.hand:
@@ -759,17 +787,65 @@ class GameEngine:
             effects_supported, _ = validate_effects_supported(ability)
             if not effects_supported:
                 continue
-            # Use choice to encode the ability identifier
-            actions.append(Action(
-                ACTION_USE_ABILITY,
-                actor=player,
-                source=ability.source_instance_id,
-                choice={"ability_id": ability.ability_id, "ability_index": ability.ability_index},
-            ))
+            target_candidates = self._activated_ability_target_candidates(state, ability, player)
+            if target_candidates is None:
+                continue
+            if target_candidates:
+                for target_id in target_candidates:
+                    actions.append(Action(
+                        ACTION_USE_ABILITY,
+                        actor=player,
+                        source=ability.source_instance_id,
+                        target=target_id,
+                        choice={"ability_id": ability.ability_id, "ability_index": ability.ability_index},
+                    ))
+            else:
+                actions.append(Action(
+                    ACTION_USE_ABILITY,
+                    actor=player,
+                    source=ability.source_instance_id,
+                    choice={"ability_id": ability.ability_id, "ability_index": ability.ability_index},
+                ))
 
         actions.append(Action(ACTION_END_TURN, actor=player))
         actions.append(Action(ACTION_CONCEDE, actor=player))
         return actions
+
+    def _activated_ability_target_candidates(
+        self,
+        state: GameState,
+        ability: ActivatedAbility,
+        player: int,
+    ) -> tuple[int, ...] | None:
+        descriptors = self._activated_ability_explicit_target_descriptors(ability)
+        if not descriptors:
+            return ()
+        if len(descriptors) > 1:
+            return None
+        descriptor = descriptors[0]
+        from .targeting import TargetQueryContext, apply_target_protections, resolve_candidate_targets
+        context = TargetQueryContext(actor=player, source_id=ability.source_instance_id)
+        candidates = apply_target_protections(
+            state,
+            self,
+            resolve_candidate_targets(state, self, descriptor, context),
+            descriptor,
+            context,
+        )
+        return tuple(candidate.id for candidate in candidates if candidate.kind == "card")
+
+    def _activated_ability_explicit_target_descriptors(self, ability: ActivatedAbility):
+        from .targeting import normalize_target_descriptor, requires_explicit_target_selection
+        descriptors = []
+        for effect in ability.effects:
+            target = getattr(effect, "target", None)
+            if target is None:
+                continue
+            raw_target = getattr(target, "raw", None) or getattr(target, "alias", None) or getattr(target, "selector", None)
+            descriptor = normalize_target_descriptor(raw_target)
+            if descriptor is not None and requires_explicit_target_selection(descriptor.selector):
+                descriptors.append(descriptor)
+        return tuple(descriptors)
 
     def _mulligan_actions(self, state: GameState, player: int) -> list[Action]:
         ps = state.players[player]
@@ -784,6 +860,206 @@ class GameEngine:
                 actions.append(Action(ACTION_MULLIGAN, actor=player, choice=choice))
         return actions
 
+    def _bag_resolution_input_actions(self, state: GameState, player: int, entry: BagEffectEntry) -> list[Action]:
+        actions: list[Action] = []
+
+        def target_actions(raw_target: Any, base_choice: dict[str, Any]) -> list[Action]:
+            from .targeting import TargetQueryContext, apply_target_protections, normalize_target_descriptor, resolve_candidate_targets
+
+            desc = normalize_target_descriptor(raw_target)
+            if desc is None:
+                return []
+            event_payload = {}
+            if entry.event:
+                event_payload.update(entry.event.event_snapshot or {})
+                event_payload.update(entry.event.payload or {})
+            context = TargetQueryContext(actor=entry.controller_id, source_id=entry.source_id, event_payload=event_payload)
+            candidates = apply_target_protections(
+                state,
+                self,
+                resolve_candidate_targets(state, self, desc, context),
+                desc,
+                context,
+            )
+            result: list[Action] = []
+            for candidate in candidates:
+                if candidate.kind != "card":
+                    continue
+                choice = dict(base_choice)
+                choice["targets"] = (candidate.id,)
+                result.append(Action(
+                    ACTION_RESOLVE_BAG,
+                    actor=player,
+                    source=entry.source_id,
+                    target=candidate.id,
+                    choice=choice,
+                ))
+            return result
+
+        def move_damage_actions(effect: Any, base_choice: dict[str, Any]) -> list[Action]:
+            raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+            if not isinstance(raw, dict):
+                return []
+            raw_amount = raw.get("amount")
+            if not (isinstance(raw_amount, dict) and raw_amount.get("type") == "up-to"):
+                return []
+            maximum = min(int(raw_amount.get("value") or 0), state.cards[entry.source_id].damage)
+            result: list[Action] = []
+            for action in target_actions(raw.get("to"), base_choice):
+                for amount in range(0, maximum + 1):
+                    choice = dict(action.choice or {})
+                    choice["amount"] = amount
+                    result.append(Action(
+                        ACTION_RESOLVE_BAG,
+                        actor=action.actor,
+                        source=action.source,
+                        target=action.target,
+                        choice=choice,
+                    ))
+            return result
+
+        def put_into_inkwell_actions(effect: Any, base_choice: dict[str, Any]) -> list[Action]:
+            raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+            if not isinstance(raw, dict):
+                return []
+            source = raw.get("source")
+            if source == "hand":
+                result = []
+                for cid in state.players[player].hand:
+                    choice = dict(base_choice)
+                    choice["targets"] = (cid,)
+                    result.append(Action(ACTION_RESOLVE_BAG, actor=player, source=entry.source_id, target=cid, choice=choice))
+                return result
+            if isinstance(source, dict):
+                return target_actions(source, base_choice)
+            return []
+
+        for effect in entry.effects:
+            raw = effect.raw.get("raw") if isinstance(getattr(effect, "raw", None), dict) and isinstance(effect.raw.get("raw"), dict) else getattr(effect, "raw", {}) or {}
+            if effect.kind == "optional" and effect.effects:
+                child = effect.effects[0]
+                if getattr(child, "kind", None) == "move_damage":
+                    actions.extend(move_damage_actions(child, {"bag_id": entry.id, "accept": True}))
+                    continue
+                if getattr(child, "kind", None) == "put_into_inkwell":
+                    actions.extend(put_into_inkwell_actions(child, {"bag_id": entry.id, "accept": True}))
+                    continue
+                if getattr(child, "kind", None) == "return_from_discard":
+                    actions.extend(self._return_from_discard_bag_actions(state, player, entry, child, {"bag_id": entry.id, "accept": True}))
+                    continue
+                if getattr(child, "kind", None) == "pay_cost":
+                    actions.extend(self._pay_cost_bag_actions(state, player, entry, child, {"bag_id": entry.id, "accept": True}))
+                    continue
+                if getattr(child, "kind", None) == "sequence":
+                    sequence_actions = self._select_target_choice_bag_actions(state, player, entry, child, {"bag_id": entry.id, "accept": True})
+                    if sequence_actions:
+                        actions.extend(sequence_actions)
+                        continue
+                child_target = child.target
+                child_raw = child.raw.get("raw") if isinstance(child.raw.get("raw"), dict) else child.raw
+                raw_target = child_raw.get("target") if isinstance(child_raw, dict) and child_raw.get("target") is not None else child_target
+                actions.extend(target_actions(raw_target, {"bag_id": entry.id, "accept": True}))
+            elif effect.kind == "choice" and effect.effects:
+                for idx, branch in enumerate(effect.effects):
+                    branch_raw = branch.raw.get("raw") if isinstance(branch.raw.get("raw"), dict) else branch.raw
+                    raw_target = branch_raw.get("target") if isinstance(branch_raw, dict) and branch_raw.get("target") is not None else branch.target
+                    from .targeting import normalize_target_descriptor, requires_explicit_target_selection
+                    desc = normalize_target_descriptor(raw_target)
+                    base = {"bag_id": entry.id, "accept": True, "choice_index": idx}
+                    if desc is not None and requires_explicit_target_selection(desc.selector):
+                        actions.extend(target_actions(raw_target, base))
+                    else:
+                        actions.append(Action(ACTION_RESOLVE_BAG, actor=player, source=entry.source_id, choice=base))
+            elif isinstance(raw.get("amount"), dict) and raw["amount"].get("type") == "lore-value-of":
+                actions.extend(target_actions(raw["amount"].get("target"), {"bag_id": entry.id, "accept": True}))
+
+        return actions
+
+    def _return_from_discard_bag_actions(
+        self,
+        state: GameState,
+        player: int,
+        entry: BagEffectEntry,
+        effect: Any,
+        base_choice: dict[str, Any],
+    ) -> list[Action]:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        if not isinstance(raw, dict) or raw.get("target") not in {"CONTROLLER", "controller"}:
+            return []
+        card_type = raw.get("cardType")
+        result: list[Action] = []
+        for cid in state.players[entry.controller_id].discard:
+            if card_type and self.card_def(state, cid).card_type != card_type:
+                continue
+            choice = dict(base_choice)
+            choice["targets"] = (cid,)
+            result.append(Action(ACTION_RESOLVE_BAG, actor=player, source=entry.source_id, target=cid, choice=choice))
+        return result
+
+    def _pay_cost_bag_actions(
+        self,
+        state: GameState,
+        player: int,
+        entry: BagEffectEntry,
+        effect: Any,
+        base_choice: dict[str, Any],
+    ) -> list[Action]:
+        raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+        if not isinstance(raw, dict):
+            return []
+        cost = raw.get("cost")
+        child = raw.get("effect")
+        if not (isinstance(cost, dict) and set(cost) == {"ink"} and isinstance(child, dict)):
+            return []
+        if self.available_ink(state, entry.controller_id) < int(cost.get("ink") or 0):
+            return []
+        target = child.get("target")
+        return self._bag_target_actions_from_raw(state, player, entry, target, base_choice)
+
+    def _select_target_choice_bag_actions(
+        self,
+        state: GameState,
+        player: int,
+        entry: BagEffectEntry,
+        effect: Any,
+        base_choice: dict[str, Any],
+    ) -> list[Action]:
+        children = tuple(getattr(effect, "effects", ()) or ())
+        if len(children) != 2 or getattr(children[0], "kind", None) != "select_target" or getattr(children[1], "kind", None) != "choice":
+            return []
+        choice_count = len(getattr(children[1], "effects", ()) or ())
+        result: list[Action] = []
+        for action in self._bag_target_actions_from_raw(state, player, entry, getattr(children[0], "target", None), base_choice):
+            for idx in range(choice_count):
+                choice = dict(action.choice or {})
+                choice["choice_index"] = idx
+                result.append(Action(ACTION_RESOLVE_BAG, actor=action.actor, source=action.source, target=action.target, choice=choice))
+        return result
+
+    def _bag_target_actions_from_raw(
+        self,
+        state: GameState,
+        player: int,
+        entry: BagEffectEntry,
+        raw_target: Any,
+        base_choice: dict[str, Any],
+    ) -> list[Action]:
+        from .targeting import TargetQueryContext, apply_target_protections, normalize_target_descriptor, resolve_candidate_targets
+
+        desc = normalize_target_descriptor(raw_target)
+        if desc is None:
+            return []
+        context = TargetQueryContext(actor=entry.controller_id, source_id=entry.source_id, event_payload={})
+        candidates = apply_target_protections(state, self, resolve_candidate_targets(state, self, desc, context), desc, context)
+        result = []
+        for candidate in candidates:
+            if candidate.kind != "card":
+                continue
+            choice = dict(base_choice)
+            choice["targets"] = (candidate.id,)
+            result.append(Action(ACTION_RESOLVE_BAG, actor=player, source=entry.source_id, target=candidate.id, choice=choice))
+        return result
+
     def can_quest(self, state: GameState, source: int) -> bool:
         inst = state.cards[source]
         if inst.zone != ZONE_PLAY or inst.controller != state.active_player:
@@ -792,6 +1068,8 @@ class GameEngine:
         if card.card_type != CARD_CHARACTER:
             return False
         if inst.exerted or inst.drying:
+            return False
+        if source in set(state.turn_metadata.get("cant_quest_until_turn_end", ()) or ()):
             return False
         if self.has_keyword(state, source, KEYWORD_RECKLESS):
             return False
@@ -929,10 +1207,24 @@ class GameEngine:
                 static_modifier += effect.amount
         return max(0, base + static_modifier + temp_modifier)
 
+    def effective_lore(self, state: GameState, instance_id: int) -> int:
+        """Calculate effective lore including static and temporary modifiers."""
+        card = self.card_def(state, instance_id)
+        base = int(card.lore or 0)
+        temp_modifier = state.cards[instance_id].temporary_modifiers.get("lore", 0)
+        static_modifier = 0
+        for effect in state.static_effect_registry.get_effects_for_instance(state, instance_id):
+            if effect.effect_type == StaticEffectType.MODIFY_LORE:
+                static_modifier += effect.amount
+        return max(0, base + static_modifier + temp_modifier)
+
     def play_cost(self, state: GameState, player: int, instance_id: int) -> int:
         """Calculate play cost including static cost reductions."""
         card = self.card_def(state, instance_id)
         reductions = self._applicable_cost_reductions(state, player, card.card_type)
+        hand_source_reduction = self._hand_source_cost_reduction(state, player, instance_id)
+        if hand_source_reduction:
+            reductions.append({"amount": hand_source_reduction, "card_type": card.card_type, "source_id": instance_id})
         # Add static cost reductions
         for effect in state.static_effect_registry.effects:
             source_inst = state.cards.get(effect.source_id)
@@ -949,6 +1241,64 @@ class GameEngine:
                         "source_id": effect.source_id,
                     })
         return max(0, int(card.cost) - sum(int(reduction.get("amount", 0)) for reduction in reductions))
+
+    def _hand_source_cost_reduction(self, state: GameState, player: int, instance_id: int) -> int:
+        inst = state.cards.get(instance_id)
+        if inst is None or inst.zone != ZONE_HAND or inst.controller != player:
+            return 0
+        card = self.card_def(state, instance_id)
+        total = 0
+        for ability in getattr(card, "source_abilities", ()) or ():
+            if getattr(ability, "kind", None) != "static" or "hand" not in tuple(getattr(ability, "source_zones", ()) or ()):
+                continue
+            for effect in getattr(ability, "effects", ()) or ():
+                raw = getattr(effect, "raw", {}) or {}
+                if getattr(effect, "kind", None) != "cost-reduction":
+                    continue
+                amount = raw.get("amount")
+                if isinstance(amount, dict) and amount.get("type") == "filtered-count":
+                    count = self._count_filtered_cost_reduction_sources(state, player, amount)
+                    total += count * int(amount.get("multiplier", 1) or 1)
+                elif isinstance(amount, dict) and amount.get("type") == "characters-in-play":
+                    controller = player if amount.get("controller") in {None, "you"} else state.opponent(player)
+                    total += sum(1 for cid in state.players[controller].play if self.card_def(state, cid).card_type == CARD_CHARACTER)
+                elif amount is not None:
+                    if isinstance(amount, str) and amount == "full":
+                        total += int(card.cost)
+                    else:
+                        total += int(amount)
+        return total
+
+    def _count_filtered_cost_reduction_sources(self, state: GameState, player: int, amount: dict[str, Any]) -> int:
+        zones = amount.get("zones") or ("play",)
+        if isinstance(zones, str):
+            zones = (zones,)
+        card_type = amount.get("cardType") or amount.get("card_type")
+        owner = amount.get("owner")
+        filters = amount.get("filters") or amount.get("filter") or ()
+        if isinstance(filters, dict):
+            filters = (filters,)
+        total = 0
+        for cid, inst in state.cards.items():
+            if inst.zone not in zones:
+                continue
+            if owner == "you" and inst.owner != player:
+                continue
+            if owner == "opponent" and inst.owner != state.opponent(player):
+                continue
+            cdef = self.card_def(state, cid)
+            if card_type and cdef.card_type != card_type:
+                continue
+            matched = True
+            for filter_def in filters:
+                if filter_def.get("type") == "has-name":
+                    expected = str(filter_def.get("name") or "")
+                    if cdef.full_name != expected and cdef.name != expected:
+                        matched = False
+                        break
+            if matched:
+                total += 1
+        return total
 
 
     def apply_action(self, state: GameState, action: Action, *, validate: bool = True) -> GameState:
@@ -1655,6 +2005,14 @@ class GameEngine:
         if apply_resist:
             target_def = self.card_def(state, target_id)
             final_input_amount = self._damage_after_resist(target_def, raw_amount)
+        static_prevented = self._static_prevented_damage_amount(
+            state,
+            target_id=target_id,
+            amount=final_input_amount,
+            is_challenge=is_challenge,
+        )
+        if static_prevented:
+            final_input_amount = max(0, final_input_amount - static_prevented)
 
         damage_event = replacement_deal_damage(
             state,
@@ -1700,6 +2058,76 @@ class GameEngine:
             },
         )
         return damage_event
+
+    def _static_prevented_damage_amount(
+        self,
+        state: GameState,
+        *,
+        target_id: int,
+        amount: int,
+        is_challenge: bool,
+    ) -> int:
+        """Exact static prevention for Hercules - Mighty Leader source shapes."""
+        if amount <= 0 or is_challenge:
+            return 0
+        target_inst = state.cards.get(target_id)
+        if target_inst is None or target_inst.zone != ZONE_PLAY:
+            return 0
+        for source_id, source_inst in state.cards.items():
+            if source_inst.zone != ZONE_PLAY or source_inst.stack_parent_id is not None:
+                continue
+            source_card = self.card_def(state, source_id)
+            for ability in getattr(source_card, "source_abilities", ()) or ():
+                if getattr(ability, "kind", None) != "static":
+                    continue
+                if getattr(ability, "condition", None) is not None and not source_inst.exerted:
+                    continue
+                for effect in getattr(ability, "effects", ()) or ():
+                    if getattr(effect, "kind", None) != "restriction":
+                        continue
+                    raw = getattr(effect, "raw", {}) or {}
+                    if raw.get("restriction") != "cant-be-dealt-damage":
+                        continue
+                    condition = raw.get("condition")
+                    if not (
+                        isinstance(condition, dict)
+                        and condition.get("type") == "not"
+                        and isinstance(condition.get("condition"), dict)
+                        and condition["condition"].get("type") == "being-challenged"
+                    ):
+                        continue
+                    if self._static_restriction_target_matches(state, source_id, target_id, effect):
+                        return amount
+        return 0
+
+    def _static_restriction_target_matches(self, state: GameState, source_id: int, target_id: int, effect: Any) -> bool:
+        raw_target = getattr(effect, "target", None)
+        alias = getattr(raw_target, "alias", None)
+        if alias == "SELF":
+            return target_id == source_id
+        raw = getattr(raw_target, "raw", None)
+        if not isinstance(raw, dict):
+            return False
+        source_inst = state.cards[source_id]
+        target_inst = state.cards[target_id]
+        if raw.get("owner") == "you" and target_inst.controller != source_inst.controller:
+            return False
+        if raw.get("excludeSelf") and target_id == source_id:
+            return False
+        card_types = tuple(raw.get("cardTypes") or ())
+        if card_types and self.card_def(state, target_id).card_type not in card_types:
+            return False
+        filters = raw.get("filter") or raw.get("filters") or ()
+        if isinstance(filters, dict):
+            filters = (filters,)
+        for filter_def in filters:
+            if not isinstance(filter_def, dict):
+                return False
+            if filter_def.get("type") == "has-classification":
+                classification = filter_def.get("classification")
+                if classification not in self.card_def(state, target_id).subtypes:
+                    return False
+        return True
 
     def resolve_bag(self, state: GameState) -> None:
         # B2: Bag must be resolved through ACTION_RESOLVE_BAG, not silently cleared
@@ -1758,9 +2186,27 @@ class GameEngine:
     def _apply_ink(self, state: GameState, action: Action) -> None:
         """Apply ink action with rich event payload."""
         assert action.card is not None
+        if state.cards[action.card].zone == ZONE_DISCARD and not self._can_ink_from_discard(state, action.actor):
+            raise IllegalActionError("Cannot ink from discard")
         self._put_into_inkwell_eventful(state, action.card, actor=action.actor)
-        state.turn_player_has_inked = True
-        state.players[action.actor].turn_flags.played_ink = True
+        extra_ink_key = f"additional_inkwell:{action.actor}"
+        extra_inks = int(state.turn_metadata.get(extra_ink_key, 0) or 0)
+        if state.turn_player_has_inked and extra_inks > 0:
+            state.turn_metadata[extra_ink_key] = extra_inks - 1
+        else:
+            state.turn_player_has_inked = True
+            state.players[action.actor].turn_flags.played_ink = True
+
+    def _can_ink_from_discard(self, state: GameState, player: int) -> bool:
+        for cid in state.players[player].play:
+            card = self.card_def(state, cid)
+            for ability in getattr(card, "source_abilities", ()) or ():
+                if getattr(ability, "kind", None) != "static":
+                    continue
+                for effect in getattr(ability, "effects", ()) or ():
+                    if getattr(effect, "kind", None) == "grant-discard-inkability":
+                        return True
+        return False
 
     def _register_lifecycle_effects_for_public_permanent(
         self,
@@ -1889,6 +2335,7 @@ class GameEngine:
         target_inst = state.cards[action.target]
         # Use eventful exert - emit_event=False since challenge event covers it
         self._exert_eventful(state, action.source, actor=action.actor, source_id=action.source, emit_event=False)
+        self._register_challenge_created_replacements(state, action.source, action.target)
 
         # Calculate base damage with resist (before replacement)
         attacker_base_damage = self._damage_after_resist(target_def, self.effective_strength(state, action.source))
@@ -1932,6 +2379,8 @@ class GameEngine:
         player_challenges = state.turn_metadata["challenges_by_player_this_turn"]
         player_challenges[action.actor] = player_challenges.get(action.actor, 0) + 1
 
+        self._resolve_temporary_challenge_lore_grants(state, action.source, action.actor)
+
         # Emit challenge event with rich Lorcanito-aligned payload
         self.emit_event(
             state,
@@ -1948,6 +2397,63 @@ class GameEngine:
                 "defender_damage_dealt": defender_damage_dealt,
             },
         )
+
+    def _resolve_temporary_challenge_lore_grants(self, state: GameState, attacker_id: int, actor: int) -> None:
+        grants = state.cards[attacker_id].temporary_granted_abilities
+        remaining = []
+        for grant in grants:
+            if isinstance(grant, dict) and grant.get("type") == "gain-lore-when-challenging":
+                self._gain_lore_eventful(state, actor, int(grant.get("amount") or 1), source_id=attacker_id)
+                continue
+            remaining.append(grant)
+        state.cards[attacker_id].temporary_granted_abilities = remaining
+
+    def _register_challenge_created_replacements(self, state: GameState, attacker_id: int, defender_id: int) -> None:
+        """Register exact Rafiki-style prevention before challenge damage is dealt."""
+        attacker_card = self.card_def(state, attacker_id)
+        defender_card = self.card_def(state, defender_id)
+        for ability in getattr(attacker_card, "source_abilities", ()) or ():
+            if getattr(ability, "kind", None) != "triggered":
+                continue
+            for effect in getattr(ability, "effects", ()) or ():
+                raw = getattr(effect, "raw", {}) or {}
+                if getattr(effect, "kind", None) != "create-replacement-effect":
+                    continue
+                replacement = raw.get("replacement")
+                if not isinstance(replacement, dict):
+                    continue
+                if replacement.get("type") != "prevent-damage" or replacement.get("targetRef") != "source":
+                    continue
+                ability_raw = getattr(ability, "raw", {}) or {}
+                raw_trigger = ability_raw.get("trigger") if isinstance(ability_raw, dict) else None
+                if not isinstance(raw_trigger, dict) or raw_trigger.get("event") != "challenge" or raw_trigger.get("on") != "SELF":
+                    continue
+                defender_filter = raw_trigger.get("defender")
+                if isinstance(defender_filter, dict):
+                    filters = defender_filter.get("filter") or defender_filter.get("filters") or ()
+                    if isinstance(filters, dict):
+                        filters = (filters,)
+                    if any(
+                        isinstance(filter_def, dict)
+                        and filter_def.get("type") in {"has-classification", "classification"}
+                        and filter_def.get("classification") not in defender_card.subtypes
+                        for filter_def in filters
+                    ):
+                        continue
+                register_replacement_effect(
+                    state,
+                    ReplacementEffectEntry(
+                        source_id=attacker_id,
+                        effect_type=ReplacementEffectType.PREVENT_DAMAGE,
+                        target_mode="self",
+                        amount=999,
+                        replacement_effect="prevent_damage",
+                        usage_key=f"challenge_created_prevent:{attacker_id}:{state.turn_number}",
+                        event_kinds=tuple(replacement.get("eventKinds", ()) or ()),
+                        consume_on_apply=bool(replacement.get("consumeOnApply")),
+                        duration=str(raw.get("duration") or "this-turn"),
+                    ),
+                )
 
     def _apply_move_to_location(self, state: GameState, action: Action) -> None:
         assert action.source is not None and action.target is not None
@@ -1968,6 +2474,8 @@ class GameEngine:
             return
         state.players[player].turn_flags.passed_turn = True
         self.emit_event(state, EVENT_TURN_END, actor=player)
+        cleanup_replacement_effects_on_turn_end(state)
+        state.turn_metadata.pop("cant_quest_until_turn_end", None)
         next_player = state.opponent(player)
         state.active_player = next_player
         state.turn_number += 1
@@ -1986,9 +2494,11 @@ class GameEngine:
             inst.was_challenged_this_turn = False
             inst.temporary_keywords.clear()
             inst.temporary_modifiers.clear()
+            inst.temporary_granted_abilities.clear()
         for cid in state.players[player].play:
             state.cards[cid].temporary_keywords.clear()
             state.cards[cid].temporary_modifiers.clear()
+            state.cards[cid].temporary_granted_abilities.clear()
         state.players[player].cost_reductions.clear()
         state.players[next_player].cost_reductions.clear()
         for cid in state.players[next_player].inkwell:
@@ -2069,10 +2579,14 @@ class GameEngine:
         - card: The song card instance ID from hand
         - source: The singer character instance ID in play
         """
-        from .play_modes import execute_sing_song
+        from .play_modes import execute_sing_song, execute_sing_together_song
 
         if action.card is None:
             raise IllegalActionError("SING_SONG requires a song card")
+        if action.choice and action.choice.get("mode") == "singTogether":
+            singer_ids = tuple(int(cid) for cid in action.choice.get("singer_ids", ()))
+            execute_sing_together_song(state, self, singer_ids, action.card)
+            return
         if action.source is None:
             raise IllegalActionError("SING_SONG requires a singer source")
 
@@ -2250,6 +2764,18 @@ class GameEngine:
                 if sub:
                     targets.extend(self._effect_target_kinds(sub))
             else:
+                if getattr(effect, "kind", None) == "play_card":
+                    raw = getattr(effect, "raw", {}) or {}
+                    source_raw = raw.get("raw") if isinstance(raw.get("raw"), dict) else raw
+                    if source_raw.get("from") == "discard" and source_raw.get("target") == "CHOSEN_CHARACTER":
+                        targets.append({
+                            "selector": "chosen",
+                            "count": 1,
+                            "owner": "you",
+                            "zones": ["discard"],
+                            "cardTypes": ["character"],
+                        })
+                        continue
                 if effect.target:
                     targets.append(effect.target)
                 if effect.effects:
@@ -2423,6 +2949,7 @@ class GameEngine:
         if entry.event:
             event_payload.update(entry.event.event_snapshot or {})
             event_payload.update(entry.event.payload or {})
+        selected_targets = tuple(entry.resolution_input.get("targets", ()) or ())
         event_target = (
             event_payload.get('event_target_id')
             or event_payload.get('target_id')
@@ -2431,16 +2958,18 @@ class GameEngine:
         )
 
         # Build current_targets tuple for collection-based targeting
-        current_targets: tuple[int, ...] = ()
-        if event_target:
+        current_targets: tuple[int, ...] = selected_targets
+        if not current_targets and event_target:
             current_targets = (event_target,)
+        selected_target = selected_targets[0] if selected_targets else event_target
 
         context = EffectResolutionContext(
             actor=entry.controller_id,
             source=entry.source_id,
-            target=event_target,
+            target=selected_target,
             event=entry.event,
             event_payload=event_payload,
+            choice=entry.resolution_input.get("choice_index") if "choice_index" in entry.resolution_input else entry.resolution_input.get("amount"),
             pending_trigger_id=entry.id,
             trigger_source=entry.source_id,
             trigger_subject=entry.event.subject_card_id if entry.event else None,
@@ -2532,7 +3061,7 @@ class GameEngine:
 
         # Find the ability on the card
         card_def = self.card_def(state, source_id)
-        abilities = get_activated_abilities_for_card(state, source_id, card_def)
+        abilities = get_activated_abilities_for_card(state, source_id, card_def, self)
 
         ability = None
         if ability_index is not None:
@@ -2549,8 +3078,18 @@ class GameEngine:
         if ability is None:
             raise IllegalActionError(f"Ability not found on card {source_id}")
 
+        selected_targets = (action.target,) if action.target is not None else ()
+        if self._activated_ability_requires_target(ability):
+            valid_targets = self._activated_ability_target_candidates(state, ability, action.actor)
+            if not valid_targets or action.target not in valid_targets:
+                raise IllegalActionError("USE_ABILITY requires a valid selected target")
+
+        if self._ability_requires_discard_cost_choice(ability):
+            self._create_activated_discard_cost_pending(state, ability, action.actor, selected_targets)
+            return
+
         # Execute the ability (validates costs, pays them, and resolves effects)
-        result = use_ability(state, self, ability)
+        result = use_ability(state, self, ability, selected_targets=selected_targets)
 
         if not result.success:
             raise AbilityExecutionError(f"Ability execution failed: {result.error_message}")
@@ -2568,6 +3107,69 @@ class GameEngine:
                 "effects_resolved": result.effects_resolved,
             },
             queue_triggers=False,  # Ability costs don't trigger nested abilities
+        )
+
+    def _activated_ability_requires_target(self, ability: ActivatedAbility) -> bool:
+        return bool(self._activated_ability_explicit_target_descriptors(ability))
+
+    def _ability_requires_discard_cost_choice(self, ability: ActivatedAbility) -> bool:
+        from lorcana_bot.card_logic.effect_utils import to_engine_cost_kind
+        random_discard = bool((ability.raw or {}).get("random_discard"))
+        return (
+            not random_discard
+            and any(to_engine_cost_kind(cost.kind) == "discard" for cost in ability.costs)
+        )
+
+    def _create_activated_discard_cost_pending(
+        self,
+        state: GameState,
+        ability: ActivatedAbility,
+        actor: int,
+        selected_targets: tuple[int, ...],
+    ) -> None:
+        from lorcana_bot.card_logic.effect_utils import to_engine_cost_kind
+        from lorcana_bot.pending_effects import create_discard_choice_pending_effect
+        from lorcana_bot.costs import validate_cost_payable
+
+        effects_supported, reason = validate_effects_supported(ability)
+        if not effects_supported:
+            raise IllegalActionError(reason)
+        if not can_use_ability_this_turn(state, ability):
+            raise IllegalActionError("Ability has already been used this turn")
+
+        discard_amount = 0
+        for cost in ability.costs:
+            can_pay, cost_reason = validate_cost_payable(state, self, ability, cost)
+            if not can_pay:
+                raise IllegalActionError(f"Cannot pay cost {cost.kind}: {cost_reason}")
+            if to_engine_cost_kind(cost.kind) == "discard":
+                discard_amount += int(cost.amount or 1)
+        if discard_amount <= 0:
+            raise IllegalActionError("Discard cost pending requires discardCards amount")
+
+        source_card = state.cards[ability.source_instance_id]
+        candidate_ids = tuple(state.players[source_card.controller].hand)
+        if len(candidate_ids) < discard_amount:
+            raise IllegalActionError("Not enough cards to discard")
+
+        create_discard_choice_pending_effect(
+            state,
+            controller_id=source_card.controller,
+            chooser_id=source_card.controller,
+            source_id=ability.source_instance_id,
+            source_card_id=ability.source_card_id,
+            target_player_id=source_card.controller,
+            candidate_ids=candidate_ids,
+            min_select=discard_amount,
+            max_select=discard_amount,
+            origin="activated_cost",
+            origin_id=ability.unique_use_key,
+            raw={
+                "ability_id": ability.ability_id,
+                "ability_index": ability.ability_index,
+                "selected_targets": selected_targets,
+                "reason": "ability_cost",
+            },
         )
 
     def _apply_resolve_pending_effect(self, state: GameState, action: Action) -> None:
@@ -2741,6 +3343,11 @@ class GameEngine:
                     discard_tuple = tuple(discard_card_ids) if discard_card_ids else ()
                     resolve_discard_choice(state, pending_id, discard_tuple, engine=self)
 
+                    if pe.origin == "activated_cost":
+                        self._complete_activated_cost_pending_effect(state, pe, discard_tuple, action.actor)
+                        complete_pending_effect(state, pending_id)
+                        return
+
                     # After resolving the choice, apply the actual discards through _discard_eventful
                     # Get the target player and discard selected cards
                     target_player_id = pe.raw.get("target_player_id", pe.chooser_id)
@@ -2888,6 +3495,92 @@ class GameEngine:
         if updated_pe and updated_pe.is_complete:
             self._complete_bag_origin_pending_effect(state, updated_pe, action.actor)
             complete_pending_effect(state, pending_id)
+
+    def _complete_activated_cost_pending_effect(
+        self,
+        state: GameState,
+        pe: PendingEffect,
+        discard_card_ids: tuple[int, ...],
+        actor: int,
+    ) -> None:
+        from .abilities import get_activated_abilities_for_card
+        from .costs import pay_cost, validate_cost_payable
+        from lorcana_bot.card_logic.effect_utils import to_engine_cost_kind
+
+        if pe.source_id is None or pe.source_id not in state.cards:
+            raise IllegalActionError("Activated cost source is no longer in play")
+        source_id = pe.source_id
+        card_inst = state.cards[source_id]
+        if card_inst.zone != ZONE_PLAY:
+            raise IllegalActionError("Activated cost source is no longer in play")
+
+        card_def = self.card_def(state, source_id)
+        ability_index = pe.raw.get("ability_index")
+        ability_id = pe.raw.get("ability_id")
+        ability = None
+        for candidate in get_activated_abilities_for_card(state, source_id, card_def, self):
+            if ability_index is not None and candidate.ability_index == ability_index:
+                ability = candidate
+                break
+            if ability_id is not None and candidate.ability_id == ability_id:
+                ability = candidate
+                break
+        if ability is None:
+            raise IllegalActionError("Activated ability for pending cost was not found")
+
+        effects_supported, reason = validate_effects_supported(ability)
+        if not effects_supported:
+            raise IllegalActionError(reason)
+        if not can_use_ability_this_turn(state, ability):
+            raise IllegalActionError("Ability has already been used this turn")
+
+        expected_discard = sum(
+            int(cost.amount or 1)
+            for cost in ability.costs
+            if to_engine_cost_kind(cost.kind) == "discard"
+        )
+        if len(discard_card_ids) != expected_discard:
+            raise IllegalActionError(f"Expected {expected_discard} discard cost cards")
+
+        for cost in ability.costs:
+            can_pay, cost_reason = validate_cost_payable(state, self, ability, cost)
+            if not can_pay:
+                raise IllegalActionError(f"Cannot pay cost {cost.kind}: {cost_reason}")
+
+        target_player_id = int(pe.raw.get("target_player_id", actor))
+        for cid in discard_card_ids:
+            self._discard_eventful(
+                state,
+                cid,
+                actor=target_player_id,
+                source_id=source_id,
+                reason="ability_cost",
+            )
+
+        paid_costs: list[str] = ["discardCards"] if discard_card_ids else []
+        for cost in ability.costs:
+            engine_kind = to_engine_cost_kind(cost.kind)
+            if engine_kind in {"discard", "discard_chosen"}:
+                continue
+            pay_cost(state, self, ability, cost)
+            paid_costs.append(cost.kind)
+
+        card_inst.used_abilities_this_turn.append(ability.unique_use_key)
+        selected_targets = tuple(pe.raw.get("selected_targets", ()) or ())
+        execute_ability_effects(state, self, ability, selected_targets=selected_targets)
+        self.emit_event(
+            state,
+            "ABILITY_USED",
+            actor=actor,
+            source=source_id,
+            payload={
+                "ability_id": ability.ability_id,
+                "ability_index": ability.ability_index,
+                "costs_paid": paid_costs,
+                "effects_resolved": True,
+            },
+            queue_triggers=False,
+        )
 
     def _complete_bag_origin_pending_effect(
         self,

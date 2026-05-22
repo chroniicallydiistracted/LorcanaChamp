@@ -16,6 +16,7 @@ from lorcana_bot.constants import (
     ACTION_RESOLVE_BAG,
     ACTION_RESOLVE_PENDING_EFFECT,
     ACTION_USE_ABILITY,
+    ACTION_SING_SONG,
 )
 
 from .candidates import AutomatedActionCandidate, AutomatedActionFamily
@@ -65,6 +66,17 @@ def candidate_to_action(candidate: AutomatedActionCandidate) -> Action:
             source=candidate.source_instance_id,
             target=candidate.target_instance_id,
             choice={"ability_id": ability_id, "ability_index": ability_index}
+        )
+    if family == AutomatedActionFamily.SING_SONG:
+        choice = {}
+        if candidate.payment_mode == "singTogether":
+            choice = {"mode": "singTogether", "singer_ids": tuple(candidate.singer_instance_ids)}
+        return Action(
+            ACTION_SING_SONG,
+            actor=actor,
+            card=_require(candidate.card_instance_id, "card_instance_id"),
+            source=_require(candidate.source_instance_id, "source_instance_id"),
+            choice=choice,
         )
     if family == AutomatedActionFamily.RESOLVE_BAG:
         bag_id = candidate.metadata.get("bag_id") if candidate.metadata else None

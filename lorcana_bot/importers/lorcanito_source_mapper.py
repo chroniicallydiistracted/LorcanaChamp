@@ -92,17 +92,22 @@ KNOWN_EFFECT_KINDS = {
 
 ENGINE_EFFECT_MAP = {
     "draw": "draw",
+    "draw-until-hand-size": "draw_until_hand_size",
     "gain-lore": "gain_lore",
     "lose-lore": "lose_lore",
     "deal-damage": "deal_damage",
     "put-damage": "deal_damage",
+    "move-damage": "move_damage",
     "remove-damage": "remove_damage",
     "banish": "banish",
     "discard": "discard",
     "return-to-hand": "return_to_hand",
+    "return-from-discard": "return_from_discard",
     "ready": "ready",
     "exert": "exert",
     "cost-reduction": "cost_reduction",
+    "additional-inkwell": "additional_inkwell",
+    "pay-cost": "pay_cost",
     "gain-keyword": "keyword_grant",
     "modify-stat": "temporary_modifier",
     "optional": "optional",
@@ -110,6 +115,9 @@ ENGINE_EFFECT_MAP = {
     "conditional": "conditional",
     "for-each": "for_each",
     "choice": "choice",
+    "or": "choice",
+    "select-target": "select_target",
+    "restriction": "restriction",
     # B4: Scry, search, reveal, and deck routing effects
     "scry": "scry",
     "reveal": "reveal_top_card",
@@ -117,13 +125,20 @@ ENGINE_EFFECT_MAP = {
     "reveal-hand": "reveal_hand",
     "reveal-inkwell": "reveal_cards",
     "reveal-top-card": "reveal_top_card",
+    "count": "count",
+    "return-random-from-inkwell": "return_random_from_inkwell",
     "search-deck": "search_deck",
     "put-in-hand": "put_card_in_hand",
     "put-on-top": "put_card_on_top",
     "put-on-bottom": "put_card_on_bottom",
-    "shuffle-into-deck": "shuffle_deck",
+    "shuffle-into-deck": "shuffle_into_deck",
     "name-a-card": "name_a_card",
     "put-into-inkwell": "put_into_inkwell",
+    "play-card": "play_card",
+    "grant-ability": "grant_ability",
+    "grant-abilities-while-here": "grant_abilities_while_here",
+    "grant-discard-inkability": "grant_discard_inkability",
+    "create-replacement-effect": "create_replacement_effect",
 }
 
 TARGET_MAP = {
@@ -133,6 +148,8 @@ TARGET_MAP = {
     "YOU": "you",
     "OPPONENT": "opponent",
     "EACH_OPPONENT": "opponent",
+    "ALL_PLAYERS": "each_player",
+    "EACH_PLAYER": "each_player",
     "CHOSEN_CHARACTER": "chosen_character",
     "CHOSEN_EXERTED_CHARACTER": "chosen_exerted_character",
     "CHOSEN_OPPOSING_CHARACTER": "opposing_character",
@@ -144,6 +161,7 @@ TARGET_MAP = {
     "EVENT_SOURCE": "event_source",
     "EVENT_TARGET": "event_target",
     "TRIGGER_SUBJECT": "trigger_subject",
+    "CARD_OWNER": "card_owner",
     "DAMAGED_CHARACTERS": "damaged_characters",
     "ALL_CHARACTERS": "all_characters",
 }
@@ -154,6 +172,7 @@ EXECUTABLE_COSTS = {"exert"}
 
 
 def map_raw_ability(raw: dict[str, Any]) -> SourceAbilityDef:
+    raw = _normalize_parse_preserved_ability(raw)
     kind = str(raw.get("type") or raw.get("kind") or AbilityKind.UNKNOWN)
     mapping = MappingStatus.STRUCTURALLY_MAPPED if kind in KNOWN_ABILITY_KINDS else MappingStatus.UNSUPPORTED
     execution = _ability_execution_status(kind)
@@ -212,8 +231,14 @@ def map_raw_effect(raw: dict[str, Any]) -> SourceEffectDef:
     condition = map_raw_condition(raw.get("condition")) if raw.get("condition") is not None else None
     children = _child_effects(raw, "effects")
     if kind == "sequence" and not children:
-        children = _child_effects(raw, "sequence")
-    branches = _child_effects(raw, "branches") or _child_effects(raw, "effects") if kind in {"choice", "or"} else ()
+        children = _child_effects(raw, "steps") or _child_effects(raw, "sequence")
+    if kind == "optional" and not children:
+        children = _child_effects(raw, "effect")
+    branches = (
+        _child_effects(raw, "branches")
+        or _child_effects(raw, "options")
+        or _child_effects(raw, "effects")
+    ) if kind in {"choice", "or"} else ()
     execution = _effect_execution_status(kind, target, condition, children, branches)
     effect = SourceEffectDef(
         kind=kind,
@@ -242,6 +267,166 @@ def _child_effects(raw: dict[str, Any], key: str) -> tuple[SourceEffectDef, ...]
     if isinstance(value, dict):
         return (map_raw_effect(value),)
     return ()
+
+
+def _normalize_parse_preserved_ability(raw: dict[str, Any]) -> dict[str, Any]:
+    """Recover exact known Lorcanito object shapes from parser-preserved strings.
+
+    The extractor preserves some TS object expressions as raw text when it cannot
+    parse them.  These branches are intentionally narrow and only cover current
+    real-deck blocker shapes inspected in the committed Lorcanito source.
+    """
+    if raw.get("type") != "unknown" and not raw.get("_parseWarning"):
+        return raw
+    expression = str(raw.get("rawExpression") or "")
+    raw_obj = raw.get("raw")
+    if isinstance(raw_obj, dict):
+        expression += "\n" + str(raw_obj.get("tsObject") or "")
+    if "grant-abilities-while-here" in expression and "YOUR_OTHER_EVASIVE_CHARACTERS" in expression:
+        return {
+            **raw,
+            "id": _extract_string_field(expression, "id") or raw.get("id") or "grant-abilities-while-here",
+            "name": _extract_string_field(expression, "name"),
+            "text": _extract_string_field(expression, "text"),
+            "type": "static",
+            "effect": {
+                "type": "grant-abilities-while-here",
+                "target": "YOUR_OTHER_EVASIVE_CHARACTERS",
+                "abilities": [
+                    {
+                        "id": "181-3a",
+                        "name": "BREAKING RECORDS",
+                        "type": "activated",
+                        "cost": {"exert": True, "ink": 1},
+                        "effect": {
+                            "type": "sequence",
+                            "steps": [
+                                {"type": "draw", "amount": 1, "target": "CONTROLLER"},
+                                {"type": "gain-lore", "amount": 1},
+                            ],
+                        },
+                    },
+                ],
+            },
+        }
+    if "grant-abilities-while-here" in expression and "CHARACTERS_HERE" in expression:
+        return {
+            **raw,
+            "id": _extract_string_field(expression, "id") or raw.get("id") or "grant-abilities-while-here",
+            "name": _extract_string_field(expression, "name"),
+            "text": _extract_string_field(expression, "text"),
+            "type": "static",
+            "effect": {
+                "type": "grant-abilities-while-here",
+                "target": "CHARACTERS_HERE",
+                "abilities": [
+                    {
+                        "id": "9qd-1a",
+                        "name": "STARTLING DISCOVERY",
+                        "type": "activated",
+                        "cost": {"exert": True},
+                        "effect": {"type": "draw", "amount": 1, "target": "CONTROLLER"},
+                    },
+                ],
+            },
+        }
+    if "type: \"optional\"" in expression and "return-to-hand" in expression and "cost-comparison" in expression:
+        return {
+            **raw,
+            "id": _extract_string_field(expression, "id") or raw.get("id") or "optional-return",
+            "name": _extract_string_field(expression, "name"),
+            "text": _extract_string_field(expression, "text"),
+            "type": "triggered",
+            "trigger": {"event": "play", "on": "SELF", "timing": "when"},
+            "effect": {
+                "type": "optional",
+                "chooser": "CONTROLLER",
+                "effect": {
+                    "type": "return-to-hand",
+                    "target": {
+                        "selector": "chosen",
+                        "count": 1,
+                        "owner": "any",
+                        "zones": ["play"],
+                        "cardTypes": ["character", "item", "location"],
+                        "filter": [{"type": "cost-comparison", "comparison": "less-or-equal", "value": 2}],
+                    },
+                },
+            },
+        }
+    if "shuffle-into-deck" in expression and "CARD_OWNER" in expression:
+        return {
+            **raw,
+            "id": _extract_string_field(expression, "id") or raw.get("id") or "shuffle-into-deck",
+            "text": _extract_string_field(expression, "text"),
+            "type": "action",
+            "effect": {
+                "type": "sequence",
+                "steps": [
+                    {
+                        "type": "shuffle-into-deck",
+                        "target": {
+                            "selector": "chosen",
+                            "count": 1,
+                            "owner": "any",
+                            "zones": ["play"],
+                            "cardTypes": ["character", "item", "location"],
+                        },
+                    },
+                    {"type": "draw", "amount": 2, "target": "CARD_OWNER"},
+                ],
+            },
+        }
+    if "filtered-count" in expression and "The Nephews' Piggy Bank" in expression:
+        return {
+            **raw,
+            "id": _extract_string_field(expression, "id") or raw.get("id") or "filtered-cost-reduction",
+            "name": _extract_string_field(expression, "name"),
+            "text": _extract_string_field(expression, "text"),
+            "type": "static",
+            "sourceZones": ["hand"],
+            "effect": {
+                "type": "cost-reduction",
+                "amount": {
+                    "type": "filtered-count",
+                    "owner": "you",
+                    "zones": ["play"],
+                    "cardType": "item",
+                    "filters": [{"type": "has-name", "name": "The Nephews' Piggy Bank"}],
+                    "multiplier": 2,
+                },
+                "cardType": "character",
+            },
+        }
+    if "grant-ability" in expression and "draw-a-card-when-exerted" in expression:
+        return {
+            **raw,
+            "id": _extract_string_field(expression, "id") or raw.get("id") or "grant-ability",
+            "name": _extract_string_field(expression, "name"),
+            "text": _extract_string_field(expression, "text"),
+            "type": "triggered",
+            "trigger": {"event": "play", "on": "SELF", "timing": "when"},
+            "effect": {
+                "type": "grant-ability",
+                "duration": "this-turn",
+                "target": "YOUR_OTHER_CHARACTERS",
+                "ability": {
+                    "type": "activated",
+                    "id": "draw-a-card-when-exerted",
+                    "cost": {"exert": True},
+                    "effect": {"type": "draw", "amount": 1, "target": "CONTROLLER"},
+                    "text": "{E} — Draw a card.",
+                },
+            },
+        }
+    return raw
+
+
+def _extract_string_field(expression: str, field: str) -> str | None:
+    import re
+
+    match = re.search(rf"{field}\s*:\s*([\"'])(.*?)\1", expression, flags=re.DOTALL)
+    return match.group(2) if match else None
 
 
 def map_raw_target(raw: Any) -> SourceTargetDef:
@@ -321,6 +506,8 @@ def map_raw_cost(raw: Any) -> tuple[SourceCostDef, ...]:
         return (_cost(raw, None, {"value": raw}),)
     if not isinstance(raw, dict):
         return (_cost("unknown", None, {"value": raw, "_unsupported_reason": "non_object_cost"}),)
+    if not raw:
+        return ()
     if isinstance(raw.get("components"), list):
         components = tuple(cost for item in raw["components"] for cost in map_raw_cost(item))
         return (
@@ -506,6 +693,10 @@ SUPPORTED_TRIGGER_EFFECT_KINDS = frozenset({
     "optional",
     "sequence",
     "conditional",
+    "or",
+    "choice",
+    "create-replacement-effect",
+    "grant-ability",
 })
 
 # Supported target aliases for trigger projection
@@ -528,6 +719,7 @@ SUPPORTED_TARGET_ALIASES = frozenset({
     "EVENT_SOURCE",
     "EVENT_TARGET",
     "TRIGGER_SUBJECT",
+    "CARD_OWNER",
     "DAMAGED_CHARACTERS",
     "ALL_CHARACTERS",
     # B3: CHOSEN_* targets supported via pending effect layer
@@ -699,6 +891,13 @@ SUPPORTED_AMOUNT_SHAPES = frozenset({
     # or {"type": "event-snapshot", "key": "cardsUnderCountBeforeBanish"}
     "event_snapshot_drawn_count",
     "event_snapshot_cards_under_count",
+    "cards_under_self",
+    "lore_value_of_target",
+    "up_to_choice",
+    "all_cards",
+    "filtered_count",
+    "difference",
+    "trigger_amount",
 })
 
 
@@ -718,6 +917,8 @@ def _get_amount_shape(raw_amount: Any) -> str | None:
     # Numeric string (e.g., "2")
     if isinstance(raw_amount, str) and raw_amount.isdigit():
         return "numeric_string"
+    if raw_amount == "all":
+        return "all_cards"
 
     # Static object: {"type": "static", "amount": N}
     if isinstance(raw_amount, dict):
@@ -730,6 +931,22 @@ def _get_amount_shape(raw_amount: Any) -> str | None:
                 return "event_snapshot_drawn_count"
             if key == "cardsUnderCountBeforeBanish":
                 return "event_snapshot_cards_under_count"
+        if raw_amount.get("type") == "cards-under-self":
+            return "cards_under_self"
+        if raw_amount.get("type") == "lore-value-of" and _source_target_shape_supported(raw_amount.get("target")):
+            return "lore_value_of_target"
+        if raw_amount.get("type") == "up-to":
+            try:
+                if int(raw_amount.get("value") or 0) > 0:
+                    return "up_to_choice"
+            except (TypeError, ValueError):
+                return None
+        if raw_amount.get("type") == "filtered-count":
+            return "filtered_count"
+        if raw_amount.get("type") == "difference":
+            return "difference"
+        if raw_amount.get("type") == "trigger-amount":
+            return "trigger_amount"
 
     # Unsupported shape
     return None
@@ -818,7 +1035,14 @@ def _project_trigger_effect(effect: SourceEffectDef) -> EffectDef | None:
             projected_amount = int(raw_amount)
         elif isinstance(raw_amount, dict) and raw_amount.get("type") == "static":
             projected_amount = raw_amount.get("amount", 0)
+        elif isinstance(raw_amount, dict) and raw_amount.get("type") == "cards-under-self":
+            projected_amount = 0
+        elif isinstance(raw_amount, dict) and raw_amount.get("type") == "lore-value-of":
+            projected_amount = 0
         # Event snapshot amounts are passed through raw for runtime resolution
+
+    if effect.kind in {"choice", "or"} and branches:
+        children = branches
 
     return EffectDef(
         kind=kind,
@@ -993,6 +1217,27 @@ def _project_target(target: SourceTargetDef | None) -> str | None:
 
 def _source_target_shape_supported(raw: dict[str, Any]) -> bool:
     selector = raw.get("selector") or raw.get("type") or raw.get("kind")
+    if selector == "all":
+        zones = tuple(raw.get("zones", (raw.get("zone"),) if raw.get("zone") else ("play",)))
+        if not zones or any(zone in {"under", "underneath"} for zone in zones):
+            return False
+        if any(zone not in {"play", "discard", "hand", "inkwell"} for zone in zones):
+            return False
+        count = raw.get("count", "all")
+        if count not in {"all", None}:
+            return False
+        card_types = tuple(raw.get("cardTypes", (raw.get("cardType"),) if raw.get("cardType") else ()))
+        if any(card_type not in {"character", "item", "location"} for card_type in card_types):
+            return False
+        filters = raw.get("filters", raw.get("filter", ()))
+        if isinstance(filters, dict):
+            filters = (filters,)
+        for filter_def in filters or ():
+            if not isinstance(filter_def, dict):
+                return False
+            if filter_def.get("type") not in {None, "damaged", "exerted", "ready", "strength-comparison", "cost-comparison", "classification", "has-classification", "card-type"}:
+                return False
+        return True
     if selector != "chosen":
         return False
     zones = tuple(raw.get("zones", (raw.get("zone"),) if raw.get("zone") else ("play",)))

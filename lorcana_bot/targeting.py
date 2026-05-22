@@ -98,6 +98,7 @@ SELECTOR_ALIASES: dict[str, str] = {
     "chosen_location": "chosen_location",
     "chosen_opposing_character": "chosen_opposing_character",
     "chosen_damaged_character": "chosen_damaged_character",
+    "all": "all",
     # Context-based targets
     "opposing_character": "opposing_character",
     "self": "self",
@@ -659,6 +660,15 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor | None:
             owner="any",
         )
 
+    if selector == "all":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=0,
+            max_count=None,
+            zones=(ZONE_PLAY,),
+            owner="any",
+        )
+
     if selector == "chosen_card":
         return TargetDescriptor(
             selector=selector,
@@ -976,6 +986,15 @@ def _apply_filter(
 
     if filter_type == "drying":
         return inst.drying
+
+    if filter_type == "has-keyword":
+        if engine is None:
+            return False
+        keyword = filter_def.get("keyword")
+        if not keyword:
+            return False
+        card_keywords = {kw.upper() for kw in engine.keywords_for_instance(state, card_id)}
+        return str(keyword).upper() in card_keywords
 
     if filter_type in {"strength-comparison", "cost-comparison"}:
         if engine is None:
