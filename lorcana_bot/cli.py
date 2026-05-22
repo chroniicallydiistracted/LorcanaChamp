@@ -83,9 +83,23 @@ def _play_with_logs(
     strategy_names: tuple[str | None, str | None],
     automation_strategy_names: tuple[str | None, str | None],
     seed: int,
+    game_id: str | None = None,
+    log_append: bool = False,
+    log_metadata: dict | None = None,
 ) -> GameResult:
-    game_id = f"cli-seed-{seed}"
-    game_logger = GameLogger(game_log_path, game_id=game_id, mode=log_mode) if game_log_path else None
+    game_id = game_id or f"cli-seed-{seed}"
+    metadata = dict(log_metadata or {})
+    game_logger = (
+        GameLogger(
+            game_log_path,
+            game_id=game_id,
+            mode=log_mode,
+            append=log_append,
+            extra_metadata=metadata,
+        )
+        if game_log_path
+        else None
+    )
     try:
         if any(automation_strategy_names):
             result, decision_rows = _play_automation_loop(
@@ -115,9 +129,12 @@ def _play_with_logs(
             decision_rows = []
         if decision_log_path:
             decision_log_path.parent.mkdir(parents=True, exist_ok=True)
-            with decision_log_path.open("w", encoding="utf-8") as fh:
+            with decision_log_path.open("a" if log_append else "w", encoding="utf-8") as fh:
                 for row in decision_rows:
-                    fh.write(json.dumps(row, sort_keys=True) + "\n")
+                    enriched = dict(row)
+                    enriched.update(metadata)
+                    enriched.setdefault("game_id", game_id)
+                    fh.write(json.dumps(enriched, sort_keys=True) + "\n")
         return result
     finally:
         if game_logger is not None:

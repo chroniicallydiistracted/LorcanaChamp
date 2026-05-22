@@ -14,14 +14,23 @@ PRIVATE_MODES = {"private", "oracle"}
 
 
 class GameLogger:
-    def __init__(self, path: str | Path, *, game_id: str, mode: GameLogMode = "public"):
+    def __init__(
+        self,
+        path: str | Path,
+        *,
+        game_id: str,
+        mode: GameLogMode = "public",
+        append: bool = False,
+        extra_metadata: dict[str, Any] | None = None,
+    ):
         if mode not in {"public", "private", "training", "oracle"}:
             raise ValueError(f"Unsupported game log mode {mode!r}")
         self.path = Path(path)
         self.game_id = game_id
         self.mode = mode
+        self.extra_metadata = dict(extra_metadata or {})
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self._fh = self.path.open("w", encoding="utf-8")
+        self._fh = self.path.open("a" if append else "w", encoding="utf-8")
 
     def close(self) -> None:
         self._fh.close()
@@ -58,6 +67,7 @@ class GameLogger:
             mode=self.mode,
             event_start_index=event_start_index,
         )
+        row.update(self.extra_metadata)
         self._fh.write(json.dumps(row, sort_keys=True) + "\n")
         self._fh.flush()
         return row

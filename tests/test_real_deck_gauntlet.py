@@ -96,3 +96,116 @@ def test_gauntlet_gate_allows_current_executable_decks_despite_stale_blockers(tm
     assert report["deck_playability"] == {"d1": "fully_executable", "d2": "fully_executable"}
     assert report["matchups"][0]["stored_deck_playability_player_0"] == "source_only"
     assert report["matchups"][0]["deck_playability_player_0"] == "fully_executable"
+
+
+def test_gauntlet_logs_all_games_with_per_game_metadata(tmp_path):
+    db, _ = import_lorcanito_source_cards("data/lorcanito_extracted/cards.normalized.json")
+    card_id = next(
+        card.id
+        for card in db.all_cards()
+        if card.card_type == "character" and classify_card_runtime_support(card).status == "executable"
+    )
+    write_resolved_deck(_resolved_deck("d1", [card_id], playability="source_only"), tmp_path / "d1.resolved.json")
+    write_resolved_deck(_resolved_deck("d2", [card_id], playability="source_only"), tmp_path / "d2.resolved.json")
+    write_resolved_deck(_resolved_deck("d3", [card_id], playability="source_only"), tmp_path / "d3.resolved.json")
+
+    game_log = tmp_path / "game_log.jsonl"
+    decisions = tmp_path / "decisions.jsonl"
+
+    report = run_real_deck_gauntlet(
+        tmp_path,
+        only_fully_executable=True,
+        games_per_pair=2,
+        max_actions=5,
+        log_game_jsonl=game_log,
+        log_decisions_jsonl=decisions,
+    )
+
+    assert report["games_run"] == 6
+    assert game_log.exists()
+    assert decisions.exists()
+
+    game_rows = [json.loads(line) for line in game_log.read_text().splitlines() if line.strip()]
+    decision_rows = [json.loads(line) for line in decisions.read_text().splitlines() if line.strip()]
+    total_action_count = sum(row.get("action_count", 0) for row in report["matchups"])
+
+    assert len(game_rows) == total_action_count
+    assert len(decision_rows) >= total_action_count
+
+    game_ids_in_report = {row["game_id"] for row in report["matchups"]}
+    game_ids_in_game_log = {row["game_id"] for row in game_rows}
+    game_ids_in_decisions = {row["game_id"] for row in decision_rows}
+
+    assert game_ids_in_report == {
+        "gauntlet-0-0-seed-0",
+        "gauntlet-0-1-seed-1",
+        "gauntlet-1-0-seed-1000",
+        "gauntlet-1-1-seed-1001",
+        "gauntlet-2-0-seed-2000",
+        "gauntlet-2-1-seed-2001",
+    }
+    assert game_ids_in_game_log == game_ids_in_report
+    assert game_ids_in_decisions == game_ids_in_report
+
+    for row in game_rows + decision_rows:
+        assert row["deck_id_player_0"] in {"d1", "d2", "d3"}
+        assert row["deck_id_player_1"] in {"d1", "d2", "d3"}
+        assert row["deck_playability_player_0"] == "fully_executable"
+        assert row["deck_playability_player_1"] == "fully_executable"
+        assert row["stored_deck_playability_player_0"] == "source_only"
+        assert row["stored_deck_playability_player_1"] == "source_only"
+        assert row["strategy_player_0"] == "deck-aware-lore-race"
+        assert row["strategy_player_1"] == "board-control"
+        assert isinstance(row["seed"], int)
+        assert isinstance(row["pair_index"], int)
+        assert isinstance(row["game_index"], int)
+
+    for row in report["matchups"]:
+        assert row["strategy_player_0"] == "deck-aware-lore-race"
+        assert row["strategy_player_1"] == "board-control"
+
+
+def test_gauntlet_log_paths_are_reset_between_runs(tmp_path):
+    db, _ = import_lorcanito_source_cards("data/lorcanito_extracted/cards.normalized.json")
+    card_id = next(
+        card.id
+        for card in db.all_cards()
+        if card.card_type == "character" and classify_card_runtime_support(card).status == "executable"
+    )
+    write_resolved_deck(_resolved_deck("d1", [card_id], playability="source_only"), tmp_path / "d1.resolved.json")
+    write_resolved_deck(_resolved_deck("d2", [card_id], playability="source_only"), tmp_path / "d2.resolved.json")
+
+    game_log = tmp_path / "game_log.jsonl"
+    decisions = tmp_path / "decisions.jsonl"
+
+    first = run_real_deck_gauntlet(
+        tmp_path,
+        only_fully_executable=True,
+        games_per_pair=2,
+        max_actions=5,
+        log_game_jsonl=game_log,
+        log_decisions_jsonl=decisions,
+    )
+    first_game_rows = [json.loads(line) for line in game_log.read_text().splitlines() if line.strip()]
+    first_decision_rows = [json.loads(line) for line in decisions.read_text().splitlines() if line.strip()]
+
+    second = run_real_deck_gauntlet(
+        tmp_path,
+        only_fully_executable=True,
+        games_per_pair=1,
+        max_actions=5,
+        log_game_jsonl=game_log,
+        log_decisions_jsonl=decisions,
+    )
+    second_game_rows = [json.loads(line) for line in game_log.read_text().splitlines() if line.strip()]
+    second_decision_rows = [json.loads(line) for line in decisions.read_text().splitlines() if line.strip()]
+
+    assert first["games_run"] == 2
+    assert second["games_run"] == 1
+    assert len(second_game_rows) < len(first_game_rows)
+    assert len(second_decision_rows) < len(first_decision_rows)
+
+    second_game_ids = {row["game_id"] for row in second_game_rows}
+    second_decision_ids = {row["game_id"] for row in second_decision_rows}
+    assert second_game_ids == {"gauntlet-0-0-seed-0"}
+    assert second_decision_ids == {"gauntlet-0-0-seed-0"}
