@@ -1228,6 +1228,125 @@ class TestRequirementKindLegalActions:
         resolve_p1 = [a for a in actions_p1 if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
         assert len(resolve_p1) == 2  # 2 choice indices
 
+    def test_opponent_choice_apply_action_requires_opponent_chooser(self, state_with_pending):
+        """opponent_choice resolves through public actions only for the stored chooser."""
+        from lorcana_bot.engine import IllegalActionError
+
+        state, engine = state_with_pending
+        pe = self._create_pending_effect(
+            state,
+            chooser_id=1,
+            controller_id=0,
+            requirement_kind="opponent_choice",
+            raw={
+                "requirement_kind": "opponent_choice",
+                "choice_type": "choice",
+                "options": ["left", "right"],
+            },
+        )
+
+        correct = next(
+            action
+            for action in engine.legal_actions(state, 1)
+            if action.kind == ACTION_RESOLVE_PENDING_EFFECT and action.choice.get("choice_index") == 1
+        )
+        wrong_actor = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            source=pe.source_id,
+            choice=dict(correct.choice),
+        )
+
+        with pytest.raises(IllegalActionError):
+            engine.apply_action(state, wrong_actor)
+
+        next_state = engine.apply_action(state, correct)
+        assert not next_state.pending_effects
+        assert pe.id not in {item.id for item in next_state.pending_effects}
+
+    def test_bag_origin_empty_general_pending_completes_bag_item(self, state_with_pending):
+        """Pure-input amount/target/opponent_choice bag-origin pending effects complete their bag item."""
+        from lorcana_bot.constants import EVENT_TRIGGER_RESOLVED
+        from lorcana_bot.state import BagEffectEntry, PendingTriggeredEvent
+
+        _base_state, engine = state_with_pending
+        for requirement_kind, raw, choice in (
+            ("amount", {"amount_options": [1]}, {"amount": 1}),
+            ("target", {"candidate_ids": [10], "target": "chosen_character"}, {"targets": (10,)}),
+            (
+                "opponent_choice",
+                {"choice_type": "choice", "options": ["a"]},
+                {"choice_index": 0},
+            ),
+        ):
+            state = GameState(
+                players=[PlayerState(), PlayerState()],
+                cards={},
+                active_player=0,
+                first_player=0,
+                phase="MAIN",
+            )
+            state.cards[1] = CardInstance(
+                instance_id=1,
+                card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+                owner=0,
+                controller=0,
+                zone=ZONE_PLAY,
+            )
+            if requirement_kind == "target":
+                state.cards[10] = CardInstance(
+                    instance_id=10,
+                    card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+                    owner=0,
+                    controller=0,
+                    zone=ZONE_PLAY,
+                )
+                state.players[0].play.append(10)
+            bag = BagEffectEntry(
+                id=f"bag_{requirement_kind}",
+                kind="triggered_ability",
+                ability_id=f"ability_{requirement_kind}",
+                ability_index=0,
+                ability_key=f"ability_{requirement_kind}",
+                ability_name=None,
+                auto_resolve=True,
+                controller_id=0,
+                chooser_id=0,
+                source_id=1,
+                source_card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+                trigger={"event": "play"},
+                condition=None,
+                effects=(),
+                occurrence_index=1,
+                event=PendingTriggeredEvent(id=f"evt_{requirement_kind}", event="play", player_id=0),
+            )
+            state.bag.append(bag)
+            pe = self._create_pending_effect(
+                state,
+                chooser_id=0,
+                controller_id=0,
+                source_id=1,
+                requirement_kind=requirement_kind,
+                raw={"requirement_kind": requirement_kind, **raw},
+            )
+            pe.origin = "bag"
+            pe.origin_id = bag.id
+            pe.raw["origin"] = "bag"
+            pe.raw["origin_id"] = bag.id
+
+            action = Action(
+                ACTION_RESOLVE_PENDING_EFFECT,
+                actor=0,
+                source=1,
+                target=10 if requirement_kind == "target" else None,
+                choice={"pending_effect_id": pe.id, **choice},
+            )
+            next_state = engine.apply_action(state, action)
+
+            assert not next_state.bag
+            assert not next_state.pending_effects
+            assert any(event.event_type == EVENT_TRIGGER_RESOLVED for event in next_state.event_log)
+
     def test_opponent_choice_target_type(self, state_with_pending):
         """Test opponent_choice with target choice_type."""
         state, engine = state_with_pending

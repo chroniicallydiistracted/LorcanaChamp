@@ -70,10 +70,50 @@ def _move_pending_card(
     """Move a card chosen by a pending requirement through the engine when available."""
     if engine is None:
         raise ValueError("Pending card movement requires a GameEngine")
+    from lorcana_bot.constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_INKWELL
+
+    if destination in {"deck-top", "top-of-deck"}:
+        engine._move_card_eventful(
+            state,
+            card_id,
+            ZONE_DECK,
+            actor=actor,
+            source_id=source_id,
+            controller=state.cards[card_id].owner,
+            index=0,
+            queue_triggers=False,
+        )
+        return
+    if destination in {"deck-bottom", "bottom-of-deck"}:
+        engine._move_card_eventful(
+            state,
+            card_id,
+            ZONE_DECK,
+            actor=actor,
+            source_id=source_id,
+            controller=state.cards[card_id].owner,
+            queue_triggers=False,
+        )
+        return
+    if destination == "inkwell":
+        engine._put_into_inkwell_eventful(
+            state,
+            card_id,
+            actor=state.cards[card_id].owner,
+            source_id=source_id,
+            queue_triggers=False,
+            exerted=True,
+        )
+        return
+    normalized_destination = {
+        "hand": ZONE_HAND,
+        "discard": ZONE_DISCARD,
+        "inkwell": ZONE_INKWELL,
+    }.get(destination, destination)
     engine._move_card_eventful(
         state,
         card_id,
-        destination,
+        normalized_destination,
         actor=actor,
         source_id=source_id,
         queue_triggers=False,
@@ -1552,6 +1592,8 @@ def _validate_targets(state: GameState, pe: PendingEffect, targets: tuple[int, .
             raise ValueError(f"Target card {tid} does not exist")
     # Check count bounds
     min_tgt, max_tgt, candidates = _get_target_bounds(pe)
+    if len(set(targets)) != len(targets) and not pe.raw.get("allow_duplicate_targets"):
+        raise ValueError("Target selection cannot include duplicate cards")
     if min_tgt is not None and len(targets) < min_tgt:
         raise ValueError(f"Target count {len(targets)} is below minimum {min_tgt}")
     if max_tgt is not None and len(targets) > max_tgt:

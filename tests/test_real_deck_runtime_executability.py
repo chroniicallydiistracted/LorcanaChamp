@@ -1,4 +1,12 @@
-from lorcana_bot.card_logic import ExecutionStatus, MappingStatus, SourceAbilityDef, SourceEffectDef, SourceStaticEffectDef, SourceTriggerDef
+from lorcana_bot.card_logic import (
+    ExecutionStatus,
+    MappingStatus,
+    SourceAbilityDef,
+    SourceEffectDef,
+    SourceStaticEffectDef,
+    SourceTargetDef,
+    SourceTriggerDef,
+)
 from lorcana_bot.cards import CardDef
 from lorcana_bot.decks.deck_mapping_report import build_suite_mapping_report
 from lorcana_bot.decks.deck_schema import ResolvedDeck, ResolvedDeckCard
@@ -181,6 +189,116 @@ def test_source_scry_destination_and_ordering_requirements_are_currently_executa
     assert "unsupported_resolution_requirement:ordering" not in result.blockers
     assert "pending:scry_destinations" in result.runtime_paths_verified
     assert "automation:RESOLVE_EFFECT" in result.runtime_paths_verified
+
+
+def test_supported_lorcanito_chosen_target_shape_no_longer_blocks():
+    target = SourceTargetDef(
+        kind="selector",
+        selector="chosen",
+        raw={
+            "selector": "chosen",
+            "count": 1,
+            "owner": "any",
+            "zones": ["play"],
+            "cardTypes": ["character"],
+            "filter": [{"type": "strength-comparison", "comparison": "greater-or-equal", "value": 5}],
+        },
+        execution_status=ExecutionStatus.UNSUPPORTED_TARGETING,
+    )
+    effect = SourceEffectDef(
+        kind="banish",
+        target=target,
+        mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
+        execution_status=ExecutionStatus.MAPPED_NOT_EXECUTABLE,
+    )
+    card_def = _card("chosen", card_type="action", strength=None, willpower=None, lore=None, source_effects=(effect,))
+
+    result = classify_card_runtime_support(card_def, _resolved_card("chosen", blockers=("unsupported_target:selector:chosen",)))
+
+    assert result.status == "executable"
+    assert "unsupported_target:selector:chosen" not in result.blockers
+    assert result.stale_blockers_ignored == ("unsupported_target:selector:chosen",)
+    assert "targeting:chosen_selector" in result.runtime_paths_verified
+
+
+def test_unsupported_chosen_target_shape_stays_blocked():
+    target = SourceTargetDef(
+        kind="selector",
+        selector="chosen",
+        raw={
+            "selector": "chosen",
+            "zones": ["hand"],
+            "cardTypes": ["character"],
+        },
+        execution_status=ExecutionStatus.UNSUPPORTED_TARGETING,
+    )
+    effect = SourceEffectDef(kind="banish", target=target, mapping_status=MappingStatus.STRUCTURALLY_MAPPED)
+    card_def = _card("bad-chosen", card_type="action", strength=None, willpower=None, lore=None, source_effects=(effect,))
+
+    result = classify_card_runtime_support(card_def)
+
+    assert result.status == "projected_but_requires_pending_input"
+    assert result.blockers == ("unsupported_target:selector:chosen",)
+
+
+def test_supported_put_into_inkwell_shape_no_longer_blocks():
+    target = SourceTargetDef(
+        kind="alias",
+        alias="CHOSEN_EXERTED_CHARACTER",
+        execution_status=ExecutionStatus.UNSUPPORTED_TARGETING,
+    )
+    effect = SourceEffectDef(
+        kind="put-into-inkwell",
+        target=target,
+        raw={"type": "put-into-inkwell", "target": "CHOSEN_EXERTED_CHARACTER", "source": "chosen-character", "facedown": True, "exerted": True},
+        mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
+    )
+    card_def = _card("inkwell", card_type="action", strength=None, willpower=None, lore=None, source_effects=(effect,))
+
+    result = classify_card_runtime_support(card_def, _resolved_card("inkwell", blockers=("unsupported_effect:put-into-inkwell",)))
+
+    assert result.status == "executable"
+    assert "unsupported_effect:put-into-inkwell" not in result.blockers
+    assert "unsupported_effect:put-into-inkwell" in result.stale_blockers_ignored
+
+
+def test_unsupported_put_into_inkwell_shape_stays_blocked():
+    effect = SourceEffectDef(
+        kind="put-into-inkwell",
+        raw={"type": "put-into-inkwell", "source": "deck"},
+        mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
+    )
+    card_def = _card("bad-inkwell", card_type="action", strength=None, willpower=None, lore=None, source_effects=(effect,))
+
+    result = classify_card_runtime_support(card_def)
+
+    assert result.status == "unsupported"
+    assert result.blockers == ("unsupported_effect:put-into-inkwell",)
+
+
+def test_actual_opponent_choice_requirement_is_supported_but_unrelated_choices_are_not_tagged():
+    opponent_choice = SourceEffectDef(
+        kind="choice",
+        raw={"type": "choice", "chosenBy": "opponent", "options": [{"type": "draw", "amount": 1}]},
+        mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
+    )
+    normal_choice = SourceEffectDef(
+        kind="choice",
+        raw={"type": "choice", "optionLabels": ["Chosen opponent draws"], "options": [{"type": "draw", "amount": 1}]},
+        mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
+    )
+
+    supported = classify_card_runtime_support(
+        _card("opp-choice", card_type="action", strength=None, willpower=None, lore=None, source_effects=(opponent_choice,)),
+        _resolved_card("opp-choice", blockers=("unsupported_resolution_requirement:opponent_choice",)),
+    )
+    normal = classify_card_runtime_support(
+        _card("normal-choice", card_type="action", strength=None, willpower=None, lore=None, source_effects=(normal_choice,))
+    )
+
+    assert "unsupported_resolution_requirement:opponent_choice" not in supported.blockers
+    assert "pending:opponent_choice" in supported.runtime_paths_verified
+    assert "unsupported_resolution_requirement:opponent_choice" not in normal.blockers
 
 
 def test_suite_report_uses_fresh_blockers_and_keeps_stale_fields_separate():

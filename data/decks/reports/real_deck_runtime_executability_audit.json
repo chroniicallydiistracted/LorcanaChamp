@@ -145,6 +145,18 @@
       ]
     },
     {
+      "card_id": "8Sv",
+      "decks": [
+        "as_evasive_aotp_stockholm_2026_04_25"
+      ],
+      "fresh_blockers": [],
+      "name": "Into the Unknown",
+      "old_blockers": [
+        "unsupported_effect:put-into-inkwell",
+        "unsupported_target:CHOSEN_EXERTED_CHARACTER"
+      ]
+    },
+    {
       "card_id": "8jF",
       "decks": [
         "ae_aggro_zan_syed_sao_paulo_2026_04_25"
@@ -299,6 +311,18 @@
       ]
     },
     {
+      "card_id": "EtL",
+      "decks": [
+        "rs_songs_daniele_2026_04_04"
+      ],
+      "fresh_blockers": [],
+      "name": "Grab Your Bow",
+      "old_blockers": [
+        "unsupported_effect:banish",
+        "unsupported_target:chosen"
+      ]
+    },
+    {
       "card_id": "FdJ",
       "decks": [
         "as_challengers_purple_steel_leipzig_2026_04_18",
@@ -418,6 +442,18 @@
       "name": "Alan-a-Dale - Rockin' Rooster",
       "old_blockers": [
         "unsupported_trigger_on:complex_filter"
+      ]
+    },
+    {
+      "card_id": "KVh",
+      "decks": [
+        "aa_evasives_raging_storm_2026_02_23"
+      ],
+      "fresh_blockers": [],
+      "name": "World's Greatest Criminal Mind",
+      "old_blockers": [
+        "unsupported_effect:banish",
+        "unsupported_target:chosen"
       ]
     },
     {
@@ -742,6 +778,18 @@
       ]
     },
     {
+      "card_id": "eF8",
+      "decks": [
+        "rs_pawpsicles_maui_fiesta_2025_05_04"
+      ],
+      "fresh_blockers": [],
+      "name": "Brawl",
+      "old_blockers": [
+        "unsupported_effect:banish",
+        "unsupported_target:chosen"
+      ]
+    },
+    {
       "card_id": "fS0",
       "decks": [
         "es_control_i_hate_dogs_imola_2026_04_11"
@@ -790,6 +838,18 @@
       "old_blockers": [
         "unsupported_trigger",
         "unsupported_trigger_not_projected"
+      ]
+    },
+    {
+      "card_id": "hIs",
+      "decks": [
+        "as_steelsong_brian_law_taipei_2026_03_14"
+      ],
+      "fresh_blockers": [],
+      "name": "Beyond the Horizon",
+      "old_blockers": [
+        "unsupported_choice",
+        "unsupported_effect:choice"
       ]
     },
     {
@@ -925,6 +985,18 @@
       ]
     },
     {
+      "card_id": "t9V",
+      "decks": [
+        "as_evasive_aotp_stockholm_2026_04_25",
+        "rs_songs_daniele_2026_04_04"
+      ],
+      "fresh_blockers": [],
+      "name": "Let It Go",
+      "old_blockers": [
+        "unsupported_effect:put-into-inkwell"
+      ]
+    },
+    {
       "card_id": "uh8",
       "decks": [
         "as_steelsong_brian_law_taipei_2026_03_14",
@@ -968,8 +1040,8 @@
   "cards_changed_from_executable_to_blocked": [],
   "classification_source": "current_python_runtime",
   "deck_playability_after_counts": {
-    "fully_executable": 1,
-    "partially_executable": 11
+    "fully_executable": 2,
+    "partially_executable": 10
   },
   "deck_playability_before_counts": {
     "partially_executable": 12
@@ -987,10 +1059,6 @@
         {
           "blocker": "unsupported_trigger_effect:create-replacement-effect",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 3
         }
       ],
       "old_blockers_from_resolved_json": [
@@ -1063,10 +1131,6 @@
         {
           "blocker": "unsupported_trigger_effect:create-replacement-effect",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 3
         }
       ],
       "removed_stale_blockers": [
@@ -1359,10 +1423,6 @@
           "count": 4
         },
         {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
-          "count": 4
-        },
-        {
           "blocker": "unsupported_target:selector:all",
           "count": 4
         }
@@ -1424,10 +1484,6 @@
       "remaining_true_blockers": [
         {
           "blocker": "keyword:SING_TOGETHER",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
           "count": 4
         },
         {
@@ -1504,10 +1560,6 @@
           "count": 3
         },
         {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 3
-        },
-        {
           "blocker": "unsupported_trigger_resolution_requirement:amount",
           "count": 2
         }
@@ -1585,10 +1637,6 @@
         },
         {
           "blocker": "unsupported_cost:discardChosen",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
           "count": 3
         },
         {
@@ -1653,20 +1701,12 @@
       "deck_playability_before": "partially_executable",
       "fresh_blockers_from_current_carddef": [
         {
-          "blocker": "unsupported_effect:put-into-inkwell",
-          "count": 6
-        },
-        {
           "blocker": "unsupported_ability:unknown",
           "count": 5
         },
         {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
-          "count": 2
         }
       ],
       "old_blockers_from_resolved_json": [
@@ -1729,20 +1769,12 @@
       ],
       "remaining_true_blockers": [
         {
-          "blocker": "unsupported_effect:put-into-inkwell",
-          "count": 6
-        },
-        {
           "blocker": "unsupported_ability:unknown",
           "count": 5
         },
         {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
-          "count": 2
         }
       ],
       "removed_stale_blockers": [
@@ -1757,6 +1789,10 @@
         {
           "blocker": "unsupported_cost:ink",
           "count": 7
+        },
+        {
+          "blocker": "unsupported_effect:put-into-inkwell",
+          "count": 6
         },
         {
           "blocker": "unsupported_choice",
@@ -1808,14 +1844,6 @@
         {
           "blocker": "unsupported_cost:discardChosen",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
-          "count": 2
         },
         {
           "blocker": "unsupported_trigger_resolution_requirement:amount",
@@ -1892,14 +1920,6 @@
         {
           "blocker": "unsupported_cost:discardChosen",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
-          "count": 2
         },
         {
           "blocker": "unsupported_trigger_resolution_requirement:amount",
@@ -1973,10 +1993,6 @@
         {
           "blocker": "unsupported_cost:discardChosen",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
         }
       ],
       "old_blockers_from_resolved_json": [
@@ -2048,10 +2064,6 @@
         },
         {
           "blocker": "unsupported_cost:discardChosen",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
           "count": 4
         }
       ],
@@ -2124,10 +2136,6 @@
           "count": 3
         },
         {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
-          "count": 3
-        },
-        {
           "blocker": "unsupported_target:selector:all",
           "count": 3
         },
@@ -2193,10 +2201,6 @@
         },
         {
           "blocker": "keyword:SING_TOGETHER",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
           "count": 3
         },
         {
@@ -2346,10 +2350,6 @@
         {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
         }
       ],
       "old_blockers_from_resolved_json": [
@@ -2413,10 +2413,6 @@
       "remaining_true_blockers": [
         {
           "blocker": "unsupported_cost:banishSelf",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
           "count": 4
         }
       ],
@@ -2477,18 +2473,9 @@
     },
     {
       "deck_id": "rs_songs_daniele_2026_04_04",
-      "deck_playability_after": "partially_executable",
+      "deck_playability_after": "fully_executable",
       "deck_playability_before": "partially_executable",
-      "fresh_blockers_from_current_carddef": [
-        {
-          "blocker": "unsupported_effect:put-into-inkwell",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
-        }
-      ],
+      "fresh_blockers_from_current_carddef": [],
       "old_blockers_from_resolved_json": [
         {
           "blocker": "unsupported_trigger",
@@ -2527,16 +2514,7 @@
           "count": 4
         }
       ],
-      "remaining_true_blockers": [
-        {
-          "blocker": "unsupported_effect:put-into-inkwell",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
-        }
-      ],
+      "remaining_true_blockers": [],
       "removed_stale_blockers": [
         {
           "blocker": "unsupported_trigger",
@@ -2560,6 +2538,10 @@
         },
         {
           "blocker": "unsupported_effect:banish",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_effect:put-into-inkwell",
           "count": 4
         },
         {
@@ -2708,10 +2690,6 @@
   ],
   "fresh_blockers_from_current_carddef": [
     {
-      "blocker": "unsupported_target:selector:chosen",
-      "count": 22
-    },
-    {
       "blocker": "unsupported_ability:unknown",
       "count": 21
     },
@@ -2726,14 +2704,6 @@
     {
       "blocker": "unsupported_cost:banishSelf",
       "count": 12
-    },
-    {
-      "blocker": "unsupported_effect:put-into-inkwell",
-      "count": 10
-    },
-    {
-      "blocker": "unsupported_resolution_requirement:opponent_choice",
-      "count": 9
     },
     {
       "blocker": "unsupported_trigger_effect:create-replacement-effect",
@@ -2765,10 +2735,6 @@
     },
     {
       "blocker": "unsupported_static_effect:grant-discard-inkability",
-      "count": 2
-    },
-    {
-      "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
       "count": 2
     },
     {
@@ -2956,10 +2922,6 @@
   ],
   "remaining_true_blockers": [
     {
-      "blocker": "unsupported_target:selector:chosen",
-      "count": 22
-    },
-    {
       "blocker": "unsupported_ability:unknown",
       "count": 21
     },
@@ -2974,14 +2936,6 @@
     {
       "blocker": "unsupported_cost:banishSelf",
       "count": 12
-    },
-    {
-      "blocker": "unsupported_effect:put-into-inkwell",
-      "count": 10
-    },
-    {
-      "blocker": "unsupported_resolution_requirement:opponent_choice",
-      "count": 9
     },
     {
       "blocker": "unsupported_trigger_effect:create-replacement-effect",
@@ -3013,10 +2967,6 @@
     },
     {
       "blocker": "unsupported_static_effect:grant-discard-inkability",
-      "count": 2
-    },
-    {
-      "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
       "count": 2
     },
     {
@@ -3104,6 +3054,10 @@
     {
       "blocker": "unsupported_effect:deal-damage",
       "count": 14
+    },
+    {
+      "blocker": "unsupported_effect:put-into-inkwell",
+      "count": 10
     },
     {
       "blocker": "unsupported_effect:create-replacement-effect",

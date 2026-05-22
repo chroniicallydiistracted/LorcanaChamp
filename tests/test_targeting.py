@@ -1761,3 +1761,102 @@ class TestEngineActionCardTargets:
 
         actions = engine2.legal_actions(state, 0)
         assert not any(a.kind == ACTION_PLAY_CARD and a.card == mystery for a in actions)
+
+    def test_lorcanito_chosen_strength_target_resolves_through_play_action(self):
+        from lorcana_bot.engine import IllegalActionError
+
+        action_def = CardDef(
+            "test_worlds_greatest_criminal_mind",
+            "Test Criminal Mind",
+            "amber",
+            1,
+            True,
+            "action",
+            effects=(
+                EffectDef(
+                    "banish",
+                    target={
+                        "selector": "chosen",
+                        "count": 1,
+                        "owner": "any",
+                        "zones": ["play"],
+                        "cardTypes": ["character"],
+                        "filter": [
+                            {
+                                "type": "strength-comparison",
+                                "comparison": "greater-or-equal",
+                                "value": 5,
+                            }
+                        ],
+                    },
+                ),
+            ),
+        )
+        big = CardDef("test_big", "Big Target", "amber", 1, True, "character", 5, 5, 1)
+        small = CardDef("test_small", "Small Target", "amber", 1, True, "character", 4, 4, 1)
+        db = CardDatabase(load_demo_database().all_cards() + [action_def, big, small])
+        engine = GameEngine(db)
+        state = engine.setup_game(
+            [make_demo_deck(["Test Criminal Mind"], 50), make_demo_deck(["Big Target", "Small Target"], 50)],
+            seed=201,
+        )
+        action_card = put_card(state, engine, 0, "Test Criminal Mind", ZONE_HAND)
+        legal = put_card(state, engine, 1, "Big Target", ZONE_PLAY)
+        illegal = put_card(state, engine, 1, "Small Target", ZONE_PLAY)
+        add_ready_ink(state, engine, 0, 1, exclude=frozenset({action_card}))
+
+        actions = [a for a in engine.legal_actions(state, 0) if a.kind == ACTION_PLAY_CARD and a.card == action_card]
+        assert {a.target for a in actions} == {legal}
+
+        next_state = engine.apply_action(state, actions[0])
+        assert legal in next_state.players[1].discard
+        assert illegal in next_state.players[1].play
+
+        with pytest.raises(IllegalActionError):
+            engine.apply_action(state, actions[0].__class__(ACTION_PLAY_CARD, actor=0, card=action_card, target=illegal, choice={"targets": (illegal,)}))
+
+    def test_lorcanito_chosen_up_to_targets_rejects_duplicates_and_excludes_under(self):
+        action_def = CardDef(
+            "test_grab_your_bow",
+            "Test Grab Your Bow",
+            "steel",
+            1,
+            True,
+            "action",
+            effects=(
+                EffectDef(
+                    "banish",
+                    target={
+                        "selector": "chosen",
+                        "count": {"upTo": 2},
+                        "owner": "any",
+                        "zones": ["play"],
+                        "cardTypes": ["character"],
+                        "filter": [
+                            {
+                                "type": "strength-comparison",
+                                "comparison": "less-or-equal",
+                                "value": 2,
+                            }
+                        ],
+                    },
+                ),
+            ),
+        )
+        weak = CardDef("test_weak", "Weak Target", "amber", 1, True, "character", 2, 3, 1)
+        db = CardDatabase(load_demo_database().all_cards() + [action_def, weak])
+        engine = GameEngine(db)
+        state = engine.setup_game(
+            [make_demo_deck(["Test Grab Your Bow"], 50), make_demo_deck(["Weak Target"], 50)],
+            seed=202,
+        )
+        action_card = put_card(state, engine, 0, "Test Grab Your Bow", ZONE_HAND)
+        target = put_card(state, engine, 1, "Weak Target", ZONE_PLAY)
+        under = find_card(state, engine, 1, "Weak Target", exclude=frozenset({target}))
+        state.move_card(under, ZONE_UNDER, controller=1)
+        add_ready_ink(state, engine, 0, 1, exclude=frozenset({action_card}))
+
+        actions = [a for a in engine.legal_actions(state, 0) if a.kind == ACTION_PLAY_CARD and a.card == action_card]
+        assert all(under not in (a.choice or {}).get("targets", ()) for a in actions)
+        assert any((a.choice or {}).get("targets") == (target,) for a in actions)
+        assert not any((a.choice or {}).get("targets") == (target, target) for a in actions)

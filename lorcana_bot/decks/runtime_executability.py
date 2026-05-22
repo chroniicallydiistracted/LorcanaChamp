@@ -398,7 +398,11 @@ def _classify_effect(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]
     required = ["EffectResolver"]
     verified: list[str] = []
     evidence = [f"effect_kind:{source_kind}->{engine_kind}"]
-    if engine_kind not in SUPPORTED_EFFECT_KINDS:
+    if source_kind == "put-into-inkwell" and not _source_put_into_inkwell_shape_supported(effect):
+        statuses.append("unsupported")
+        blockers.append("unsupported_effect:put-into-inkwell")
+        required.append("eventful:put_into_inkwell")
+    elif engine_kind not in SUPPORTED_EFFECT_KINDS:
         statuses.append("unsupported")
         blockers.append(f"unsupported_effect:{source_kind}")
     else:
@@ -407,9 +411,20 @@ def _classify_effect(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]
 
     target = getattr(effect, "target", None)
     if target is not None and getattr(target, "execution_status", ExecutionStatus.EXECUTABLE) != ExecutionStatus.EXECUTABLE:
-        statuses.append("projected_but_requires_pending_input")
-        blockers.append(f"unsupported_target:{getattr(target, 'kind', 'unknown')}:{getattr(target, 'selector', None) or getattr(target, 'alias', None) or 'unknown'}")
-        required.append("pending_target_resolution")
+        if _source_target_shape_supported(target):
+            statuses.append("executable")
+            required.append("pending_target_resolution")
+            verified.extend((
+                "legal_actions:target_selection",
+                "apply_action:PLAY_CARD",
+                "targeting:chosen_selector",
+                "targeting:protection_filters",
+            ))
+            evidence.append("source_target_shape_supported:chosen")
+        else:
+            statuses.append("projected_but_requires_pending_input")
+            blockers.append(f"unsupported_target:{getattr(target, 'kind', 'unknown')}:{getattr(target, 'selector', None) or getattr(target, 'alias', None) or 'unknown'}")
+            required.append("pending_target_resolution")
 
     condition = getattr(effect, "condition", None)
     condition_status, condition_blockers = _classify_condition(condition)
@@ -430,6 +445,17 @@ def _classify_effect(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]
                 ))
                 evidence.append(f"scry_requirement_supported:{requirement}")
                 continue
+            if requirement == "opponent_choice" and _source_opponent_choice_requirement_supported(effect):
+                statuses.append("executable")
+                required.append("pending:opponent_choice")
+                verified.extend((
+                    "legal_actions:RESOLVE_PENDING_EFFECT",
+                    "apply_action:RESOLVE_PENDING_EFFECT",
+                    "pending:opponent_choice",
+                    "bag_completion:pure_input",
+                ))
+                evidence.append("opponent_choice_requirement_supported")
+                continue
             statuses.append("projected_but_requires_pending_input")
             blockers.append(f"unsupported_resolution_requirement:{requirement}")
             required.append(f"pending:{requirement}")
@@ -443,6 +469,68 @@ def _classify_effect(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]
         verified.extend(child_verified)
 
     return (_combine_statuses(statuses), tuple(sorted(set(blockers))), tuple(sorted(set(evidence))), tuple(sorted(set(required))), tuple(sorted(set(verified))))
+
+
+def _source_put_into_inkwell_shape_supported(effect: Any) -> bool:
+    target = getattr(effect, "target", None)
+    if target is None:
+        return False
+    raw = getattr(effect, "raw", {}) or {}
+    if raw.get("source") not in {None, "chosen-character"}:
+        return False
+    if raw.get("facedown") not in {None, True}:
+        return False
+    if raw.get("exerted") not in {None, True, False}:
+        return False
+    return _source_target_shape_supported(target)
+
+
+def _source_target_shape_supported(target: Any) -> bool:
+    if getattr(target, "alias", None) in {"CHOSEN_CHARACTER", "CHOSEN_EXERTED_CHARACTER"}:
+        return True
+    if getattr(target, "kind", None) != "selector" or getattr(target, "selector", None) != "chosen":
+        return False
+    raw = getattr(target, "raw", {}) or {}
+    zones = tuple(raw.get("zones", (raw.get("zone"),) if raw.get("zone") else ("play",)))
+    if any(zone != "play" for zone in zones):
+        return False
+    if "cardTypes" not in raw and "cardType" not in raw:
+        return False
+    card_types = tuple(raw.get("cardTypes", (raw.get("cardType"),) if raw.get("cardType") else ()))
+    if any(card_type not in {"character", "item", "location"} for card_type in card_types):
+        return False
+    count = raw.get("count", 1)
+    if isinstance(count, dict):
+        if not (set(count) <= {"upTo", "up_to", "min", "max"}):
+            return False
+    elif count not in {1, "1"}:
+        return False
+    filters = raw.get("filters", raw.get("filter", ()))
+    if isinstance(filters, dict):
+        filters = (filters,)
+    for filter_def in filters or ():
+        if not isinstance(filter_def, dict):
+            return False
+        if filter_def.get("type") not in {None, "damaged", "exerted", "ready", "strength-comparison", "cost-comparison", "classification", "has-classification", "card-type"}:
+            return False
+    return True
+
+
+def _source_opponent_choice_requirement_supported(effect: SourceEffectDef) -> bool:
+    raw = effect.raw or {}
+
+    def walk(value: Any) -> bool:
+        if isinstance(value, dict):
+            if str(value.get("chosenBy", value.get("chosen_by", ""))).casefold() == "opponent":
+                return True
+            if str(value.get("chooser", "")).casefold() == "opponent":
+                return True
+            return any(walk(child) for child in value.values())
+        if isinstance(value, (list, tuple)):
+            return any(walk(child) for child in value)
+        return False
+
+    return walk(raw)
 
 
 def _source_scry_requirement_supported(effect: SourceEffectDef, requirement: str) -> bool:

@@ -4,7 +4,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
 from .cards import EffectDef
-from .constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_PLAY
+from .constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_INKWELL, ZONE_PLAY
 from .effect_types import EffectResolutionContext, SUPPORTED_EFFECT_KINDS
 from .state import GameState
 
@@ -160,6 +160,8 @@ class EffectResolver:
             self._resolve_name_a_card(state, effect, context)
         elif kind == "reveal_and_route":
             self._resolve_reveal_and_route(state, effect, context)
+        elif kind == "put_into_inkwell":
+            self._resolve_put_into_inkwell(state, effect, context)
 
     def _resolve_choice(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         if not effect.effects:
@@ -687,15 +689,17 @@ class EffectResolver:
         if not player_deck:
             return
 
-        # Parse filter from effect.value (card_type, keyword, or name)
-        filter_desc = str(effect.value) if effect.value else None
-
-        # For now, include all deck cards as candidates (full search)
-        # In a real implementation, this would filter based on effect.value
-        candidate_ids = tuple(player_deck)
+        source_raw = self._source_raw(effect)
+        filter_desc = self._search_filter_desc(source_raw)
+        candidate_ids = tuple(
+            cid for cid in player_deck
+            if self._matches_search_filter(state, cid, source_raw)
+        )
+        if not candidate_ids:
+            return
 
         # Determine destination from effect or default
-        destination = str(effect.value) if effect.value else "hand"
+        destination = self._search_destination(source_raw)
 
         # Create proper search pending effect with requirement tracking
         create_search_pending_effect(
@@ -711,6 +715,58 @@ class EffectResolver:
             max_select=1,
             origin="search_deck",
         )
+
+    def _source_raw(self, effect: EffectDef) -> dict[str, Any]:
+        raw = effect.raw or {}
+        nested = raw.get("raw") if isinstance(raw, dict) else None
+        if isinstance(nested, dict):
+            return nested
+        return raw if isinstance(raw, dict) else {}
+
+    def _matches_search_filter(self, state: GameState, card_id: int, source_raw: dict[str, Any]) -> bool:
+        card_type = source_raw.get("cardType") or source_raw.get("card_type")
+        card_name = source_raw.get("cardName") or source_raw.get("name")
+        classification = source_raw.get("classification")
+        max_cost = source_raw.get("maxCost")
+        if card_type is None and card_name is None and classification is None and max_cost is None:
+            return True
+
+        card = self.engine.card_def(state, card_id)
+        if card_type:
+            if card_type == "song":
+                if card.card_type != "action" or "song" not in {sub.lower() for sub in card.subtypes}:
+                    return False
+            elif card_type == "floodborn":
+                if "floodborn" not in {sub.lower() for sub in card.subtypes}:
+                    return False
+            elif card.card_type != str(card_type):
+                return False
+
+        if card_name and card.full_name != card_name and card.name != card_name:
+            return False
+
+        if classification and str(classification).lower() not in {sub.lower() for sub in card.subtypes}:
+            return False
+
+        if max_cost is not None:
+            try:
+                if card.cost > int(max_cost):
+                    return False
+            except (TypeError, ValueError):
+                return False
+        return True
+
+    def _search_filter_desc(self, source_raw: dict[str, Any]) -> str | None:
+        for key in ("cardType", "cardName", "classification", "maxCost"):
+            if key in source_raw:
+                return f"{key}:{source_raw[key]}"
+        return None
+
+    def _search_destination(self, source_raw: dict[str, Any]) -> str:
+        if source_raw.get("putOnTop") is True:
+            return "deck-top"
+        destination = source_raw.get("putInto") or source_raw.get("destination") or "hand"
+        return str(destination)
 
     def _resolve_put_card_in_hand(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle put_card_in_hand effect - move selected card to hand.
@@ -776,6 +832,20 @@ class EffectResolver:
                 controller=state.cards[card_id].owner,
             )
 
+    def _resolve_put_into_inkwell(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        source_raw = self._source_raw(effect)
+        exerted = bool(source_raw.get("exerted", True))
+        for target in self._target_cards(state, effect, context):
+            owner = state.cards[target].owner
+            self.engine._put_into_inkwell_eventful(
+                state,
+                target,
+                actor=owner,
+                source_id=context.source,
+                queue_triggers=False,
+                exerted=exerted,
+            )
+
     def _resolve_put_card_in_discard(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         """Handle put_card_in_discard effect - move card to discard.
 
@@ -834,8 +904,8 @@ class EffectResolver:
 
         This combines reveal and routing in one effect.
         """
-        # Get destination from effect.value
-        destination = str(effect.value) if effect.value else "hand"
+        source_raw = self._source_raw(effect)
+        destination = self._route_destination(source_raw, effect.value)
 
         player = self._target_player(state, effect, context)
         player_deck = state.players[player].deck
@@ -843,31 +913,76 @@ class EffectResolver:
         if not player_deck:
             return
 
-        # Reveal top card
         cid = player_deck[0]
         inst = state.cards[cid]
-        inst.revealed = True
+        reveal_public = source_raw.get("visibility", "public") != "private" and source_raw.get("private") is not True
+        if reveal_public:
+            inst.revealed = True
 
-        # Emit public reveal event
-        self.engine.emit_event(
-            state,
-            "CARD_REVEALED",
-            actor=player,
-            source=cid,
-            payload={
-                "card_id": cid,
-                "card_def_id": inst.card_id,
-                "from_zone": ZONE_DECK,
-                "player": player,
-            },
-        )
+            self.engine.emit_event(
+                state,
+                "CARD_REVEALED",
+                actor=player,
+                source=cid,
+                payload={
+                    "card_id": cid,
+                    "card_def_id": inst.card_id,
+                    "from_zone": ZONE_DECK,
+                    "player": player,
+                },
+            )
+        else:
+            self.engine.emit_event(
+                state,
+                "PRIVATE_CARD_LOOKED_AT",
+                actor=player,
+                source=context.source,
+                payload={"private": True, "count": 1, "from_zone": ZONE_DECK, "player": player},
+                queue_triggers=False,
+            )
 
-        # Route to destination
         if destination == "hand":
             self.engine._move_card_eventful(state, cid, ZONE_HAND, actor=player, source_id=context.source)
         elif destination == "discard":
             self.engine._move_card_eventful(state, cid, ZONE_DISCARD, actor=player, source_id=context.source)
+        elif destination == "deck-top":
+            self.engine._move_card_eventful(state, cid, ZONE_DECK, actor=player, source_id=context.source, index=0)
+        elif destination == "deck-bottom":
+            self.engine._move_card_eventful(state, cid, ZONE_DECK, actor=player, source_id=context.source)
+        elif destination == "inkwell":
+            self.engine._put_into_inkwell_eventful(
+                state,
+                cid,
+                actor=player,
+                source_id=context.source,
+                queue_triggers=False,
+                exerted=bool(source_raw.get("exerted", True)),
+            )
         elif destination == "play":
             cdef = self.engine.card_def(state, cid)
             if cdef.card_type == "character":
                 self.engine._move_card_eventful(state, cid, ZONE_PLAY, actor=player, source_id=context.source)
+
+    def _route_destination(self, source_raw: dict[str, Any], value: Any) -> str:
+        destination = (
+            source_raw.get("destination")
+            or source_raw.get("putInto")
+            or source_raw.get("put_into")
+            or source_raw.get("to")
+            or value
+            or "hand"
+        )
+        normalized = str(destination).replace("_", "-").lower()
+        return {
+            "top": "deck-top",
+            "deck": "deck-top",
+            "decktop": "deck-top",
+            "deck-top": "deck-top",
+            "top-of-deck": "deck-top",
+            "bottom": "deck-bottom",
+            "deckbottom": "deck-bottom",
+            "deck-bottom": "deck-bottom",
+            "bottom-of-deck": "deck-bottom",
+            "discard-pile": "discard",
+            "ink": "inkwell",
+        }.get(normalized, normalized)

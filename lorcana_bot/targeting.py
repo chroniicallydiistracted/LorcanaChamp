@@ -90,7 +90,9 @@ class TargetQueryContext:
 # These cover the Python aliases required by the brief
 SELECTOR_ALIASES: dict[str, str] = {
     # Chosen targets (player selection)
+    "chosen": "chosen",
     "chosen_character": "chosen_character",
+    "chosen_exerted_character": "chosen_exerted_character",
     "chosen_card": "chosen_card",
     "chosen_item": "chosen_item",
     "chosen_location": "chosen_location",
@@ -315,12 +317,16 @@ def normalize_target_descriptor(raw: Any) -> TargetDescriptor | None:
         elif filters is None:
             filters = ()
 
+        min_count, max_count = _normalize_count_bounds(raw.get("count"), base.min_count, base.max_count)
+        min_count = int(raw.get("minCount", raw.get("min_count", raw.get("min", min_count))))
+        max_count = _normalize_max_count(
+            raw.get("maxCount", raw.get("max_count", raw.get("max", max_count))),
+        )
+
         return TargetDescriptor(
             selector=normalized_selector,
-            min_count=int(raw.get("minCount", raw.get("min_count", raw.get("min", base.min_count)))),
-            max_count=_normalize_max_count(
-                raw.get("maxCount", raw.get("max_count", raw.get("max", base.max_count))),
-            ),
+            min_count=min_count,
+            max_count=max_count,
             zones=tuple(zones),
             card_types=tuple(card_types),
             owner=raw.get("owner", base.owner),
@@ -606,10 +612,35 @@ def _normalize_max_count(value: Any) -> int | None:
         return None
     if isinstance(value, str) and value.lower() in {"any", "all", "unbounded", "unlimited", "inf", "infinity"}:
         return None
+    if isinstance(value, dict):
+        if "upTo" in value:
+            return int(value["upTo"])
+        if "up_to" in value:
+            return int(value["up_to"])
+        if "max" in value:
+            return int(value["max"])
     return int(value)
 
 
-def _create_descriptor_for_selector(selector: str) -> TargetDescriptor:
+def _normalize_count_bounds(value: Any, default_min: int, default_max: int | None) -> tuple[int, int | None]:
+    if value is None:
+        return default_min, default_max
+    if isinstance(value, dict):
+        if "upTo" in value:
+            return 0, int(value["upTo"])
+        if "up_to" in value:
+            return 0, int(value["up_to"])
+        if "min" in value or "max" in value:
+            min_count = int(value.get("min", default_min))
+            max_count = _normalize_max_count(value.get("max", default_max))
+            return min_count, max_count
+    if isinstance(value, str) and value.lower() in {"all", "any"}:
+        return default_min, None
+    count = int(value)
+    return count, count
+
+
+def _create_descriptor_for_selector(selector: str) -> TargetDescriptor | None:
     """Create a TargetDescriptor for a given selector.
 
     Args:
@@ -619,6 +650,15 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor:
         TargetDescriptor with appropriate defaults for the selector
     """
     # Chosen targets
+    if selector == "chosen":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_PLAY,),
+            owner="any",
+        )
+
     if selector == "chosen_card":
         return TargetDescriptor(
             selector=selector,
@@ -635,6 +675,35 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor:
             max_count=1,
             zones=(ZONE_PLAY,),
             card_types=(CARD_CHARACTER,),
+            owner="any",
+        )
+
+    if selector == "chosen_exerted_character":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            owner="any",
+            filters=({"type": "exerted"},),
+        )
+
+    if selector in {"target", "current_targets"}:
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_PLAY,),
+            owner="any",
+        )
+
+    if selector == "context_targets":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=None,
+            zones=(ZONE_PLAY,),
             owner="any",
         )
 
@@ -820,12 +889,7 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor:
             allow_players=True,
         )
 
-    # Default case - return a basic descriptor
-    return TargetDescriptor(
-        selector=selector,
-        min_count=1,
-        max_count=1,
-    )
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -912,6 +976,21 @@ def _apply_filter(
 
     if filter_type == "drying":
         return inst.drying
+
+    if filter_type in {"strength-comparison", "cost-comparison"}:
+        if engine is None:
+            return False
+        comparison = str(filter_def.get("comparison", "equal"))
+        raw_value = filter_def.get("value", 0)
+        try:
+            threshold = int(raw_value)
+        except (TypeError, ValueError):
+            return False
+        if filter_type == "strength-comparison":
+            actual = engine.effective_strength(state, card_id) if hasattr(engine, "effective_strength") else engine.card_def(state, card_id).strength
+        else:
+            actual = engine.card_def(state, card_id).cost
+        return _compare_int(actual, comparison, threshold)
 
     # --- style 2: field-alias based filters ---
     normalized = _normalize_filter_aliases(filter_def)
@@ -1025,6 +1104,21 @@ def _apply_filter(
                 return False
 
     return True
+
+
+def _compare_int(actual: int, comparison: str, threshold: int) -> bool:
+    normalized = comparison.replace("_", "-").lower()
+    if normalized in {"less-or-equal", "less-than-or-equal", "lte", "<="}:
+        return actual <= threshold
+    if normalized in {"less", "less-than", "lt", "<"}:
+        return actual < threshold
+    if normalized in {"greater-or-equal", "greater-than-or-equal", "gte", ">="}:
+        return actual >= threshold
+    if normalized in {"greater", "greater-than", "gt", ">"}:
+        return actual > threshold
+    if normalized in {"not-equal", "neq", "!="}:
+        return actual != threshold
+    return actual == threshold
 
 
 # ---------------------------------------------------------------------------

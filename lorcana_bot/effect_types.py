@@ -77,6 +77,7 @@ SUPPORTED_EFFECT_KINDS = frozenset(
         "shuffle_deck",
         "name_a_card",
         "reveal_and_route",
+        "put_into_inkwell",
     }
 )
 

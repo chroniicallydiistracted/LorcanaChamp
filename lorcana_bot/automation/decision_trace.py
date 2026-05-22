@@ -103,9 +103,14 @@ def build_trace(
         raw = candidate_summary_to_dict(summary)
         raw["rank"] = rank
         raw["validation_status"] = "valid"
+        raw = redact_private_trace_payload(raw, information_policy)
         ordered.append(raw)
-    selected_candidate = candidate_summary_to_dict(selected_summary) if selected_summary else None
-    action_dict = asdict(selected_action) if selected_action else None
+    selected_candidate = (
+        redact_private_trace_payload(candidate_summary_to_dict(selected_summary), information_policy)
+        if selected_summary
+        else None
+    )
+    action_dict = redact_private_trace_payload(asdict(selected_action), information_policy) if selected_action else None
     fingerprint = state_fingerprint(state, actor, information_policy)
     trace_id = hashlib.sha256(f"{fingerprint}:{strategy_name}:{len(summaries)}:{state.turn_number}".encode("utf-8")).hexdigest()[:24]
     return AutomatedDecisionTrace(
@@ -147,3 +152,63 @@ def _card_public(state: GameState, engine: GameEngine, cid: int) -> dict[str, An
 
 def _card_private(state: GameState, engine: GameEngine, cid: int) -> dict[str, Any]:
     return _card_public(state, engine, cid)
+
+
+PRIVATE_TRACE_KEYS = {
+    "selected_card_id",
+    "top_cards",
+    "bottom_cards",
+    "destinations",
+    "candidate_ids",
+    "card_candidate_ids",
+    "target_candidate_ids",
+    "reveal_window_ids",
+    "revealed_card_ids",
+}
+
+
+def redact_private_trace_payload(value: Any, information_policy: str) -> Any:
+    if information_policy != "fair":
+        return value
+    redacted = _redact_private_value(value)
+    if isinstance(redacted, dict) and "stable_key" in redacted:
+        redacted["stable_key"] = _redacted_stable_key(redacted)
+    if isinstance(redacted, dict) and isinstance(redacted.get("candidate"), dict):
+        redacted["candidate"]["stable_key"] = redacted.get("stable_key", redacted["candidate"].get("stable_key"))
+    return redacted
+
+
+def _redact_private_value(value: Any, *, key: str | None = None) -> Any:
+    if key in PRIVATE_TRACE_KEYS:
+        if isinstance(value, (list, tuple, set)):
+            return ["<private>"] * len(value)
+        if isinstance(value, dict):
+            if key == "destinations":
+                return [
+                    {"zone": item.get("zone"), "cards": ["<private>"] * len(item.get("cards", ()) or ())}
+                    for item in value
+                    if isinstance(item, dict)
+                ] if isinstance(value, list) else "<private>"
+            return "<private>"
+        return "<private>"
+    if isinstance(value, dict):
+        return {str(k): _redact_private_value(v, key=str(k)) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_redact_private_value(item, key=key) for item in value]
+    if isinstance(value, tuple):
+        return [_redact_private_value(item, key=key) for item in value]
+    return value
+
+
+def _redacted_stable_key(value: dict[str, Any]) -> str:
+    payload = dict(value)
+    payload.pop("stable_key", None)
+    payload.pop("rank", None)
+    payload.pop("validation_status", None)
+    candidate = payload.get("candidate")
+    if isinstance(candidate, dict):
+        candidate = dict(candidate)
+        candidate.pop("stable_key", None)
+        payload["candidate"] = candidate
+    digest = hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()[:24]
+    return f"fair:{digest}"

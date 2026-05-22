@@ -11,15 +11,49 @@
     "es_control_i_hate_dogs_imola_2026_04_11": "partially_executable",
     "ps_burn_matt_w_2026_03_21": "fully_executable",
     "rs_pawpsicles_maui_fiesta_2025_05_04": "partially_executable",
-    "rs_songs_daniele_2026_04_04": "partially_executable",
+    "rs_songs_daniele_2026_04_04": "fully_executable",
     "sr_aggro_damien_2026_01_31": "partially_executable"
   },
-  "eligible_deck_ids": [
-    "ps_burn_matt_w_2026_03_21"
+  "games_run": 2,
+  "matchups": [
+    {
+      "action_count": 77,
+      "deck_id_player_0": "ps_burn_matt_w_2026_03_21",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 13,
+      "winner": 0
+    },
+    {
+      "action_count": 61,
+      "deck_id_player_0": "ps_burn_matt_w_2026_03_21",
+      "deck_id_player_1": "rs_songs_daniele_2026_04_04",
+      "deck_playability_player_0": "fully_executable",
+      "deck_playability_player_1": "fully_executable",
+      "final_lore": [
+        20,
+        0
+      ],
+      "not_strength_valid": false,
+      "reason": "opponent_reached_lore_threshold",
+      "reason_not_strength_valid": null,
+      "stored_deck_playability_player_0": "partially_executable",
+      "stored_deck_playability_player_1": "partially_executable",
+      "turns": 11,
+      "winner": 0
+    }
   ],
-  "games_run": 0,
-  "matchups": [],
   "not_strength_valid": false,
-  "result": "not_enough_fully_executable_decks",
+  "result": "completed",
   "schema_version": 1
 }

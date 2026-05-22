@@ -1,9 +1,9 @@
 {
   "best_first_gauntlet_candidates": [
     "ps_burn_matt_w_2026_03_21",
+    "rs_songs_daniele_2026_04_04",
     "sr_aggro_damien_2026_01_31",
     "rs_pawpsicles_maui_fiesta_2025_05_04",
-    "rs_songs_daniele_2026_04_04",
     "ae_aggro_zan_syed_sao_paulo_2026_04_25"
   ],
   "classification_source": "current_python_runtime",
@@ -12,8 +12,8 @@
       "best_use": "coverage_discovery",
       "classification_source": "current_python_runtime",
       "deck_id": "aa_evasives_raging_storm_2026_02_23",
-      "executable_copies": 46,
-      "executable_unique_cards": 16,
+      "executable_copies": 49,
+      "executable_unique_cards": 17,
       "fresh_runtime_blockers": [
         {
           "blocker": "unsupported_ability:unknown",
@@ -22,10 +22,6 @@
         {
           "blocker": "unsupported_trigger_effect:create-replacement-effect",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 3
         }
       ],
       "fresh_runtime_blockers_by_card": [
@@ -120,42 +116,10 @@
           "stored_resolved_deck_blockers": [],
           "stored_source_execution_status": "unsupported_engine_mechanic",
           "stored_unsupported_blockers": []
-        },
-        {
-          "card_id": "KVh",
-          "count": 3,
-          "fresh_runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "full_name": "World's Greatest Criminal Mind",
-          "runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending_target_resolution"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_source_execution_status": "unsupported_targeting",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ]
         }
       ],
-      "mapped_not_executable_copies": 3,
-      "mapped_not_executable_unique_cards": 1,
+      "mapped_not_executable_copies": 0,
+      "mapped_not_executable_unique_cards": 0,
       "name": "Set 11 - Amber/Amethyst - Raging Storm",
       "playability": "partially_executable",
       "recommended_engine_work": [
@@ -170,12 +134,6 @@
           "affected_decks": 1,
           "affected_unique_cards": 1,
           "category": "real_bag_and_triggers"
-        },
-        {
-          "affected_copies": 3,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "target_choice_prompts"
         }
       ],
       "resolved_unique_cards": 20,
@@ -271,38 +229,6 @@
           "stored_resolved_deck_blockers": [],
           "stored_source_execution_status": "unsupported_engine_mechanic",
           "stored_unsupported_blockers": []
-        },
-        {
-          "card_id": "KVh",
-          "count": 3,
-          "fresh_runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "full_name": "World's Greatest Criminal Mind",
-          "runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending_target_resolution"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_source_execution_status": "unsupported_targeting",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ]
         }
       ],
       "schema_version": 1,
@@ -439,20 +365,12 @@
         {
           "blocker": "unsupported_trigger_effect:create-replacement-effect",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 3
         }
       ],
       "top_blockers_by_unique_cards": [
         {
           "blocker": "unsupported_ability:unknown",
           "count": 2
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 1
         },
         {
           "blocker": "unsupported_trigger_effect:create-replacement-effect",
@@ -1200,10 +1118,6 @@
           "count": 4
         },
         {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
-          "count": 4
-        },
-        {
           "blocker": "unsupported_target:selector:all",
           "count": 4
         }
@@ -1214,19 +1128,16 @@
           "count": 4,
           "fresh_runtime_blockers": [
             "keyword:SING_TOGETHER",
-            "unsupported_resolution_requirement:opponent_choice",
             "unsupported_target:selector:all"
           ],
           "full_name": "Under the Sea",
           "runtime_blockers": [
             "keyword:SING_TOGETHER",
-            "unsupported_resolution_requirement:opponent_choice",
             "unsupported_target:selector:all"
           ],
           "runtime_paths_required": [
             "EffectResolver",
             "multi_singer_prompt",
-            "pending:opponent_choice",
             "pending_target_resolution"
           ],
           "runtime_paths_verified": [
@@ -1259,16 +1170,16 @@
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 8,
+          "affected_copies": 4,
           "affected_decks": 1,
-          "affected_unique_cards": 2,
-          "category": "target_choice_prompts"
+          "affected_unique_cards": 1,
+          "category": "singer_songs"
         },
         {
           "affected_copies": 4,
           "affected_decks": 1,
           "affected_unique_cards": 1,
-          "category": "singer_songs"
+          "category": "target_choice_prompts"
         }
       ],
       "resolved_unique_cards": 17,
@@ -1278,19 +1189,16 @@
           "count": 4,
           "fresh_runtime_blockers": [
             "keyword:SING_TOGETHER",
-            "unsupported_resolution_requirement:opponent_choice",
             "unsupported_target:selector:all"
           ],
           "full_name": "Under the Sea",
           "runtime_blockers": [
             "keyword:SING_TOGETHER",
-            "unsupported_resolution_requirement:opponent_choice",
             "unsupported_target:selector:all"
           ],
           "runtime_paths_required": [
             "EffectResolver",
             "multi_singer_prompt",
-            "pending:opponent_choice",
             "pending_target_resolution"
           ],
           "runtime_paths_verified": [
@@ -1429,10 +1337,6 @@
           "count": 4
         },
         {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
-          "count": 4
-        },
-        {
           "blocker": "unsupported_target:selector:all",
           "count": 4
         }
@@ -1440,10 +1344,6 @@
       "top_blockers_by_unique_cards": [
         {
           "blocker": "keyword:SING_TOGETHER",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
           "count": 1
         },
         {
@@ -1475,10 +1375,6 @@
         },
         {
           "blocker": "unsupported_cost:discardChosen",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
           "count": 3
         },
         {
@@ -1527,14 +1423,12 @@
           "count": 3,
           "fresh_runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "full_name": "Angel - Experiment 624",
           "runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "runtime_paths_required": [
             "EffectResolver",
@@ -1634,12 +1528,6 @@
           "category": "other_source_execution"
         },
         {
-          "affected_copies": 3,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "target_choice_prompts"
-        },
-        {
           "affected_copies": 2,
           "affected_decks": 1,
           "affected_unique_cards": 1,
@@ -1688,14 +1576,12 @@
           "count": 3,
           "fresh_runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "full_name": "Angel - Experiment 624",
           "runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "runtime_paths_required": [
             "EffectResolver",
@@ -1905,10 +1791,6 @@
           "count": 3
         },
         {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 3
-        },
-        {
           "blocker": "unsupported_trigger_resolution_requirement:amount",
           "count": 2
         }
@@ -1927,10 +1809,6 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 1
-        },
-        {
           "blocker": "unsupported_trigger_resolution_requirement:amount",
           "count": 1
         }
@@ -1946,13 +1824,9 @@
       "best_use": "coverage_discovery",
       "classification_source": "current_python_runtime",
       "deck_id": "as_evasive_aotp_stockholm_2026_04_25",
-      "executable_copies": 45,
-      "executable_unique_cards": 13,
+      "executable_copies": 51,
+      "executable_unique_cards": 15,
       "fresh_runtime_blockers": [
-        {
-          "blocker": "unsupported_effect:put-into-inkwell",
-          "count": 6
-        },
         {
           "blocker": "unsupported_ability:unknown",
           "count": 5
@@ -1960,10 +1834,6 @@
         {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
-          "count": 2
         }
       ],
       "fresh_runtime_blockers_by_card": [
@@ -2061,61 +1931,6 @@
             "unsupported_cost:banishSelf",
             "unsupported_cost:ink"
           ]
-        },
-        {
-          "card_id": "8Sv",
-          "count": 2,
-          "fresh_runtime_blockers": [
-            "unsupported_effect:put-into-inkwell",
-            "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER"
-          ],
-          "full_name": "Into the Unknown",
-          "runtime_blockers": [
-            "unsupported_effect:put-into-inkwell",
-            "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending_target_resolution"
-          ],
-          "runtime_paths_verified": [],
-          "runtime_status": "unsupported",
-          "stale_blockers_ignored": [
-            "unsupported_target:CHOSEN_EXERTED_CHARACTER"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:put-into-inkwell",
-            "unsupported_target:CHOSEN_EXERTED_CHARACTER"
-          ],
-          "stored_source_execution_status": "unsupported_engine_mechanic",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:put-into-inkwell",
-            "unsupported_target:CHOSEN_EXERTED_CHARACTER"
-          ]
-        },
-        {
-          "card_id": "t9V",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "full_name": "Let It Go",
-          "runtime_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver"
-          ],
-          "runtime_paths_verified": [],
-          "runtime_status": "unsupported",
-          "stale_blockers_ignored": [],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "stored_source_execution_status": "unsupported_engine_mechanic",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ]
         }
       ],
       "mapped_not_executable_copies": 0,
@@ -2124,9 +1939,9 @@
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 11,
+          "affected_copies": 5,
           "affected_decks": 1,
-          "affected_unique_cards": 4,
+          "affected_unique_cards": 2,
           "category": "other_source_execution"
         },
         {
@@ -2134,12 +1949,6 @@
           "affected_decks": 1,
           "affected_unique_cards": 1,
           "category": "activated_abilities"
-        },
-        {
-          "affected_copies": 2,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "target_choice_prompts"
         }
       ],
       "resolved_unique_cards": 18,
@@ -2238,61 +2047,6 @@
             "unsupported_cost:banishSelf",
             "unsupported_cost:ink"
           ]
-        },
-        {
-          "card_id": "8Sv",
-          "count": 2,
-          "fresh_runtime_blockers": [
-            "unsupported_effect:put-into-inkwell",
-            "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER"
-          ],
-          "full_name": "Into the Unknown",
-          "runtime_blockers": [
-            "unsupported_effect:put-into-inkwell",
-            "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending_target_resolution"
-          ],
-          "runtime_paths_verified": [],
-          "runtime_status": "unsupported",
-          "stale_blockers_ignored": [
-            "unsupported_target:CHOSEN_EXERTED_CHARACTER"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:put-into-inkwell",
-            "unsupported_target:CHOSEN_EXERTED_CHARACTER"
-          ],
-          "stored_source_execution_status": "unsupported_engine_mechanic",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:put-into-inkwell",
-            "unsupported_target:CHOSEN_EXERTED_CHARACTER"
-          ]
-        },
-        {
-          "card_id": "t9V",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "full_name": "Let It Go",
-          "runtime_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver"
-          ],
-          "runtime_paths_verified": [],
-          "runtime_status": "unsupported",
-          "stale_blockers_ignored": [],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "stored_source_execution_status": "unsupported_engine_mechanic",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ]
         }
       ],
       "schema_version": 1,
@@ -2308,6 +2062,10 @@
         {
           "blocker": "unsupported_cost:ink",
           "count": 7
+        },
+        {
+          "blocker": "unsupported_effect:put-into-inkwell",
+          "count": 6
         },
         {
           "blocker": "unsupported_choice",
@@ -2407,20 +2165,12 @@
       ],
       "top_blockers_by_copies": [
         {
-          "blocker": "unsupported_effect:put-into-inkwell",
-          "count": 6
-        },
-        {
           "blocker": "unsupported_ability:unknown",
           "count": 5
         },
         {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
-          "count": 2
         }
       ],
       "top_blockers_by_unique_cards": [
@@ -2429,31 +2179,23 @@
           "count": 2
         },
         {
-          "blocker": "unsupported_effect:put-into-inkwell",
-          "count": 2
-        },
-        {
           "blocker": "unsupported_cost:banishSelf",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 18,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 15,
-      "unsupported_unique_cards": 5,
+      "unsupported_copies": 9,
+      "unsupported_unique_cards": 3,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
       "classification_source": "current_python_runtime",
       "deck_id": "as_steelsong_brian_law_taipei_2026_03_14",
-      "executable_copies": 52,
-      "executable_unique_cards": 14,
+      "executable_copies": 54,
+      "executable_unique_cards": 15,
       "fresh_runtime_blockers": [
         {
           "blocker": "unsupported_cost:discardCards",
@@ -2462,14 +2204,6 @@
         {
           "blocker": "unsupported_cost:discardChosen",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
-          "count": 2
         },
         {
           "blocker": "unsupported_trigger_resolution_requirement:amount",
@@ -2482,14 +2216,12 @@
           "count": 4,
           "fresh_runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "full_name": "Angel - Experiment 624",
           "runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "runtime_paths_required": [
             "EffectResolver",
@@ -2572,42 +2304,10 @@
             "unsupported_effect:scry",
             "unsupported_trigger_event:exert"
           ]
-        },
-        {
-          "card_id": "hIs",
-          "count": 2,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:opponent_choice"
-          ],
-          "full_name": "Beyond the Horizon",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:opponent_choice"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:opponent_choice"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:choice"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:choice"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:choice"
-          ]
         }
       ],
-      "mapped_not_executable_copies": 4,
-      "mapped_not_executable_unique_cards": 2,
+      "mapped_not_executable_copies": 2,
+      "mapped_not_executable_unique_cards": 1,
       "name": "Steel Amber",
       "playability": "partially_executable",
       "recommended_engine_work": [
@@ -2616,12 +2316,6 @@
           "affected_decks": 1,
           "affected_unique_cards": 2,
           "category": "activated_abilities"
-        },
-        {
-          "affected_copies": 6,
-          "affected_decks": 1,
-          "affected_unique_cards": 2,
-          "category": "target_choice_prompts"
         },
         {
           "affected_copies": 2,
@@ -2637,14 +2331,12 @@
           "count": 4,
           "fresh_runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "full_name": "Angel - Experiment 624",
           "runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "runtime_paths_required": [
             "EffectResolver",
@@ -2726,38 +2418,6 @@
             "unsupported_choice",
             "unsupported_effect:scry",
             "unsupported_trigger_event:exert"
-          ]
-        },
-        {
-          "card_id": "hIs",
-          "count": 2,
-          "fresh_runtime_blockers": [
-            "unsupported_resolution_requirement:opponent_choice"
-          ],
-          "full_name": "Beyond the Horizon",
-          "runtime_blockers": [
-            "unsupported_resolution_requirement:opponent_choice"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending:opponent_choice"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_choice",
-            "unsupported_effect:choice"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:choice"
-          ],
-          "stored_source_execution_status": "unsupported_choice",
-          "stored_unsupported_blockers": [
-            "unsupported_choice",
-            "unsupported_effect:choice"
           ]
         }
       ],
@@ -2889,14 +2549,6 @@
           "count": 4
         },
         {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
-          "count": 2
-        },
-        {
           "blocker": "unsupported_trigger_resolution_requirement:amount",
           "count": 2
         }
@@ -2908,14 +2560,6 @@
         },
         {
           "blocker": "unsupported_cost:discardChosen",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
           "count": 1
         },
         {
@@ -2944,10 +2588,6 @@
         {
           "blocker": "unsupported_cost:discardChosen",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
         }
       ],
       "fresh_runtime_blockers_by_card": [
@@ -2956,14 +2596,12 @@
           "count": 4,
           "fresh_runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "full_name": "Angel - Experiment 624",
           "runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "runtime_paths_required": [
             "EffectResolver",
@@ -3020,12 +2658,6 @@
           "affected_decks": 1,
           "affected_unique_cards": 2,
           "category": "activated_abilities"
-        },
-        {
-          "affected_copies": 4,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "target_choice_prompts"
         }
       ],
       "resolved_unique_cards": 16,
@@ -3035,14 +2667,12 @@
           "count": 4,
           "fresh_runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "full_name": "Angel - Experiment 624",
           "runtime_blockers": [
             "unsupported_cost:discardCards",
-            "unsupported_cost:discardChosen",
-            "unsupported_target:selector:chosen"
+            "unsupported_cost:discardChosen"
           ],
           "runtime_paths_required": [
             "EffectResolver",
@@ -3215,10 +2845,6 @@
         {
           "blocker": "unsupported_cost:discardChosen",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
         }
       ],
       "top_blockers_by_unique_cards": [
@@ -3228,10 +2854,6 @@
         },
         {
           "blocker": "unsupported_cost:discardChosen",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
           "count": 1
         }
       ],
@@ -3255,10 +2877,6 @@
         },
         {
           "blocker": "keyword:SING_TOGETHER",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
           "count": 3
         },
         {
@@ -3328,19 +2946,16 @@
           "count": 3,
           "fresh_runtime_blockers": [
             "keyword:SING_TOGETHER",
-            "unsupported_resolution_requirement:opponent_choice",
             "unsupported_target:selector:all"
           ],
           "full_name": "Under the Sea",
           "runtime_blockers": [
             "keyword:SING_TOGETHER",
-            "unsupported_resolution_requirement:opponent_choice",
             "unsupported_target:selector:all"
           ],
           "runtime_paths_required": [
             "EffectResolver",
             "multi_singer_prompt",
-            "pending:opponent_choice",
             "pending_target_resolution"
           ],
           "runtime_paths_verified": [
@@ -3373,12 +2988,6 @@
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 6,
-          "affected_decks": 1,
-          "affected_unique_cards": 2,
-          "category": "target_choice_prompts"
-        },
-        {
           "affected_copies": 4,
           "affected_decks": 1,
           "affected_unique_cards": 1,
@@ -3389,6 +2998,12 @@
           "affected_decks": 1,
           "affected_unique_cards": 1,
           "category": "singer_songs"
+        },
+        {
+          "affected_copies": 3,
+          "affected_decks": 1,
+          "affected_unique_cards": 1,
+          "category": "target_choice_prompts"
         },
         {
           "affected_copies": 2,
@@ -3456,19 +3071,16 @@
           "count": 3,
           "fresh_runtime_blockers": [
             "keyword:SING_TOGETHER",
-            "unsupported_resolution_requirement:opponent_choice",
             "unsupported_target:selector:all"
           ],
           "full_name": "Under the Sea",
           "runtime_blockers": [
             "keyword:SING_TOGETHER",
-            "unsupported_resolution_requirement:opponent_choice",
             "unsupported_target:selector:all"
           ],
           "runtime_paths_required": [
             "EffectResolver",
             "multi_singer_prompt",
-            "pending:opponent_choice",
             "pending_target_resolution"
           ],
           "runtime_paths_verified": [
@@ -3603,10 +3215,6 @@
           "count": 3
         },
         {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
-          "count": 3
-        },
-        {
           "blocker": "unsupported_target:selector:all",
           "count": 3
         },
@@ -3622,10 +3230,6 @@
         },
         {
           "blocker": "unsupported_ability:unknown",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_resolution_requirement:opponent_choice",
           "count": 1
         },
         {
@@ -3750,15 +3354,11 @@
       "best_use": "coverage_discovery",
       "classification_source": "current_python_runtime",
       "deck_id": "rs_pawpsicles_maui_fiesta_2025_05_04",
-      "executable_copies": 52,
-      "executable_unique_cards": 14,
+      "executable_copies": 56,
+      "executable_unique_cards": 15,
       "fresh_runtime_blockers": [
         {
           "blocker": "unsupported_cost:banishSelf",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
           "count": 4
         }
       ],
@@ -3808,42 +3408,10 @@
             "unsupported_cost:banishSelf",
             "unsupported_trigger"
           ]
-        },
-        {
-          "card_id": "eF8",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "full_name": "Brawl",
-          "runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending_target_resolution"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_source_execution_status": "unsupported_targeting",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ]
         }
       ],
-      "mapped_not_executable_copies": 4,
-      "mapped_not_executable_unique_cards": 1,
+      "mapped_not_executable_copies": 0,
+      "mapped_not_executable_unique_cards": 0,
       "name": "Maui fiesta",
       "playability": "partially_executable",
       "recommended_engine_work": [
@@ -3852,12 +3420,6 @@
           "affected_decks": 1,
           "affected_unique_cards": 1,
           "category": "activated_abilities"
-        },
-        {
-          "affected_copies": 4,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "target_choice_prompts"
         }
       ],
       "resolved_unique_cards": 16,
@@ -3907,38 +3469,6 @@
             "unsupported_cost:banishSelf",
             "unsupported_trigger"
           ]
-        },
-        {
-          "card_id": "eF8",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "full_name": "Brawl",
-          "runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending_target_resolution"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_source_execution_status": "unsupported_targeting",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ]
         }
       ],
       "schema_version": 1,
@@ -4059,19 +3589,11 @@
         {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
         }
       ],
       "top_blockers_by_unique_cards": [
         {
           "blocker": "unsupported_cost:banishSelf",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
           "count": 1
         }
       ],
@@ -4083,156 +3605,20 @@
       "valid": true
     },
     {
-      "best_use": "coverage_discovery",
+      "best_use": "strength_benchmark",
       "classification_source": "current_python_runtime",
       "deck_id": "rs_songs_daniele_2026_04_04",
-      "executable_copies": 52,
-      "executable_unique_cards": 13,
-      "fresh_runtime_blockers": [
-        {
-          "blocker": "unsupported_effect:put-into-inkwell",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
-        }
-      ],
-      "fresh_runtime_blockers_by_card": [
-        {
-          "card_id": "EtL",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "full_name": "Grab Your Bow",
-          "runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending_target_resolution"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_source_execution_status": "unsupported_targeting",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ]
-        },
-        {
-          "card_id": "t9V",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "full_name": "Let It Go",
-          "runtime_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver"
-          ],
-          "runtime_paths_verified": [],
-          "runtime_status": "unsupported",
-          "stale_blockers_ignored": [],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "stored_source_execution_status": "unsupported_engine_mechanic",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ]
-        }
-      ],
-      "mapped_not_executable_copies": 4,
-      "mapped_not_executable_unique_cards": 1,
+      "executable_copies": 60,
+      "executable_unique_cards": 15,
+      "fresh_runtime_blockers": [],
+      "fresh_runtime_blockers_by_card": [],
+      "mapped_not_executable_copies": 0,
+      "mapped_not_executable_unique_cards": 0,
       "name": "Ruby Sapphire",
-      "playability": "partially_executable",
-      "recommended_engine_work": [
-        {
-          "affected_copies": 4,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "target_choice_prompts"
-        },
-        {
-          "affected_copies": 4,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "other_source_execution"
-        }
-      ],
+      "playability": "fully_executable",
+      "recommended_engine_work": [],
       "resolved_unique_cards": 15,
-      "runtime_blockers_by_card": [
-        {
-          "card_id": "EtL",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "full_name": "Grab Your Bow",
-          "runtime_blockers": [
-            "unsupported_target:selector:chosen"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver",
-            "pending_target_resolution"
-          ],
-          "runtime_paths_verified": [
-            "EffectResolver"
-          ],
-          "runtime_status": "projected_but_requires_pending_input",
-          "stale_blockers_ignored": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ],
-          "stored_source_execution_status": "unsupported_targeting",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:banish",
-            "unsupported_target:chosen"
-          ]
-        },
-        {
-          "card_id": "t9V",
-          "count": 4,
-          "fresh_runtime_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "full_name": "Let It Go",
-          "runtime_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "runtime_paths_required": [
-            "EffectResolver"
-          ],
-          "runtime_paths_verified": [],
-          "runtime_status": "unsupported",
-          "stale_blockers_ignored": [],
-          "stored_resolved_deck_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ],
-          "stored_source_execution_status": "unsupported_engine_mechanic",
-          "stored_unsupported_blockers": [
-            "unsupported_effect:put-into-inkwell"
-          ]
-        }
-      ],
+      "runtime_blockers_by_card": [],
       "schema_version": 1,
       "stale_blockers_ignored": [
         {
@@ -4257,6 +3643,10 @@
         },
         {
           "blocker": "unsupported_effect:banish",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_effect:put-into-inkwell",
           "count": 4
         },
         {
@@ -4307,31 +3697,13 @@
           "count": 4
         }
       ],
-      "top_blockers_by_copies": [
-        {
-          "blocker": "unsupported_effect:put-into-inkwell",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 4
-        }
-      ],
-      "top_blockers_by_unique_cards": [
-        {
-          "blocker": "unsupported_effect:put-into-inkwell",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_target:selector:chosen",
-          "count": 1
-        }
-      ],
+      "top_blockers_by_copies": [],
+      "top_blockers_by_unique_cards": [],
       "total_cards": 60,
       "unique_cards": 15,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 4,
-      "unsupported_unique_cards": 1,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
@@ -4581,10 +3953,10 @@
       "valid": true
     }
   ],
-  "fully_executable_decks": 1,
+  "fully_executable_decks": 2,
   "invalid_decks": 0,
   "mostly_executable_decks": 0,
-  "partially_executable_decks": 11,
+  "partially_executable_decks": 10,
   "recommended_engine_work_order": [
     {
       "affected_copies": 46,
@@ -4593,15 +3965,9 @@
       "category": "activated_abilities"
     },
     {
-      "affected_copies": 40,
-      "affected_decks": 9,
-      "affected_unique_cards": 12,
-      "category": "target_choice_prompts"
-    },
-    {
-      "affected_copies": 38,
-      "affected_decks": 7,
-      "affected_unique_cards": 13,
+      "affected_copies": 28,
+      "affected_decks": 6,
+      "affected_unique_cards": 10,
       "category": "other_source_execution"
     },
     {
@@ -4617,6 +3983,12 @@
       "category": "singer_songs"
     },
     {
+      "affected_copies": 7,
+      "affected_decks": 2,
+      "affected_unique_cards": 2,
+      "category": "target_choice_prompts"
+    },
+    {
       "affected_copies": 2,
       "affected_decks": 1,
       "affected_unique_cards": 1,
@@ -4627,10 +3999,6 @@
   "schema_version": 1,
   "source_only_decks": 0,
   "top_blockers_by_copies": [
-    {
-      "blocker": "unsupported_target:selector:chosen",
-      "count": 22
-    },
     {
       "blocker": "unsupported_ability:unknown",
       "count": 21
@@ -4646,14 +4014,6 @@
     {
       "blocker": "unsupported_cost:banishSelf",
       "count": 12
-    },
-    {
-      "blocker": "unsupported_effect:put-into-inkwell",
-      "count": 10
-    },
-    {
-      "blocker": "unsupported_resolution_requirement:opponent_choice",
-      "count": 9
     },
     {
       "blocker": "unsupported_trigger_effect:create-replacement-effect",
@@ -4688,10 +4048,6 @@
       "count": 2
     },
     {
-      "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
-      "count": 2
-    },
-    {
       "blocker": "unsupported_trigger_effect:or",
       "count": 2
     },
@@ -4701,10 +4057,6 @@
     }
   ],
   "top_blockers_by_deck_presence": [
-    {
-      "blocker": "unsupported_target:selector:chosen",
-      "count": 6
-    },
     {
       "blocker": "unsupported_ability:unknown",
       "count": 4
@@ -4722,15 +4074,7 @@
       "count": 3
     },
     {
-      "blocker": "unsupported_resolution_requirement:opponent_choice",
-      "count": 3
-    },
-    {
       "blocker": "keyword:SING_TOGETHER",
-      "count": 2
-    },
-    {
-      "blocker": "unsupported_effect:put-into-inkwell",
       "count": 2
     },
     {
@@ -4763,10 +4107,6 @@
     },
     {
       "blocker": "unsupported_static_effect:grant-discard-inkability",
-      "count": 1
-    },
-    {
-      "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
       "count": 1
     },
     {
@@ -4780,10 +4120,6 @@
       "count": 7
     },
     {
-      "blocker": "unsupported_target:selector:chosen",
-      "count": 6
-    },
-    {
       "blocker": "unsupported_cost:discardCards",
       "count": 4
     },
@@ -4793,14 +4129,6 @@
     },
     {
       "blocker": "unsupported_cost:banishSelf",
-      "count": 3
-    },
-    {
-      "blocker": "unsupported_effect:put-into-inkwell",
-      "count": 3
-    },
-    {
-      "blocker": "unsupported_resolution_requirement:opponent_choice",
       "count": 3
     },
     {
@@ -4837,10 +4165,6 @@
     },
     {
       "blocker": "unsupported_static_effect:grant-discard-inkability",
-      "count": 1
-    },
-    {
-      "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
       "count": 1
     },
     {

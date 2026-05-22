@@ -123,6 +123,7 @@ ENGINE_EFFECT_MAP = {
     "put-on-bottom": "put_card_on_bottom",
     "shuffle-into-deck": "shuffle_deck",
     "name-a-card": "name_a_card",
+    "put-into-inkwell": "put_into_inkwell",
 }
 
 TARGET_MAP = {
@@ -133,6 +134,7 @@ TARGET_MAP = {
     "OPPONENT": "opponent",
     "EACH_OPPONENT": "opponent",
     "CHOSEN_CHARACTER": "chosen_character",
+    "CHOSEN_EXERTED_CHARACTER": "chosen_exerted_character",
     "CHOSEN_OPPOSING_CHARACTER": "opposing_character",
     "CHOSEN_DAMAGED_CHARACTER": "chosen_character",
     "YOUR_CHARACTERS": "your_characters",
@@ -254,7 +256,7 @@ def map_raw_target(raw: Any) -> SourceTargetDef:
         )
     if isinstance(raw, dict):
         selector = raw.get("selector") or raw.get("type") or raw.get("kind")
-        execution = ExecutionStatus.UNSUPPORTED_TARGETING
+        execution = ExecutionStatus.EXECUTABLE if _source_target_shape_supported(raw) else ExecutionStatus.UNSUPPORTED_TARGETING
         return SourceTargetDef(
             kind="selector" if selector else "object",
             selector=str(selector) if selector is not None else None,
@@ -984,7 +986,39 @@ def _project_target(target: SourceTargetDef | None) -> str | None:
         return None
     if target.alias:
         return TARGET_MAP.get(target.alias)
+    if target.kind == "selector" and target.execution_status == ExecutionStatus.EXECUTABLE:
+        return dict(target.raw)
     return None
+
+
+def _source_target_shape_supported(raw: dict[str, Any]) -> bool:
+    selector = raw.get("selector") or raw.get("type") or raw.get("kind")
+    if selector != "chosen":
+        return False
+    zones = tuple(raw.get("zones", (raw.get("zone"),) if raw.get("zone") else ("play",)))
+    if any(zone != "play" for zone in zones):
+        return False
+    if "cardTypes" not in raw and "cardType" not in raw:
+        return False
+    card_types = tuple(raw.get("cardTypes", (raw.get("cardType"),) if raw.get("cardType") else ()))
+    if any(card_type not in {"character", "item", "location"} for card_type in card_types):
+        return False
+    count = raw.get("count", 1)
+    if isinstance(count, dict):
+        if not (set(count) <= {"upTo", "up_to", "min", "max"}):
+            return False
+    elif count not in {1, "1"}:
+        return False
+    filters = raw.get("filters", raw.get("filter", ()))
+    if isinstance(filters, dict):
+        filters = (filters,)
+    for filter_def in filters or ():
+        if not isinstance(filter_def, dict):
+            return False
+        filter_type = filter_def.get("type")
+        if filter_type not in {None, "damaged", "exerted", "ready", "strength-comparison", "cost-comparison", "classification", "has-classification", "card-type"}:
+            return False
+    return True
 
 
 def _project_condition(condition: SourceConditionDef | None) -> dict[str, Any] | None:

@@ -72,6 +72,15 @@ def _has_ordering(effect: SourceEffectDef) -> bool:
 
 
 def _has_opponent_choice(effect: SourceEffectDef) -> bool:
-    raw_text = str(effect.raw).casefold()
-    return "opponent" in raw_text and "choice" in raw_text
+    def walk(value) -> bool:
+        if isinstance(value, dict):
+            if str(value.get("chosenBy", value.get("chosen_by", ""))).casefold() == "opponent":
+                return True
+            if str(value.get("chooser", "")).casefold() in {"opponent", "opponents"}:
+                return True
+            return any(walk(child) for child in value.values())
+        if isinstance(value, (list, tuple)):
+            return any(walk(child) for child in value)
+        return False
 
+    return walk(effect.raw)

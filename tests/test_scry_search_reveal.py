@@ -6,7 +6,7 @@ B4: Implements scry/search/reveal/deck-routing mechanics per MICRO PROMPT 05.
 import pytest
 
 from lorcana_bot.engine import GameEngine
-from lorcana_bot.cards import CardDatabase, load_demo_database, CardDef
+from lorcana_bot.cards import CardDatabase, load_demo_database, CardDef, EffectDef
 from lorcana_bot.state import GameState, PlayerState, CardInstance
 from lorcana_bot.effects import EffectResolver
 from lorcana_bot.effect_types import EffectResolutionContext, SUPPORTED_EFFECT_KINDS
@@ -191,6 +191,118 @@ class TestSearchDeckMechanics:
         assert pending.chooser_id == 0
         assert pending.origin == "search_deck"
 
+    def test_search_deck_filters_candidates_from_source_data(self):
+        """Search candidates are narrowed by source cardType/classification filters."""
+        princess = CardDef(
+            "test_princess",
+            "Test Princess",
+            "amber",
+            2,
+            True,
+            "character",
+            1,
+            2,
+            1,
+            subtypes=("Princess",),
+        )
+        non_princess = CardDef(
+            "test_guard",
+            "Test Guard",
+            "amber",
+            2,
+            True,
+            "character",
+            1,
+            2,
+            1,
+            subtypes=("Guard",),
+        )
+        searcher = CardDef(
+            "test_searcher",
+            "Test Searcher",
+            "amber",
+            1,
+            True,
+            "action",
+            effects=(
+                EffectDef(
+                    kind="search_deck",
+                    target="you",
+                    raw={"cardType": "character", "classification": "Princess"},
+                ),
+            ),
+        )
+        engine = GameEngine(CardDatabase([princess, non_princess, searcher]))
+        state = engine.setup_game(
+            [["Test Searcher"] + ["Test Princess", "Test Guard"] * 25, ["Test Guard"] * 50],
+            seed=401,
+        )
+        source = state.players[0].hand[0]
+
+        EffectResolver(engine).resolve(
+            state,
+            searcher.effects[0],
+            EffectResolutionContext(actor=0, source=source),
+        )
+
+        pending = state.pending_effects[-1]
+        candidates = tuple(pending.raw["requirement"].candidate_ids)
+        assert candidates
+        assert all(engine.card_def(state, cid).full_name == "Test Princess" for cid in candidates)
+
+        action = Action(
+            ACTION_RESOLVE_PENDING_EFFECT,
+            actor=0,
+            source=source,
+            choice={"pending_effect_id": pending.id, "selected_card_id": candidates[0]},
+        )
+        next_state = engine.apply_action(state, action)
+        assert candidates[0] in next_state.players[0].hand
+        assert candidates[0] not in next_state.players[0].deck
+
+    def test_put_into_inkwell_resolves_selected_chosen_target_exerted(self):
+        """Let It Go / Into the Unknown style effects move selected targets to inkwell."""
+        action_def = CardDef(
+            "test_let_it_go",
+            "Test Let It Go",
+            "sapphire",
+            1,
+            True,
+            "action",
+            effects=(
+                EffectDef(
+                    kind="put_into_inkwell",
+                    target="chosen_exerted_character",
+                    raw={"type": "put-into-inkwell", "exerted": True, "facedown": True},
+                ),
+            ),
+        )
+        target_def = CardDef("test_target", "Test Exerted Target", "amber", 1, True, "character", 2, 2, 1)
+        engine = GameEngine(CardDatabase([action_def, target_def]))
+        state = engine.setup_game(
+            [["Test Let It Go"] * 50, ["Test Exerted Target"] * 50],
+            seed=402,
+        )
+        action_card = state.players[0].hand[0]
+        state.move_card(action_card, ZONE_HAND, controller=0)
+        target = state.players[1].deck[0]
+        state.move_card(target, ZONE_PLAY, controller=1)
+        state.cards[target].exerted = True
+        ink = state.players[0].deck[0]
+        state.move_card(ink, ZONE_INKWELL, controller=0)
+        state.cards[ink].exerted = False
+
+        actions = [
+            action
+            for action in engine.legal_actions(state, 0)
+            if action.kind == "PLAY_CARD" and action.card == action_card
+        ]
+        assert {action.target for action in actions} == {target}
+
+        next_state = engine.apply_action(state, actions[0])
+        assert target in next_state.players[1].inkwell
+        assert next_state.cards[target].exerted is True
+
 
 class TestShuffleDeterminism:
     """Tests for deterministic shuffling after search."""
@@ -332,6 +444,62 @@ class TestRevealAndRoute:
         # Card should now be in hand
         assert cid in sample_game_state.players[0].hand
         assert len(sample_game_state.players[0].hand) == initial_hand_size + 1
+
+    def test_reveal_and_route_public_reveal_can_route_to_inkwell_exerted(self):
+        card = CardDef("test_top", "Test Top", "amber", 1, True, "character", 1, 2, 1)
+        revealer = CardDef(
+            "test_revealer",
+            "Test Revealer",
+            "sapphire",
+            1,
+            True,
+            "action",
+            effects=(EffectDef("reveal_and_route", target="you", raw={"destination": "inkwell", "exerted": True}),),
+        )
+        engine = GameEngine(CardDatabase([card, revealer]))
+        state = engine.setup_game([["Test Revealer"] + ["Test Top"] * 49, ["Test Top"] * 50], seed=501)
+        source = state.players[0].hand[0]
+        top = state.players[0].deck[0]
+
+        EffectResolver(engine).resolve(
+            state,
+            revealer.effects[0],
+            EffectResolutionContext(actor=0, source=source),
+        )
+
+        assert top in state.players[0].inkwell
+        assert state.cards[top].exerted is True
+        reveal_events = [event for event in state.event_log if event.event_type == "CARD_REVEALED"]
+        assert reveal_events
+        assert reveal_events[-1].payload["card_id"] == top
+
+    def test_reveal_and_route_private_look_does_not_emit_public_identity(self):
+        card = CardDef("test_private_top", "Test Private Top", "amber", 1, True, "character", 1, 2, 1)
+        revealer = CardDef(
+            "test_private_revealer",
+            "Test Private Revealer",
+            "sapphire",
+            1,
+            True,
+            "action",
+            effects=(EffectDef("reveal_and_route", target="you", raw={"destination": "deck-bottom", "visibility": "private"}),),
+        )
+        engine = GameEngine(CardDatabase([card, revealer]))
+        state = engine.setup_game([["Test Private Revealer"] + ["Test Private Top"] * 49, ["Test Private Top"] * 50], seed=502)
+        source = state.players[0].hand[0]
+        top = state.players[0].deck[0]
+
+        EffectResolver(engine).resolve(
+            state,
+            revealer.effects[0],
+            EffectResolutionContext(actor=0, source=source),
+        )
+
+        assert top == state.players[0].deck[-1]
+        assert not any(event.event_type == "CARD_REVEALED" and event.payload.get("card_id") == top for event in state.event_log)
+        private_events = [event for event in state.event_log if event.event_type == "PRIVATE_CARD_LOOKED_AT"]
+        assert private_events
+        assert private_events[-1].payload == {"private": True, "count": 1, "from_zone": ZONE_DECK, "player": 0}
 
 
 class TestScryRequirementTruthfulness:

@@ -696,16 +696,7 @@ class GameEngine:
                 if card.card_type == CARD_ACTION and self._effect_has_unsupported_target(card.effects):
                     continue
                 if card.card_type == CARD_ACTION and any(self._effect_requires_target(e) for e in card.effects):
-                    candidates = self._effect_target_candidates_for_card(state, player, cid)
-                    card_targets = [c for c in candidates if c.kind == "card"]
-                    player_targets = [c for c in candidates if c.kind == "player"]
-                    for ct in card_targets:
-                        actions.append(Action(ACTION_PLAY_CARD, actor=player, card=cid, target=ct.id))
-                    for pt in player_targets:
-                        actions.append(Action(
-                            ACTION_PLAY_CARD, actor=player, card=cid,
-                            choice={"target_kind": "player", "player": pt.id},
-                        ))
+                    actions.extend(self._targeted_play_actions(state, player, cid))
                 else:
                     actions.append(Action(ACTION_PLAY_CARD, actor=player, card=cid))
 
@@ -1426,6 +1417,7 @@ class GameEngine:
         actor: int,
         source_id: int | None = None,
         queue_triggers: bool = True,
+        exerted: bool = False,
     ) -> None:
         """Put one card into its controller's inkwell and emit INKED."""
         self._move_card_eventful(
@@ -1439,7 +1431,7 @@ class GameEngine:
             payload={"card_def_id": state.cards[card_id].card_id},
             queue_triggers=queue_triggers,
         )
-        state.cards[card_id].exerted = False
+        state.cards[card_id].exerted = exerted
         state.cards[card_id].added_to_ink_this_turn = True
 
     def _ready_eventful(
@@ -1817,7 +1809,19 @@ class GameEngine:
             player_target = None
             if action.choice and isinstance(action.choice, dict):
                 player_target = action.choice.get("player")
-            self._resolve_effects(state, player, action.card, action.target, choice=player_target)
+            current_targets = ()
+            if action.choice and isinstance(action.choice, dict) and action.choice.get("targets") is not None:
+                current_targets = tuple(action.choice.get("targets") or ())
+            elif action.target is not None:
+                current_targets = (action.target,)
+            self._resolve_effects(
+                state,
+                player,
+                action.card,
+                action.target,
+                choice=player_target,
+                current_targets=current_targets,
+            )
             to_zone = ZONE_DISCARD
         else:
             self._move_card_eventful(state, action.card, ZONE_PLAY, actor=player)
@@ -2112,7 +2116,7 @@ class GameEngine:
         from .targeting import normalize_target_descriptor, requires_explicit_target_selection
         card = self.card_def(state, source)
         descriptors = []
-        for raw_target in sorted(self._effect_target_kinds(card.effects)):
+        for raw_target in self._effect_target_kinds(card.effects):
             desc = normalize_target_descriptor(raw_target)
             if desc is None:
                 continue
@@ -2120,6 +2124,60 @@ class GameEngine:
                 continue
             descriptors.append(desc)
         return tuple(descriptors)
+
+    def _targeted_play_actions(self, state: GameState, player: int, source: int) -> list[Action]:
+        from itertools import combinations
+
+        from .targeting import (
+            TargetQueryContext,
+            analyze_target_selection_availability,
+            apply_target_protections,
+            resolve_candidate_targets,
+        )
+
+        actions: list[Action] = []
+        query_context = TargetQueryContext(actor=player, source_id=source)
+        for desc in self._effect_target_descriptors_for_card(state, source):
+            raw = resolve_candidate_targets(state, self, desc, query_context)
+            candidates = apply_target_protections(state, self, raw, desc, query_context)
+            availability = analyze_target_selection_availability(desc, candidates)
+            if not availability.can_satisfy_required_selection:
+                continue
+
+            card_ids = tuple(c.id for c in candidates if c.kind == "card")
+            player_ids = tuple(c.id for c in candidates if c.kind == "player")
+            for player_id in player_ids:
+                actions.append(Action(
+                    ACTION_PLAY_CARD,
+                    actor=player,
+                    card=source,
+                    choice={"target_kind": "player", "player": player_id},
+                ))
+
+            max_count = desc.max_count if desc.max_count is not None else len(card_ids)
+            max_count = min(max_count, len(card_ids))
+            min_count = max(0, desc.min_count)
+            for count in range(min_count, max_count + 1):
+                for selected in combinations(card_ids, count):
+                    if not selected:
+                        continue
+                    if len(selected) == 1:
+                        actions.append(Action(
+                            ACTION_PLAY_CARD,
+                            actor=player,
+                            card=source,
+                            target=selected[0],
+                            choice={"targets": selected},
+                        ))
+                    else:
+                        actions.append(Action(
+                            ACTION_PLAY_CARD,
+                            actor=player,
+                            card=source,
+                            target=selected[0],
+                            choice={"targets": selected},
+                        ))
+        return actions
 
     def _effect_target_candidates_for_card(
         self,
@@ -2172,27 +2230,31 @@ class GameEngine:
         return False
 
     def _effect_has_unsupported_target(self, effects) -> bool:
+        from .targeting import normalize_target_descriptor
+
         for target_kind in self._effect_target_kinds(effects):
-            if target_kind not in _SUPPORTED_EFFECT_TARGET_KINDS:
+            if isinstance(target_kind, str) and target_kind in _SUPPORTED_EFFECT_TARGET_KINDS:
+                continue
+            if normalize_target_descriptor(target_kind) is None:
                 return True
         return False
 
-    def _effect_target_kinds(self, effects) -> set[str]:
-        targets: set[str] = set()
+    def _effect_target_kinds(self, effects) -> tuple[Any, ...]:
+        targets: list[Any] = []
         for effect in effects:
             if isinstance(effect, dict):
                 t = effect.get("target")
                 if t:
-                    targets.add(t)
+                    targets.append(t)
                 sub = effect.get("effects")
                 if sub:
-                    targets.update(self._effect_target_kinds(sub))
+                    targets.extend(self._effect_target_kinds(sub))
             else:
                 if effect.target:
-                    targets.add(effect.target)
+                    targets.append(effect.target)
                 if effect.effects:
-                    targets.update(self._effect_target_kinds(effect.effects))
-        return targets
+                    targets.extend(self._effect_target_kinds(effect.effects))
+        return tuple(targets)
 
     def _scry_destination_choices(
         self,
@@ -2247,9 +2309,28 @@ class GameEngine:
         rec(0, candidate_ids, [])
         return tuple(choices)
 
-    def _resolve_effects(self, state: GameState, player: int, source: int, target: int | None, *, choice: Any = None) -> None:
+    def _resolve_effects(
+        self,
+        state: GameState,
+        player: int,
+        source: int,
+        target: int | None,
+        *,
+        choice: Any = None,
+        current_targets: tuple[int, ...] = (),
+    ) -> None:
         card = self.card_def(state, source)
-        self.effect_resolver.resolve_many(state, card.effects, EffectResolutionContext(actor=player, source=source, target=target, choice=choice))
+        self.effect_resolver.resolve_many(
+            state,
+            card.effects,
+            EffectResolutionContext(
+                actor=player,
+                source=source,
+                target=target,
+                choice=choice,
+                current_targets=current_targets,
+            ),
+        )
 
     def _resolve_explicit_effects(self, state: GameState, effects: tuple, context: EffectResolutionContext) -> None:
         """Resolve a specific set of effects (used for trigger effects from the bag)."""
@@ -2732,6 +2813,8 @@ class GameEngine:
             # If this pending effect has no effects (pure input requirement), complete it
             # Otherwise, fall through to effect resolution
             if not pe.effects:
+                updated_pe = get_pending_effect_by_id(state, pending_id) or pe
+                self._complete_bag_origin_pending_effect(state, updated_pe, action.actor)
                 complete_pending_effect(state, pending_id)
                 return
 
