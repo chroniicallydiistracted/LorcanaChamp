@@ -1,4 +1,19 @@
 {
+  "classification_source": "current_python_runtime",
+  "deck_playability": {
+    "aa_evasives_raging_storm_2026_02_23": "partially_executable",
+    "aa_lantern_zan_syed_2025_12_06": "partially_executable",
+    "ae_aggro_zan_syed_sao_paulo_2026_04_25": "partially_executable",
+    "as_challengers_purple_steel_leipzig_2026_04_18": "partially_executable",
+    "as_evasive_aotp_stockholm_2026_04_25": "partially_executable",
+    "as_steelsong_brian_law_taipei_2026_03_14": "partially_executable",
+    "as_value_harlan_2026_04_04": "partially_executable",
+    "es_control_i_hate_dogs_imola_2026_04_11": "partially_executable",
+    "ps_burn_matt_w_2026_03_21": "partially_executable",
+    "rs_pawpsicles_maui_fiesta_2025_05_04": "partially_executable",
+    "rs_songs_daniele_2026_04_04": "partially_executable",
+    "sr_aggro_damien_2026_01_31": "partially_executable"
+  },
   "games_run": 0,
   "matchups": [],
   "not_strength_valid": false,

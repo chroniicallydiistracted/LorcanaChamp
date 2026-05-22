@@ -155,14 +155,15 @@ def resolve_deck(raw_deck: RawDeck, source_json_path: str | Path) -> ResolvedDec
         mapping_summary={},
         playability="invalid",
     )
-    from .deck_mapping_report import build_deck_mapping_summary, classify_deck_playability
+    from .deck_mapping_report import build_deck_mapping_summary, classify_deck_playability, load_current_card_defs
     from .deck_validator import validate_resolved_deck
 
     validation = validate_resolved_deck(resolved)
     resolved = _replace_resolved_metadata(resolved, validation=validation)
-    playability = classify_deck_playability(resolved)
+    card_defs = load_current_card_defs(source_json_path)
+    playability = classify_deck_playability(resolved, card_defs)
     resolved = _replace_resolved_metadata(resolved, playability=playability)
-    return _replace_resolved_metadata(resolved, mapping_summary=build_deck_mapping_summary(resolved))
+    return _replace_resolved_metadata(resolved, mapping_summary=build_deck_mapping_summary(resolved, card_defs))
 
 
 def resolve_deck_suite(deck_dir: str | Path, source_json_path: str | Path, out_dir: str | Path) -> dict[str, Any]:

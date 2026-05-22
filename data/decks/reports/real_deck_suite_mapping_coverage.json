@@ -1,33 +1,29 @@
 {
   "best_first_gauntlet_candidates": [
-    "es_control_i_hate_dogs_imola_2026_04_11",
-    "aa_evasives_raging_storm_2026_02_23",
     "sr_aggro_damien_2026_01_31",
-    "as_evasive_aotp_stockholm_2026_04_25",
-    "rs_pawpsicles_maui_fiesta_2025_05_04"
+    "ps_burn_matt_w_2026_03_21",
+    "as_steelsong_brian_law_taipei_2026_03_14",
+    "as_value_harlan_2026_04_04",
+    "es_control_i_hate_dogs_imola_2026_04_11"
   ],
+  "classification_source": "current_python_runtime",
   "decks": [
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "aa_evasives_raging_storm_2026_02_23",
-      "executable_copies": 17,
-      "executable_unique_cards": 7,
-      "mapped_not_executable_copies": 33,
-      "mapped_not_executable_unique_cards": 9,
+      "executable_copies": 43,
+      "executable_unique_cards": 15,
+      "mapped_not_executable_copies": 17,
+      "mapped_not_executable_unique_cards": 5,
       "name": "Set 11 - Amber/Amethyst - Raging Storm",
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 35,
+          "affected_copies": 16,
           "affected_decks": 1,
-          "affected_unique_cards": 10,
+          "affected_unique_cards": 5,
           "category": "other_source_execution"
-        },
-        {
-          "affected_copies": 29,
-          "affected_decks": 1,
-          "affected_unique_cards": 8,
-          "category": "real_bag_and_triggers"
         },
         {
           "affected_copies": 8,
@@ -36,16 +32,16 @@
           "category": "activated_abilities"
         },
         {
-          "affected_copies": 8,
+          "affected_copies": 4,
           "affected_decks": 1,
-          "affected_unique_cards": 3,
-          "category": "target_choice_prompts"
+          "affected_unique_cards": 1,
+          "category": "real_bag_and_triggers"
         },
         {
           "affected_copies": 3,
           "affected_decks": 1,
           "affected_unique_cards": 1,
-          "category": "singer_songs"
+          "category": "target_choice_prompts"
         },
         {
           "affected_copies": 3,
@@ -55,18 +51,87 @@
         }
       ],
       "resolved_unique_cards": 20,
+      "runtime_blockers_by_card": [
+        {
+          "card_id": "YW7",
+          "count": 4,
+          "full_name": "Rafiki - Mystical Fighter",
+          "runtime_blockers": [
+            "unsupported_trigger_effect:create-replacement-effect"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:create-replacement-effect",
+            "unsupported_trigger",
+            "unsupported_trigger_not_projected"
+          ]
+        },
+        {
+          "card_id": "JlP",
+          "count": 4,
+          "full_name": "Dumbo - Ninth Wonder of the Universe",
+          "runtime_blockers": [
+            "unsupported_ability:unknown",
+            "unsupported_activated_ability",
+            "unsupported_cost:ink"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:ink"
+          ]
+        },
+        {
+          "card_id": "IyC",
+          "count": 3,
+          "full_name": "Tigger - Bouncing All the Way",
+          "runtime_blockers": [
+            "unsupported_ability:unknown"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_engine_mechanic",
+          "stored_unsupported_blockers": []
+        },
+        {
+          "card_id": "e6l",
+          "count": 3,
+          "full_name": "Demona - Scourge of the Wyvern Clan",
+          "runtime_blockers": [
+            "unsupported_condition:resource-count",
+            "unsupported_effect:restriction",
+            "unsupported_static_effect:restriction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:restriction",
+            "unsupported_static_effect",
+            "unsupported_trigger"
+          ]
+        },
+        {
+          "card_id": "KVh",
+          "count": 3,
+          "full_name": "World's Greatest Criminal Mind",
+          "runtime_blockers": [
+            "unsupported_effect:banish",
+            "unsupported_target:selector:chosen"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_targeting",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:banish",
+            "unsupported_target:chosen"
+          ]
+        }
+      ],
       "schema_version": 1,
+      "stored_playability": "partially_executable",
       "top_blockers_by_copies": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 29
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 8
-        },
-        {
-          "blocker": "unsupported_target:chosen",
+          "blocker": "unsupported_ability:unknown",
           "count": 7
         },
         {
@@ -74,35 +139,19 @@
           "count": 4
         },
         {
-          "blocker": "unsupported_choice",
-          "count": 4
-        },
-        {
           "blocker": "unsupported_cost:ink",
           "count": 4
         },
         {
+          "blocker": "unsupported_trigger_effect:create-replacement-effect",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_condition:resource-count",
+          "count": 3
+        },
+        {
           "blocker": "unsupported_effect:banish",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:create-replacement-effect",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:exert",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:optional",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_event:put-card-under",
-          "count": 4
-        },
-        {
-          "blocker": "keyword:SINGER",
           "count": 3
         },
         {
@@ -110,41 +159,25 @@
           "count": 3
         },
         {
-          "blocker": "unsupported_static_effect",
+          "blocker": "unsupported_static_effect:restriction",
           "count": 3
         },
         {
-          "blocker": "unsupported_target:ALL_CHARACTERS",
-          "count": 1
+          "blocker": "unsupported_target:selector:chosen",
+          "count": 3
         }
       ],
       "top_blockers_by_unique_cards": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 8
-        },
-        {
-          "blocker": "unsupported_effect:banish",
+          "blocker": "unsupported_ability:unknown",
           "count": 2
-        },
-        {
-          "blocker": "unsupported_target:chosen",
-          "count": 2
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 2
-        },
-        {
-          "blocker": "keyword:SINGER",
-          "count": 1
         },
         {
           "blocker": "unsupported_activated_ability",
           "count": 1
         },
         {
-          "blocker": "unsupported_choice",
+          "blocker": "unsupported_condition:resource-count",
           "count": 1
         },
         {
@@ -152,15 +185,7 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_effect:create-replacement-effect",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:exert",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:optional",
+          "blocker": "unsupported_effect:banish",
           "count": 1
         },
         {
@@ -168,47 +193,36 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_static_effect",
+          "blocker": "unsupported_static_effect:restriction",
           "count": 1
         },
         {
-          "blocker": "unsupported_target:ALL_CHARACTERS",
+          "blocker": "unsupported_target:selector:chosen",
           "count": 1
         },
         {
-          "blocker": "unsupported_trigger_event:put-card-under",
+          "blocker": "unsupported_trigger_effect:create-replacement-effect",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 20,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 43,
-      "unsupported_unique_cards": 3,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "aa_lantern_zan_syed_2025_12_06",
-      "executable_copies": 9,
-      "executable_unique_cards": 3,
-      "mapped_not_executable_copies": 35,
-      "mapped_not_executable_unique_cards": 10,
+      "executable_copies": 32,
+      "executable_unique_cards": 10,
+      "mapped_not_executable_copies": 28,
+      "mapped_not_executable_unique_cards": 9,
       "name": "Amber Amethyst",
       "playability": "partially_executable",
       "recommended_engine_work": [
-        {
-          "affected_copies": 40,
-          "affected_decks": 1,
-          "affected_unique_cards": 13,
-          "category": "other_source_execution"
-        },
-        {
-          "affected_copies": 32,
-          "affected_decks": 1,
-          "affected_unique_cards": 9,
-          "category": "real_bag_and_triggers"
-        },
         {
           "affected_copies": 32,
           "affected_decks": 1,
@@ -216,10 +230,16 @@
           "category": "activated_abilities"
         },
         {
-          "affected_copies": 4,
+          "affected_copies": 18,
           "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "target_choice_prompts"
+          "affected_unique_cards": 6,
+          "category": "other_source_execution"
+        },
+        {
+          "affected_copies": 6,
+          "affected_decks": 1,
+          "affected_unique_cards": 2,
+          "category": "real_bag_and_triggers"
         },
         {
           "affected_copies": 4,
@@ -229,22 +249,157 @@
         }
       ],
       "resolved_unique_cards": 19,
-      "schema_version": 1,
-      "top_blockers_by_copies": [
+      "runtime_blockers_by_card": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 32
+          "card_id": "YW7",
+          "count": 4,
+          "full_name": "Rafiki - Mystical Fighter",
+          "runtime_blockers": [
+            "unsupported_trigger_effect:create-replacement-effect"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:create-replacement-effect",
+            "unsupported_trigger",
+            "unsupported_trigger_not_projected"
+          ]
         },
+        {
+          "card_id": "jUU",
+          "count": 2,
+          "full_name": "Madam Mim - Elephant",
+          "runtime_blockers": [
+            "unsupported_trigger_effect:or"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:or",
+            "unsupported_trigger",
+            "unsupported_trigger_not_projected"
+          ]
+        },
+        {
+          "card_id": "e6l",
+          "count": 4,
+          "full_name": "Demona - Scourge of the Wyvern Clan",
+          "runtime_blockers": [
+            "unsupported_condition:resource-count",
+            "unsupported_effect:restriction",
+            "unsupported_static_effect:restriction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:restriction",
+            "unsupported_static_effect",
+            "unsupported_trigger"
+          ]
+        },
+        {
+          "card_id": "i7B",
+          "count": 1,
+          "full_name": "Donald Duck - Coin Collector",
+          "runtime_blockers": [
+            "unsupported_ability:unknown"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_engine_mechanic",
+          "stored_unsupported_blockers": []
+        },
+        {
+          "card_id": "kcf",
+          "count": 4,
+          "full_name": "Monstro - Infamous Whale",
+          "runtime_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_condition:or",
+            "unsupported_cost:discardCards",
+            "unsupported_cost:discardChosen",
+            "unsupported_cost:unknown"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:discardCards",
+            "unsupported_cost:discardChosen",
+            "unsupported_cost:unknown"
+          ]
+        },
+        {
+          "card_id": "kZV",
+          "count": 4,
+          "full_name": "Junior Woodchuck Guidebook",
+          "runtime_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:banishSelf",
+            "unsupported_cost:ink"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_cost",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:banishSelf",
+            "unsupported_cost:ink"
+          ]
+        },
+        {
+          "card_id": "Dig",
+          "count": 4,
+          "full_name": "Lantern",
+          "runtime_blockers": [
+            "unsupported_activated_ability"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability"
+          ]
+        },
+        {
+          "card_id": "SRg",
+          "count": 1,
+          "full_name": "Circle of Life",
+          "runtime_blockers": [
+            "unsupported_effect:play-card"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_engine_mechanic",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:play-card"
+          ]
+        },
+        {
+          "card_id": "CGw",
+          "count": 4,
+          "full_name": "The Great Illuminary - Abandoned Laboratory",
+          "runtime_blockers": [
+            "unsupported_ability:unknown"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_engine_mechanic",
+          "stored_unsupported_blockers": []
+        }
+      ],
+      "schema_version": 1,
+      "stored_playability": "partially_executable",
+      "top_blockers_by_copies": [
         {
           "blocker": "unsupported_activated_ability",
           "count": 12
         },
         {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 8
+          "blocker": "unsupported_ability:unknown",
+          "count": 5
         },
         {
-          "blocker": "unsupported_choice",
+          "blocker": "unsupported_condition:or",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_condition:resource-count",
           "count": 4
         },
         {
@@ -268,65 +423,41 @@
           "count": 4
         },
         {
-          "blocker": "unsupported_effect:create-replacement-effect",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:exert",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:optional",
-          "count": 4
-        },
-        {
           "blocker": "unsupported_effect:restriction",
           "count": 4
         },
         {
-          "blocker": "unsupported_static_effect",
+          "blocker": "unsupported_static_effect:restriction",
           "count": 4
         },
         {
-          "blocker": "unsupported_target:chosen",
+          "blocker": "unsupported_trigger_effect:create-replacement-effect",
           "count": 4
         },
         {
-          "blocker": "unsupported_trigger_event:draw",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_event:put-card-under",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:or",
+          "blocker": "unsupported_trigger_effect:or",
           "count": 2
         },
         {
           "blocker": "unsupported_effect:play-card",
           "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
-          "count": 1
         }
       ],
       "top_blockers_by_unique_cards": [
-        {
-          "blocker": "unsupported_trigger",
-          "count": 9
-        },
         {
           "blocker": "unsupported_activated_ability",
           "count": 3
         },
         {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 3
+          "blocker": "unsupported_ability:unknown",
+          "count": 2
         },
         {
-          "blocker": "unsupported_choice",
+          "blocker": "unsupported_condition:or",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_condition:resource-count",
           "count": 1
         },
         {
@@ -350,22 +481,6 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_effect:create-replacement-effect",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:exert",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:optional",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:or",
-          "count": 1
-        },
-        {
           "blocker": "unsupported_effect:play-card",
           "count": 1
         },
@@ -374,60 +489,47 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_static_effect",
+          "blocker": "unsupported_static_effect:restriction",
           "count": 1
         },
         {
-          "blocker": "unsupported_target:chosen",
+          "blocker": "unsupported_trigger_effect:create-replacement-effect",
           "count": 1
         },
         {
-          "blocker": "unsupported_trigger_event:draw",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_event:put-card-under",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
+          "blocker": "unsupported_trigger_effect:or",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 19,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 51,
-      "unsupported_unique_cards": 6,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "ae_aggro_zan_syed_sao_paulo_2026_04_25",
-      "executable_copies": 4,
-      "executable_unique_cards": 1,
-      "mapped_not_executable_copies": 43,
-      "mapped_not_executable_unique_cards": 12,
+      "executable_copies": 40,
+      "executable_unique_cards": 12,
+      "mapped_not_executable_copies": 20,
+      "mapped_not_executable_unique_cards": 5,
       "name": "Amber Emerald",
       "playability": "partially_executable",
       "recommended_engine_work": [
-        {
-          "affected_copies": 44,
-          "affected_decks": 1,
-          "affected_unique_cards": 13,
-          "category": "real_bag_and_triggers"
-        },
-        {
-          "affected_copies": 33,
-          "affected_decks": 1,
-          "affected_unique_cards": 9,
-          "category": "other_source_execution"
-        },
         {
           "affected_copies": 16,
           "affected_decks": 1,
           "affected_unique_cards": 4,
           "category": "static_effect_registry"
+        },
+        {
+          "affected_copies": 16,
+          "affected_decks": 1,
+          "affected_unique_cards": 4,
+          "category": "other_source_execution"
         },
         {
           "affected_copies": 8,
@@ -436,63 +538,115 @@
           "category": "target_choice_prompts"
         },
         {
-          "affected_copies": 7,
-          "affected_decks": 1,
-          "affected_unique_cards": 2,
-          "category": "activated_abilities"
-        },
-        {
-          "affected_copies": 7,
-          "affected_decks": 1,
-          "affected_unique_cards": 2,
-          "category": "shift"
-        },
-        {
           "affected_copies": 4,
           "affected_decks": 1,
           "affected_unique_cards": 1,
           "category": "singer_songs"
-        },
-        {
-          "affected_copies": 4,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "scry_search_reveal"
         }
       ],
       "resolved_unique_cards": 17,
+      "runtime_blockers_by_card": [
+        {
+          "card_id": "oNE",
+          "count": 4,
+          "full_name": "Lady - Decisive Dog",
+          "runtime_blockers": [
+            "unsupported_condition:stat-threshold",
+            "unsupported_static_effect:modify-stat"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_static_effect",
+            "unsupported_trigger_on:complex_filter"
+          ]
+        },
+        {
+          "card_id": "8jF",
+          "count": 4,
+          "full_name": "Lady - Elegant Spaniel",
+          "runtime_blockers": [
+            "unsupported_condition:has-named-character",
+            "unsupported_static_effect:modify-stat"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_condition",
+          "stored_unsupported_blockers": [
+            "unsupported_static_effect"
+          ]
+        },
+        {
+          "card_id": "XWF",
+          "count": 4,
+          "full_name": "Tramp - Enterprising Dog",
+          "runtime_blockers": [
+            "unsupported_condition:has-named-character",
+            "unsupported_static_effect:cost-reduction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:modify-stat",
+            "unsupported_static_effect",
+            "unsupported_target:chosen",
+            "unsupported_trigger"
+          ]
+        },
+        {
+          "card_id": "52C",
+          "count": 4,
+          "full_name": "Tramp - Street-Smart Dog",
+          "runtime_blockers": [
+            "unsupported_static_effect:cost-reduction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_static_effect",
+            "unsupported_trigger"
+          ]
+        },
+        {
+          "card_id": "EhX",
+          "count": 4,
+          "full_name": "Under the Sea",
+          "runtime_blockers": [
+            "keyword:SING_TOGETHER",
+            "unsupported_effect:put-on-bottom",
+            "unsupported_resolution_requirement:opponent_choice",
+            "unsupported_target:selector:all"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "keyword:SING_TOGETHER",
+            "unsupported_choice",
+            "unsupported_effect:put-on-bottom",
+            "unsupported_target:all"
+          ]
+        }
+      ],
       "schema_version": 1,
+      "stored_playability": "partially_executable",
       "top_blockers_by_copies": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 44
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 16
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 13
-        },
-        {
-          "blocker": "unsupported_choice",
+          "blocker": "unsupported_condition:has-named-character",
           "count": 8
         },
         {
-          "blocker": "keyword:SHIFT",
-          "count": 7
+          "blocker": "unsupported_static_effect:cost-reduction",
+          "count": 8
         },
         {
-          "blocker": "unsupported_cost:ink",
-          "count": 7
+          "blocker": "unsupported_static_effect:modify-stat",
+          "count": 8
         },
         {
           "blocker": "keyword:SING_TOGETHER",
           "count": 4
         },
         {
-          "blocker": "unsupported_effect:modify-stat",
+          "blocker": "unsupported_condition:stat-threshold",
           "count": 4
         },
         {
@@ -500,45 +654,25 @@
           "count": 4
         },
         {
-          "blocker": "unsupported_effect:scry",
+          "blocker": "unsupported_resolution_requirement:opponent_choice",
           "count": 4
         },
         {
-          "blocker": "unsupported_target:all",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:chosen",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
+          "blocker": "unsupported_target:selector:all",
           "count": 4
         }
       ],
       "top_blockers_by_unique_cards": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 13
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 4
-        },
-        {
-          "blocker": "keyword:SHIFT",
+          "blocker": "unsupported_condition:has-named-character",
           "count": 2
         },
         {
-          "blocker": "unsupported_choice",
+          "blocker": "unsupported_static_effect:cost-reduction",
           "count": 2
         },
         {
-          "blocker": "unsupported_cost:ink",
+          "blocker": "unsupported_static_effect:modify-stat",
           "count": 2
         },
         {
@@ -546,7 +680,7 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_effect:modify-stat",
+          "blocker": "unsupported_condition:stat-threshold",
           "count": 1
         },
         {
@@ -554,49 +688,36 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_effect:scry",
+          "blocker": "unsupported_resolution_requirement:opponent_choice",
           "count": 1
         },
         {
-          "blocker": "unsupported_target:all",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_target:chosen",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
+          "blocker": "unsupported_target:selector:all",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 17,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 56,
-      "unsupported_unique_cards": 4,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "as_challengers_purple_steel_leipzig_2026_04_18",
-      "executable_copies": 14,
-      "executable_unique_cards": 5,
-      "mapped_not_executable_copies": 31,
-      "mapped_not_executable_unique_cards": 9,
+      "executable_copies": 38,
+      "executable_unique_cards": 12,
+      "mapped_not_executable_copies": 22,
+      "mapped_not_executable_unique_cards": 7,
       "name": "Purple Steel",
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 30,
+          "affected_copies": 29,
           "affected_decks": 1,
           "affected_unique_cards": 9,
-          "category": "real_bag_and_triggers"
-        },
-        {
-          "affected_copies": 30,
-          "affected_decks": 1,
-          "affected_unique_cards": 10,
           "category": "other_source_execution"
         },
         {
@@ -612,29 +733,144 @@
           "category": "activated_abilities"
         },
         {
-          "affected_copies": 7,
+          "affected_copies": 3,
           "affected_decks": 1,
-          "affected_unique_cards": 2,
+          "affected_unique_cards": 1,
           "category": "target_choice_prompts"
+        },
+        {
+          "affected_copies": 2,
+          "affected_decks": 1,
+          "affected_unique_cards": 1,
+          "category": "real_bag_and_triggers"
         }
       ],
       "resolved_unique_cards": 19,
-      "schema_version": 1,
-      "top_blockers_by_copies": [
+      "runtime_blockers_by_card": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 30
+          "card_id": "OZm",
+          "count": 3,
+          "full_name": "Christopher Robin - Joining the Fun",
+          "runtime_blockers": [
+            "unsupported_condition:first-turn-non-otp",
+            "unsupported_static_effect:cost-reduction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_condition",
+          "stored_unsupported_blockers": [
+            "unsupported_static_effect"
+          ]
         },
         {
-          "blocker": "unsupported_static_effect",
-          "count": 16
+          "card_id": "o0i",
+          "count": 2,
+          "full_name": "Pocahontas - Following the Wind",
+          "runtime_blockers": [
+            "unsupported_trigger_resolution_requirement:amount"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_trigger",
+          "stored_unsupported_blockers": [
+            "unsupported_trigger",
+            "unsupported_trigger_not_projected"
+          ]
+        },
+        {
+          "card_id": "fkH",
+          "count": 4,
+          "full_name": "Genie - Magical Researcher",
+          "runtime_blockers": [
+            "unsupported_static_effect:modify-stat"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_static_effect"
+          ]
+        },
+        {
+          "card_id": "1Mx",
+          "count": 2,
+          "full_name": "Lexington - Small in Stature",
+          "runtime_blockers": [
+            "unsupported_condition:resource-count",
+            "unsupported_effect:restriction",
+            "unsupported_static_effect:restriction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:restriction",
+            "unsupported_static_effect"
+          ]
+        },
+        {
+          "card_id": "oBs",
+          "count": 3,
+          "full_name": "Angel - Experiment 624",
+          "runtime_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_condition:resource-count",
+            "unsupported_cost:discardCards",
+            "unsupported_cost:discardChosen",
+            "unsupported_effect:deal-damage",
+            "unsupported_static_effect:gain-keyword",
+            "unsupported_target:selector:chosen"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_condition",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:discardCards",
+            "unsupported_cost:discardChosen",
+            "unsupported_effect:deal-damage",
+            "unsupported_static_effect",
+            "unsupported_target:chosen"
+          ]
+        },
+        {
+          "card_id": "5QH",
+          "count": 4,
+          "full_name": "Yzma - Conniving Chemist",
+          "runtime_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_condition:resource-count",
+            "unsupported_effect:draw-until-hand-size"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_condition",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_effect:draw-until-hand-size"
+          ]
+        },
+        {
+          "card_id": "e6l",
+          "count": 4,
+          "full_name": "Demona - Scourge of the Wyvern Clan",
+          "runtime_blockers": [
+            "unsupported_condition:resource-count",
+            "unsupported_effect:restriction",
+            "unsupported_static_effect:restriction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:restriction",
+            "unsupported_static_effect",
+            "unsupported_trigger"
+          ]
+        }
+      ],
+      "schema_version": 1,
+      "stored_playability": "partially_executable",
+      "top_blockers_by_copies": [
+        {
+          "blocker": "unsupported_condition:resource-count",
+          "count": 13
         },
         {
           "blocker": "unsupported_activated_ability",
-          "count": 7
-        },
-        {
-          "blocker": "unsupported_target:chosen",
           "count": 7
         },
         {
@@ -642,16 +878,20 @@
           "count": 6
         },
         {
+          "blocker": "unsupported_static_effect:restriction",
+          "count": 6
+        },
+        {
           "blocker": "unsupported_effect:draw-until-hand-size",
           "count": 4
         },
         {
-          "blocker": "unsupported_effect:exert",
+          "blocker": "unsupported_static_effect:modify-stat",
           "count": 4
         },
         {
-          "blocker": "unsupported_trigger_event:put-card-under",
-          "count": 4
+          "blocker": "unsupported_condition:first-turn-non-otp",
+          "count": 3
         },
         {
           "blocker": "unsupported_cost:discardCards",
@@ -666,30 +906,26 @@
           "count": 3
         },
         {
-          "blocker": "unsupported_trigger_event:leave-play",
+          "blocker": "unsupported_static_effect:cost-reduction",
           "count": 3
         },
         {
-          "blocker": "unsupported_choice",
-          "count": 2
+          "blocker": "unsupported_static_effect:gain-keyword",
+          "count": 3
         },
         {
-          "blocker": "unsupported_effect:optional",
-          "count": 2
+          "blocker": "unsupported_target:selector:chosen",
+          "count": 3
         },
         {
-          "blocker": "unsupported_trigger_not_projected",
+          "blocker": "unsupported_trigger_resolution_requirement:amount",
           "count": 2
         }
       ],
       "top_blockers_by_unique_cards": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 9
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 5
+          "blocker": "unsupported_condition:resource-count",
+          "count": 4
         },
         {
           "blocker": "unsupported_activated_ability",
@@ -700,11 +936,11 @@
           "count": 2
         },
         {
-          "blocker": "unsupported_target:chosen",
+          "blocker": "unsupported_static_effect:restriction",
           "count": 2
         },
         {
-          "blocker": "unsupported_choice",
+          "blocker": "unsupported_condition:first-turn-non-otp",
           "count": 1
         },
         {
@@ -724,53 +960,48 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_effect:exert",
+          "blocker": "unsupported_static_effect:cost-reduction",
           "count": 1
         },
         {
-          "blocker": "unsupported_effect:optional",
+          "blocker": "unsupported_static_effect:gain-keyword",
           "count": 1
         },
         {
-          "blocker": "unsupported_trigger_event:leave-play",
+          "blocker": "unsupported_static_effect:modify-stat",
           "count": 1
         },
         {
-          "blocker": "unsupported_trigger_event:put-card-under",
+          "blocker": "unsupported_target:selector:chosen",
           "count": 1
         },
         {
-          "blocker": "unsupported_trigger_not_projected",
+          "blocker": "unsupported_trigger_resolution_requirement:amount",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 19,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 46,
-      "unsupported_unique_cards": 5,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "as_evasive_aotp_stockholm_2026_04_25",
-      "executable_copies": 15,
-      "executable_unique_cards": 5,
-      "mapped_not_executable_copies": 29,
-      "mapped_not_executable_unique_cards": 8,
+      "executable_copies": 41,
+      "executable_unique_cards": 12,
+      "mapped_not_executable_copies": 19,
+      "mapped_not_executable_unique_cards": 6,
       "name": "AOTP",
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 30,
+          "affected_copies": 19,
           "affected_decks": 1,
-          "affected_unique_cards": 8,
-          "category": "real_bag_and_triggers"
-        },
-        {
-          "affected_copies": 30,
-          "affected_decks": 1,
-          "affected_unique_cards": 8,
+          "affected_unique_cards": 6,
           "category": "other_source_execution"
         },
         {
@@ -780,25 +1011,113 @@
           "category": "activated_abilities"
         },
         {
-          "affected_copies": 6,
-          "affected_decks": 1,
-          "affected_unique_cards": 2,
-          "category": "target_choice_prompts"
-        },
-        {
           "affected_copies": 4,
           "affected_decks": 1,
           "affected_unique_cards": 1,
           "category": "static_effect_registry"
+        },
+        {
+          "affected_copies": 2,
+          "affected_decks": 1,
+          "affected_unique_cards": 1,
+          "category": "target_choice_prompts"
         }
       ],
       "resolved_unique_cards": 18,
-      "schema_version": 1,
-      "top_blockers_by_copies": [
+      "runtime_blockers_by_card": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 30
+          "card_id": "JlP",
+          "count": 3,
+          "full_name": "Dumbo - Ninth Wonder of the Universe",
+          "runtime_blockers": [
+            "unsupported_ability:unknown",
+            "unsupported_activated_ability",
+            "unsupported_cost:ink"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:ink"
+          ]
         },
+        {
+          "card_id": "IyC",
+          "count": 2,
+          "full_name": "Tigger - Bouncing All the Way",
+          "runtime_blockers": [
+            "unsupported_ability:unknown"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_engine_mechanic",
+          "stored_unsupported_blockers": []
+        },
+        {
+          "card_id": "e6l",
+          "count": 4,
+          "full_name": "Demona - Scourge of the Wyvern Clan",
+          "runtime_blockers": [
+            "unsupported_condition:resource-count",
+            "unsupported_effect:restriction",
+            "unsupported_static_effect:restriction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:restriction",
+            "unsupported_static_effect",
+            "unsupported_trigger"
+          ]
+        },
+        {
+          "card_id": "kZV",
+          "count": 4,
+          "full_name": "Junior Woodchuck Guidebook",
+          "runtime_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:banishSelf",
+            "unsupported_cost:ink"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_cost",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:banishSelf",
+            "unsupported_cost:ink"
+          ]
+        },
+        {
+          "card_id": "8Sv",
+          "count": 2,
+          "full_name": "Into the Unknown",
+          "runtime_blockers": [
+            "unsupported_effect:put-into-inkwell",
+            "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_engine_mechanic",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:put-into-inkwell",
+            "unsupported_target:CHOSEN_EXERTED_CHARACTER"
+          ]
+        },
+        {
+          "card_id": "t9V",
+          "count": 4,
+          "full_name": "Let It Go",
+          "runtime_blockers": [
+            "unsupported_effect:put-into-inkwell"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_engine_mechanic",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:put-into-inkwell"
+          ]
+        }
+      ],
+      "schema_version": 1,
+      "stored_playability": "partially_executable",
+      "top_blockers_by_copies": [
         {
           "blocker": "unsupported_activated_ability",
           "count": 7
@@ -812,7 +1131,11 @@
           "count": 6
         },
         {
-          "blocker": "unsupported_choice",
+          "blocker": "unsupported_ability:unknown",
+          "count": 5
+        },
+        {
+          "blocker": "unsupported_condition:resource-count",
           "count": 4
         },
         {
@@ -820,42 +1143,22 @@
           "count": 4
         },
         {
-          "blocker": "unsupported_effect:exert",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:optional",
-          "count": 4
-        },
-        {
           "blocker": "unsupported_effect:restriction",
           "count": 4
         },
         {
-          "blocker": "unsupported_static_effect",
+          "blocker": "unsupported_static_effect:restriction",
           "count": 4
         },
         {
-          "blocker": "unsupported_target:chosen",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_event:draw",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_event:put-card-under",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:CHOSEN_EXERTED_CHARACTER",
+          "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
           "count": 2
         }
       ],
       "top_blockers_by_unique_cards": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 8
+          "blocker": "unsupported_ability:unknown",
+          "count": 2
         },
         {
           "blocker": "unsupported_activated_ability",
@@ -870,7 +1173,7 @@
           "count": 2
         },
         {
-          "blocker": "unsupported_choice",
+          "blocker": "unsupported_condition:resource-count",
           "count": 1
         },
         {
@@ -878,66 +1181,41 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_effect:exert",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:optional",
-          "count": 1
-        },
-        {
           "blocker": "unsupported_effect:restriction",
           "count": 1
         },
         {
-          "blocker": "unsupported_static_effect",
+          "blocker": "unsupported_static_effect:restriction",
           "count": 1
         },
         {
-          "blocker": "unsupported_target:CHOSEN_EXERTED_CHARACTER",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_target:chosen",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_event:draw",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_event:put-card-under",
+          "blocker": "unsupported_target:alias:CHOSEN_EXERTED_CHARACTER",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 18,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 45,
-      "unsupported_unique_cards": 5,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "as_steelsong_brian_law_taipei_2026_03_14",
-      "executable_copies": 12,
-      "executable_unique_cards": 3,
-      "mapped_not_executable_copies": 31,
-      "mapped_not_executable_unique_cards": 9,
+      "executable_copies": 45,
+      "executable_unique_cards": 12,
+      "mapped_not_executable_copies": 15,
+      "mapped_not_executable_unique_cards": 5,
       "name": "Steel Amber",
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 34,
+          "affected_copies": 17,
           "affected_decks": 1,
-          "affected_unique_cards": 11,
+          "affected_unique_cards": 5,
           "category": "other_source_execution"
-        },
-        {
-          "affected_copies": 21,
-          "affected_decks": 1,
-          "affected_unique_cards": 6,
-          "category": "real_bag_and_triggers"
         },
         {
           "affected_copies": 12,
@@ -952,53 +1230,118 @@
           "category": "static_effect_registry"
         },
         {
-          "affected_copies": 8,
-          "affected_decks": 1,
-          "affected_unique_cards": 2,
-          "category": "singer_songs"
-        },
-        {
           "affected_copies": 6,
           "affected_decks": 1,
           "affected_unique_cards": 2,
-          "category": "scry_search_reveal"
+          "category": "target_choice_prompts"
         },
         {
-          "affected_copies": 4,
+          "affected_copies": 2,
           "affected_decks": 1,
           "affected_unique_cards": 1,
-          "category": "target_choice_prompts"
+          "category": "real_bag_and_triggers"
         }
       ],
       "resolved_unique_cards": 17,
+      "runtime_blockers_by_card": [
+        {
+          "card_id": "FwE",
+          "count": 4,
+          "full_name": "Angel - Siren Singer",
+          "runtime_blockers": [
+            "unsupported_condition:first-turn-non-otp",
+            "unsupported_static_effect:cost-reduction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "keyword:SINGER",
+            "unsupported_static_effect"
+          ]
+        },
+        {
+          "card_id": "oBs",
+          "count": 4,
+          "full_name": "Angel - Experiment 624",
+          "runtime_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_condition:resource-count",
+            "unsupported_cost:discardCards",
+            "unsupported_cost:discardChosen",
+            "unsupported_effect:deal-damage",
+            "unsupported_static_effect:gain-keyword",
+            "unsupported_target:selector:chosen"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_condition",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:discardCards",
+            "unsupported_cost:discardChosen",
+            "unsupported_effect:deal-damage",
+            "unsupported_static_effect",
+            "unsupported_target:chosen"
+          ]
+        },
+        {
+          "card_id": "Ab7",
+          "count": 2,
+          "full_name": "Bambi - Ethereal Fawn",
+          "runtime_blockers": [
+            "unsupported_trigger_resolution_requirement:amount"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_choice",
+            "unsupported_effect:scry",
+            "unsupported_trigger_event:exert"
+          ]
+        },
+        {
+          "card_id": "9DJ",
+          "count": 3,
+          "full_name": "Chief Powhatan - Protective Leader",
+          "runtime_blockers": [
+            "unsupported_effect:restriction",
+            "unsupported_static_effect:restriction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:restriction",
+            "unsupported_static_effect"
+          ]
+        },
+        {
+          "card_id": "hIs",
+          "count": 2,
+          "full_name": "Beyond the Horizon",
+          "runtime_blockers": [
+            "unsupported_effect:choice",
+            "unsupported_resolution_requirement:opponent_choice"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_choice",
+          "stored_unsupported_blockers": [
+            "unsupported_choice",
+            "unsupported_effect:choice"
+          ]
+        }
+      ],
       "schema_version": 1,
+      "stored_playability": "partially_executable",
       "top_blockers_by_copies": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 21
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 11
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 11
-        },
-        {
-          "blocker": "keyword:SINGER",
-          "count": 8
-        },
-        {
-          "blocker": "unsupported_choice",
-          "count": 8
-        },
-        {
-          "blocker": "unsupported_effect:scry",
-          "count": 6
-        },
-        {
           "blocker": "unsupported_activated_ability",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_condition:first-turn-non-otp",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_condition:resource-count",
           "count": 4
         },
         {
@@ -1014,11 +1357,15 @@
           "count": 4
         },
         {
-          "blocker": "unsupported_target:chosen",
+          "blocker": "unsupported_static_effect:cost-reduction",
           "count": 4
         },
         {
-          "blocker": "unsupported_trigger_on:complex_filter",
+          "blocker": "unsupported_static_effect:gain-keyword",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_target:selector:chosen",
           "count": 4
         },
         {
@@ -1026,41 +1373,33 @@
           "count": 3
         },
         {
+          "blocker": "unsupported_static_effect:restriction",
+          "count": 3
+        },
+        {
           "blocker": "unsupported_effect:choice",
           "count": 2
         },
         {
-          "blocker": "unsupported_trigger_event:exert",
+          "blocker": "unsupported_resolution_requirement:opponent_choice",
+          "count": 2
+        },
+        {
+          "blocker": "unsupported_trigger_resolution_requirement:amount",
           "count": 2
         }
       ],
       "top_blockers_by_unique_cards": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 6
-        },
-        {
-          "blocker": "unsupported_choice",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 3
-        },
-        {
-          "blocker": "keyword:SINGER",
-          "count": 2
-        },
-        {
-          "blocker": "unsupported_effect:scry",
-          "count": 2
-        },
-        {
           "blocker": "unsupported_activated_ability",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_condition:first-turn-non-otp",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_condition:resource-count",
           "count": 1
         },
         {
@@ -1084,52 +1423,53 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_target:chosen",
+          "blocker": "unsupported_resolution_requirement:opponent_choice",
           "count": 1
         },
         {
-          "blocker": "unsupported_trigger_event:exert",
+          "blocker": "unsupported_static_effect:cost-reduction",
           "count": 1
         },
         {
-          "blocker": "unsupported_trigger_on:complex_filter",
+          "blocker": "unsupported_static_effect:gain-keyword",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_static_effect:restriction",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_target:selector:chosen",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_trigger_resolution_requirement:amount",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 17,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 48,
-      "unsupported_unique_cards": 4,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "as_value_harlan_2026_04_04",
-      "executable_copies": 12,
-      "executable_unique_cards": 3,
-      "mapped_not_executable_copies": 29,
-      "mapped_not_executable_unique_cards": 8,
+      "executable_copies": 45,
+      "executable_unique_cards": 12,
+      "mapped_not_executable_copies": 15,
+      "mapped_not_executable_unique_cards": 4,
       "name": "AmberSteel Value",
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 25,
+          "affected_copies": 19,
           "affected_decks": 1,
-          "affected_unique_cards": 7,
+          "affected_unique_cards": 5,
           "category": "other_source_execution"
-        },
-        {
-          "affected_copies": 22,
-          "affected_decks": 1,
-          "affected_unique_cards": 6,
-          "category": "real_bag_and_triggers"
-        },
-        {
-          "affected_copies": 16,
-          "affected_decks": 1,
-          "affected_unique_cards": 4,
-          "category": "activated_abilities"
         },
         {
           "affected_copies": 15,
@@ -1138,202 +1478,222 @@
           "category": "static_effect_registry"
         },
         {
-          "affected_copies": 8,
-          "affected_decks": 1,
-          "affected_unique_cards": 2,
-          "category": "singer_songs"
-        },
-        {
-          "affected_copies": 4,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "shift"
-        },
-        {
-          "affected_copies": 4,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "target_choice_prompts"
-        },
-        {
-          "affected_copies": 4,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "scry_search_reveal"
-        }
-      ],
-      "resolved_unique_cards": 16,
-      "schema_version": 1,
-      "top_blockers_by_copies": [
-        {
-          "blocker": "unsupported_trigger",
-          "count": 22
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 15
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 11
-        },
-        {
-          "blocker": "keyword:SINGER",
-          "count": 8
-        },
-        {
-          "blocker": "keyword:SHIFT",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_activated_ability",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_choice",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_cost:discardCards",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_cost:discardChosen",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_cost:ink",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:deal-damage",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:scry",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:chosen",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:restriction",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
-          "count": 3
-        }
-      ],
-      "top_blockers_by_unique_cards": [
-        {
-          "blocker": "unsupported_trigger",
-          "count": 6
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 3
-        },
-        {
-          "blocker": "keyword:SINGER",
-          "count": 2
-        },
-        {
-          "blocker": "keyword:SHIFT",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_activated_ability",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_choice",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_cost:discardCards",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_cost:discardChosen",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_cost:ink",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:deal-damage",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:restriction",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:scry",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_target:chosen",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
-          "count": 1
-        }
-      ],
-      "total_cards": 60,
-      "unique_cards": 16,
-      "unresolved_unique_cards": 0,
-      "unsupported_copies": 48,
-      "unsupported_unique_cards": 4,
-      "valid": true
-    },
-    {
-      "best_use": "coverage_discovery",
-      "deck_id": "es_control_i_hate_dogs_imola_2026_04_11",
-      "executable_copies": 17,
-      "executable_unique_cards": 6,
-      "mapped_not_executable_copies": 18,
-      "mapped_not_executable_unique_cards": 5,
-      "name": "I HATE DOGS",
-      "playability": "partially_executable",
-      "recommended_engine_work": [
-        {
-          "affected_copies": 34,
-          "affected_decks": 1,
-          "affected_unique_cards": 10,
-          "category": "other_source_execution"
-        },
-        {
-          "affected_copies": 19,
-          "affected_decks": 1,
-          "affected_unique_cards": 5,
-          "category": "real_bag_and_triggers"
-        },
-        {
           "affected_copies": 12,
           "affected_decks": 1,
           "affected_unique_cards": 3,
           "category": "activated_abilities"
         },
         {
-          "affected_copies": 12,
+          "affected_copies": 4,
           "affected_decks": 1,
-          "affected_unique_cards": 3,
-          "category": "shift"
+          "affected_unique_cards": 1,
+          "category": "target_choice_prompts"
+        }
+      ],
+      "resolved_unique_cards": 16,
+      "runtime_blockers_by_card": [
+        {
+          "card_id": "FwE",
+          "count": 4,
+          "full_name": "Angel - Siren Singer",
+          "runtime_blockers": [
+            "unsupported_condition:first-turn-non-otp",
+            "unsupported_static_effect:cost-reduction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "keyword:SINGER",
+            "unsupported_static_effect"
+          ]
         },
         {
-          "affected_copies": 7,
+          "card_id": "oBs",
+          "count": 4,
+          "full_name": "Angel - Experiment 624",
+          "runtime_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_condition:resource-count",
+            "unsupported_cost:discardCards",
+            "unsupported_cost:discardChosen",
+            "unsupported_effect:deal-damage",
+            "unsupported_static_effect:gain-keyword",
+            "unsupported_target:selector:chosen"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_condition",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:discardCards",
+            "unsupported_cost:discardChosen",
+            "unsupported_effect:deal-damage",
+            "unsupported_static_effect",
+            "unsupported_target:chosen"
+          ]
+        },
+        {
+          "card_id": "9DJ",
+          "count": 3,
+          "full_name": "Chief Powhatan - Protective Leader",
+          "runtime_blockers": [
+            "unsupported_effect:restriction",
+            "unsupported_static_effect:restriction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:restriction",
+            "unsupported_static_effect"
+          ]
+        },
+        {
+          "card_id": "I1B",
+          "count": 4,
+          "full_name": "Rhino - Power Hamster",
+          "runtime_blockers": [
+            "unsupported_condition:no-damage",
+            "unsupported_static_effect:gain-keyword"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_condition",
+          "stored_unsupported_blockers": [
+            "keyword:SHIFT",
+            "unsupported_cost:ink",
+            "unsupported_static_effect"
+          ]
+        }
+      ],
+      "schema_version": 1,
+      "stored_playability": "partially_executable",
+      "top_blockers_by_copies": [
+        {
+          "blocker": "unsupported_static_effect:gain-keyword",
+          "count": 8
+        },
+        {
+          "blocker": "unsupported_activated_ability",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_condition:first-turn-non-otp",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_condition:no-damage",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_condition:resource-count",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_cost:discardCards",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_cost:discardChosen",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_effect:deal-damage",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_static_effect:cost-reduction",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_target:selector:chosen",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_effect:restriction",
+          "count": 3
+        },
+        {
+          "blocker": "unsupported_static_effect:restriction",
+          "count": 3
+        }
+      ],
+      "top_blockers_by_unique_cards": [
+        {
+          "blocker": "unsupported_static_effect:gain-keyword",
+          "count": 2
+        },
+        {
+          "blocker": "unsupported_activated_ability",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_condition:first-turn-non-otp",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_condition:no-damage",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_condition:resource-count",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_cost:discardCards",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_cost:discardChosen",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_effect:deal-damage",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_effect:restriction",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_static_effect:cost-reduction",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_static_effect:restriction",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_target:selector:chosen",
+          "count": 1
+        }
+      ],
+      "total_cards": 60,
+      "unique_cards": 16,
+      "unresolved_unique_cards": 0,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
+      "valid": true
+    },
+    {
+      "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
+      "deck_id": "es_control_i_hate_dogs_imola_2026_04_11",
+      "executable_copies": 44,
+      "executable_unique_cards": 13,
+      "mapped_not_executable_copies": 16,
+      "mapped_not_executable_unique_cards": 5,
+      "name": "I HATE DOGS",
+      "playability": "partially_executable",
+      "recommended_engine_work": [
+        {
+          "affected_copies": 20,
           "affected_decks": 1,
-          "affected_unique_cards": 2,
+          "affected_unique_cards": 6,
           "category": "target_choice_prompts"
+        },
+        {
+          "affected_copies": 9,
+          "affected_decks": 1,
+          "affected_unique_cards": 3,
+          "category": "other_source_execution"
         },
         {
           "affected_copies": 7,
@@ -1355,38 +1715,102 @@
         }
       ],
       "resolved_unique_cards": 18,
+      "runtime_blockers_by_card": [
+        {
+          "card_id": "wRv",
+          "count": 2,
+          "full_name": "Moana - Curious Explorer",
+          "runtime_blockers": [
+            "unsupported_effect:grant-discard-inkability",
+            "unsupported_static_effect:grant-discard-inkability"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_engine_mechanic",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:grant-discard-inkability",
+            "unsupported_static_effect"
+          ]
+        },
+        {
+          "card_id": "GGr",
+          "count": 3,
+          "full_name": "Develop Your Brain",
+          "runtime_blockers": [
+            "unsupported_effect:scry",
+            "unsupported_resolution_requirement:destination",
+            "unsupported_resolution_requirement:ordering"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_choice",
+          "stored_unsupported_blockers": [
+            "unsupported_choice",
+            "unsupported_effect:scry"
+          ]
+        },
+        {
+          "card_id": "Dub",
+          "count": 4,
+          "full_name": "Vision of the Future",
+          "runtime_blockers": [
+            "unsupported_effect:scry",
+            "unsupported_resolution_requirement:destination",
+            "unsupported_resolution_requirement:ordering"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_choice",
+          "stored_unsupported_blockers": [
+            "unsupported_choice",
+            "unsupported_effect:scry"
+          ]
+        },
+        {
+          "card_id": "roA",
+          "count": 4,
+          "full_name": "You're Welcome",
+          "runtime_blockers": [
+            "unsupported_ability:unknown"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_engine_mechanic",
+          "stored_unsupported_blockers": []
+        },
+        {
+          "card_id": "EhX",
+          "count": 3,
+          "full_name": "Under the Sea",
+          "runtime_blockers": [
+            "keyword:SING_TOGETHER",
+            "unsupported_effect:put-on-bottom",
+            "unsupported_resolution_requirement:opponent_choice",
+            "unsupported_target:selector:all"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "keyword:SING_TOGETHER",
+            "unsupported_choice",
+            "unsupported_effect:put-on-bottom",
+            "unsupported_target:all"
+          ]
+        }
+      ],
       "schema_version": 1,
+      "stored_playability": "partially_executable",
       "top_blockers_by_copies": [
-        {
-          "blocker": "unsupported_trigger",
-          "count": 19
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 15
-        },
-        {
-          "blocker": "keyword:SHIFT",
-          "count": 12
-        },
-        {
-          "blocker": "unsupported_cost:ink",
-          "count": 12
-        },
-        {
-          "blocker": "unsupported_choice",
-          "count": 10
-        },
         {
           "blocker": "unsupported_effect:scry",
           "count": 7
         },
         {
-          "blocker": "unsupported_target:all",
+          "blocker": "unsupported_resolution_requirement:destination",
           "count": 7
         },
         {
-          "blocker": "unsupported_effect:banish",
+          "blocker": "unsupported_resolution_requirement:ordering",
+          "count": 7
+        },
+        {
+          "blocker": "unsupported_ability:unknown",
           "count": 4
         },
         {
@@ -1398,41 +1822,33 @@
           "count": 3
         },
         {
+          "blocker": "unsupported_resolution_requirement:opponent_choice",
+          "count": 3
+        },
+        {
+          "blocker": "unsupported_target:selector:all",
+          "count": 3
+        },
+        {
           "blocker": "unsupported_effect:grant-discard-inkability",
           "count": 2
         },
         {
-          "blocker": "unsupported_static_effect",
+          "blocker": "unsupported_static_effect:grant-discard-inkability",
           "count": 2
         }
       ],
       "top_blockers_by_unique_cards": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 5
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 4
-        },
-        {
-          "blocker": "keyword:SHIFT",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_choice",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_cost:ink",
-          "count": 3
-        },
-        {
           "blocker": "unsupported_effect:scry",
           "count": 2
         },
         {
-          "blocker": "unsupported_target:all",
+          "blocker": "unsupported_resolution_requirement:destination",
+          "count": 2
+        },
+        {
+          "blocker": "unsupported_resolution_requirement:ordering",
           "count": 2
         },
         {
@@ -1440,7 +1856,7 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_effect:banish",
+          "blocker": "unsupported_ability:unknown",
           "count": 1
         },
         {
@@ -1452,39 +1868,36 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_static_effect",
+          "blocker": "unsupported_resolution_requirement:opponent_choice",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_static_effect:grant-discard-inkability",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_target:selector:all",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 18,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 43,
-      "unsupported_unique_cards": 7,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "ps_burn_matt_w_2026_03_21",
-      "executable_copies": 12,
-      "executable_unique_cards": 3,
-      "mapped_not_executable_copies": 28,
-      "mapped_not_executable_unique_cards": 7,
+      "executable_copies": 52,
+      "executable_unique_cards": 13,
+      "mapped_not_executable_copies": 8,
+      "mapped_not_executable_unique_cards": 2,
       "name": "Burn",
       "playability": "partially_executable",
       "recommended_engine_work": [
-        {
-          "affected_copies": 40,
-          "affected_decks": 1,
-          "affected_unique_cards": 10,
-          "category": "real_bag_and_triggers"
-        },
-        {
-          "affected_copies": 24,
-          "affected_decks": 1,
-          "affected_unique_cards": 6,
-          "category": "other_source_execution"
-        },
         {
           "affected_copies": 4,
           "affected_decks": 1,
@@ -1496,215 +1909,261 @@
           "affected_decks": 1,
           "affected_unique_cards": 1,
           "category": "static_effect_registry"
+        },
+        {
+          "affected_copies": 4,
+          "affected_decks": 1,
+          "affected_unique_cards": 1,
+          "category": "other_source_execution"
         }
       ],
       "resolved_unique_cards": 15,
-      "schema_version": 1,
-      "top_blockers_by_copies": [
+      "runtime_blockers_by_card": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 40
+          "card_id": "OZm",
+          "count": 4,
+          "full_name": "Christopher Robin - Joining the Fun",
+          "runtime_blockers": [
+            "unsupported_condition:first-turn-non-otp",
+            "unsupported_static_effect:cost-reduction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_condition",
+          "stored_unsupported_blockers": [
+            "unsupported_static_effect"
+          ]
         },
+        {
+          "card_id": "12k",
+          "count": 4,
+          "full_name": "Amethyst Chromicon",
+          "runtime_blockers": [
+            "unsupported_activated_ability"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability"
+          ]
+        }
+      ],
+      "schema_version": 1,
+      "stored_playability": "partially_executable",
+      "top_blockers_by_copies": [
         {
           "blocker": "unsupported_activated_ability",
           "count": 4
         },
         {
-          "blocker": "unsupported_choice",
+          "blocker": "unsupported_condition:first-turn-non-otp",
           "count": 4
         },
         {
-          "blocker": "unsupported_effect:optional",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_event:banish-in-challenge",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_event:leave-play",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_on:CHARACTERS_HERE",
+          "blocker": "unsupported_static_effect:cost-reduction",
           "count": 4
         }
       ],
       "top_blockers_by_unique_cards": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 10
-        },
-        {
           "blocker": "unsupported_activated_ability",
           "count": 1
         },
         {
-          "blocker": "unsupported_choice",
+          "blocker": "unsupported_condition:first-turn-non-otp",
           "count": 1
         },
         {
-          "blocker": "unsupported_effect:optional",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_event:banish-in-challenge",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_event:leave-play",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_on:CHARACTERS_HERE",
+          "blocker": "unsupported_static_effect:cost-reduction",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 15,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 48,
-      "unsupported_unique_cards": 5,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "rs_pawpsicles_maui_fiesta_2025_05_04",
-      "executable_copies": 16,
-      "executable_unique_cards": 4,
-      "mapped_not_executable_copies": 23,
+      "executable_copies": 39,
+      "executable_unique_cards": 10,
+      "mapped_not_executable_copies": 21,
       "mapped_not_executable_unique_cards": 6,
       "name": "Maui fiesta",
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 42,
-          "affected_decks": 1,
-          "affected_unique_cards": 11,
-          "category": "other_source_execution"
-        },
-        {
-          "affected_copies": 23,
+          "affected_copies": 22,
           "affected_decks": 1,
           "affected_unique_cards": 6,
-          "category": "real_bag_and_triggers"
-        },
-        {
-          "affected_copies": 15,
-          "affected_decks": 1,
-          "affected_unique_cards": 5,
-          "category": "activated_abilities"
-        },
-        {
-          "affected_copies": 15,
-          "affected_decks": 1,
-          "affected_unique_cards": 4,
           "category": "target_choice_prompts"
         },
         {
-          "affected_copies": 15,
+          "affected_copies": 12,
           "affected_decks": 1,
           "affected_unique_cards": 4,
+          "category": "activated_abilities"
+        },
+        {
+          "affected_copies": 11,
+          "affected_decks": 1,
+          "affected_unique_cards": 3,
           "category": "scry_search_reveal"
         },
         {
-          "affected_copies": 3,
+          "affected_copies": 6,
           "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "shift"
+          "affected_unique_cards": 2,
+          "category": "other_source_execution"
         }
       ],
       "resolved_unique_cards": 16,
+      "runtime_blockers_by_card": [
+        {
+          "card_id": "VrY",
+          "count": 4,
+          "full_name": "Pawpsicle",
+          "runtime_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:banishSelf"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:banishSelf",
+            "unsupported_trigger"
+          ]
+        },
+        {
+          "card_id": "chG",
+          "count": 2,
+          "full_name": "Maui's Fish Hook",
+          "runtime_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_condition:has-named-character",
+            "unsupported_cost:ink"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_condition",
+          "stored_unsupported_blockers": [
+            "unsupported_activated_ability",
+            "unsupported_cost:ink"
+          ]
+        },
+        {
+          "card_id": "GGr",
+          "count": 3,
+          "full_name": "Develop Your Brain",
+          "runtime_blockers": [
+            "unsupported_effect:scry",
+            "unsupported_resolution_requirement:destination",
+            "unsupported_resolution_requirement:ordering"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_choice",
+          "stored_unsupported_blockers": [
+            "unsupported_choice",
+            "unsupported_effect:scry"
+          ]
+        },
+        {
+          "card_id": "Dub",
+          "count": 4,
+          "full_name": "Vision of the Future",
+          "runtime_blockers": [
+            "unsupported_effect:scry",
+            "unsupported_resolution_requirement:destination",
+            "unsupported_resolution_requirement:ordering"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_choice",
+          "stored_unsupported_blockers": [
+            "unsupported_choice",
+            "unsupported_effect:scry"
+          ]
+        },
+        {
+          "card_id": "eF8",
+          "count": 4,
+          "full_name": "Brawl",
+          "runtime_blockers": [
+            "unsupported_effect:banish",
+            "unsupported_target:selector:chosen"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_targeting",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:banish",
+            "unsupported_target:chosen"
+          ]
+        },
+        {
+          "card_id": "r73",
+          "count": 4,
+          "full_name": "How Far I'll Go",
+          "runtime_blockers": [
+            "unsupported_effect:scry",
+            "unsupported_resolution_requirement:ordering"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_choice",
+          "stored_unsupported_blockers": [
+            "unsupported_choice",
+            "unsupported_effect:scry"
+          ]
+        }
+      ],
       "schema_version": 1,
+      "stored_playability": "partially_executable",
       "top_blockers_by_copies": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 23
-        },
-        {
-          "blocker": "unsupported_choice",
-          "count": 15
-        },
-        {
           "blocker": "unsupported_effect:scry",
-          "count": 15
-        },
-        {
-          "blocker": "unsupported_effect:banish",
           "count": 11
         },
         {
-          "blocker": "unsupported_target:chosen",
-          "count": 8
+          "blocker": "unsupported_resolution_requirement:ordering",
+          "count": 11
         },
         {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 8
+          "blocker": "unsupported_resolution_requirement:destination",
+          "count": 7
         },
         {
           "blocker": "unsupported_activated_ability",
           "count": 6
         },
         {
-          "blocker": "unsupported_cost:ink",
-          "count": 5
-        },
-        {
           "blocker": "unsupported_cost:banishSelf",
           "count": 4
         },
         {
-          "blocker": "unsupported_effect:return-to-hand",
+          "blocker": "unsupported_effect:banish",
           "count": 4
         },
         {
-          "blocker": "unsupported_target:ALL_CHARACTERS",
+          "blocker": "unsupported_target:selector:chosen",
           "count": 4
         },
         {
-          "blocker": "unsupported_trigger_on:complex_filter",
-          "count": 4
+          "blocker": "unsupported_condition:has-named-character",
+          "count": 2
         },
         {
-          "blocker": "keyword:SHIFT",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_target:all",
-          "count": 3
+          "blocker": "unsupported_cost:ink",
+          "count": 2
         }
       ],
       "top_blockers_by_unique_cards": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 6
-        },
-        {
-          "blocker": "unsupported_choice",
-          "count": 4
-        },
-        {
           "blocker": "unsupported_effect:scry",
-          "count": 4
+          "count": 3
         },
         {
-          "blocker": "unsupported_effect:banish",
+          "blocker": "unsupported_resolution_requirement:ordering",
           "count": 3
         },
         {
@@ -1712,19 +2171,11 @@
           "count": 2
         },
         {
-          "blocker": "unsupported_cost:ink",
+          "blocker": "unsupported_resolution_requirement:destination",
           "count": 2
         },
         {
-          "blocker": "unsupported_target:chosen",
-          "count": 2
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 2
-        },
-        {
-          "blocker": "keyword:SHIFT",
+          "blocker": "unsupported_condition:has-named-character",
           "count": 1
         },
         {
@@ -1732,55 +2183,52 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_effect:return-to-hand",
+          "blocker": "unsupported_cost:ink",
           "count": 1
         },
         {
-          "blocker": "unsupported_target:ALL_CHARACTERS",
+          "blocker": "unsupported_effect:banish",
           "count": 1
         },
         {
-          "blocker": "unsupported_target:all",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
+          "blocker": "unsupported_target:selector:chosen",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 16,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 44,
-      "unsupported_unique_cards": 6,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "rs_songs_daniele_2026_04_04",
-      "executable_copies": 16,
-      "executable_unique_cards": 4,
-      "mapped_not_executable_copies": 20,
-      "mapped_not_executable_unique_cards": 5,
+      "executable_copies": 28,
+      "executable_unique_cards": 7,
+      "mapped_not_executable_copies": 32,
+      "mapped_not_executable_unique_cards": 8,
       "name": "Ruby Sapphire",
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 36,
+          "affected_copies": 28,
           "affected_decks": 1,
-          "affected_unique_cards": 9,
-          "category": "other_source_execution"
-        },
-        {
-          "affected_copies": 20,
-          "affected_decks": 1,
-          "affected_unique_cards": 5,
-          "category": "real_bag_and_triggers"
+          "affected_unique_cards": 7,
+          "category": "target_choice_prompts"
         },
         {
           "affected_copies": 16,
           "affected_decks": 1,
           "affected_unique_cards": 4,
+          "category": "other_source_execution"
+        },
+        {
+          "affected_copies": 12,
+          "affected_decks": 1,
+          "affected_unique_cards": 3,
           "category": "scry_search_reveal"
         },
         {
@@ -1788,36 +2236,156 @@
           "affected_decks": 1,
           "affected_unique_cards": 3,
           "category": "static_effect_registry"
-        },
-        {
-          "affected_copies": 4,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "target_choice_prompts"
         }
       ],
       "resolved_unique_cards": 15,
+      "runtime_blockers_by_card": [
+        {
+          "card_id": "44Y",
+          "count": 4,
+          "full_name": "Lilo - Causing an Uproar",
+          "runtime_blockers": [
+            "unsupported_condition:turn-metric",
+            "unsupported_static_effect:cost-reduction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_static_effect",
+            "unsupported_trigger"
+          ]
+        },
+        {
+          "card_id": "G4S",
+          "count": 4,
+          "full_name": "Olaf - Snowman of Action",
+          "runtime_blockers": [
+            "unsupported_static_effect:cost-reduction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_static_effect",
+            "unsupported_trigger"
+          ]
+        },
+        {
+          "card_id": "GGr",
+          "count": 4,
+          "full_name": "Develop Your Brain",
+          "runtime_blockers": [
+            "unsupported_effect:scry",
+            "unsupported_resolution_requirement:destination",
+            "unsupported_resolution_requirement:ordering"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_choice",
+          "stored_unsupported_blockers": [
+            "unsupported_choice",
+            "unsupported_effect:scry"
+          ]
+        },
+        {
+          "card_id": "DMG",
+          "count": 4,
+          "full_name": "Next Stop, Olympus",
+          "runtime_blockers": [
+            "unsupported_condition:target-query",
+            "unsupported_static_effect:cost-reduction"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_static_effect"
+          ]
+        },
+        {
+          "card_id": "Dub",
+          "count": 4,
+          "full_name": "Vision of the Future",
+          "runtime_blockers": [
+            "unsupported_effect:scry",
+            "unsupported_resolution_requirement:destination",
+            "unsupported_resolution_requirement:ordering"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_choice",
+          "stored_unsupported_blockers": [
+            "unsupported_choice",
+            "unsupported_effect:scry"
+          ]
+        },
+        {
+          "card_id": "EtL",
+          "count": 4,
+          "full_name": "Grab Your Bow",
+          "runtime_blockers": [
+            "unsupported_effect:banish",
+            "unsupported_target:selector:chosen"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_targeting",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:banish",
+            "unsupported_target:chosen"
+          ]
+        },
+        {
+          "card_id": "t9V",
+          "count": 4,
+          "full_name": "Let It Go",
+          "runtime_blockers": [
+            "unsupported_effect:put-into-inkwell"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_engine_mechanic",
+          "stored_unsupported_blockers": [
+            "unsupported_effect:put-into-inkwell"
+          ]
+        },
+        {
+          "card_id": "Cxc",
+          "count": 4,
+          "full_name": "Dig a Little Deeper",
+          "runtime_blockers": [
+            "unsupported_effect:scry",
+            "unsupported_resolution_requirement:destination",
+            "unsupported_resolution_requirement:ordering"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_choice",
+          "stored_unsupported_blockers": [
+            "unsupported_choice",
+            "unsupported_effect:scry"
+          ]
+        }
+      ],
       "schema_version": 1,
+      "stored_playability": "partially_executable",
       "top_blockers_by_copies": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 20
-        },
-        {
-          "blocker": "unsupported_choice",
-          "count": 16
-        },
-        {
           "blocker": "unsupported_effect:scry",
-          "count": 16
-        },
-        {
-          "blocker": "unsupported_static_effect",
           "count": 12
         },
         {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 8
+          "blocker": "unsupported_resolution_requirement:destination",
+          "count": 12
+        },
+        {
+          "blocker": "unsupported_resolution_requirement:ordering",
+          "count": 12
+        },
+        {
+          "blocker": "unsupported_static_effect:cost-reduction",
+          "count": 12
+        },
+        {
+          "blocker": "unsupported_condition:target-query",
+          "count": 4
+        },
+        {
+          "blocker": "unsupported_condition:turn-metric",
+          "count": 4
         },
         {
           "blocker": "unsupported_effect:banish",
@@ -1828,34 +2396,34 @@
           "count": 4
         },
         {
-          "blocker": "unsupported_target:chosen",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
+          "blocker": "unsupported_target:selector:chosen",
           "count": 4
         }
       ],
       "top_blockers_by_unique_cards": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 5
-        },
-        {
-          "blocker": "unsupported_choice",
-          "count": 4
-        },
-        {
           "blocker": "unsupported_effect:scry",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_static_effect",
           "count": 3
         },
         {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 2
+          "blocker": "unsupported_resolution_requirement:destination",
+          "count": 3
+        },
+        {
+          "blocker": "unsupported_resolution_requirement:ordering",
+          "count": 3
+        },
+        {
+          "blocker": "unsupported_static_effect:cost-reduction",
+          "count": 3
+        },
+        {
+          "blocker": "unsupported_condition:target-query",
+          "count": 1
+        },
+        {
+          "blocker": "unsupported_condition:turn-metric",
+          "count": 1
         },
         {
           "blocker": "unsupported_effect:banish",
@@ -1866,48 +2434,33 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_target:chosen",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
+          "blocker": "unsupported_target:selector:chosen",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 15,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 44,
-      "unsupported_unique_cards": 6,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     },
     {
       "best_use": "coverage_discovery",
+      "classification_source": "current_python_runtime",
       "deck_id": "sr_aggro_damien_2026_01_31",
-      "executable_copies": 20,
-      "executable_unique_cards": 5,
-      "mapped_not_executable_copies": 18,
-      "mapped_not_executable_unique_cards": 5,
+      "executable_copies": 55,
+      "executable_unique_cards": 14,
+      "mapped_not_executable_copies": 5,
+      "mapped_not_executable_unique_cards": 2,
       "name": "Steel Ruby",
       "playability": "partially_executable",
       "recommended_engine_work": [
         {
-          "affected_copies": 50,
-          "affected_decks": 1,
-          "affected_unique_cards": 14,
-          "category": "other_source_execution"
-        },
-        {
-          "affected_copies": 28,
-          "affected_decks": 1,
-          "affected_unique_cards": 7,
-          "category": "real_bag_and_triggers"
-        },
-        {
-          "affected_copies": 9,
+          "affected_copies": 6,
           "affected_decks": 1,
           "affected_unique_cards": 3,
-          "category": "target_choice_prompts"
+          "category": "other_source_execution"
         },
         {
           "affected_copies": 5,
@@ -1916,64 +2469,58 @@
           "category": "static_effect_registry"
         },
         {
-          "affected_copies": 4,
+          "affected_copies": 2,
           "affected_decks": 1,
           "affected_unique_cards": 1,
-          "category": "activated_abilities"
-        },
-        {
-          "affected_copies": 4,
-          "affected_decks": 1,
-          "affected_unique_cards": 1,
-          "category": "shift"
+          "category": "target_choice_prompts"
         }
       ],
       "resolved_unique_cards": 16,
+      "runtime_blockers_by_card": [
+        {
+          "card_id": "TMv",
+          "count": 3,
+          "full_name": "Sisu - Emboldened Warrior",
+          "runtime_blockers": [
+            "unsupported_static_effect:modify-stat"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "mapped_not_executable",
+          "stored_unsupported_blockers": [
+            "unsupported_static_effect"
+          ]
+        },
+        {
+          "card_id": "xm6",
+          "count": 2,
+          "full_name": "Hercules - Mighty Leader",
+          "runtime_blockers": [
+            "unsupported_condition:exerted",
+            "unsupported_condition:not",
+            "unsupported_effect:restriction",
+            "unsupported_static_effect:restriction",
+            "unsupported_target:selector:all"
+          ],
+          "runtime_status": "mapped_not_executable",
+          "stored_source_execution_status": "unsupported_condition",
+          "stored_unsupported_blockers": [
+            "unsupported_condition:not",
+            "unsupported_effect:restriction",
+            "unsupported_static_effect",
+            "unsupported_target:all"
+          ]
+        }
+      ],
       "schema_version": 1,
+      "stored_playability": "partially_executable",
       "top_blockers_by_copies": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 28
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 23
-        },
-        {
-          "blocker": "unsupported_trigger_event:banish-in-challenge",
-          "count": 12
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 5
-        },
-        {
-          "blocker": "keyword:SHIFT",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_cost:ink",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:gain-keyword",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_target:object",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
-          "count": 4
-        },
-        {
-          "blocker": "unsupported_effect:deal-damage",
+          "blocker": "unsupported_static_effect:modify-stat",
           "count": 3
         },
         {
-          "blocker": "unsupported_target:chosen",
-          "count": 3
+          "blocker": "unsupported_condition:exerted",
+          "count": 2
         },
         {
           "blocker": "unsupported_condition:not",
@@ -1984,29 +2531,17 @@
           "count": 2
         },
         {
-          "blocker": "unsupported_target:all",
+          "blocker": "unsupported_static_effect:restriction",
+          "count": 2
+        },
+        {
+          "blocker": "unsupported_target:selector:all",
           "count": 2
         }
       ],
       "top_blockers_by_unique_cards": [
         {
-          "blocker": "unsupported_trigger",
-          "count": 7
-        },
-        {
-          "blocker": "unsupported_trigger_not_projected",
-          "count": 6
-        },
-        {
-          "blocker": "unsupported_trigger_event:banish-in-challenge",
-          "count": 3
-        },
-        {
-          "blocker": "unsupported_static_effect",
-          "count": 2
-        },
-        {
-          "blocker": "keyword:SHIFT",
+          "blocker": "unsupported_condition:exerted",
           "count": 1
         },
         {
@@ -2014,43 +2549,27 @@
           "count": 1
         },
         {
-          "blocker": "unsupported_cost:ink",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:deal-damage",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_effect:gain-keyword",
-          "count": 1
-        },
-        {
           "blocker": "unsupported_effect:restriction",
           "count": 1
         },
         {
-          "blocker": "unsupported_target:all",
+          "blocker": "unsupported_static_effect:modify-stat",
           "count": 1
         },
         {
-          "blocker": "unsupported_target:chosen",
+          "blocker": "unsupported_static_effect:restriction",
           "count": 1
         },
         {
-          "blocker": "unsupported_target:object",
-          "count": 1
-        },
-        {
-          "blocker": "unsupported_trigger_on:complex_filter",
+          "blocker": "unsupported_target:selector:all",
           "count": 1
         }
       ],
       "total_cards": 60,
       "unique_cards": 16,
       "unresolved_unique_cards": 0,
-      "unsupported_copies": 40,
-      "unsupported_unique_cards": 6,
+      "unsupported_copies": 0,
+      "unsupported_unique_cards": 0,
       "valid": true
     }
   ],
@@ -2060,22 +2579,22 @@
   "partially_executable_decks": 12,
   "recommended_engine_work_order": [
     {
-      "affected_copies": 413,
+      "affected_copies": 175,
       "affected_decks": 12,
-      "affected_unique_cards": 118,
+      "affected_unique_cards": 53,
       "category": "other_source_execution"
     },
     {
-      "affected_copies": 338,
-      "affected_decks": 12,
-      "affected_unique_cards": 92,
-      "category": "real_bag_and_triggers"
+      "affected_copies": 111,
+      "affected_decks": 8,
+      "affected_unique_cards": 30,
+      "category": "activated_abilities"
     },
     {
-      "affected_copies": 141,
-      "affected_decks": 11,
-      "affected_unique_cards": 38,
-      "category": "activated_abilities"
+      "affected_copies": 98,
+      "affected_decks": 10,
+      "affected_unique_cards": 28,
+      "category": "target_choice_prompts"
     },
     {
       "affected_copies": 92,
@@ -2084,27 +2603,21 @@
       "category": "static_effect_registry"
     },
     {
-      "affected_copies": 76,
-      "affected_decks": 11,
-      "affected_unique_cards": 22,
-      "category": "target_choice_prompts"
-    },
-    {
-      "affected_copies": 52,
-      "affected_decks": 6,
-      "affected_unique_cards": 14,
+      "affected_copies": 30,
+      "affected_decks": 3,
+      "affected_unique_cards": 8,
       "category": "scry_search_reveal"
     },
     {
-      "affected_copies": 30,
-      "affected_decks": 5,
-      "affected_unique_cards": 8,
-      "category": "shift"
+      "affected_copies": 14,
+      "affected_decks": 4,
+      "affected_unique_cards": 5,
+      "category": "real_bag_and_triggers"
     },
     {
-      "affected_copies": 26,
-      "affected_decks": 5,
-      "affected_unique_cards": 7,
+      "affected_copies": 7,
+      "affected_decks": 2,
+      "affected_unique_cards": 2,
       "category": "singer_songs"
     }
   ],
@@ -2113,76 +2626,52 @@
   "source_only_decks": 0,
   "top_blockers_by_copies": [
     {
-      "blocker": "unsupported_trigger",
-      "count": 338
-    },
-    {
-      "blocker": "unsupported_trigger_not_projected",
-      "count": 111
-    },
-    {
-      "blocker": "unsupported_static_effect",
-      "count": 92
-    },
-    {
-      "blocker": "unsupported_choice",
-      "count": 79
-    },
-    {
-      "blocker": "unsupported_effect:scry",
-      "count": 52
-    },
-    {
-      "blocker": "unsupported_target:chosen",
-      "count": 49
-    },
-    {
       "blocker": "unsupported_activated_ability",
       "count": 48
     },
     {
-      "blocker": "unsupported_cost:ink",
-      "count": 47
+      "blocker": "unsupported_static_effect:cost-reduction",
+      "count": 35
     },
     {
-      "blocker": "keyword:SHIFT",
+      "blocker": "unsupported_condition:resource-count",
+      "count": 32
+    },
+    {
+      "blocker": "unsupported_effect:scry",
       "count": 30
+    },
+    {
+      "blocker": "unsupported_resolution_requirement:ordering",
+      "count": 30
+    },
+    {
+      "blocker": "unsupported_resolution_requirement:destination",
+      "count": 26
     },
     {
       "blocker": "unsupported_effect:restriction",
       "count": 25
     },
     {
-      "blocker": "unsupported_trigger_on:complex_filter",
-      "count": 24
+      "blocker": "unsupported_static_effect:restriction",
+      "count": 25
     },
     {
-      "blocker": "unsupported_effect:banish",
-      "count": 23
+      "blocker": "unsupported_target:selector:chosen",
+      "count": 22
     },
     {
-      "blocker": "keyword:SINGER",
-      "count": 19
+      "blocker": "unsupported_ability:unknown",
+      "count": 21
     },
     {
-      "blocker": "unsupported_effect:optional",
-      "count": 18
+      "blocker": "unsupported_cost:ink",
+      "count": 17
     },
     {
-      "blocker": "unsupported_effect:exert",
-      "count": 16
-    },
-    {
-      "blocker": "unsupported_target:all",
-      "count": 16
-    },
-    {
-      "blocker": "unsupported_trigger_event:banish-in-challenge",
-      "count": 16
-    },
-    {
-      "blocker": "unsupported_trigger_event:put-card-under",
-      "count": 16
+      "blocker": "unsupported_condition:first-turn-non-otp",
+      "count": 15
     },
     {
       "blocker": "unsupported_cost:discardCards",
@@ -2193,23 +2682,43 @@
       "count": 15
     },
     {
-      "blocker": "unsupported_effect:deal-damage",
-      "count": 14
+      "blocker": "unsupported_static_effect:gain-keyword",
+      "count": 15
+    },
+    {
+      "blocker": "unsupported_static_effect:modify-stat",
+      "count": 15
     },
     {
       "blocker": "unsupported_cost:banishSelf",
       "count": 12
     },
     {
+      "blocker": "unsupported_effect:banish",
+      "count": 11
+    },
+    {
+      "blocker": "unsupported_effect:deal-damage",
+      "count": 11
+    },
+    {
+      "blocker": "unsupported_condition:has-named-character",
+      "count": 10
+    },
+    {
       "blocker": "unsupported_effect:put-into-inkwell",
       "count": 10
     },
     {
-      "blocker": "unsupported_effect:create-replacement-effect",
-      "count": 8
+      "blocker": "unsupported_resolution_requirement:opponent_choice",
+      "count": 9
     },
     {
-      "blocker": "unsupported_trigger_event:draw",
+      "blocker": "unsupported_target:selector:all",
+      "count": 9
+    },
+    {
+      "blocker": "unsupported_trigger_effect:create-replacement-effect",
       "count": 8
     },
     {
@@ -2221,45 +2730,25 @@
       "count": 7
     },
     {
-      "blocker": "unsupported_trigger_event:leave-play",
-      "count": 7
+      "blocker": "unsupported_condition:no-damage",
+      "count": 4
     },
     {
-      "blocker": "unsupported_target:ALL_CHARACTERS",
-      "count": 5
+      "blocker": "unsupported_condition:or",
+      "count": 4
     },
     {
-      "blocker": "unsupported_cost:unknown",
+      "blocker": "unsupported_condition:stat-threshold",
+      "count": 4
+    },
+    {
+      "blocker": "unsupported_condition:target-query",
       "count": 4
     }
   ],
   "top_blockers_by_deck_presence": [
     {
-      "blocker": "unsupported_trigger",
-      "count": 12
-    },
-    {
-      "blocker": "unsupported_choice",
-      "count": 11
-    },
-    {
-      "blocker": "unsupported_static_effect",
-      "count": 11
-    },
-    {
-      "blocker": "unsupported_trigger_not_projected",
-      "count": 11
-    },
-    {
-      "blocker": "unsupported_target:chosen",
-      "count": 10
-    },
-    {
       "blocker": "unsupported_activated_ability",
-      "count": 8
-    },
-    {
-      "blocker": "unsupported_cost:ink",
       "count": 8
     },
     {
@@ -2267,20 +2756,28 @@
       "count": 7
     },
     {
-      "blocker": "unsupported_trigger_on:complex_filter",
+      "blocker": "unsupported_static_effect:restriction",
       "count": 7
     },
     {
-      "blocker": "unsupported_effect:scry",
+      "blocker": "unsupported_condition:resource-count",
       "count": 6
     },
     {
-      "blocker": "keyword:SHIFT",
-      "count": 5
+      "blocker": "unsupported_static_effect:cost-reduction",
+      "count": 6
     },
     {
-      "blocker": "unsupported_effect:optional",
-      "count": 5
+      "blocker": "unsupported_target:selector:chosen",
+      "count": 6
+    },
+    {
+      "blocker": "unsupported_ability:unknown",
+      "count": 4
+    },
+    {
+      "blocker": "unsupported_condition:first-turn-non-otp",
+      "count": 4
     },
     {
       "blocker": "unsupported_cost:discardCards",
@@ -2291,31 +2788,47 @@
       "count": 4
     },
     {
-      "blocker": "unsupported_effect:banish",
+      "blocker": "unsupported_cost:ink",
       "count": 4
-    },
-    {
-      "blocker": "unsupported_effect:deal-damage",
-      "count": 4
-    },
-    {
-      "blocker": "unsupported_effect:exert",
-      "count": 4
-    },
-    {
-      "blocker": "unsupported_target:all",
-      "count": 4
-    },
-    {
-      "blocker": "unsupported_trigger_event:put-card-under",
-      "count": 4
-    },
-    {
-      "blocker": "keyword:SINGER",
-      "count": 3
     },
     {
       "blocker": "unsupported_cost:banishSelf",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_effect:banish",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_effect:deal-damage",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_effect:scry",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_resolution_requirement:destination",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_resolution_requirement:opponent_choice",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_resolution_requirement:ordering",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_static_effect:gain-keyword",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_static_effect:modify-stat",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_target:selector:all",
       "count": 3
     },
     {
@@ -2323,7 +2836,7 @@
       "count": 2
     },
     {
-      "blocker": "unsupported_effect:create-replacement-effect",
+      "blocker": "unsupported_condition:has-named-character",
       "count": 2
     },
     {
@@ -2335,20 +2848,20 @@
       "count": 2
     },
     {
-      "blocker": "unsupported_target:ALL_CHARACTERS",
+      "blocker": "unsupported_trigger_effect:create-replacement-effect",
       "count": 2
     },
     {
-      "blocker": "unsupported_trigger_event:banish-in-challenge",
+      "blocker": "unsupported_trigger_resolution_requirement:amount",
       "count": 2
     },
     {
-      "blocker": "unsupported_trigger_event:draw",
-      "count": 2
+      "blocker": "unsupported_condition:exerted",
+      "count": 1
     },
     {
-      "blocker": "unsupported_trigger_event:leave-play",
-      "count": 2
+      "blocker": "unsupported_condition:no-damage",
+      "count": 1
     },
     {
       "blocker": "unsupported_condition:not",
@@ -2357,64 +2870,52 @@
   ],
   "top_blockers_by_unique_cards": [
     {
-      "blocker": "unsupported_trigger",
-      "count": 92
-    },
-    {
-      "blocker": "unsupported_trigger_not_projected",
-      "count": 31
-    },
-    {
-      "blocker": "unsupported_static_effect",
-      "count": 26
-    },
-    {
-      "blocker": "unsupported_choice",
-      "count": 22
-    },
-    {
-      "blocker": "unsupported_effect:scry",
-      "count": 14
-    },
-    {
       "blocker": "unsupported_activated_ability",
       "count": 13
     },
     {
-      "blocker": "unsupported_cost:ink",
-      "count": 13
+      "blocker": "unsupported_condition:resource-count",
+      "count": 9
     },
     {
-      "blocker": "unsupported_target:chosen",
-      "count": 13
-    },
-    {
-      "blocker": "keyword:SHIFT",
-      "count": 8
+      "blocker": "unsupported_static_effect:cost-reduction",
+      "count": 9
     },
     {
       "blocker": "unsupported_effect:restriction",
       "count": 8
     },
     {
-      "blocker": "unsupported_effect:banish",
+      "blocker": "unsupported_effect:scry",
+      "count": 8
+    },
+    {
+      "blocker": "unsupported_resolution_requirement:ordering",
+      "count": 8
+    },
+    {
+      "blocker": "unsupported_static_effect:restriction",
+      "count": 8
+    },
+    {
+      "blocker": "unsupported_ability:unknown",
       "count": 7
     },
     {
-      "blocker": "unsupported_trigger_on:complex_filter",
+      "blocker": "unsupported_resolution_requirement:destination",
       "count": 7
     },
     {
-      "blocker": "keyword:SINGER",
+      "blocker": "unsupported_target:selector:chosen",
+      "count": 6
+    },
+    {
+      "blocker": "unsupported_cost:ink",
       "count": 5
     },
     {
-      "blocker": "unsupported_effect:optional",
-      "count": 5
-    },
-    {
-      "blocker": "unsupported_target:all",
-      "count": 5
+      "blocker": "unsupported_condition:first-turn-non-otp",
+      "count": 4
     },
     {
       "blocker": "unsupported_cost:discardCards",
@@ -2425,23 +2926,27 @@
       "count": 4
     },
     {
-      "blocker": "unsupported_effect:deal-damage",
+      "blocker": "unsupported_static_effect:gain-keyword",
       "count": 4
     },
     {
-      "blocker": "unsupported_effect:exert",
+      "blocker": "unsupported_static_effect:modify-stat",
       "count": 4
     },
     {
-      "blocker": "unsupported_trigger_event:banish-in-challenge",
-      "count": 4
-    },
-    {
-      "blocker": "unsupported_trigger_event:put-card-under",
-      "count": 4
+      "blocker": "unsupported_condition:has-named-character",
+      "count": 3
     },
     {
       "blocker": "unsupported_cost:banishSelf",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_effect:banish",
+      "count": 3
+    },
+    {
+      "blocker": "unsupported_effect:deal-damage",
       "count": 3
     },
     {
@@ -2449,11 +2954,15 @@
       "count": 3
     },
     {
-      "blocker": "keyword:SING_TOGETHER",
-      "count": 2
+      "blocker": "unsupported_resolution_requirement:opponent_choice",
+      "count": 3
     },
     {
-      "blocker": "unsupported_effect:create-replacement-effect",
+      "blocker": "unsupported_target:selector:all",
+      "count": 3
+    },
+    {
+      "blocker": "keyword:SING_TOGETHER",
       "count": 2
     },
     {
@@ -2461,16 +2970,20 @@
       "count": 2
     },
     {
-      "blocker": "unsupported_target:ALL_CHARACTERS",
+      "blocker": "unsupported_trigger_effect:create-replacement-effect",
       "count": 2
     },
     {
-      "blocker": "unsupported_trigger_event:draw",
+      "blocker": "unsupported_trigger_resolution_requirement:amount",
       "count": 2
     },
     {
-      "blocker": "unsupported_trigger_event:leave-play",
-      "count": 2
+      "blocker": "unsupported_condition:exerted",
+      "count": 1
+    },
+    {
+      "blocker": "unsupported_condition:no-damage",
+      "count": 1
     },
     {
       "blocker": "unsupported_condition:not",

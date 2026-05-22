@@ -11,6 +11,7 @@ from lorcana_bot.engine import GameEngine
 from lorcana_bot.importers.lorcanito_source_importer import import_lorcanito_source_cards
 
 from .deck_loader import load_resolved_deck_dir
+from .deck_mapping_report import CLASSIFICATION_SOURCE, classify_deck_playability
 
 SCHEMA_VERSION = 1
 
@@ -30,23 +31,32 @@ def run_real_deck_gauntlet(
     log_decisions_jsonl: str | Path | None = None,
 ) -> dict[str, Any]:
     decks = load_resolved_deck_dir(resolved_deck_dir)
+    db, _import_report = import_lorcanito_source_cards(source_json)
+    card_defs = {card.id: card for card in db.all_cards()}
+    current_playability = {deck.id: classify_deck_playability(deck, card_defs) for deck in decks}
     if allow_partial:
-        allowed = [deck for deck in decks if deck.validation.get("valid") and deck.playability in {"fully_executable", "mostly_executable", "partially_executable"}]
+        allowed = [
+            deck
+            for deck in decks
+            if deck.validation.get("valid")
+            and current_playability[deck.id] in {"fully_executable", "mostly_executable", "partially_executable"}
+        ]
     elif only_fully_executable:
-        allowed = [deck for deck in decks if deck.playability == "fully_executable"]
+        allowed = [deck for deck in decks if current_playability[deck.id] == "fully_executable"]
     else:
-        allowed = [deck for deck in decks if deck.playability == "fully_executable"]
+        allowed = [deck for deck in decks if current_playability[deck.id] == "fully_executable"]
     if len(allowed) < 2:
         report = {
             "schema_version": SCHEMA_VERSION,
+            "classification_source": CLASSIFICATION_SOURCE,
             "result": "no_fully_executable_decks" if not allow_partial else "not_enough_allowed_decks",
             "games_run": 0,
             "not_strength_valid": False,
+            "deck_playability": current_playability,
             "matchups": [],
         }
         return _write_optional(report, out)
 
-    db, _import_report = import_lorcanito_source_cards(source_json)
     engine = GameEngine(db)
     matchups = []
     games_run = 0
@@ -74,24 +84,28 @@ def run_real_deck_gauntlet(
                 row = {
                     "deck_id_player_0": deck0.id,
                     "deck_id_player_1": deck1.id,
-                    "deck_playability_player_0": deck0.playability,
-                    "deck_playability_player_1": deck1.playability,
+                    "deck_playability_player_0": current_playability[deck0.id],
+                    "deck_playability_player_1": current_playability[deck1.id],
+                    "stored_deck_playability_player_0": deck0.playability,
+                    "stored_deck_playability_player_1": deck1.playability,
                     "winner": result.winner,
                     "turns": result.turns,
                     "final_lore": list(result.final_lore),
                     "reason": result.reason,
                     "action_count": result.action_count,
-                    "not_strength_valid": deck0.playability != "fully_executable" or deck1.playability != "fully_executable",
+                    "not_strength_valid": current_playability[deck0.id] != "fully_executable" or current_playability[deck1.id] != "fully_executable",
                     "reason_not_strength_valid": "deck_contains_unsupported_mechanics"
-                    if deck0.playability != "fully_executable" or deck1.playability != "fully_executable"
+                    if current_playability[deck0.id] != "fully_executable" or current_playability[deck1.id] != "fully_executable"
                     else None,
                 }
             except Exception as exc:
                 row = {
                     "deck_id_player_0": deck0.id,
                     "deck_id_player_1": deck1.id,
-                    "deck_playability_player_0": deck0.playability,
-                    "deck_playability_player_1": deck1.playability,
+                    "deck_playability_player_0": current_playability[deck0.id],
+                    "deck_playability_player_1": current_playability[deck1.id],
+                    "stored_deck_playability_player_0": deck0.playability,
+                    "stored_deck_playability_player_1": deck1.playability,
                     "error": str(exc),
                     "not_strength_valid": True,
                     "reason_not_strength_valid": "gauntlet_matchup_failed",
@@ -110,9 +124,11 @@ def run_real_deck_gauntlet(
         _augment_jsonl(decision_log_path, metadata)
     report = {
         "schema_version": SCHEMA_VERSION,
+        "classification_source": CLASSIFICATION_SOURCE,
         "result": "completed",
         "games_run": games_run,
         "not_strength_valid": any(row.get("not_strength_valid") for row in matchups),
+        "deck_playability": current_playability,
         "matchups": matchups,
     }
     return _write_optional(report, out)

@@ -3,6 +3,7 @@ import json
 from lorcana_bot.decks.deck_loader import write_resolved_deck
 from lorcana_bot.decks.deck_schema import ResolvedDeck, ResolvedDeckCard
 from lorcana_bot.decks.gauntlet import run_real_deck_gauntlet
+from lorcana_bot.importers.lorcanito_source_importer import import_lorcanito_source_cards
 
 
 def _resolved_deck(deck_id, card_ids, playability="partially_executable"):
@@ -46,20 +47,22 @@ def _resolved_deck(deck_id, card_ids, playability="partially_executable"):
     )
 
 
-def test_no_fully_executable_decks_returns_clean_result(tmp_path):
-    write_resolved_deck(_resolved_deck("d1", ["x"]), tmp_path / "d1.resolved.json")
+def test_no_fully_executable_decks_uses_current_runtime_not_stored_playability(tmp_path):
+    write_resolved_deck(_resolved_deck("d1", ["x"], playability="fully_executable"), tmp_path / "d1.resolved.json")
 
     report = run_real_deck_gauntlet(tmp_path, only_fully_executable=True)
 
     assert report["result"] == "no_fully_executable_decks"
     assert report["games_run"] == 0
+    assert report["classification_source"] == "current_python_runtime"
+    assert report["deck_playability"]["d1"] == "source_only"
 
 
 def test_partial_gauntlet_requires_allow_partial_and_marks_not_strength_valid(tmp_path):
-    source = json.load(open("data/lorcanito_extracted/cards.normalized.json", encoding="utf-8"))["cards"]
-    card_id = next(card["id"] for card in source if card.get("inkable") and card.get("cardType") == "character")
-    write_resolved_deck(_resolved_deck("d1", [card_id]), tmp_path / "d1.resolved.json")
-    write_resolved_deck(_resolved_deck("d2", [card_id]), tmp_path / "d2.resolved.json")
+    db, _ = import_lorcanito_source_cards("data/lorcanito_extracted/cards.normalized.json")
+    card_id = next(card.id for card in db.all_cards() if card.card_type == "character" and card.source_static_abilities)
+    write_resolved_deck(_resolved_deck("d1", [card_id], playability="fully_executable"), tmp_path / "d1.resolved.json")
+    write_resolved_deck(_resolved_deck("d2", [card_id], playability="fully_executable"), tmp_path / "d2.resolved.json")
     decisions = tmp_path / "decisions.jsonl"
 
     without_partial = run_real_deck_gauntlet(tmp_path, only_fully_executable=True)
@@ -68,6 +71,8 @@ def test_partial_gauntlet_requires_allow_partial_and_marks_not_strength_valid(tm
     assert without_partial["games_run"] == 0
     assert with_partial["games_run"] == 1
     assert with_partial["matchups"][0]["not_strength_valid"] is True
+    assert with_partial["matchups"][0]["stored_deck_playability_player_0"] == "fully_executable"
+    assert with_partial["matchups"][0]["deck_playability_player_0"] == "partially_executable"
     if decisions.exists() and decisions.read_text().strip():
         row = json.loads(decisions.read_text().splitlines()[0])
         assert row["deck_id_player_0"] == "d1"
