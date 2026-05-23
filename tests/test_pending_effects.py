@@ -1448,17 +1448,57 @@ class TestRequirementKindLegalActions:
 class TestDiscardChoicePendingEffect:
     """Tests for discard-choice pending effect behavior (Microfix 9 Brief 4)."""
 
+    @staticmethod
+    def _real_card_ids(engine, count: int, *, start: int = 0) -> tuple[str, ...]:
+        """Return stable real card definition ids from the active test database."""
+        cards = tuple(engine.db.all_cards())
+        assert len(cards) >= start + count
+        return tuple(card.id for card in cards[start:start + count])
+
+    @staticmethod
+    def _put_real_card_instance(
+        state,
+        *,
+        instance_id: int,
+        card_id: str,
+        player: int,
+        zone: str,
+    ) -> None:
+        """Create a CardInstance backed by a real CardDef from the test database."""
+        from lorcana_bot.state import CardInstance
+
+        state.cards[instance_id] = CardInstance(
+            instance_id=instance_id,
+            card_id=card_id,
+            owner=player,
+            controller=player,
+            zone=zone,
+        )
+
+        if zone == ZONE_HAND:
+            state.players[player].hand.append(instance_id)
+        elif zone == ZONE_PLAY:
+            state.players[player].play.append(instance_id)
+
     @pytest.fixture
     def engine(self):
+        from pathlib import Path
+
         from lorcana_bot.engine import GameEngine
-        from lorcana_bot.cards import CardDatabase
-        db = CardDatabase([])
+        from lorcana_bot.importers.lorcanito_source_importer import import_lorcanito_source_cards
+
+        source_json = Path("data/lorcanito_runtime_extracted/cards.normalized.json")
+        db, report = import_lorcanito_source_cards(source_json)
+
+        assert report.errors == []
+        assert len(db) > 0
+
         return GameEngine(db)
 
     @pytest.fixture
     def state_with_hand(self, engine):
-        """Create a game state with cards in hand for discard testing."""
-        from lorcana_bot.state import GameState, PlayerState, CardInstance
+        """Create a game state with real card data in hand for discard testing."""
+        from lorcana_bot.state import GameState, PlayerState
 
         state = GameState(
             players=[PlayerState(), PlayerState()],
@@ -1468,16 +1508,16 @@ class TestDiscardChoicePendingEffect:
             phase="MAIN",
         )
 
-        # Create cards in player 0's hand
-        for cid in [101, 102, 103]:
-            state.cards[cid] = CardInstance(
-                instance_id=cid,
-                card_id=f"card_{cid}",
-                owner=0,
-                controller=0,
+        # Stable instance ids are fine; the important part is that each instance
+        # points at a real CardDef from the imported Lorcanito card database.
+        for instance_id, card_id in zip((101, 102, 103), self._real_card_ids(engine, 3, start=0)):
+            self._put_real_card_instance(
+                state,
+                instance_id=instance_id,
+                card_id=card_id,
+                player=0,
                 zone=ZONE_HAND,
             )
-            state.players[0].hand.append(cid)
 
         return state, engine
 
@@ -1518,16 +1558,15 @@ class TestDiscardChoicePendingEffect:
 
         state, engine = state_with_hand
 
-        # Give player 1 some cards in hand (player 0 is actor, targeting opponent)
-        for cid in [201, 202]:
-            state.cards[cid] = CardInstance(
-                instance_id=cid,
-                card_id=f"card_{cid}",
-                owner=1,
-                controller=1,
+        # Give player 1 real cards in hand (player 0 is actor, targeting opponent)
+        for instance_id, card_id in zip((201, 202), self._real_card_ids(engine, 2, start=10)):
+            self._put_real_card_instance(
+                state,
+                instance_id=instance_id,
+                card_id=card_id,
+                player=1,
                 zone=ZONE_HAND,
             )
-            state.players[1].hand.append(cid)
 
         initial_hand_size = len(state.players[1].hand)
 
@@ -1560,16 +1599,15 @@ class TestDiscardChoicePendingEffect:
 
         state, engine = state_with_hand
 
-        # Give player 1 some cards in hand
-        for cid in [201, 202]:
-            state.cards[cid] = CardInstance(
-                instance_id=cid,
-                card_id=f"card_{cid}",
-                owner=1,
-                controller=1,
+        # Give player 1 real cards in hand
+        for instance_id, card_id in zip((201, 202), self._real_card_ids(engine, 2, start=20)):
+            self._put_real_card_instance(
+                state,
+                instance_id=instance_id,
+                card_id=card_id,
+                player=1,
                 zone=ZONE_HAND,
             )
-            state.players[1].hand.append(cid)
 
         # Player 0's opponent is player 1
         effect = EffectDef(
@@ -1777,16 +1815,15 @@ class TestDiscardChoicePendingEffect:
 
         state, engine = state_with_hand
 
-        # Give player 1 some cards in hand (player 0 is actor, targeting opponent)
-        for cid in [201, 202]:
-            state.cards[cid] = CardInstance(
-                instance_id=cid,
-                card_id=f"card_{cid}",
-                owner=1,
-                controller=1,
+        # Give player 1 real cards in hand (player 0 is actor, targeting opponent)
+        for instance_id, card_id in zip((201, 202), self._real_card_ids(engine, 2, start=30)):
+            self._put_real_card_instance(
+                state,
+                instance_id=instance_id,
+                card_id=card_id,
+                player=1,
                 zone=ZONE_HAND,
             )
-            state.players[1].hand.append(cid)
 
         initial_hand_size = len(state.players[1].hand)
 
@@ -1854,17 +1891,20 @@ class TestDiscardChoicePendingEffect:
 
         state, engine = state_with_hand
 
-        # Add some cards to play
-        state.cards[201] = CardInstance(
+        # Add a real card to play.
+        self._put_real_card_instance(
+            state,
             instance_id=201,
-            card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
-            owner=0,
-            controller=0,
+            card_id=self._real_card_ids(engine, 1, start=40)[0],
+            player=0,
             zone=ZONE_PLAY,
         )
-        state.players[0].play.append(201)
 
-        # Create pending effect including a play card
+        first_hand = state.players[0].hand[0]
+        second_hand = state.players[0].hand[1]
+        play_card = 201
+
+        # Create pending effect including a play card.
         pe = create_discard_choice_pending_effect(
             state,
             controller_id=0,
@@ -1872,7 +1912,7 @@ class TestDiscardChoicePendingEffect:
             source_id=1,
             source_card_id=None,
             target_player_id=0,
-            candidate_ids=(101, 102, 201),  # 201 is in play, not hand
+            candidate_ids=(first_hand, second_hand, play_card),
             min_select=1,
             max_select=1,
         )
@@ -1884,18 +1924,19 @@ class TestDiscardChoicePendingEffect:
             and a.choice.get("pending_effect_id") == pe.id
         ]
 
-        # Only hand cards [101, 102] should be valid
-        # 201 is in play, not hand, so should not be in candidates
+        # Only hand cards should be valid.
+        # The play card is not in hand, so it must not be emitted as a discard choice.
         hand_actions = [
             a for a in resolve_actions
-            if a.choice.get("discard_card_ids") in [(101,), (102,)]
+            if a.choice.get("discard_card_ids") in [(first_hand,), (second_hand,)]
         ]
         assert len(hand_actions) == 2, f"Expected 2 hand-only actions, got {len(hand_actions)}"
 
         for action in resolve_actions:
             card_ids = action.choice.get("discard_card_ids")
             if card_ids:
-                assert card_ids[0] in [101, 102]  # Not 201 (play card)
+                assert card_ids[0] in {first_hand, second_hand}
+                assert card_ids[0] != play_card
 
 
 # =============================================================================
