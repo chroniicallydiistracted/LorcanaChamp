@@ -10,18 +10,18 @@
 
 | Reason | Count |
 |---|---:|
-| `mapped_not_executable` | 510 |
+| `mapped_not_executable` | 512 |
 | `unsupported_choice` | 148 |
-| `unsupported_condition` | 188 |
+| `unsupported_condition` | 196 |
 | `unsupported_cost` | 24 |
-| `unsupported_engine_mechanic` | 240 |
-| `unsupported_targeting` | 477 |
+| `unsupported_engine_mechanic` | 242 |
+| `unsupported_targeting` | 355 |
 
 ## Examples
 
 ### `mapped_not_executable`
 
-Total detailed records: `510`
+Total detailed records: `512`
 
 - **Ariel - On Human Legs** (`WeA`)
   - Object: `ability` / `static`
@@ -281,7 +281,7 @@ Total detailed records: `148`
 
 ### `unsupported_condition`
 
-Total detailed records: `254`
+Total detailed records: `262`
 
 - **Stitch - Rock Star** (`kSG`)
   - Object: `ability` / `triggered`
@@ -541,7 +541,7 @@ Total detailed records: `52`
 
 ### `unsupported_engine_mechanic`
 
-Total detailed records: `240`
+Total detailed records: `242`
 
 - **Steal from the Rich** (`mkJ`)
   - Object: `ability` / `action`
@@ -671,123 +671,8 @@ Total detailed records: `240`
 
 ### `unsupported_targeting`
 
-Total detailed records: `668`
+Total detailed records: `496`
 
-- **Flynn Rider - Charming Rogue** (`a9K`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `qk8-1` — HERE COMES THE SMOLDER
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 1, "chosen": true, "from": "hand", "target": "CHALLENGING_PLAYER", "type": "discard"}, "id": "qk8-1", "name": "HERE COMES THE SMOLDER", "text": "HERE COMES THE SMOLDER Whenever this character is challenged, the challenging player chooses and discards a card.", "trigger": {"event": "challenged", "on": "SELF", "timing": "whenever"}, "type": "triggered"}`
-- **Flynn Rider - Charming Rogue** (`a9K`)
-  - Object: `effect` / `discard`
-  - Ability: `triggered` `qk8-1` — HERE COMES THE SMOLDER
-  - Status: `unsupported_targeting`
-  - Raw: `{"amount": 1, "chosen": true, "from": "hand", "target": "CHALLENGING_PLAYER", "type": "discard"}`
-- **Flynn Rider - Charming Rogue** (`a9K`)
-  - Object: `target` / `alias`
-  - Ability: `triggered` `qk8-1` — HERE COMES THE SMOLDER
-  - Status: `unsupported_targeting`
-  - Raw: `{"value": "CHALLENGING_PLAYER"}`
-- **Magic Broom - Bucket Brigade** (`Ors`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `zyc-1` — SWEEP
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"effect": {"intoDeck": "owner", "target": {"cardTypes": ["card"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["discard"]}, "type": "shuffle-into-deck"}, "type": "optional"}, "id": "zyc-1", "name": "SWEEP", "text": "**SWEEP** When you play this character, you may shuffle a card from any discard into its player's deck.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Magic Broom - Bucket Brigade** (`Ors`)
-  - Object: `effect` / `optional`
-  - Ability: `triggered` `zyc-1` — SWEEP
-  - Status: `unsupported_targeting`
-  - Raw: `{"effect": {"intoDeck": "owner", "target": {"cardTypes": ["card"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["discard"]}, "type": "shuffle-into-deck"}, "type": "optional"}`
-- **Magic Broom - Bucket Brigade** (`Ors`)
-  - Object: `effect` / `shuffle-into-deck`
-  - Ability: `triggered` `zyc-1` — SWEEP
-  - Status: `unsupported_targeting`
-  - Raw: `{"intoDeck": "owner", "target": {"cardTypes": ["card"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["discard"]}, "type": "shuffle-into-deck"}`
-- **Magic Broom - Bucket Brigade** (`Ors`)
-  - Object: `target` / `selector`
-  - Ability: `triggered` `zyc-1` — SWEEP
-  - Status: `unsupported_targeting`
-  - Raw: `{"cardTypes": ["card"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["discard"]}`
-- **Rapunzel - Gifted with Healing** (`mTY`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `kro-1` — GLEAM AND GLOW
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"amount": {"type": "up-to", "value": 3}, "target": "YOUR_CHOSEN_CHARACTER", "type": "remove-damage"}, {"amount": "DAMAGE_REMOVED", "target": "CONTROLLER", "type": "draw"}], "type": "sequence"}, "id": "kro-1", "name": "GLEAM AND GLOW", "text": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Rapunzel - Gifted with Healing** (`mTY`)
-  - Object: `effect` / `sequence`
-  - Ability: `triggered` `kro-1` — GLEAM AND GLOW
-  - Status: `unsupported_targeting`
-  - Raw: `{"steps": [{"amount": {"type": "up-to", "value": 3}, "target": "YOUR_CHOSEN_CHARACTER", "type": "remove-damage"}, {"amount": "DAMAGE_REMOVED", "target": "CONTROLLER", "type": "draw"}], "type": "sequence"}`
-- **Rapunzel - Gifted with Healing** (`mTY`)
-  - Object: `effect` / `remove-damage`
-  - Ability: `triggered` `kro-1` — GLEAM AND GLOW
-  - Status: `unsupported_targeting`
-  - Raw: `{"amount": {"type": "up-to", "value": 3}, "target": "YOUR_CHOSEN_CHARACTER", "type": "remove-damage"}`
-- **Rapunzel - Gifted with Healing** (`mTY`)
-  - Object: `target` / `alias`
-  - Ability: `triggered` `kro-1` — GLEAM AND GLOW
-  - Status: `unsupported_targeting`
-  - Raw: `{"value": "YOUR_CHOSEN_CHARACTER"}`
-- **Stampede** (`0r9`)
-  - Object: `ability` / `action`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 2, "target": {"cardTypes": ["character"], "count": 1, "filter": [{"status": "damaged", "type": "status"}], "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "deal-damage"}, "type": "action"}`
-- **Stampede** (`0r9`)
-  - Object: `effect` / `deal-damage`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_targeting`
-  - Raw: `{"amount": 2, "target": {"cardTypes": ["character"], "count": 1, "filter": [{"status": "damaged", "type": "status"}], "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "deal-damage"}`
-- **Stampede** (`0r9`)
-  - Object: `target` / `selector`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_targeting`
-  - Raw: `{"cardTypes": ["character"], "count": 1, "filter": [{"status": "damaged", "type": "status"}], "owner": "any", "selector": "chosen", "zones": ["play"]}`
-- **Belle - Hidden Archer** (`df2`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `cyn-2` — THORNY ARROWS
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 1, "effect": {"amount": "all", "target": "CHALLENGING_PLAYER", "type": "discard"}, "id": "cyn-2", "name": "THORNY ARROWS", "text": "THORNY ARROWS Whenever this character is challenged, the challenging character's player discards all cards in their hand.", "trigger": {"event": "challenged", "on": "SELF", "timing": "whenever"}, "type": "triggered"}`
-- **Belle - Hidden Archer** (`df2`)
-  - Object: `effect` / `discard`
-  - Ability: `triggered` `cyn-2` — THORNY ARROWS
-  - Status: `unsupported_targeting`
-  - Raw: `{"amount": "all", "target": "CHALLENGING_PLAYER", "type": "discard"}`
-- **Belle - Hidden Archer** (`df2`)
-  - Object: `target` / `alias`
-  - Ability: `triggered` `cyn-2` — THORNY ARROWS
-  - Status: `unsupported_targeting`
-  - Raw: `{"value": "CHALLENGING_PLAYER"}`
-- **Dopey - Always Playful** (`2Jv`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `7r7-1` — ODD ONE OUT
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"duration": "until-start-of-next-turn", "modifier": 2, "stat": "strength", "target": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS", "type": "modify-stat"}, "id": "7r7-1", "name": "ODD ONE OUT", "text": "ODD ONE OUT When this character is banished, your other Seven Dwarfs characters get +2 {S} until the start of your next turn.", "trigger": {"event": "banish", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Dopey - Always Playful** (`2Jv`)
-  - Object: `effect` / `modify-stat`
-  - Ability: `triggered` `7r7-1` — ODD ONE OUT
-  - Status: `unsupported_targeting`
-  - Raw: `{"duration": "until-start-of-next-turn", "modifier": 2, "stat": "strength", "target": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS", "type": "modify-stat"}`
-- **Dopey - Always Playful** (`2Jv`)
-  - Object: `target` / `alias`
-  - Ability: `triggered` `7r7-1` — ODD ONE OUT
-  - Status: `unsupported_targeting`
-  - Raw: `{"value": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS"}`
-- **Grumpy - Bad-Tempered** (`Xv5`)
-  - Object: `ability` / `static`
-  - Ability: `static` `Xv5-1` — THERE'S TROUBLE A-BREWIN'
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"modifier": 1, "stat": "strength", "target": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS", "type": "modify-stat"}, "id": "Xv5-1", "name": "THERE'S TROUBLE A-BREWIN'", "text": "THERE'S TROUBLE A-BREWIN' Your other Seven Dwarfs characters get +1 {S}.", "type": "static"}`
-- **Grumpy - Bad-Tempered** (`Xv5`)
-  - Object: `effect` / `modify-stat`
-  - Ability: `static` `Xv5-1` — THERE'S TROUBLE A-BREWIN'
-  - Status: `unsupported_targeting`
-  - Raw: `{"modifier": 1, "stat": "strength", "target": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS", "type": "modify-stat"}`
-- **Grumpy - Bad-Tempered** (`Xv5`)
-  - Object: `target` / `alias`
-  - Ability: `static` `Xv5-1` — THERE'S TROUBLE A-BREWIN'
-  - Status: `unsupported_targeting`
-  - Raw: `{"value": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS"}`
 - **Madam Mim - Purple Dragon** (`EHY`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `12t-2` — I WIN, I WIN!
@@ -798,6 +683,121 @@ Total detailed records: `668`
   - Ability: `triggered` `12t-2` — I WIN, I WIN!
   - Status: `unsupported_targeting`
   - Raw: `{"optionLabels": ["banish her", "return another 2 chosen characters of yours to your hand"], "options": [{"target": "SELF", "type": "banish"}, {"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}], "type": "or"}`
+- **Madam Mim - Purple Dragon** (`EHY`)
+  - Object: `effect` / `return-to-hand`
+  - Ability: `triggered` `12t-2` — I WIN, I WIN!
+  - Status: `unsupported_targeting`
+  - Raw: `{"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}`
+- **Madam Mim - Purple Dragon** (`EHY`)
+  - Object: `target` / `selector`
+  - Ability: `triggered` `12t-2` — I WIN, I WIN!
+  - Status: `unsupported_targeting`
+  - Raw: `{"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}`
+- **Madam Mim - Purple Dragon** (`1uc`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `12t-2` — I WIN, I WIN!
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 1, "effect": {"optionLabels": ["banish her", "return another 2 chosen characters of yours to your hand"], "options": [{"target": "SELF", "type": "banish"}, {"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}], "type": "or"}, "id": "12t-2", "name": "I WIN, I WIN!", "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Madam Mim - Purple Dragon** (`1uc`)
+  - Object: `effect` / `or`
+  - Ability: `triggered` `12t-2` — I WIN, I WIN!
+  - Status: `unsupported_targeting`
+  - Raw: `{"optionLabels": ["banish her", "return another 2 chosen characters of yours to your hand"], "options": [{"target": "SELF", "type": "banish"}, {"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}], "type": "or"}`
+- **Madam Mim - Purple Dragon** (`1uc`)
+  - Object: `effect` / `return-to-hand`
+  - Ability: `triggered` `12t-2` — I WIN, I WIN!
+  - Status: `unsupported_targeting`
+  - Raw: `{"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}`
+- **Madam Mim - Purple Dragon** (`1uc`)
+  - Object: `target` / `selector`
+  - Ability: `triggered` `12t-2` — I WIN, I WIN!
+  - Status: `unsupported_targeting`
+  - Raw: `{"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}`
+- **Ratigan - Very Large Mouse** (`jfe`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `1wj-1` — THIS IS MY KINGDOM
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"target": "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS", "type": "exert"}, {"target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest", "target": {"ref": "previous-target"}, "type": "restriction"}], "type": "sequence"}, "id": "1wj-1", "name": "THIS IS MY KINGDOM", "text": "THIS IS MY KINGDOM When you play this character, exert chosen opposing character with 3 {S} or less. Choose one of your characters and ready them. They can't quest for the rest of this turn.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type...`
+- **Ratigan - Very Large Mouse** (`jfe`)
+  - Object: `effect` / `sequence`
+  - Ability: `triggered` `1wj-1` — THIS IS MY KINGDOM
+  - Status: `unsupported_targeting`
+  - Raw: `{"steps": [{"target": "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS", "type": "exert"}, {"target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest", "target": {"ref": "previous-target"}, "type": "restriction"}], "type": "sequence"}`
+- **Ratigan - Very Large Mouse** (`jfe`)
+  - Object: `effect` / `exert`
+  - Ability: `triggered` `1wj-1` — THIS IS MY KINGDOM
+  - Status: `unsupported_targeting`
+  - Raw: `{"target": "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS", "type": "exert"}`
+- **Ratigan - Very Large Mouse** (`jfe`)
+  - Object: `target` / `alias`
+  - Ability: `triggered` `1wj-1` — THIS IS MY KINGDOM
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS"}`
+- **Raya - Headstrong** (`8Xm`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "then": {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}, "type": "conditional"}], "type": "sequence"}, "id": "1jb-1", "name": "NOTE TO SELF, DON'T DIE", "text": "NOTE TO SELF, DON'T DIE During your turn, whenever this character banishes another character in a challenge, you may ready this character. She can't quest for the rest of this turn.", "trigger": {"event": "banish-in-challenge", ...`
+- **Raya - Headstrong** (`8Xm`)
+  - Object: `effect` / `sequence`
+  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
+  - Status: `unsupported_targeting`
+  - Raw: `{"steps": [{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "then": {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}, "type": "conditional"}], "type": "sequence"}`
+- **Raya - Headstrong** (`8Xm`)
+  - Object: `effect` / `optional`
+  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
+  - Status: `unsupported_targeting`
+  - Raw: `{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, "type": "optional"}`
+- **Raya - Headstrong** (`8Xm`)
+  - Object: `effect` / `ready`
+  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
+  - Status: `unsupported_targeting`
+  - Raw: `{"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}`
+- **Raya - Headstrong** (`8Xm`)
+  - Object: `target` / `selector`
+  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
+  - Status: `unsupported_targeting`
+  - Raw: `{"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}`
+- **Tiana - Celebrating Princess** (`ivr`)
+  - Object: `ability` / `static`
+  - Ability: `static` `14e-2` — WHAT YOU GIVE IS WHAT YOU GET
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 1, "condition": {"conditions": [{"type": "exerted"}, {"comparison": "equal", "controller": "you", "type": "resource-count", "value": 0, "what": "cards-in-hand"}], "type": "and"}, "effect": {"restriction": "cant-play-actions", "target": "OPPONENTS", "type": "restriction"}, "id": "14e-2", "name": "WHAT YOU GIVE IS WHAT YOU GET", "text": "WHAT YOU GIVE IS WHAT YOU GET While this character is exerted and you have no cards in your hand, opponents can't play actions.", "type": "static"}`
+- **Tiana - Celebrating Princess** (`ivr`)
+  - Object: `effect` / `restriction`
+  - Ability: `static` `14e-2` — WHAT YOU GIVE IS WHAT YOU GET
+  - Status: `unsupported_targeting`
+  - Raw: `{"restriction": "cant-play-actions", "target": "OPPONENTS", "type": "restriction"}`
+- **Tiana - Celebrating Princess** (`ivr`)
+  - Object: `target` / `alias`
+  - Ability: `static` `14e-2` — WHAT YOU GIVE IS WHAT YOU GET
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "OPPONENTS"}`
+- **Last Stand** (`Eg2`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"target": {"cardTypes": ["character"], "count": 1, "filter": [{"type": "challenged-this-turn"}], "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "action"}`
+- **Last Stand** (`Eg2`)
+  - Object: `effect` / `banish`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"target": {"cardTypes": ["character"], "count": 1, "filter": [{"type": "challenged-this-turn"}], "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "banish"}`
+- **Last Stand** (`Eg2`)
+  - Object: `target` / `selector`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"cardTypes": ["character"], "count": 1, "filter": [{"type": "challenged-this-turn"}], "owner": "any", "selector": "chosen", "zones": ["play"]}`
+- **Gumbo Pot** (`MEA`)
+  - Object: `ability` / `activated`
+  - Ability: `activated` `1ee-1` — THE BEST I'VE EVER TASTED
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "cost": {"exert": true}, "effect": {"amount": 1, "target": "UP_TO_2_CHOSEN_CHARACTERS", "type": "remove-damage"}, "id": "1ee-1", "name": "THE BEST I'VE EVER TASTED", "text": "THE BEST I'VE EVER TASTED {E} — Remove 1 damage each from up to 2 chosen characters.", "type": "activated"}`
+- **Gumbo Pot** (`MEA`)
+  - Object: `effect` / `remove-damage`
+  - Ability: `activated` `1ee-1` — THE BEST I'VE EVER TASTED
+  - Status: `unsupported_targeting`
+  - Raw: `{"amount": 1, "target": "UP_TO_2_CHOSEN_CHARACTERS", "type": "remove-damage"}`
 
 ### `unsupported_trigger`
 

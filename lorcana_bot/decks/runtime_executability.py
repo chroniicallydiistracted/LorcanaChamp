@@ -509,6 +509,20 @@ def _classify_effect(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]
 
     if isinstance(effect, SourceEffectDef):
         requirements = analyze_resolution_requirements(effect)
+        if (
+            effect.kind == "scry"
+            and (requirements.requires_destination or requirements.requires_ordering)
+            and _source_scry_requirement_supported(effect, "destination")
+        ):
+            statuses.append("executable")
+            required.append("pending:scry_destinations")
+            verified.extend((
+                "legal_actions:RESOLVE_PENDING_EFFECT",
+                "apply_action:RESOLVE_PENDING_EFFECT",
+                "pending:scry_destinations",
+                "automation:RESOLVE_EFFECT",
+            ))
+            evidence.append("scry_requirement_supported:destination")
         for requirement in requirements.unsupported_requirements:
             if _source_scry_requirement_supported(effect, requirement):
                 statuses.append("executable")

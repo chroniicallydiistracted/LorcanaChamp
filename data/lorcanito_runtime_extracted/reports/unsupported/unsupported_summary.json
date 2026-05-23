@@ -10,32 +10,32 @@
   },
   "cards_loaded": 2754,
   "detailed_reason_counts": {
-    "mapped_not_executable": 510,
+    "mapped_not_executable": 512,
     "unsupported_choice": 148,
-    "unsupported_condition": 254,
+    "unsupported_condition": 262,
     "unsupported_cost": 52,
-    "unsupported_engine_mechanic": 240,
-    "unsupported_targeting": 668,
+    "unsupported_engine_mechanic": 242,
+    "unsupported_targeting": 496,
     "unsupported_trigger": 1
   },
-  "detailed_record_count": 1873,
+  "detailed_record_count": 1713,
   "errors": [],
   "execution_status_counts": {
-    "executable": 10707,
-    "mapped_not_executable": 510,
+    "executable": 10867,
+    "mapped_not_executable": 512,
     "unsupported_choice": 148,
-    "unsupported_condition": 254,
+    "unsupported_condition": 262,
     "unsupported_cost": 52,
-    "unsupported_engine_mechanic": 240,
-    "unsupported_targeting": 668,
+    "unsupported_engine_mechanic": 242,
+    "unsupported_targeting": 496,
     "unsupported_trigger": 1
   },
   "object_type_counts": {
-    "ability": 902,
+    "ability": 862,
     "cost": 28,
-    "effect": 685,
+    "effect": 615,
     "effect_condition": 66,
-    "target": 191,
+    "target": 141,
     "trigger": 1
   },
   "outputs": {
@@ -46,7 +46,6 @@
   },
   "source_json": "data/lorcanito_runtime_extracted/cards.normalized.json",
   "top_card_counts": {
-    "Alice - Courageous Keyholder": 7,
     "Alice - Growing Girl": 6,
     "All Is Found": 6,
     "And Then Along Came Zeus": 6,
@@ -55,20 +54,19 @@
     "Arthur - Wizard's Apprentice": 12,
     "Bad-Anon - Villain Support Center": 6,
     "Basil - Disguised Detective": 6,
-    "Baymax - Personal Healthcare Companion": 8,
     "Be King Undisputed": 6,
+    "Belle - Strange but Special": 4,
+    "Bibbidi Bobbidi Boo": 4,
     "Blast from Your Past": 5,
-    "Bounce": 6,
     "Bruno Madrigal - Undetected Uncle": 6,
-    "Camilo Madrigal - Family Copycat": 5,
-    "Candy Drift": 5,
     "Captain Amelia - Commander of the Legacy": 8,
     "Captain Hook - Master Swordsman": 12,
     "Captain Hook - The Pirate King": 12,
     "Casa Madrigal - Courtyard": 8,
     "Cinderella - Dream Come True": 10,
     "Daisy Duck - Trendy Traveler": 10,
-    "Dinner Bell": 8,
+    "Darkwing Tower - Icy Headquarters": 5,
+    "Donald Duck - Perfect Gentleman": 4,
     "Donald Duck - Ruby Champion": 6,
     "Edna Mode - Fashion Designer": 10,
     "Eeyore - In the Way": 6,
@@ -92,7 +90,7 @@
     "Keep the Ancient Ways": 6,
     "King Candy - Sweet Abomination": 10,
     "Kuzco - Impulsive Llama": 6,
-    "Last-Ditch Effort": 8,
+    "Lady Tremaine - Imperious Queen": 4,
     "Let's Get Dangerous": 6,
     "Luisa Madrigal - Confident Climber": 8,
     "Lyle Tiberius Rourke - Crystallized Commander": 6,
@@ -109,31 +107,33 @@
     "Philoctetes - No-Nonsense Instructor": 6,
     "Pluto - Determined Defender": 6,
     "Pride Lands - Jungle Oasis": 7,
-    "Prince Phillip - Vanquisher of Foes": 6,
     "Prince Phillip - Warden of the Woods": 6,
     "RLS Legacy - Solar Galleon": 6,
     "Rama - Vigilant Father": 7,
+    "Ratigan - Very Large Mouse": 4,
     "Raya - Headstrong": 14,
     "Raya - Kumandran Rider": 10,
-    "Retro Evolution Device": 6,
-    "Robin's Bow": 7,
+    "Roller Bob - Sid's Toy": 5,
     "Royal Tantrum": 8,
+    "Safety Rope": 5,
     "Scar - Finally King": 12,
-    "Scar - Heartless Hunter": 6,
     "Scrooge McDuck - Reformed Ebenezer": 8,
     "Shere Khan - Fierce and Furious": 6,
+    "Sid Phillips - Toy Surgeon": 5,
     "Sign the Scroll": 5,
     "Sleepy Hollow - The Bridge": 7,
+    "Snow White - Merry as the Morning": 5,
     "Stegmutt - Clumsy Dinosaur": 8,
     "Stitch - Rock Star": 10,
     "Sugar Rush Speedway - Finish Line": 10,
     "Sugar Rush Speedway - Starting Line": 6,
-    "Teeth and Ambitions": 6,
+    "Syndrome's Remote": 5,
     "The Black Cauldron": 8,
     "The Family Scattered": 10,
     "The Glass Slipper": 6,
     "The Great Illuminary - Radiant Ballroom": 6,
     "The Island of Nomanisan - Syndrome's Headquarters": 6,
+    "The Queen - Devious Disguise": 5,
     "The Queen - Jealous Beauty": 6,
     "The Return of Hercules": 6,
     "The Sorcerer's Hat": 6,
@@ -148,12 +148,12 @@
     "Wrong Lever!": 10
   },
   "top_object_kind_counts": {
-    "ability:action": 66,
-    "ability:activated": 55,
+    "ability:action": 58,
+    "ability:activated": 44,
     "ability:keyword": 6,
     "ability:replacement": 6,
     "ability:static": 580,
-    "ability:triggered": 189,
+    "ability:triggered": 168,
     "cost:banishCharacter": 4,
     "cost:banishCharacterTarget": 1,
     "cost:banishItem": 6,
@@ -161,47 +161,46 @@
     "cost:exertCharacters": 6,
     "cost:exertCharactersClassification": 2,
     "cost:exertItems": 1,
-    "effect:banish": 29,
-    "effect:choice": 11,
+    "effect:banish": 23,
+    "effect:choice": 9,
     "effect:conditional": 66,
     "effect:cost-increase": 1,
     "effect:create-triggered-ability": 6,
     "effect:damage-source-stat-override": 1,
-    "effect:deal-damage": 17,
-    "effect:discard": 7,
+    "effect:deal-damage": 9,
+    "effect:discard": 4,
     "effect:enable-play-from-under": 2,
     "effect:enters-with-damage": 7,
-    "effect:exert": 8,
-    "effect:for-each": 1,
+    "effect:exert": 7,
     "effect:for-each-opponent": 10,
-    "effect:gain-keyword": 35,
+    "effect:gain-keyword": 29,
     "effect:grant-abilities-while-here": 2,
     "effect:grant-hand-inkability": 1,
     "effect:lose-keyword": 3,
     "effect:mill": 9,
-    "effect:modify-stat": 27,
+    "effect:modify-stat": 20,
     "effect:move-cards-from-under": 6,
     "effect:move-cost-reduction": 9,
     "effect:move-to-location": 16,
     "effect:name-a-card": 6,
-    "effect:optional": 107,
+    "effect:optional": 100,
     "effect:or": 8,
     "effect:pay-cost": 3,
     "effect:property-modification": 9,
     "effect:put-into-inkwell": 6,
-    "effect:put-on-bottom": 14,
+    "effect:put-on-bottom": 12,
     "effect:put-on-top": 2,
     "effect:put-under": 18,
-    "effect:ready": 15,
-    "effect:remove-damage": 15,
-    "effect:restriction": 17,
-    "effect:return-to-hand": 11,
+    "effect:ready": 12,
+    "effect:remove-damage": 11,
+    "effect:restriction": 14,
+    "effect:return-to-hand": 8,
     "effect:reveal-until-match": 1,
     "effect:scry": 3,
     "effect:select-target": 1,
     "effect:self-play-condition": 3,
-    "effect:sequence": 165,
-    "effect:shuffle-into-deck": 3,
+    "effect:sequence": 152,
+    "effect:shuffle-into-deck": 2,
     "effect:stat-floor": 1,
     "effect:suppress-ability": 1,
     "effect:win-condition-modification": 2,
@@ -210,43 +209,43 @@
     "effect_condition:if-you-do": 59,
     "effect_condition:returned-card-is-named": 1,
     "effect_condition:returned-card-is-princess": 2,
-    "target:alias": 83,
+    "target:alias": 49,
     "target:object": 8,
-    "target:selector": 100,
+    "target:selector": 84,
     "trigger:boost": 1
   },
   "top_unsupported_patterns": [
     {
-      "count": 504,
+      "count": 506,
       "pattern": "ability.type:static:mapped_not_executable"
-    },
-    {
-      "count": 85,
-      "pattern": "ability.type:triggered:unsupported_targeting"
-    },
-    {
-      "count": 66,
-      "pattern": "effect.type:sequence:unsupported_targeting"
     },
     {
       "count": 63,
       "pattern": "effect.type:conditional:unsupported_condition"
     },
     {
-      "count": 51,
+      "count": 63,
+      "pattern": "ability.type:triggered:unsupported_targeting"
+    },
+    {
+      "count": 55,
       "pattern": "effect.type:sequence:unsupported_condition"
     },
     {
-      "count": 46,
+      "count": 48,
+      "pattern": "effect.type:sequence:unsupported_targeting"
+    },
+    {
+      "count": 39,
+      "pattern": "ability.type:triggered:unsupported_condition"
+    },
+    {
+      "count": 39,
       "pattern": "effect.type:optional:unsupported_targeting"
     },
     {
-      "count": 40,
-      "pattern": "ability.type:static:unsupported_targeting"
-    },
-    {
       "count": 38,
-      "pattern": "ability.type:triggered:unsupported_condition"
+      "pattern": "ability.type:static:unsupported_targeting"
     },
     {
       "count": 36,
@@ -257,53 +256,53 @@
       "pattern": "ability.type:triggered:unsupported_engine_mechanic"
     },
     {
-      "count": 35,
-      "pattern": "effect.type:gain-keyword:unsupported_targeting"
-    },
-    {
       "count": 31,
       "pattern": "ability.type:triggered:unsupported_choice"
     },
     {
-      "count": 27,
-      "pattern": "ability.type:action:unsupported_targeting"
-    },
-    {
-      "count": 27,
-      "pattern": "effect.type:modify-stat:unsupported_targeting"
+      "count": 29,
+      "pattern": "effect.type:gain-keyword:unsupported_targeting"
     },
     {
       "count": 26,
       "pattern": "effect.type:sequence:unsupported_choice"
     },
     {
-      "count": 26,
-      "pattern": "effect.type:banish:unsupported_targeting"
-    },
-    {
       "count": 25,
       "pattern": "effect.type:optional:unsupported_condition"
+    },
+    {
+      "count": 23,
+      "pattern": "effect.type:sequence:unsupported_engine_mechanic"
     },
     {
       "count": 22,
       "pattern": "effect.type:optional:unsupported_engine_mechanic"
     },
     {
-      "count": 22,
-      "pattern": "effect.type:sequence:unsupported_engine_mechanic"
+      "count": 20,
+      "pattern": "effect.type:banish:unsupported_targeting"
+    },
+    {
+      "count": 20,
+      "pattern": "effect.type:modify-stat:unsupported_targeting"
     },
     {
       "count": 19,
       "pattern": "ability.type:action:unsupported_choice"
+    },
+    {
+      "count": 18,
+      "pattern": "ability.type:activated:unsupported_cost"
     }
   ],
   "unsupported_by_reason": {
-    "mapped_not_executable": 510,
+    "mapped_not_executable": 512,
     "unsupported_choice": 148,
-    "unsupported_condition": 188,
+    "unsupported_condition": 196,
     "unsupported_cost": 24,
-    "unsupported_engine_mechanic": 240,
-    "unsupported_targeting": 477
+    "unsupported_engine_mechanic": 242,
+    "unsupported_targeting": 355
   },
   "warnings": []
 }

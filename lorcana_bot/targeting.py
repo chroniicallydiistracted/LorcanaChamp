@@ -98,6 +98,17 @@ SELECTOR_ALIASES: dict[str, str] = {
     "chosen_location": "chosen_location",
     "chosen_opposing_character": "chosen_opposing_character",
     "chosen_damaged_character": "chosen_damaged_character",
+    "chosen_opposing_damaged_character": "chosen_opposing_damaged_character",
+    "chosen_damaged_opposing_character": "chosen_opposing_damaged_character",
+    "chosen_character_in_discard": "chosen_character_in_discard",
+    "chosen_card_in_discard": "chosen_card_from_discard",
+    "chosen_card_from_discard": "chosen_card_from_discard",
+    "chosen_card_from_hand": "chosen_card_from_hand",
+    "your_chosen_character": "your_chosen_character",
+    "your_chosen_damaged_character": "your_chosen_damaged_character",
+    "your_chosen_item": "your_chosen_item",
+    "another_chosen_character": "another_chosen_character",
+    "another_chosen_character_of_yours": "another_chosen_character_of_yours",
     "all": "all",
 
     # Context-based targets
@@ -120,6 +131,8 @@ SELECTOR_ALIASES: dict[str, str] = {
     "your_other_characters": "your_other_characters",
     "opposing_characters": "opposing_characters",
     "all_characters": "all_characters",
+    "seven_dwarfs_characters": "seven_dwarfs_characters",
+    "your_other_seven_dwarfs_characters": "your_other_seven_dwarfs_characters",
 
     # Character set with conditions
     "damaged_characters": "damaged_characters",
@@ -132,6 +145,7 @@ SELECTOR_ALIASES: dict[str, str] = {
     "actor": "you",
     "opponent": "opponent",
     "each_player": "each_player",
+    "challenging_player": "challenging_player",
 }
 
 _PLURAL_SELECTOR_MAX = None
@@ -156,6 +170,7 @@ _PLAYER_SELECTORS = frozenset({
     "you",
     "opponent",
     "each_player",
+    "challenging_player",
 })
 
 
@@ -306,6 +321,23 @@ def resolve_candidate_player_ids(
 
     if descriptor.selector == "each_player":
         return (0, 1)
+
+    if descriptor.selector == "challenging_player":
+        player_id = _first_int_payload_value(
+            context.event_payload,
+            ("player_id", "playerId", "challenging_player", "challengingPlayer"),
+        )
+        if player_id in (0, 1):
+            return (player_id,)
+
+        attacker_id = _first_int_payload_value(
+            context.event_payload,
+            ("attacker_id", "attackerId", "challenger_id", "challengerId"),
+        )
+        if attacker_id is not None and attacker_id in state.cards:
+            return (state.cards[attacker_id].controller,)
+
+        return ()
 
     return ()
 
@@ -510,10 +542,11 @@ def is_card_target_candidate(
     if descriptor.zones and inst.zone not in descriptor.zones:
         return False
 
-    # Check card type restriction (requires engine for card def lookup)
+    # Check card type restriction (requires engine for card def lookup).
+    # Lorcanito uses cardTypes: ["card"] as a wildcard for any card type.
     if descriptor.card_types and engine is not None:
         card_def = engine.card_def(state, card_id)
-        if card_def.card_type not in descriptor.card_types:
+        if "card" not in descriptor.card_types and card_def.card_type not in descriptor.card_types:
             return False
 
     # Check exclude_self
@@ -818,6 +851,88 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor | None:
             filters=({"type": "damaged", "min": 1},),
         )
 
+    if selector == "chosen_opposing_damaged_character":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            controller="opponent",
+            filters=({"type": "status", "status": "damaged"},),
+        )
+
+    if selector == "your_chosen_character":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            owner="you",
+        )
+
+    if selector == "your_chosen_damaged_character":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            owner="you",
+            filters=({"type": "status", "status": "damaged"},),
+        )
+
+    if selector == "another_chosen_character":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            owner="any",
+            exclude_self=True,
+        )
+
+    if selector == "another_chosen_character_of_yours":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            owner="you",
+            exclude_self=True,
+        )
+
+    if selector == "chosen_character_in_discard":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_DISCARD,),
+            card_types=(CARD_CHARACTER,),
+            owner="any",
+        )
+
+    if selector == "chosen_card_from_discard":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_DISCARD,),
+            owner="any",
+        )
+
+    if selector == "chosen_card_from_hand":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_HAND,),
+            owner="any",
+        )
+
     if selector == "chosen_item":
         return TargetDescriptor(
             selector=selector,
@@ -826,6 +941,16 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor | None:
             zones=(ZONE_PLAY,),
             card_types=(CARD_ITEM,),
             owner="any",
+        )
+
+    if selector == "your_chosen_item":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_ITEM,),
+            owner="you",
         )
 
     if selector == "chosen_location":
@@ -972,6 +1097,29 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor | None:
             owner="any",
         )
 
+    if selector == "seven_dwarfs_characters":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=0,
+            max_count=_PLURAL_SELECTOR_MAX,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            owner="you",
+            filters=({"type": "has-classification", "classification": "Seven Dwarfs"},),
+        )
+
+    if selector == "your_other_seven_dwarfs_characters":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=0,
+            max_count=_PLURAL_SELECTOR_MAX,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            owner="you",
+            exclude_self=True,
+            filters=({"type": "has-classification", "classification": "Seven Dwarfs"},),
+        )
+
     if selector == "damaged_characters":
         return TargetDescriptor(
             selector=selector,
@@ -1024,6 +1172,14 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor | None:
             selector=selector,
             min_count=2,
             max_count=2,
+            allow_players=True,
+        )
+
+    if selector == "challenging_player":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
             allow_players=True,
         )
 
@@ -1102,9 +1258,25 @@ def _apply_filter(
     # --- style 1: explicit "type" key (existing behavior) ---
     filter_type = filter_def.get("type")
 
+    if filter_type == "status":
+        status = str(filter_def.get("status") or "").replace("_", "-").lower()
+        if status == "damaged":
+            min_damage = filter_def.get("min", 1)
+            return inst.damage >= min_damage
+        if status == "undamaged":
+            return inst.damage <= 0
+        if status == "exerted":
+            return inst.exerted
+        if status == "ready":
+            return not inst.exerted
+        return False
+
     if filter_type == "damaged":
         min_damage = filter_def.get("min", 1)
         return inst.damage >= min_damage
+
+    if filter_type == "undamaged":
+        return inst.damage <= 0
 
     if filter_type == "exerted":
         return inst.exerted
@@ -1277,10 +1449,16 @@ def requires_explicit_target_selection(selector: str) -> bool:
     """Return True when *selector* requires a player target choice.
 
     Lorcanito represents these prompts as selector="chosen".  The Python
-    migration still carries a small set of legacy singleton aliases; keep that
-    mapping centralized so engine and protection behavior do not drift.
+    migration still carries enum-expanded aliases such as YOUR_CHOSEN_CHARACTER
+    and ANOTHER_CHOSEN_CHARACTER_OF_YOURS; keep that mapping centralized so
+    engine and protection behavior do not drift.
     """
-    return selector.startswith("chosen") or selector == "opposing_character"
+    return (
+        selector.startswith("chosen")
+        or selector.startswith("your_chosen")
+        or selector.startswith("another_chosen")
+        or selector == "opposing_character"
+    )
 
 
 @dataclass(frozen=True, slots=True)

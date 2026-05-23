@@ -165,15 +165,25 @@ TARGET_MAP = {
     "ALL_PLAYERS": "each_player",
     "EACH_PLAYER": "each_player",
     "CHOSEN_CHARACTER": "chosen_character",
+    "CHOSEN_CHARACTER_OF_YOURS": "your_chosen_character",
+    "YOUR_CHOSEN_CHARACTER": "your_chosen_character",
+    "YOUR_CHOSEN_DAMAGED_CHARACTER": "your_chosen_damaged_character",
+    "ANOTHER_CHOSEN_CHARACTER": "another_chosen_character",
+    "ANOTHER_CHOSEN_CHARACTER_OF_YOURS": "another_chosen_character_of_yours",
     "CHOSEN_EXERTED_CHARACTER": "chosen_exerted_character",
     "CHOSEN_OPPOSING_CHARACTER": "opposing_character",
-    "CHOSEN_DAMAGED_CHARACTER": "chosen_character",
+    "CHOSEN_DAMAGED_CHARACTER": "chosen_damaged_character",
+    "CHOSEN_DAMAGED_OPPOSING_CHARACTER": "chosen_opposing_damaged_character",
+    "CHOSEN_OPPOSING_DAMAGED_CHARACTER": "chosen_opposing_damaged_character",
     "CHOSEN_ITEM": "chosen_item",
     "CHOSEN_LOCATION": "chosen_location",
     "CHOSEN_PLAYER": "chosen_player",
+    "CHALLENGING_PLAYER": "challenging_player",
     "CHOSEN_CARD": "chosen_card",
     "CHOSEN_CARD_FROM_HAND": "chosen_card_from_hand",
     "CHOSEN_CARD_FROM_DISCARD": "chosen_card_from_discard",
+    "CHOSEN_CARD_IN_DISCARD": "chosen_card_from_discard",
+    "CHOSEN_CHARACTER_IN_DISCARD": "chosen_character_in_discard",
     "CHOSEN_CARD_FROM_DECK": "chosen_card_from_deck",
     "YOUR_CHARACTERS": "your_characters",
     "YOUR_OTHER_CHARACTERS": "your_other_characters",
@@ -196,6 +206,9 @@ TARGET_MAP = {
     "YOUR_CHARACTERS_OR_LOCATIONS": "your_characters_or_locations",
     "YOUR_CHARACTERS_OR_LOCATIONS_WITH_CARD_UNDER": "your_characters_or_locations_with_card_under",
     "YOUR_OTHER_EVASIVE_CHARACTERS": "your_other_evasive_characters",
+    "SEVEN_DWARFS_CHARACTERS": "seven_dwarfs_characters",
+    "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS": "your_other_seven_dwarfs_characters",
+    "YOUR_CHOSEN_ITEM": "your_chosen_item",
 }
 
 EXECUTABLE_TARGET_ALIASES = frozenset(TARGET_MAP)
@@ -225,15 +238,25 @@ SUPPORTED_TARGET_ALIASES = frozenset({
     "DAMAGED_CHARACTERS",
     "OPPOSING_DAMAGED_CHARACTERS",
     "CHOSEN_CHARACTER",
+    "CHOSEN_CHARACTER_OF_YOURS",
+    "YOUR_CHOSEN_CHARACTER",
+    "YOUR_CHOSEN_DAMAGED_CHARACTER",
+    "ANOTHER_CHOSEN_CHARACTER",
+    "ANOTHER_CHOSEN_CHARACTER_OF_YOURS",
     "CHOSEN_EXERTED_CHARACTER",
     "CHOSEN_OPPOSING_CHARACTER",
     "CHOSEN_DAMAGED_CHARACTER",
+    "CHOSEN_DAMAGED_OPPOSING_CHARACTER",
+    "CHOSEN_OPPOSING_DAMAGED_CHARACTER",
     "CHOSEN_ITEM",
     "CHOSEN_LOCATION",
     "CHOSEN_PLAYER",
+    "CHALLENGING_PLAYER",
     "CHOSEN_CARD",
     "CHOSEN_CARD_FROM_HAND",
     "CHOSEN_CARD_FROM_DISCARD",
+    "CHOSEN_CARD_IN_DISCARD",
+    "CHOSEN_CHARACTER_IN_DISCARD",
     "CHOSEN_CARD_FROM_DECK",
     "CHARACTERS_HERE",
     "CHARACTER_HERE",
@@ -242,6 +265,9 @@ SUPPORTED_TARGET_ALIASES = frozenset({
     "YOUR_CHARACTERS_OR_LOCATIONS",
     "YOUR_CHARACTERS_OR_LOCATIONS_WITH_CARD_UNDER",
     "YOUR_OTHER_EVASIVE_CHARACTERS",
+    "SEVEN_DWARFS_CHARACTERS",
+    "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS",
+    "YOUR_CHOSEN_ITEM",
 })
 
 SUPPORTED_TARGET_REFS = frozenset({
@@ -1380,7 +1406,7 @@ def _source_target_shape_supported(raw: Any) -> bool:
             return False
 
         card_types = tuple(raw.get("cardTypes", (raw.get("cardType"),) if raw.get("cardType") else ()))
-        if any(card_type not in {"character", "item", "location", "action"} for card_type in card_types):
+        if any(card_type not in {"card", "character", "item", "location", "action"} for card_type in card_types):
             return False
 
         return _target_filters_supported(raw)
@@ -1399,7 +1425,7 @@ def _source_target_shape_supported(raw: Any) -> bool:
         return False
 
     card_types = tuple(raw.get("cardTypes", (raw.get("cardType"),) if raw.get("cardType") else ()))
-    if any(card_type not in {"character", "item", "location", "action"} for card_type in card_types):
+    if any(card_type not in {"card", "character", "item", "location", "action"} for card_type in card_types):
         return False
 
     count = raw.get("count", 1)
@@ -1419,7 +1445,9 @@ def _target_filters_supported(raw: dict[str, Any]) -> bool:
 
     supported = {
         None,
+        "status",
         "damaged",
+        "undamaged",
         "exerted",
         "ready",
         "strength-comparison",

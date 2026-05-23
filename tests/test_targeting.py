@@ -30,6 +30,7 @@ from lorcana_bot.targeting import (
     normalize_slotted_target_input,
     normalize_target_descriptor,
     normalize_target_descriptors,
+    requires_explicit_target_selection,
     resolve_candidate_card_ids,
     resolve_candidate_player_ids,
     resolve_candidate_targets,
@@ -55,6 +56,28 @@ from tests.conftest import find_card, put_card
             "chosen_damaged_character",
             {"card_types": (CARD_CHARACTER,), "filters": ({"type": "damaged", "min": 1},)},
         ),
+        (
+            "chosen_opposing_damaged_character",
+            {
+                "card_types": (CARD_CHARACTER,),
+                "controller": "opponent",
+                "filters": ({"type": "status", "status": "damaged"},),
+            },
+        ),
+        ("your_chosen_character", {"card_types": (CARD_CHARACTER,), "owner": "you"}),
+        (
+            "your_chosen_damaged_character",
+            {
+                "card_types": (CARD_CHARACTER,),
+                "owner": "you",
+                "filters": ({"type": "status", "status": "damaged"},),
+            },
+        ),
+        (
+            "another_chosen_character_of_yours",
+            {"card_types": (CARD_CHARACTER,), "owner": "you", "exclude_self": True},
+        ),
+        ("chosen_card_from_discard", {"zones": (ZONE_DISCARD,), "owner": "any"}),
         ("opposing_character", {"card_types": (CARD_CHARACTER,), "controller": "opponent"}),
         ("self", {"zones": (ZONE_PLAY,)}),
         ("event_source", {"zones": ()}),
@@ -64,6 +87,16 @@ from tests.conftest import find_card, put_card
         (
             "your_other_characters",
             {"card_types": (CARD_CHARACTER,), "controller": "you", "exclude_self": True, "max_count": None},
+        ),
+        (
+            "your_other_seven_dwarfs_characters",
+            {
+                "card_types": (CARD_CHARACTER,),
+                "owner": "you",
+                "exclude_self": True,
+                "filters": ({"type": "has-classification", "classification": "Seven Dwarfs"},),
+                "max_count": None,
+            },
         ),
         ("opposing_characters", {"card_types": (CARD_CHARACTER,), "controller": "opponent", "max_count": None}),
         ("all_characters", {"card_types": (CARD_CHARACTER,), "max_count": None}),
@@ -84,6 +117,7 @@ from tests.conftest import find_card, put_card
         ("you", {"allow_players": True}),
         ("opponent", {"allow_players": True}),
         ("each_player", {"allow_players": True, "min_count": 2, "max_count": 2}),
+        ("challenging_player", {"allow_players": True}),
     ],
 )
 def test_normalize_target_descriptor_supports_required_aliases(alias, expected):
@@ -508,6 +542,46 @@ class TestResolveCandidateCardIds:
             normalize_target_descriptor({"ref": "selected-all"}),
             context,
         ) == (previous, attacker)
+
+    def test_challenging_player_resolves_from_challenge_payload(self, engine, state):
+        attacker = put_card(state, engine, 0, "Ruby Charger", ZONE_PLAY)
+        desc = normalize_target_descriptor("challenging_player")
+        ctx = TargetQueryContext(actor=1, event_payload={"attacker_id": attacker})
+
+        assert resolve_candidate_player_ids(state, desc, ctx) == (0,)
+
+    def test_status_filter_matches_lorcanito_status_damaged(self, engine, state):
+        damaged = put_card(state, engine, 0, "Amber Guard", ZONE_PLAY)
+        undamaged = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY, exclude=frozenset({damaged}))
+        state.cards[damaged].damage = 2
+        state.cards[undamaged].damage = 0
+
+        desc = normalize_target_descriptor({
+            "selector": "chosen",
+            "count": 1,
+            "owner": "you",
+            "zones": [ZONE_PLAY],
+            "cardTypes": [CARD_CHARACTER],
+            "filter": [{"type": "status", "status": "damaged"}],
+        })
+        ctx = TargetQueryContext(actor=0)
+
+        assert resolve_candidate_card_ids(state, engine, desc, ctx) == (damaged,)
+
+    def test_card_type_card_is_wildcard_for_discard_card_targets(self, engine, state):
+        character = put_card(state, engine, 0, "Amber Guard", ZONE_DISCARD)
+        item = put_card(state, engine, 0, "Steel Cannon", ZONE_DISCARD, exclude=frozenset({character}))
+
+        desc = normalize_target_descriptor({
+            "selector": "chosen",
+            "count": 1,
+            "owner": "any",
+            "zones": [ZONE_DISCARD],
+            "cardTypes": ["card"],
+        })
+        ctx = TargetQueryContext(actor=0)
+
+        assert set(resolve_candidate_card_ids(state, engine, desc, ctx)) == {character, item}
 
     def test_player_selectors_return_no_card_ids(self, engine, state):
         for selector in ("chosen_player", "you", "opponent", "each_player"):
@@ -1245,6 +1319,11 @@ class TestTargetSelectionAvailability:
 
         assert avail.requires_explicit_target_selection is False
         assert avail.should_auto_reject_for_no_valid_targets is False
+
+    def test_lorcanito_expanded_chosen_aliases_are_explicit_selection(self):
+        assert requires_explicit_target_selection("your_chosen_character")
+        assert requires_explicit_target_selection("your_chosen_damaged_character")
+        assert requires_explicit_target_selection("another_chosen_character_of_yours")
 
     def test_player_only_candidates(self):
         desc = normalize_target_descriptor("chosen_player")
