@@ -1172,8 +1172,13 @@ def _project_effect(effect: SourceEffectDef) -> EffectDef | None:
     if effect.target is not None and target is None:
         return None
 
-    if effect.condition and effect.condition.execution_status != ExecutionStatus.EXECUTABLE:
-        return None
+    projected_condition = None
+    if effect.condition:
+        if effect.condition.execution_status != ExecutionStatus.EXECUTABLE:
+            return None
+        projected_condition = _project_condition(effect.condition)
+        if projected_condition is None:
+            return None
 
     children = tuple(filter(None, (_project_effect(child) for child in effect.effects)))
     branches = tuple(filter(None, (_project_effect(child) for child in effect.branches)))
@@ -1195,7 +1200,7 @@ def _project_effect(effect: SourceEffectDef) -> EffectDef | None:
         value=value,
         keyword=_keyword_constant(str(keyword)) if keyword else None,
         effects=nested,
-        condition=_project_condition(effect.condition),
+        condition=projected_condition,
         optional=effect.kind == "optional" or bool(effect.optional),
         duration=effect.duration if isinstance(effect.duration, str) else None,
         raw=asdict(effect),
