@@ -11,9 +11,9 @@
 | Reason | Count |
 |---|---:|
 | `mapped_not_executable` | 510 |
-| `unsupported_choice` | 394 |
+| `unsupported_choice` | 148 |
 | `unsupported_condition` | 188 |
-| `unsupported_cost` | 23 |
+| `unsupported_cost` | 24 |
 | `unsupported_engine_mechanic` | 240 |
 | `unsupported_targeting` | 477 |
 
@@ -151,83 +151,8 @@ Total detailed records: `510`
 
 ### `unsupported_choice`
 
-Total detailed records: `394`
+Total detailed records: `148`
 
-- **Ariel - Spectacular Singer** (`Z4N`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `1k6-2` — MUSICAL DEBUT
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 1, "effect": {"amount": 4, "destinations": [{"filter": {"type": "song"}, "max": 1, "min": 0, "reveal": true, "zone": "hand"}, {"ordering": "player-choice", "remainder": true, "zone": "deck-bottom"}], "type": "scry"}, "id": "1k6-2", "name": "MUSICAL DEBUT", "text": "MUSICAL DEBUT When you play this character, look at the top 4 cards of your deck. You may reveal a song card and put it into your hand. Put the rest on the bottom of your deck in any order.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Ariel - Spectacular Singer** (`Z4N`)
-  - Object: `effect` / `scry`
-  - Ability: `triggered` `1k6-2` — MUSICAL DEBUT
-  - Status: `unsupported_choice`
-  - Raw: `{"amount": 4, "destinations": [{"filter": {"type": "song"}, "max": 1, "min": 0, "reveal": true, "zone": "hand"}, {"ordering": "player-choice", "remainder": true, "zone": "deck-bottom"}], "type": "scry"}`
-- **Dr. Facilier - Remarkable Gentleman** (`BMe`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `xhk-1` — DREAMS MADE REAL
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"chooser": "CONTROLLER", "effect": {"amount": 2, "destinations": [{"max": 1, "min": 1, "zone": "deck-top"}, {"remainder": true, "zone": "deck-bottom"}], "type": "scry"}, "type": "optional"}, "id": "xhk-1", "name": "DREAMS MADE REAL", "text": "**DREAMS MADE REAL** Whenever you play a song, you may look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.", "trigger": {"event": "play", "on": {"cardType": "song", "controller": "you"}, "timing": "whenever"}, "type": "triggered"}`
-- **Dr. Facilier - Remarkable Gentleman** (`BMe`)
-  - Object: `effect` / `optional`
-  - Ability: `triggered` `xhk-1` — DREAMS MADE REAL
-  - Status: `unsupported_choice`
-  - Raw: `{"chooser": "CONTROLLER", "effect": {"amount": 2, "destinations": [{"max": 1, "min": 1, "zone": "deck-top"}, {"remainder": true, "zone": "deck-bottom"}], "type": "scry"}, "type": "optional"}`
-- **Dr. Facilier - Remarkable Gentleman** (`BMe`)
-  - Object: `effect` / `scry`
-  - Ability: `triggered` `xhk-1` — DREAMS MADE REAL
-  - Status: `unsupported_choice`
-  - Raw: `{"amount": 2, "destinations": [{"max": 1, "min": 1, "zone": "deck-top"}, {"remainder": true, "zone": "deck-bottom"}], "type": "scry"}`
-- **Yzma - Alchemist** (`WU8`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `WU8-1` — YOU'RE EXCUSED
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 1, "destinations": [{"max": 1, "min": 0, "zone": "deck-top"}, {"remainder": true, "zone": "deck-bottom"}], "target": "CONTROLLER", "type": "scry"}, "id": "WU8-1", "name": "YOU'RE EXCUSED", "text": "YOU'RE EXCUSED Whenever this character quests, look at the top card of your deck. Put it on either the top or the bottom of your deck.", "trigger": {"event": "quest", "on": "SELF", "timing": "whenever"}, "type": "triggered"}`
-- **Yzma - Alchemist** (`WU8`)
-  - Object: `effect` / `scry`
-  - Ability: `triggered` `WU8-1` — YOU'RE EXCUSED
-  - Status: `unsupported_choice`
-  - Raw: `{"amount": 1, "destinations": [{"max": 1, "min": 0, "zone": "deck-top"}, {"remainder": true, "zone": "deck-bottom"}], "target": "CONTROLLER", "type": "scry"}`
-- **Be Our Guest** (`nXA`)
-  - Object: `ability` / `action`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 4, "destinations": [{"filter": {"cardType": "character", "type": "card-type"}, "max": 1, "reveal": true, "zone": "hand"}, {"ordering": "player-choice", "remainder": true, "zone": "deck-bottom"}], "target": "CONTROLLER", "type": "scry"}, "type": "action"}`
-- **Be Our Guest** (`nXA`)
-  - Object: `effect` / `scry`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"amount": 4, "destinations": [{"filter": {"cardType": "character", "type": "card-type"}, "max": 1, "reveal": true, "zone": "hand"}, {"ordering": "player-choice", "remainder": true, "zone": "deck-bottom"}], "target": "CONTROLLER", "type": "scry"}`
-- **Develop Your Brain** (`GGr`)
-  - Object: `ability` / `action`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 2, "destinations": [{"max": 1, "min": 1, "zone": "hand"}, {"remainder": true, "zone": "deck-bottom"}], "target": "CONTROLLER", "type": "scry"}, "type": "action"}`
-- **Develop Your Brain** (`GGr`)
-  - Object: `effect` / `scry`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"amount": 2, "destinations": [{"max": 1, "min": 1, "zone": "hand"}, {"remainder": true, "zone": "deck-bottom"}], "target": "CONTROLLER", "type": "scry"}`
-- **Reflection** (`wVZ`)
-  - Object: `ability` / `action`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 3, "destinations": [{"ordering": "player-choice", "remainder": true, "zone": "deck-top"}], "type": "scry"}, "type": "action"}`
-- **Reflection** (`wVZ`)
-  - Object: `effect` / `scry`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"amount": 3, "destinations": [{"ordering": "player-choice", "remainder": true, "zone": "deck-top"}], "type": "scry"}`
-- **Ursula’s Cauldron** (`5L3`)
-  - Object: `ability` / `activated`
-  - Ability: `activated` `1ad-1` — PEER INTO THE DEPTHS
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "cost": {"exert": true}, "effect": {"amount": 2, "destinations": [{"max": 1, "min": 1, "zone": "deck-top"}, {"ordering": "player-choice", "remainder": true, "zone": "deck-bottom"}], "target": "CONTROLLER", "type": "scry"}, "id": "1ad-1", "name": "PEER INTO THE DEPTHS", "text": "PEER INTO THE DEPTHS {E} — Look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.", "type": "activated"}`
-- **Ursula’s Cauldron** (`5L3`)
-  - Object: `effect` / `scry`
-  - Ability: `activated` `1ad-1` — PEER INTO THE DEPTHS
-  - Status: `unsupported_choice`
-  - Raw: `{"amount": 2, "destinations": [{"max": 1, "min": 1, "zone": "deck-top"}, {"ordering": "player-choice", "remainder": true, "zone": "deck-bottom"}], "target": "CONTROLLER", "type": "scry"}`
 - **Donald Duck - Perfect Gentleman** (`fS0`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `wjj-3` — ALLOW ME
@@ -238,16 +163,6 @@ Total detailed records: `394`
   - Ability: `triggered` `wjj-3` — ALLOW ME
   - Status: `unsupported_choice`
   - Raw: `{"chooser": "OPPONENT", "effect": {"amount": 1, "target": "OPPONENT", "type": "draw"}, "type": "optional"}`
-- **Gaston - Intellectual Powerhouse** (`E5w`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `14c-2` — DEVELOPED BRAIN
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 1, "effect": {"amount": 3, "destinations": [{"max": 1, "min": 0, "zone": "hand"}, {"ordering": "player-choice", "remainder": true, "zone": "deck-bottom"}], "type": "scry"}, "id": "14c-2", "name": "DEVELOPED BRAIN", "text": "DEVELOPED BRAIN When you play this character, look at the top 3 cards of your deck. You may put one into your hand. Put the rest on the bottom of your deck in any order.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Gaston - Intellectual Powerhouse** (`E5w`)
-  - Object: `effect` / `scry`
-  - Ability: `triggered` `14c-2` — DEVELOPED BRAIN
-  - Status: `unsupported_choice`
-  - Raw: `{"amount": 3, "destinations": [{"max": 1, "min": 0, "zone": "hand"}, {"ordering": "player-choice", "remainder": true, "zone": "deck-bottom"}], "type": "scry"}`
 - **Lady Tremaine - Imperious Queen** (`h4L`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
@@ -278,6 +193,91 @@ Total detailed records: `394`
   - Ability: `triggered` `oq4-1` — MOUSE CATCHER
   - Status: `unsupported_choice`
   - Raw: `{"chooser": "OPPONENT", "optionLabels": ["discard 2 cards", "discard 1 action card"], "options": [{"amount": 2, "chosen": true, "target": "OPPONENT", "type": "discard"}, {"amount": 1, "chosen": true, "filter": {"cardType": "action"}, "target": "OPPONENT", "type": "discard"}], "type": "choice"}`
+- **Falling Down the Rabbit Hole** (`kL9`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}, {"chosenBy": "opponent", "exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}], "type": "sequence"}, "type": "action"}`
+- **Falling Down the Rabbit Hole** (`kL9`)
+  - Object: `effect` / `sequence`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"steps": [{"exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}, {"chosenBy": "opponent", "exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}], "type": "sequence"}`
+- **Falling Down the Rabbit Hole** (`kL9`)
+  - Object: `effect` / `put-into-inkwell`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"chosenBy": "opponent", "exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}`
+- **The Sorcerer's Hat** (`geu`)
+  - Object: `ability` / `activated`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "cost": {"exert": true, "ink": 1}, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "geu-1", "name": "INCREDIBLE ENERGY", "text": "INCREDIBLE ENERGY {E}, 1 {I} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand. Otherwise, put it on the top of your deck.", "type": "activated"}`
+- **The Sorcerer's Hat** (`geu`)
+  - Object: `effect` / `sequence`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
+- **The Sorcerer's Hat** (`geu`)
+  - Object: `effect` / `name-a-card`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"type": "name-a-card"}`
+- **The Sorcerer's Hat** (`mE1`)
+  - Object: `ability` / `activated`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "cost": {"exert": true, "ink": 1}, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "geu-1", "name": "INCREDIBLE ENERGY", "text": "INCREDIBLE ENERGY {E}, 1 {I} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand. Otherwise, put it on the top of your deck.", "type": "activated"}`
+- **The Sorcerer's Hat** (`mE1`)
+  - Object: `effect` / `sequence`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
+- **The Sorcerer's Hat** (`mE1`)
+  - Object: `effect` / `name-a-card`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"type": "name-a-card"}`
+- **Bruno Madrigal - Undetected Uncle** (`Hx7`)
+  - Object: `ability` / `activated`
+  - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 1, "cost": {"exert": true}, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}, "sideEffects": [{"amount": 3, "target": "CONTROLLER", "type": "gain-lore"}]}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "13f-2", "name": "YOU JUST HAVE TO SEE IT", "text": "YOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.", "type": "activated"}`
+- **Bruno Madrigal - Undetected Uncle** (`Hx7`)
+  - Object: `effect` / `sequence`
+  - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
+  - Status: `unsupported_choice`
+  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}, "sideEffects": [{"amount": 3, "target": "CONTROLLER", "type": "gain-lore"}]}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
+- **Bruno Madrigal - Undetected Uncle** (`Hx7`)
+  - Object: `effect` / `name-a-card`
+  - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
+  - Status: `unsupported_choice`
+  - Raw: `{"type": "name-a-card"}`
+- **Gunther - Interior Designer** (`2U5`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `2U5-1` — SAD-EYED PUPPY
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, "id": "2U5-1", "name": "SAD-EYED PUPPY", "sourceZones": ["play", "discard"], "text": "SAD-EYED PUPPY When this character is challenged and banished, each opponent chooses one of their characters and returns that card to their hand.", "trigger": {"challengeContext": {"role": "defender"}, "event": "challenged-and-banished", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Gunther - Interior Designer** (`2U5`)
+  - Object: `effect` / `return-to-hand`
+  - Ability: `triggered` `2U5-1` — SAD-EYED PUPPY
+  - Status: `unsupported_choice`
+  - Raw: `{"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}`
+- **Be King Undisputed** (`PNr`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "action"}`
+- **Be King Undisputed** (`PNr`)
+  - Object: `effect` / `banish`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}`
+- **Sign the Scroll** (`zkw`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ggh-1` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "OPPONENT", "effect": {"amount": 1, "chosen": true, "target": "OPPONENT", "type": "discard"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "else": {"amount": 2, "target": "CONTROLLER", "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}, "id": "ggh-1", "text": "Each opponent may choose and discard a card. For each opponent who doesn't, you gain 2 lore.", "type": "action"}`
 
 ### `unsupported_condition`
 
@@ -411,7 +411,7 @@ Total detailed records: `254`
 
 ### `unsupported_cost`
 
-Total detailed records: `51`
+Total detailed records: `52`
 
 - **The Queen - Disguised Peddler** (`zX1`)
   - Object: `ability` / `activated`
@@ -443,6 +443,11 @@ Total detailed records: `51`
   - Ability: `keyword` `Shift` — None
   - Status: `unsupported_cost`
   - Raw: `{"discardCardType": "location"}`
+- **Aurora - Lore Guardian** (`k2u`)
+  - Object: `ability` / `activated`
+  - Ability: `activated` `k2u-3` — ROYAL INVENTORY
+  - Status: `unsupported_cost`
+  - Raw: `{"_source_index": 2, "cost": {"exertItems": 1}, "effect": {"amount": 1, "destinations": [{"max": 1, "min": 0, "zone": "deck-top"}, {"remainder": true, "zone": "deck-bottom"}], "type": "scry"}, "id": "k2u-3", "name": "ROYAL INVENTORY", "text": "ROYAL INVENTORY {E} one of your items — Look at the top card of your deck and put it on either the top or the bottom of your deck.", "type": "activated"}`
 - **Aurora - Lore Guardian** (`k2u`)
   - Object: `cost` / `exertItems`
   - Ability: `activated` `k2u-3` — ROYAL INVENTORY
@@ -533,11 +538,6 @@ Total detailed records: `51`
   - Ability: `activated` `cxg-2` — SAPPHIRE LIGHT
   - Status: `unsupported_cost`
   - Raw: `{"banishItem": true}`
-- **Hades - Strong Arm** (`XQk`)
-  - Object: `ability` / `activated`
-  - Ability: `activated` `XQk-1` — WHAT ARE YOU GONNA DO?
-  - Status: `unsupported_cost`
-  - Raw: `{"_source_index": 0, "cost": {"banishCharacter": true, "exert": true, "ink": 3}, "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "id": "XQk-1", "name": "WHAT ARE YOU GONNA DO?", "text": "WHAT ARE YOU GONNA DO? {E}, 3 {I}, Banish one of your characters — Banish chosen character.", "type": "activated"}`
 
 ### `unsupported_engine_mechanic`
 

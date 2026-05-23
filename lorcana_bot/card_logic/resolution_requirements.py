@@ -18,6 +18,33 @@ class ResolutionRequirementReport:
     unsupported_requirements: tuple[str, ...] = ()
 
 
+_ALWAYS_SUPPORTED_REQUIREMENTS = frozenset({
+    "optional",
+    "choice",
+    "target",
+})
+
+
+_SUPPORTED_REQUIREMENTS_BY_EFFECT_KIND = {
+    # Lorcanito scry destination routing is already implemented by:
+    # EffectResolver._resolve_scry()
+    # create_scry_pending_effect()
+    # GameEngine.legal_actions() scry_ordering branch
+    # GameEngine._apply_resolve_pending_effect()
+    # resolve_scry_destinations()
+    "scry": frozenset({
+        "ordering",
+        "destination",
+    }),
+}
+
+
+def _requirement_supported_for_effect(effect: SourceEffectDef, requirement: str) -> bool:
+    if requirement in _ALWAYS_SUPPORTED_REQUIREMENTS:
+        return True
+    return requirement in _SUPPORTED_REQUIREMENTS_BY_EFFECT_KIND.get(effect.kind, frozenset())
+
+
 def analyze_resolution_requirements(effect: SourceEffectDef) -> ResolutionRequirementReport:
     values = {
         "requires_target": _requires_target(effect),
@@ -30,9 +57,10 @@ def analyze_resolution_requirements(effect: SourceEffectDef) -> ResolutionRequir
         "requires_opponent_choice": _has_opponent_choice(effect),
     }
     unsupported = tuple(
-        key.removeprefix("requires_")
+        requirement
         for key, required in values.items()
-        if required and key not in {"requires_optional", "requires_choice", "requires_target"}
+        for requirement in (key.removeprefix("requires_"),)
+        if required and not _requirement_supported_for_effect(effect, requirement)
     )
     child_reports = [analyze_resolution_requirements(child) for child in (*effect.effects, *effect.branches)]
     for report in child_reports:
