@@ -237,6 +237,10 @@ class EffectResolver:
 
         before = self._state_resolution_signature(state)
 
+        if context.slotted_targets:
+            context = self._with_slotted_targets(context, context.slotted_targets)
+            self._emit_be_chosen_for_context(state, context)
+
         if kind == "restriction":
             self._resolve_restriction(state, effect, context)
         elif kind == "conditional":
@@ -542,7 +546,10 @@ class EffectResolver:
         from .pending_effects import create_pending_effect
 
         source_card_id = self.engine.card_def(state, context.source).id if context.source in state.cards else None
-        pending_target = target if isinstance(target, dict) else effect.target
+        # Keep the full Lorcanito target object in raw["target"], but do not
+        # put an unhashable dict into EffectDef.target. Pending target candidate
+        # resolution already reads raw["target"] first.
+        pending_target = "target" if isinstance(target, dict) else effect.target
 
         pending_effect = EffectDef(
             kind=effect.kind,
@@ -1068,7 +1075,17 @@ class EffectResolver:
     def _uses_selected_card_context(self, selector: str) -> bool:
         from .targeting import requires_explicit_target_selection
 
-        return selector == "target" or requires_explicit_target_selection(selector)
+        return (
+            selector in {
+                "target",
+                "current_targets",
+                "context_targets",
+                "previous_target",
+                "selected_first",
+                "selected_all",
+            }
+            or requires_explicit_target_selection(selector)
+        )
 
     def _selected_card_targets_from_context(self, context: EffectResolutionContext) -> tuple[int, ...]:
         if context.current_targets:

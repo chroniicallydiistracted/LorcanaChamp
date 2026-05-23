@@ -457,6 +457,12 @@ def _analyze_single_effect_requirement(effect: EffectDef) -> TargetRequirement |
     if target is None:
         return None
 
+    # Dict targets are Lorcanito target descriptors. They are resolved from
+    # pe.raw["target"] by pending_target_descriptors() / get_valid_target_candidates_for_pending().
+    # Do not analyze them through this legacy string-target path.
+    if isinstance(target, dict):
+        return None
+
     # CHOSEN targets require player selection
     if target in {"chosen_character", "chosen_card"}:
         return TargetRequirement(

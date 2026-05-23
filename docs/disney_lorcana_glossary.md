@@ -7,10 +7,10 @@ Primary rules source used: **Disney Lorcana Comprehensive Rules, Version 2.1.0, 
 This glossary separates three things:
 
 1. **Official gameplay terms**: terms used by the rules or printed cards.
-2. **Card/deck construction terms**: terms used when building and importing decks.
+2. **Card/deck construction terms**: terms used when building and importing decks from deck building websites.
 3. **Strategy shorthand**: terms players use when discussing gameplay, matchups, and decisions.
 
-For tournament disputes, use the current official comprehensive rules and tournament documents.
+For tournament disputes, the current official comprehensive rules and tournament documents have the current exact ruling.
 
 ---
 
