@@ -118,8 +118,8 @@ class TestProjectTriggers:
             lore=2,
         )
 
-        # sing event is not supported
-        ability = _make_source_ability("triggered", trigger_event="sing", effect_kind="draw")
+        # boost remains unsupported until the Boost activated-ability runtime path exists
+        ability = _make_source_ability("triggered", trigger_event="boost", effect_kind="draw")
         object.__setattr__(card, 'source_abilities', (ability,))
 
         result = project_triggers(card)
@@ -206,9 +206,16 @@ class TestSupportedTriggerEvents:
         assert "draw" in SUPPORTED_TRIGGER_EVENTS
         assert "leave-play" in SUPPORTED_TRIGGER_EVENTS
 
-    def test_sing_not_supported(self):
-        """Singer/Songs triggers are not supported in B2."""
-        assert "sing" not in SUPPORTED_TRIGGER_EVENTS
+    def test_microfix_17_events_are_supported(self):
+        """Microfix 17 trigger events are supported when runtime emission exists."""
+        assert "sing" in SUPPORTED_TRIGGER_EVENTS
+        assert "remove-damage" in SUPPORTED_TRIGGER_EVENTS
+        assert "be-chosen" in SUPPORTED_TRIGGER_EVENTS
+        assert "leave-discard" in SUPPORTED_TRIGGER_EVENTS
+
+    def test_boost_not_supported_until_boost_runtime_exists(self):
+        """Boost remains unsupported until the Boost activated-ability runtime path exists."""
+        assert "boost" not in SUPPORTED_TRIGGER_EVENTS
 
     def test_shift_not_supported(self):
         """Shift triggers are not supported in B2."""
