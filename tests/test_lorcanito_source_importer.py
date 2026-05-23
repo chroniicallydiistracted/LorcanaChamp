@@ -135,3 +135,50 @@ def test_import_runtime_card_with_lore_value_of_string_target_alias(tmp_path):
         "type": "lore-value-of",
         "target": "CHOSEN_OPPOSING_CHARACTER",
     }
+
+def test_v2_runtime_export_imports_all_cards_without_errors():
+    db, report = import_lorcanito_source_cards("data/lorcanito_runtime_extracted/cards.normalized.json")
+    assert report.errors == []
+    assert len(db.all_cards()) == 2754
+    assert report.cards_loaded == 2754
+    assert report.ability_records_loaded == 3445
+    assert "unknown" not in report.ability_type_counts
+
+
+def test_current_mapper_classifies_supported_costs_as_executable():
+    from lorcana_bot.importers.lorcanito_source_mapper import map_raw_cost
+
+    costs = map_raw_cost({"exert": True, "ink": 1, "discardCards": 1, "discardChosen": True, "banishSelf": True})
+    assert {cost.kind for cost in costs} == {"exert", "ink", "discardCards", "discardChosen", "banishSelf"}
+    assert all(cost.execution_status == "executable" for cost in costs)
+
+
+def test_current_mapper_classifies_supported_triggers_as_executable():
+    from lorcana_bot.importers.lorcanito_source_mapper import map_raw_trigger
+
+    for event in [
+        "play",
+        "quest",
+        "challenge",
+        "banish",
+        "banish-in-challenge",
+        "start-turn",
+        "end-turn",
+        "ink",
+        "move",
+        "discard",
+        "return-to-hand",
+        "draw",
+        "gain-lore",
+        "lose-lore",
+        "support",
+        "deal-damage",
+        "put-card-under",
+        "leave-play",
+        "challenged",
+        "damage",
+        "exert",
+        "ready",
+    ]:
+        trigger = map_raw_trigger({"event": event})
+        assert trigger.execution_status == "executable"
