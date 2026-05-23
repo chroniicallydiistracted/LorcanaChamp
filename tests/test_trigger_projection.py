@@ -957,6 +957,53 @@ class TestMicrofix2CTriggerOnProjections:
         assert result[0].effects[0].kind == "gain_lore"
 
 
+def test_challenged_and_banished_with_attacker_ref_projects():
+    from lorcana_bot.card_logic import ExecutionStatus
+    from lorcana_bot.importers.lorcanito_source_mapper import map_raw_ability
+
+    ability = map_raw_ability({
+        "id": "challenged-and-banished-test",
+        "type": "triggered",
+        "trigger": {
+            "event": "challenged-and-banished",
+            "on": "SELF",
+            "timing": "when",
+        },
+        "sourceZones": ["play", "discard"],
+        "effect": {
+            "type": "banish",
+            "target": {"ref": "attacker"},
+        },
+    })
+
+    assert ability.trigger is not None
+    assert ability.trigger.event == "challenged-and-banished"
+    assert ability.trigger.execution_status == ExecutionStatus.EXECUTABLE
+    assert ability.effects[0].target is not None
+    assert ability.effects[0].target.execution_status == ExecutionStatus.EXECUTABLE
+
+    card = CardDef(
+        id="ref_trigger_card",
+        full_name="Ref Trigger Card",
+        ink="emerald",
+        cost=3,
+        inkable=True,
+        card_type="character",
+        strength=2,
+        willpower=2,
+        lore=1,
+        source_abilities=(ability,),
+    )
+
+    projected = project_triggers(card)
+
+    assert len(projected) == 1
+    assert projected[0].event == "challenged-and-banished"
+    assert projected[0].source_zones == ("play", "discard")
+    assert projected[0].effects[0].kind == "banish"
+    assert projected[0].effects[0].target == {"ref": "attacker"}
+
+
 class TestMicrofix3CConditionProjection:
     """Tests for microfix 3C condition projection."""
 

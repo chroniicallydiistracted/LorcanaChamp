@@ -424,10 +424,28 @@ class EffectResolver:
         from .targeting import normalize_target_descriptor
 
         raw = getattr(raw_target, "raw", None)
-        if isinstance(raw, dict) and raw.get("ref") == "previous-target":
-            return normalize_target_descriptor("current_targets")
-        if isinstance(raw_target, dict) and raw_target.get("ref") == "previous-target":
-            return normalize_target_descriptor("current_targets")
+        if isinstance(raw, dict):
+            descriptor = normalize_target_descriptor(raw)
+            if descriptor is not None:
+                return descriptor
+
+        if isinstance(raw_target, dict):
+            descriptor = normalize_target_descriptor(raw_target)
+            if descriptor is not None:
+                return descriptor
+
+        alias = getattr(raw_target, "alias", None)
+        if isinstance(alias, str) and alias:
+            descriptor = normalize_target_descriptor(alias)
+            if descriptor is not None:
+                return descriptor
+
+        selector = getattr(raw_target, "selector", None)
+        if isinstance(selector, str) and selector:
+            descriptor = normalize_target_descriptor(selector)
+            if descriptor is not None:
+                return descriptor
+
         target = "target" if raw_target is None else raw_target
         descriptor = normalize_target_descriptor(target)
         if descriptor is not None:

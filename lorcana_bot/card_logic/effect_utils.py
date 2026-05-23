@@ -523,6 +523,8 @@ TRIGGER_EVENT_MAP: dict[str, str] = {
     "end_turn": "end-turn",
     "ink": "ink",
     "challenged": "challenged",
+    "challenged-and-banished": "challenged-and-banished",
+    "challenged_and_banished": "challenged-and-banished",
     "deal-damage": "deal-damage",
     "deal_damage": "deal-damage",
     "damage": "deal-damage",

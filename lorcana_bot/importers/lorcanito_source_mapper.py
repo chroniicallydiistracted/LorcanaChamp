@@ -244,6 +244,21 @@ SUPPORTED_TARGET_ALIASES = frozenset({
     "YOUR_OTHER_EVASIVE_CHARACTERS",
 })
 
+SUPPORTED_TARGET_REFS = frozenset({
+    "self",
+    "source",
+    "trigger-source",
+    "trigger-subject",
+    "trigger-destination",
+    "attacker",
+    "defender",
+    "previous-target",
+    "selected-first",
+    "selected-all",
+    "controller",
+    "opponent",
+})
+
 # Mirrors lorcana_bot.condition_evaluator.evaluate_condition support.
 SUPPORTED_CONDITION_KINDS = frozenset({
     "always",
@@ -302,6 +317,7 @@ SUPPORTED_TRIGGER_EVENTS = frozenset({
     "play",
     "quest",
     "challenge",
+    "challenged-and-banished",
     "banish",
     "banish-in-challenge",
     "start-turn",
@@ -742,6 +758,8 @@ def map_raw_target(raw: Any) -> SourceTargetDef:
 
     if isinstance(raw, dict):
         selector = raw.get("selector") or raw.get("type") or raw.get("kind")
+        if selector is None and "ref" in raw:
+            selector = raw.get("ref")
         execution = ExecutionStatus.EXECUTABLE if _source_target_shape_supported(raw) else ExecutionStatus.UNSUPPORTED_TARGETING
         return SourceTargetDef(
             kind="selector" if selector else "object",
@@ -1340,6 +1358,9 @@ def _source_target_reference_supported(raw: Any) -> bool:
 def _source_target_shape_supported(raw: Any) -> bool:
     if not isinstance(raw, dict):
         return False
+
+    if "ref" in raw:
+        return raw.get("ref") in SUPPORTED_TARGET_REFS
 
     selector = raw.get("selector") or raw.get("type") or raw.get("kind")
 

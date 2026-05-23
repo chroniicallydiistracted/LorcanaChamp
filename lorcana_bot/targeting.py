@@ -99,23 +99,37 @@ SELECTOR_ALIASES: dict[str, str] = {
     "chosen_opposing_character": "chosen_opposing_character",
     "chosen_damaged_character": "chosen_damaged_character",
     "all": "all",
+
     # Context-based targets
     "opposing_character": "opposing_character",
     "self": "self",
+    "source": "self",
     "event_source": "event_source",
     "event_target": "event_target",
     "trigger_subject": "trigger_subject",
+    "trigger_source": "trigger_source",
+    "trigger_destination": "trigger_destination",
+    "attacker": "attacker",
+    "defender": "defender",
+    "previous_target": "previous_target",
+    "selected_first": "selected_first",
+    "selected_all": "selected_all",
+
     # Character set targets
     "your_characters": "your_characters",
     "your_other_characters": "your_other_characters",
     "opposing_characters": "opposing_characters",
     "all_characters": "all_characters",
+
     # Character set with conditions
     "damaged_characters": "damaged_characters",
     "opposing_damaged_characters": "opposing_damaged_characters",
+
     # Player targets
     "chosen_player": "chosen_player",
     "you": "you",
+    "controller": "you",
+    "actor": "you",
     "opponent": "opponent",
     "each_player": "each_player",
 }
@@ -128,6 +142,12 @@ _SINGLETON_CARD_SELECTORS = frozenset({
     "event_source",
     "event_target",
     "trigger_subject",
+    "trigger_source",
+    "trigger_destination",
+    "attacker",
+    "defender",
+    "previous_target",
+    "selected_first",
 })
 
 # Selectors that resolve to player IDs.
@@ -181,6 +201,7 @@ def resolve_candidate_card_ids(
     from public candidate resolution.
     """
     # --- singleton context-based selectors ---
+    # --- singleton context-based selectors ---
     if descriptor.selector == "self":
         sid = context.source_id
         return _validated_card_ids(state, engine, descriptor, context, (sid,) if sid is not None else ())
@@ -202,6 +223,37 @@ def resolve_candidate_card_ids(
     if descriptor.selector == "trigger_subject":
         subj = _trigger_subject_from_context(context)
         return _validated_card_ids(state, engine, descriptor, context, (subj,) if subj is not None else ())
+
+    if descriptor.selector == "trigger_source":
+        src = _first_int_payload_value(
+            context.event_payload,
+            ("trigger_source_card_id", "triggerSourceCardId", "source_card_id", "sourceCardId", "source_id", "source"),
+        )
+        return _validated_card_ids(state, engine, descriptor, context, (src,) if src is not None else ())
+
+    if descriptor.selector == "trigger_destination":
+        dst = _trigger_destination_from_context(context)
+        return _validated_card_ids(state, engine, descriptor, context, (dst,) if dst is not None else ())
+
+    if descriptor.selector == "attacker":
+        attacker = _first_int_payload_value(context.event_payload, ("attacker_id", "attackerId"))
+        return _validated_card_ids(state, engine, descriptor, context, (attacker,) if attacker is not None else ())
+
+    if descriptor.selector == "defender":
+        defender = _first_int_payload_value(context.event_payload, ("defender_id", "defenderId"))
+        return _validated_card_ids(state, engine, descriptor, context, (defender,) if defender is not None else ())
+
+    if descriptor.selector == "previous_target":
+        previous = context.current_targets[-1] if context.current_targets else None
+        return _validated_card_ids(state, engine, descriptor, context, (previous,) if previous is not None else ())
+
+    if descriptor.selector == "selected_first":
+        selected = context.current_targets[0] if context.current_targets else None
+        return _validated_card_ids(state, engine, descriptor, context, (selected,) if selected is not None else ())
+
+    if descriptor.selector == "selected_all":
+        selected = context.current_targets or context.context_targets
+        return _validated_card_ids(state, engine, descriptor, context, selected)
 
     # --- player selectors produce no card candidates ---
     if descriptor.selector in _PLAYER_SELECTORS:
@@ -294,13 +346,17 @@ def normalize_target_descriptor(raw: Any) -> TargetDescriptor | None:
     # Handle dict-like input
     if isinstance(raw, dict):
         selector = raw.get("selector") or raw.get("type") or raw.get("kind")
+        if selector is None and "ref" in raw:
+            selector = raw.get("ref")
         if selector is None:
             return None
-        normalized_selector = _normalize_selector(selector)
+        normalized_selector = _normalize_selector(str(selector))
         if normalized_selector is None:
             return None
 
         base = _create_descriptor_for_selector(normalized_selector)
+        if base is None:
+            return None
         zones = raw.get("zones", raw.get("zone", base.zones))
         if isinstance(zones, str):
             zones = (zones,)
@@ -546,6 +602,30 @@ def _trigger_subject_from_context(context: TargetQueryContext) -> int | None:
         context.event_payload,
         ("subject", "trigger_subject", "subject_id", "subject_card_id", "defender_id", "target_id"),
     )
+
+
+def _trigger_destination_from_context(context: TargetQueryContext) -> int | None:
+    direct = _first_int_payload_value(
+        context.event_payload,
+        (
+            "trigger_destination",
+            "trigger_destination_id",
+            "destination",
+            "destination_id",
+            "to_location_id",
+            "location_id",
+        ),
+    )
+    if direct is not None:
+        return direct
+
+    to_zone = context.event_payload.get("to_zone") or context.event_payload.get("toZone")
+    if isinstance(to_zone, str) and to_zone.startswith("location:"):
+        raw_id = to_zone.split(":", 1)[1]
+        if raw_id.isdigit():
+            return int(raw_id)
+
+    return None
 
 
 def _validated_card_ids(
@@ -799,6 +879,54 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor | None:
             selector=selector,
             min_count=1,
             max_count=1,
+            zones=(),
+        )
+
+    if selector == "trigger_source":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(),
+        )
+
+    if selector == "trigger_destination":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(),
+        )
+
+    if selector == "attacker":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(),
+        )
+
+    if selector == "defender":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(),
+        )
+
+    if selector in {"previous_target", "selected_first"}:
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(),
+        )
+
+    if selector == "selected_all":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=0,
+            max_count=None,
             zones=(),
         )
 

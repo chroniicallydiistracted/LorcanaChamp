@@ -157,6 +157,7 @@ def test_canonical_trigger_event():
         EVENT_CARD_EXERTED,
         EVENT_CARD_READIED,
         EVENT_CARD_RETURNED_TO_HAND,
+        EVENT_CHALLENGED_AND_BANISHED,
         EVENT_DAMAGE_DEALT,
         EVENT_INKED,
         EVENT_PUT_CARD_UNDER,
@@ -174,6 +175,7 @@ def test_canonical_trigger_event():
     assert canonical_trigger_event(EVENT_CARD_READIED) == "ready"
     assert canonical_trigger_event(EVENT_CARD_EXERTED) == "exert"
     assert canonical_trigger_event(EVENT_BANISH_IN_CHALLENGE) == "banish-in-challenge"
+    assert canonical_trigger_event(EVENT_CHALLENGED_AND_BANISHED) == "challenged-and-banished"
     assert canonical_trigger_event(EVENT_PUT_CARD_UNDER) == "put-card-under"
 
     # GameEvent input
@@ -281,6 +283,54 @@ def test_buffer_trigger_event_hydrates_banish_in_challenge_payload_fields(state_
     assert pending.event_snapshot["from_zone"] == "play"
     assert pending.event_snapshot["to_zone"] == "discard"
     assert pending.event_snapshot["happened_in_challenge"] is True
+
+
+def test_challenged_and_banished_trigger_can_match_from_discard(simple_engine, state_with_cards):
+    from lorcana_bot.cards import EffectDef
+    from lorcana_bot.constants import EVENT_CHALLENGED_AND_BANISHED, ZONE_DISCARD
+    from lorcana_bot.state import GameEvent
+
+    card = simple_engine.db.get("test_char")
+    object.__setattr__(
+        card,
+        "triggers",
+        (
+            TriggerDef(
+                id="challenged_and_banished_test",
+                event="challenged-and-banished",
+                effects=(EffectDef("banish", target={"ref": "attacker"}),),
+                source_zones=("play", "discard"),
+                on="SELF",
+            ),
+        ),
+    )
+
+    # Simulate the challenged card already being in discard when trigger flush happens.
+    state_with_cards.cards[1].zone = ZONE_DISCARD
+    state_with_cards.players[0].play.remove(1)
+    state_with_cards.players[0].discard.append(1)
+
+    event = GameEvent(
+        event_type=EVENT_CHALLENGED_AND_BANISHED,
+        actor=0,
+        source=1,
+        target=1,
+        payload={
+            "player_id": 0,
+            "subject_card_id": 1,
+            "trigger_source_card_id": 1,
+            "attacker_id": 2,
+            "defender_id": 1,
+            "happened_in_challenge": True,
+        },
+    )
+
+    buffer_trigger_event(state_with_cards, event)
+    flush_triggered_events_to_bag(state_with_cards, simple_engine)
+
+    assert len(state_with_cards.bag) == 1
+    assert state_with_cards.bag[0].trigger["event"] == "challenged-and-banished"
+    assert state_with_cards.bag[0].effects[0].target == {"ref": "attacker"}
 
 
 def test_buffer_trigger_event_hydrates_put_card_under_payload_fields(state_with_cards):

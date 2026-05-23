@@ -32,6 +32,7 @@ from .constants import (
     EVENT_CARD_RETURNED_TO_HAND,
     EVENT_CHALLENGE_STARTED,
     EVENT_CHALLENGED,
+    EVENT_CHALLENGED_AND_BANISHED,
     EVENT_CHARACTER_BANISHED,
     EVENT_BANISH_IN_CHALLENGE,
     EVENT_CONCEDED,
@@ -1694,30 +1695,59 @@ class GameEngine:
             queue_triggers=False,
         )
 
+        challenge_context = {}
+        if happened_in_challenge and isinstance(state.turn_metadata.get("active_challenge"), dict):
+            challenge_context = dict(state.turn_metadata["active_challenge"])
+
+        attacker_id = challenge_context.get("attacker_id")
+        defender_id = challenge_context.get("defender_id")
+        is_challenged_defender = happened_in_challenge and defender_id == card_id
+
+        banish_payload = {
+            "player_id": resolved_actor,
+            "card_id": card_id,
+            "subject_card_id": card_id,
+            "source_card_id": source_id,
+            "trigger_source_card_id": source_id if source_id is not None else card_id,
+            "owner_id": inst.owner,
+            "controller_id": controller,
+            "from_zone": from_zone,
+            "to_zone": banish_event.actual_destination,
+            "happened_in_challenge": happened_in_challenge,
+            "banished_card_type": card_type,
+            "reason": reason,
+            "was_replaced": banish_event.was_replaced,
+            "replacement_description": banish_event.replacement_description,
+            **challenge_context,
+        }
+
+        if is_challenged_defender:
+            self.emit_event(
+                state,
+                EVENT_CHALLENGED_AND_BANISHED,
+                actor=resolved_actor,
+                source=card_id,
+                target=card_id,
+                payload={
+                    **banish_payload,
+                    "trigger_source_card_id": card_id,
+                    "attacker_id": attacker_id,
+                    "defender_id": defender_id,
+                    "happened_in_challenge": True,
+                },
+                queue_triggers=queue_triggers,
+            )
+
         self.emit_event(
             state,
             EVENT_CHARACTER_BANISHED,
             actor=resolved_actor,
             source=source_id if source_id is not None else card_id,
             target=card_id if source_id is not None else None,
-            payload={
-                "player_id": resolved_actor,
-                "card_id": card_id,
-                "subject_card_id": card_id,
-                "source_card_id": source_id,
-                "trigger_source_card_id": source_id if source_id is not None else card_id,
-                "owner_id": inst.owner,
-                "controller_id": controller,
-                "from_zone": from_zone,
-                "to_zone": banish_event.actual_destination,
-                "happened_in_challenge": happened_in_challenge,
-                "banished_card_type": card_type,
-                "reason": reason,
-                "was_replaced": banish_event.was_replaced,
-                "replacement_description": banish_event.replacement_description,
-            },
+            payload=banish_payload,
             queue_triggers=queue_triggers,
         )
+
         if happened_in_challenge:
             self.emit_event(
                 state,
@@ -1726,23 +1756,11 @@ class GameEngine:
                 source=source_id if source_id is not None else card_id,
                 target=card_id if source_id is not None else None,
                 payload={
-                    "player_id": resolved_actor,
-                    "card_id": card_id,
-                    "subject_card_id": card_id,
-                    "source_card_id": source_id,
-                    "trigger_source_card_id": source_id if source_id is not None else card_id,
-                    "owner_id": inst.owner,
-                    "controller_id": controller,
-                    "from_zone": from_zone,
-                    "to_zone": banish_event.actual_destination,
+                    **banish_payload,
                     "happened_in_challenge": True,
-                    "banished_card_type": card_type,
-                    "reason": reason,
-                    "was_replaced": banish_event.was_replaced,
-                    "replacement_description": banish_event.replacement_description,
                 },
-            queue_triggers=queue_triggers,
-        )
+                queue_triggers=queue_triggers,
+            )
 
         # B13: Record banish for turn metadata (only for character cards)
         if card_type == CARD_CHARACTER:
@@ -2035,6 +2053,10 @@ class GameEngine:
         resolved_actor = actor if actor is not None else source_controller if source_controller is not None else target_controller
 
         prevented_amount = max(0, damage_event.original_amount - damage_event.current_amount)
+        challenge_context = {}
+        if is_challenge and isinstance(state.turn_metadata.get("active_challenge"), dict):
+            challenge_context = dict(state.turn_metadata["active_challenge"])
+
         self.emit_event(
             state,
             EVENT_DAMAGE_DEALT,
@@ -2055,6 +2077,7 @@ class GameEngine:
                 "is_challenge": is_challenge,
                 "was_replaced": damage_event.was_replaced,
                 "replacement_description": damage_event.replacement_description,
+                **challenge_context,
             },
         )
         return damage_event
@@ -2336,6 +2359,12 @@ class GameEngine:
         # Use eventful exert - emit_event=False since challenge event covers it
         self._exert_eventful(state, action.source, actor=action.actor, source_id=action.source, emit_event=False)
         self._register_challenge_created_replacements(state, action.source, action.target)
+
+        # Lorcanito-aligned challenge context for later damage/banish trigger snapshots.
+        state.turn_metadata["active_challenge"] = {
+            "attacker_id": action.source,
+            "defender_id": action.target,
+        }
 
         # Calculate base damage with resist (before replacement)
         attacker_base_damage = self._damage_after_resist(target_def, self.effective_strength(state, action.source))

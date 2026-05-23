@@ -32,6 +32,7 @@ from .constants import (
     TRIGGER_EVENT_BANISH,
     TRIGGER_EVENT_BANISH_IN_CHALLENGE,
     TRIGGER_EVENT_CHALLENGE,
+    TRIGGER_EVENT_CHALLENGED_AND_BANISHED,
     TRIGGER_EVENT_DAMAGE_DEALT,
     TRIGGER_EVENT_DISCARD,
     TRIGGER_EVENT_DRAW,
@@ -50,6 +51,7 @@ from .constants import (
     TRIGGER_EVENT_SING,
     TRIGGER_EVENT_START_TURN,
     TRIGGER_EVENT_SUPPORT,
+    ZONE_DISCARD,
     ZONE_INKWELL,
     ZONE_PLAY,
 )
@@ -60,6 +62,7 @@ SUPPORTED_TRIGGER_EVENTS = frozenset({
     TRIGGER_EVENT_PLAY,
     TRIGGER_EVENT_QUEST,
     TRIGGER_EVENT_CHALLENGE,
+    TRIGGER_EVENT_CHALLENGED_AND_BANISHED,
     TRIGGER_EVENT_BANISH,
     TRIGGER_EVENT_BANISH_IN_CHALLENGE,
     TRIGGER_EVENT_LEAVE_PLAY,
@@ -327,25 +330,38 @@ def collect_printed_trigger_candidates(
     *,
     window: str | None = None,
 ) -> list[TriggerCandidate]:
-    """Collect all trigger candidates from cards currently in play."""
+    """Collect trigger candidates from cards in zones that can legally observe.
+
+    Lorcanito snapshots leave-play trigger candidates before movement. The
+    current Python trigger pipeline collects candidates at flush time, so it must
+    also consider cards that have moved to discard when their projected trigger
+    explicitly allows discard/source leave-play windows.
+    """
     candidates: list[TriggerCandidate] = []
 
-    for player in (0, 1):
-        for instance_id in state.players[player].play:
-            card = engine.card_def(state, instance_id)
-            for idx, trigger in enumerate(card.triggers):
-                if trigger.event not in SUPPORTED_TRIGGER_EVENTS:
-                    continue
+    for instance_id in sorted(state.cards):
+        inst = state.cards[instance_id]
+        if inst.zone not in {ZONE_PLAY, ZONE_DISCARD}:
+            continue
 
-                candidates.append(TriggerCandidate(
-                    source_instance_id=instance_id,
-                    source_card=card,
-                    trigger=trigger,
-                    ability_id=trigger.id or f"trigger_{instance_id}_{idx}",
-                    ability_key=f"{card.id}:trigger:{idx}",
-                    ability_index=idx,
-                    source_zones=trigger.source_zones,
-                ))
+        card = engine.card_def(state, instance_id)
+        for idx, trigger in enumerate(card.triggers):
+            if trigger.event not in SUPPORTED_TRIGGER_EVENTS:
+                continue
+
+            source_zones = trigger.source_zones or (ZONE_PLAY,)
+            if inst.zone not in source_zones:
+                continue
+
+            candidates.append(TriggerCandidate(
+                source_instance_id=instance_id,
+                source_card=card,
+                trigger=trigger,
+                ability_id=trigger.id or f"trigger_{instance_id}_{idx}",
+                ability_key=f"{card.id}:trigger:{idx}",
+                ability_index=idx,
+                source_zones=source_zones,
+            ))
 
     return candidates
 

@@ -447,6 +447,68 @@ class TestResolveCandidateCardIds:
         result = resolve_candidate_card_ids(state, engine, desc, ctx)
         assert result == (subject,)
 
+    def test_lorcanito_context_ref_targets_resolve_from_event_context(self, engine, state):
+        source = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+        attacker = put_card(state, engine, 0, "Ruby Charger", ZONE_PLAY, exclude=frozenset({source}))
+        defender = put_card(state, engine, 1, "Amber Guard", ZONE_PLAY)
+        previous = put_card(state, engine, 1, "Steel Bruiser", ZONE_PLAY, exclude=frozenset({defender}))
+
+        context = TargetQueryContext(
+            actor=0,
+            source_id=source,
+            event_payload={
+                "attacker_id": attacker,
+                "defender_id": defender,
+                "trigger_source_card_id": defender,
+                "subject_card_id": defender,
+            },
+            current_targets=(previous, attacker),
+        )
+
+        assert normalize_target_descriptor({"ref": "self"}).selector == "self"
+
+        assert resolve_candidate_card_ids(
+            state,
+            engine,
+            normalize_target_descriptor({"ref": "attacker"}),
+            context,
+        ) == (attacker,)
+
+        assert resolve_candidate_card_ids(
+            state,
+            engine,
+            normalize_target_descriptor({"ref": "defender"}),
+            context,
+        ) == (defender,)
+
+        assert resolve_candidate_card_ids(
+            state,
+            engine,
+            normalize_target_descriptor({"ref": "trigger-source"}),
+            context,
+        ) == (defender,)
+
+        assert resolve_candidate_card_ids(
+            state,
+            engine,
+            normalize_target_descriptor({"ref": "trigger-subject"}),
+            context,
+        ) == (defender,)
+
+        assert resolve_candidate_card_ids(
+            state,
+            engine,
+            normalize_target_descriptor({"ref": "previous-target"}),
+            context,
+        ) == (attacker,)
+
+        assert resolve_candidate_card_ids(
+            state,
+            engine,
+            normalize_target_descriptor({"ref": "selected-all"}),
+            context,
+        ) == (previous, attacker)
+
     def test_player_selectors_return_no_card_ids(self, engine, state):
         for selector in ("chosen_player", "you", "opponent", "each_player"):
             desc = normalize_target_descriptor(selector)
