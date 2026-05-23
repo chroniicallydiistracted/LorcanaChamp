@@ -90,12 +90,41 @@ def _source_target(obj: Any) -> Any:
     return raw.get("target")
 
 
+def _source_amount(obj: Any) -> Any:
+    raw = _source_raw(obj)
+    amount = getattr(obj, "amount", None)
+    if amount is not None:
+        return amount
+    for key in ("modifier", "amount", "value"):
+        if raw.get(key) is not None:
+            return raw.get(key)
+    reduction = raw.get("reduction")
+    if isinstance(reduction, dict):
+        return reduction.get("ink")
+    return None
+
+
 def _ability_condition_raw(ability: Any) -> dict[str, Any] | None:
     condition = getattr(ability, "condition", None)
+    if isinstance(condition, dict):
+        return dict(condition)
     if condition is not None:
         raw = getattr(condition, "raw", None)
         if isinstance(raw, dict):
             return dict(raw)
+        kind = getattr(condition, "kind", None)
+        if kind:
+            result = {"type": str(kind)}
+            value = getattr(condition, "value", None)
+            if value is not None:
+                result["value"] = value
+            comparison = getattr(condition, "comparison", None)
+            if comparison is not None:
+                result["comparison"] = comparison
+            subject = getattr(condition, "subject", None)
+            if subject is not None:
+                result["subject"] = subject
+            return result
     raw = _source_raw(ability)
     if isinstance(raw.get("condition"), dict):
         return dict(raw["condition"])
@@ -532,12 +561,7 @@ def _entries_from_effect(
 
     if kind == "modify-stat":
         stat = str(raw.get("stat") or raw.get("attribute") or raw.get("property") or "strength").replace("-", "_")
-        amount = raw.get("modifier")
-        if amount is None:
-            amount = raw.get("amount")
-        if amount is None:
-            amount = raw.get("value")
-        resolved_amount = _resolve_static_amount(state, engine, source_id, amount)
+        resolved_amount = _resolve_static_amount(state, engine, source_id, _source_amount(effect_obj))
         if stat == "strength":
             return [StaticEffectEntry(effect_type=StaticEffectType.MODIFY_STRENGTH, amount=resolved_amount, **common)]
         if stat == "willpower":
@@ -561,12 +585,7 @@ def _entries_from_effect(
         ]
 
     if kind == "cost-reduction":
-        amount = raw.get("amount")
-        if amount is None:
-            reduction = raw.get("reduction")
-            if isinstance(reduction, dict):
-                amount = reduction.get("ink")
-        resolved_amount = _resolve_static_amount(state, engine, source_id, amount)
+        resolved_amount = _resolve_static_amount(state, engine, source_id, _source_amount(effect_obj))
         card_type = raw.get("cardType") or raw.get("card_type")
         return [
             StaticEffectEntry(
@@ -869,11 +888,23 @@ def create_keyword_grant_effect(source_id: int, keyword: str, target_mode: str =
 
 
 def create_cost_reduction_effect(source_id: int, amount: int, card_type: str | None = None) -> StaticEffectEntry:
-    return StaticEffectEntry(source_id=source_id, effect_type=StaticEffectType.COST_REDUCTION, target_mode="controller", cost_reduction_amount=int(amount), cost_reduction_card_type=card_type)
+    return StaticEffectEntry(
+        source_id=source_id,
+        effect_type=StaticEffectType.COST_REDUCTION,
+        target_mode="self",
+        cost_reduction_amount=int(amount),
+        cost_reduction_card_type=card_type,
+    )
 
 
 def create_quest_restriction_effect(source_id: int, target_mode: str = "self", target_classification: str | None = None) -> StaticEffectEntry:
-    return StaticEffectEntry(source_id=source_id, effect_type=StaticEffectType.QUEST_RESTRICTION, target_mode=target_mode, target_classification=target_classification, restriction_type="cant-quest")
+    return StaticEffectEntry(
+        source_id=source_id,
+        effect_type=StaticEffectType.QUEST_RESTRICTION,
+        target_mode=target_mode,
+        target_classification=target_classification,
+        restriction_type="cannot_quest",
+    )
 
 
 def create_challenge_restriction_effect(source_id: int, target_mode: str = "self", target_classification: str | None = None) -> StaticEffectEntry:
@@ -900,7 +931,7 @@ def parse_static_effects_from_card(card_abilities: tuple, source_id: int) -> lis
             target_mode, target_class, exclude_self = _target_mode_from_raw(target)
             if kind == "modify-stat":
                 stat = str(raw.get("stat") or raw.get("attribute") or "strength")
-                amount = raw.get("modifier") if raw.get("modifier") is not None else raw.get("amount", 0)
+                amount = _source_amount(effect_obj)
                 if isinstance(amount, int) or (isinstance(amount, str) and amount.lstrip("+-").isdigit()):
                     entry = create_modify_stat_effect(source_id, stat, int(amount), target_mode, target_class)
                     object.__setattr__(entry, "exclude_self", exclude_self)
@@ -914,7 +945,7 @@ def parse_static_effects_from_card(card_abilities: tuple, source_id: int) -> lis
                         object.__setattr__(entry, "exclude_self", exclude_self)
                         effects.append(entry)
             elif kind == "cost-reduction":
-                amount = raw.get("amount") or raw.get("value") or 0
+                amount = _source_amount(effect_obj)
                 if isinstance(amount, int) or (isinstance(amount, str) and amount.isdigit()):
                     effects.append(create_cost_reduction_effect(source_id, int(amount), raw.get("cardType") or raw.get("card_type")))
             elif kind == "restriction":
