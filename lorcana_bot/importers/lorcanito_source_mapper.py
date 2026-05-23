@@ -1385,6 +1385,35 @@ def _source_target_reference_supported(raw: Any) -> bool:
     return False
 
 
+def _source_target_count_supported(count: Any) -> bool:
+    if count is None:
+        return True
+
+    if isinstance(count, bool):
+        return False
+
+    if isinstance(count, int):
+        return count >= 1
+
+    if isinstance(count, str):
+        normalized = count.strip().lower()
+        return normalized.isdigit() and int(normalized) >= 1
+
+    if isinstance(count, dict):
+        if not set(count) <= {"upTo", "up_to", "min", "max", "exactly"}:
+            return False
+        numeric_values = []
+        for key in ("upTo", "up_to", "min", "max", "exactly"):
+            if key in count:
+                try:
+                    numeric_values.append(int(count[key]))
+                except (TypeError, ValueError):
+                    return False
+        return bool(numeric_values) and all(value >= 0 for value in numeric_values)
+
+    return False
+
+
 def _source_target_shape_supported(raw: Any) -> bool:
     if not isinstance(raw, dict):
         return False
@@ -1429,10 +1458,7 @@ def _source_target_shape_supported(raw: Any) -> bool:
         return False
 
     count = raw.get("count", 1)
-    if isinstance(count, dict):
-        if not set(count) <= {"upTo", "up_to", "min", "max"}:
-            return False
-    elif count not in {1, "1", None}:
+    if not _source_target_count_supported(count):
         return False
 
     return _target_filters_supported(raw)

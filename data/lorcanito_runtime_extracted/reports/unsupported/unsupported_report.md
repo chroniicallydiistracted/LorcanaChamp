@@ -12,10 +12,10 @@
 |---|---:|
 | `mapped_not_executable` | 512 |
 | `unsupported_choice` | 148 |
-| `unsupported_condition` | 196 |
+| `unsupported_condition` | 198 |
 | `unsupported_cost` | 24 |
 | `unsupported_engine_mechanic` | 242 |
-| `unsupported_targeting` | 355 |
+| `unsupported_targeting` | 334 |
 
 ## Examples
 
@@ -281,7 +281,7 @@ Total detailed records: `148`
 
 ### `unsupported_condition`
 
-Total detailed records: `262`
+Total detailed records: `264`
 
 - **Stitch - Rock Star** (`kSG`)
   - Object: `ability` / `triggered`
@@ -671,48 +671,8 @@ Total detailed records: `242`
 
 ### `unsupported_targeting`
 
-Total detailed records: `496`
+Total detailed records: `468`
 
-- **Madam Mim - Purple Dragon** (`EHY`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `12t-2` — I WIN, I WIN!
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 1, "effect": {"optionLabels": ["banish her", "return another 2 chosen characters of yours to your hand"], "options": [{"target": "SELF", "type": "banish"}, {"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}], "type": "or"}, "id": "12t-2", "name": "I WIN, I WIN!", "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Madam Mim - Purple Dragon** (`EHY`)
-  - Object: `effect` / `or`
-  - Ability: `triggered` `12t-2` — I WIN, I WIN!
-  - Status: `unsupported_targeting`
-  - Raw: `{"optionLabels": ["banish her", "return another 2 chosen characters of yours to your hand"], "options": [{"target": "SELF", "type": "banish"}, {"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}], "type": "or"}`
-- **Madam Mim - Purple Dragon** (`EHY`)
-  - Object: `effect` / `return-to-hand`
-  - Ability: `triggered` `12t-2` — I WIN, I WIN!
-  - Status: `unsupported_targeting`
-  - Raw: `{"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}`
-- **Madam Mim - Purple Dragon** (`EHY`)
-  - Object: `target` / `selector`
-  - Ability: `triggered` `12t-2` — I WIN, I WIN!
-  - Status: `unsupported_targeting`
-  - Raw: `{"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}`
-- **Madam Mim - Purple Dragon** (`1uc`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `12t-2` — I WIN, I WIN!
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 1, "effect": {"optionLabels": ["banish her", "return another 2 chosen characters of yours to your hand"], "options": [{"target": "SELF", "type": "banish"}, {"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}], "type": "or"}, "id": "12t-2", "name": "I WIN, I WIN!", "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Madam Mim - Purple Dragon** (`1uc`)
-  - Object: `effect` / `or`
-  - Ability: `triggered` `12t-2` — I WIN, I WIN!
-  - Status: `unsupported_targeting`
-  - Raw: `{"optionLabels": ["banish her", "return another 2 chosen characters of yours to your hand"], "options": [{"target": "SELF", "type": "banish"}, {"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}], "type": "or"}`
-- **Madam Mim - Purple Dragon** (`1uc`)
-  - Object: `effect` / `return-to-hand`
-  - Ability: `triggered` `12t-2` — I WIN, I WIN!
-  - Status: `unsupported_targeting`
-  - Raw: `{"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}`
-- **Madam Mim - Purple Dragon** (`1uc`)
-  - Object: `target` / `selector`
-  - Ability: `triggered` `12t-2` — I WIN, I WIN!
-  - Status: `unsupported_targeting`
-  - Raw: `{"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}`
 - **Ratigan - Very Large Mouse** (`jfe`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `1wj-1` — THIS IS MY KINGDOM
@@ -798,6 +758,46 @@ Total detailed records: `496`
   - Ability: `activated` `1ee-1` — THE BEST I'VE EVER TASTED
   - Status: `unsupported_targeting`
   - Raw: `{"amount": 1, "target": "UP_TO_2_CHOSEN_CHARACTERS", "type": "remove-damage"}`
+- **Gumbo Pot** (`MEA`)
+  - Object: `target` / `alias`
+  - Ability: `activated` `1ee-1` — THE BEST I'VE EVER TASTED
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "UP_TO_2_CHOSEN_CHARACTERS"}`
+- **Sardine Can** (`QGa`)
+  - Object: `ability` / `static`
+  - Ability: `static` `2oi-1` — FLIGHT CABIN
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"keyword": "Ward", "target": "YOUR_EXERTED_CHARACTERS", "type": "gain-keyword"}, "id": "2oi-1", "name": "FLIGHT CABIN", "text": "FLIGHT CABIN Your exerted characters gain Ward.", "type": "static"}`
+- **Sardine Can** (`QGa`)
+  - Object: `effect` / `gain-keyword`
+  - Ability: `static` `2oi-1` — FLIGHT CABIN
+  - Status: `unsupported_targeting`
+  - Raw: `{"keyword": "Ward", "target": "YOUR_EXERTED_CHARACTERS", "type": "gain-keyword"}`
+- **Sardine Can** (`QGa`)
+  - Object: `target` / `alias`
+  - Ability: `static` `2oi-1` — FLIGHT CABIN
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "YOUR_EXERTED_CHARACTERS"}`
+- **Captain Hook - Master Swordsman** (`ICh`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `gip-1` — NEMESIS
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}], "type": "sequence"}, "id": "gip-1", "name": "NEMESIS", "text": "NEMESIS During your turn, whenever this character banishes another character in a challenge, ready this character. He can't quest for the rest of this turn.", "trigger": {"event": "banish-in-challenge", "on": "SELF", "restrictions": [{"type": "during-turn", "whose": "your"}], "timing": "whenever"}, "type": "triggered"}`
+- **Captain Hook - Master Swordsman** (`ICh`)
+  - Object: `effect` / `sequence`
+  - Ability: `triggered` `gip-1` — NEMESIS
+  - Status: `unsupported_targeting`
+  - Raw: `{"steps": [{"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}], "type": "sequence"}`
+- **Captain Hook - Master Swordsman** (`ICh`)
+  - Object: `effect` / `ready`
+  - Ability: `triggered` `gip-1` — NEMESIS
+  - Status: `unsupported_targeting`
+  - Raw: `{"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}`
+- **Captain Hook - Master Swordsman** (`ICh`)
+  - Object: `target` / `selector`
+  - Ability: `triggered` `gip-1` — NEMESIS
+  - Status: `unsupported_targeting`
+  - Raw: `{"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}`
 
 ### `unsupported_trigger`
 

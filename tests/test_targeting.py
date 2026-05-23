@@ -22,6 +22,7 @@ from lorcana_bot.targeting import (
     TargetSelectionAvailability,
     analyze_target_selection_availability,
     apply_target_protections,
+    enumerate_target_selections,
     flatten_slotted_targets,
     infer_candidate_zones,
     is_card_target_candidate,
@@ -153,6 +154,39 @@ def test_normalize_target_descriptor_accepts_lorcanito_and_python_field_names():
     )
 
 
+def test_normalize_target_descriptor_supports_multi_target_counts():
+    exact = normalize_target_descriptor({
+        "selector": "chosen",
+        "count": 2,
+        "zones": [ZONE_PLAY],
+        "cardTypes": [CARD_CHARACTER],
+    })
+    exact_dict = normalize_target_descriptor({
+        "selector": "chosen",
+        "count": {"exactly": 2},
+        "zones": [ZONE_PLAY],
+        "cardTypes": [CARD_CHARACTER],
+    })
+    up_to = normalize_target_descriptor({
+        "selector": "chosen",
+        "count": {"upTo": 2},
+        "zones": [ZONE_PLAY],
+        "cardTypes": [CARD_CHARACTER],
+    })
+
+    assert exact is not None
+    assert exact.min_count == 2
+    assert exact.max_count == 2
+
+    assert exact_dict is not None
+    assert exact_dict.min_count == 2
+    assert exact_dict.max_count == 2
+
+    assert up_to is not None
+    assert up_to.min_count == 0
+    assert up_to.max_count == 2
+
+
 def test_normalize_target_descriptors_flattens_valid_entries():
     descriptors = normalize_target_descriptors(["chosen_character", None, {"selector": "opponent"}])
 
@@ -236,6 +270,44 @@ def test_target_candidate_and_context_dataclasses_are_stable_shapes():
     assert context.event_payload["target"] == 17
     assert context.current_targets == (17,)
     assert context.context_targets == (4,)
+
+
+def test_enumerate_target_selections_uses_lorcanito_min_max_count_semantics():
+    candidates = (
+        TargetCandidate(kind="card", id=1, controller=0, zone=ZONE_PLAY),
+        TargetCandidate(kind="card", id=2, controller=0, zone=ZONE_PLAY),
+        TargetCandidate(kind="card", id=3, controller=0, zone=ZONE_PLAY),
+    )
+    exact_two = TargetDescriptor(
+        selector="chosen",
+        min_count=2,
+        max_count=2,
+        zones=(ZONE_PLAY,),
+        card_types=(CARD_CHARACTER,),
+    )
+    up_to_two = TargetDescriptor(
+        selector="chosen",
+        min_count=0,
+        max_count=2,
+        zones=(ZONE_PLAY,),
+        card_types=(CARD_CHARACTER,),
+    )
+
+    assert enumerate_target_selections(candidates, exact_two) == (
+        (1, 2),
+        (1, 3),
+        (2, 3),
+    )
+
+    assert enumerate_target_selections(candidates, up_to_two) == (
+        (),
+        (1,),
+        (2,),
+        (3,),
+        (1, 2),
+        (1, 3),
+        (2, 3),
+    )
 
 
 def test_infer_candidate_zones_matches_lorcanito_action_selection_zones(engine, state):

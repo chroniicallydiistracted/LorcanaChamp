@@ -792,18 +792,30 @@ class GameEngine:
             effects_supported, _ = validate_effects_supported(ability)
             if not effects_supported:
                 continue
-            target_candidates = self._activated_ability_target_candidates(state, ability, player)
-            if target_candidates is None:
+            target_selections = self._activated_ability_target_selections(state, ability, player)
+            if target_selections is None:
                 continue
-            if target_candidates:
-                for target_id in target_candidates:
-                    actions.append(Action(
-                        ACTION_USE_ABILITY,
-                        actor=player,
-                        source=ability.source_instance_id,
-                        target=target_id,
-                        choice={"ability_id": ability.ability_id, "ability_index": ability.ability_index},
-                    ))
+            if target_selections:
+                for selected_targets in target_selections:
+                    if selected_targets:
+                        actions.append(Action(
+                            ACTION_USE_ABILITY,
+                            actor=player,
+                            source=ability.source_instance_id,
+                            target=selected_targets[0],
+                            choice={
+                                "ability_id": ability.ability_id,
+                                "ability_index": ability.ability_index,
+                                "targets": selected_targets,
+                            },
+                        ))
+                    else:
+                        actions.append(Action(
+                            ACTION_USE_ABILITY,
+                            actor=player,
+                            source=ability.source_instance_id,
+                            choice={"ability_id": ability.ability_id, "ability_index": ability.ability_index},
+                        ))
             else:
                 actions.append(Action(
                     ACTION_USE_ABILITY,
@@ -816,19 +828,27 @@ class GameEngine:
         actions.append(Action(ACTION_CONCEDE, actor=player))
         return actions
 
-    def _activated_ability_target_candidates(
+    def _activated_ability_target_selections(
         self,
         state: GameState,
         ability: ActivatedAbility,
         player: int,
-    ) -> tuple[int, ...] | None:
+    ) -> tuple[tuple[int, ...], ...] | None:
         descriptors = self._activated_ability_explicit_target_descriptors(ability)
         if not descriptors:
-            return ()
+            return ((),)
         if len(descriptors) > 1:
             return None
+
         descriptor = descriptors[0]
-        from .targeting import TargetQueryContext, apply_target_protections, resolve_candidate_targets
+        from .targeting import (
+            TargetQueryContext,
+            analyze_target_selection_availability,
+            apply_target_protections,
+            enumerate_target_selections,
+            resolve_candidate_targets,
+        )
+
         context = TargetQueryContext(actor=player, source_id=ability.source_instance_id)
         candidates = apply_target_protections(
             state,
@@ -837,7 +857,24 @@ class GameEngine:
             descriptor,
             context,
         )
-        return tuple(candidate.id for candidate in candidates if candidate.kind == "card")
+        availability = analyze_target_selection_availability(descriptor, candidates)
+        if not availability.can_satisfy_required_selection:
+            return None
+
+        selections = enumerate_target_selections(candidates, descriptor, candidate_kind="card")
+        return selections
+
+    def _activated_ability_target_candidates(
+        self,
+        state: GameState,
+        ability: ActivatedAbility,
+        player: int,
+    ) -> tuple[int, ...] | None:
+        """Backward-compatible single-card candidate wrapper."""
+        selections = self._activated_ability_target_selections(state, ability, player)
+        if selections is None:
+            return None
+        return tuple(selection[0] for selection in selections if selection)
 
     def _activated_ability_explicit_target_descriptors(self, ability: ActivatedAbility):
         from .targeting import normalize_target_descriptor, requires_explicit_target_selection
@@ -869,7 +906,13 @@ class GameEngine:
         actions: list[Action] = []
 
         def target_actions(raw_target: Any, base_choice: dict[str, Any]) -> list[Action]:
-            from .targeting import TargetQueryContext, apply_target_protections, normalize_target_descriptor, resolve_candidate_targets
+            from .targeting import (
+                TargetQueryContext,
+                apply_target_protections,
+                enumerate_target_selections,
+                normalize_target_descriptor,
+                resolve_candidate_targets,
+            )
 
             desc = normalize_target_descriptor(raw_target)
             if desc is None:
@@ -887,16 +930,14 @@ class GameEngine:
                 context,
             )
             result: list[Action] = []
-            for candidate in candidates:
-                if candidate.kind != "card":
-                    continue
+            for selected in enumerate_target_selections(candidates, desc, candidate_kind="card"):
                 choice = dict(base_choice)
-                choice["targets"] = (candidate.id,)
+                choice["targets"] = selected
                 result.append(Action(
                     ACTION_RESOLVE_BAG,
                     actor=player,
                     source=entry.source_id,
-                    target=candidate.id,
+                    target=selected[0] if selected else None,
                     choice=choice,
                 ))
             return result
@@ -1049,7 +1090,13 @@ class GameEngine:
         raw_target: Any,
         base_choice: dict[str, Any],
     ) -> list[Action]:
-        from .targeting import TargetQueryContext, apply_target_protections, normalize_target_descriptor, resolve_candidate_targets
+        from .targeting import (
+            TargetQueryContext,
+            apply_target_protections,
+            enumerate_target_selections,
+            normalize_target_descriptor,
+            resolve_candidate_targets,
+        )
 
         desc = normalize_target_descriptor(raw_target)
         if desc is None:
@@ -1057,12 +1104,16 @@ class GameEngine:
         context = TargetQueryContext(actor=entry.controller_id, source_id=entry.source_id, event_payload={})
         candidates = apply_target_protections(state, self, resolve_candidate_targets(state, self, desc, context), desc, context)
         result = []
-        for candidate in candidates:
-            if candidate.kind != "card":
-                continue
+        for selected in enumerate_target_selections(candidates, desc, candidate_kind="card"):
             choice = dict(base_choice)
-            choice["targets"] = (candidate.id,)
-            result.append(Action(ACTION_RESOLVE_BAG, actor=player, source=entry.source_id, target=candidate.id, choice=choice))
+            choice["targets"] = selected
+            result.append(Action(
+                ACTION_RESOLVE_BAG,
+                actor=player,
+                source=entry.source_id,
+                target=selected[0] if selected else None,
+                choice=choice,
+            ))
         return result
 
     def can_quest(self, state: GameState, source: int) -> bool:
@@ -2699,12 +2750,11 @@ class GameEngine:
         return tuple(descriptors)
 
     def _targeted_play_actions(self, state: GameState, player: int, source: int) -> list[Action]:
-        from itertools import combinations
-
         from .targeting import (
             TargetQueryContext,
             analyze_target_selection_availability,
             apply_target_protections,
+            enumerate_target_selections,
             resolve_candidate_targets,
         )
 
@@ -2717,7 +2767,6 @@ class GameEngine:
             if not availability.can_satisfy_required_selection:
                 continue
 
-            card_ids = tuple(c.id for c in candidates if c.kind == "card")
             player_ids = tuple(c.id for c in candidates if c.kind == "player")
             for player_id in player_ids:
                 actions.append(Action(
@@ -2727,29 +2776,16 @@ class GameEngine:
                     choice={"target_kind": "player", "player": player_id},
                 ))
 
-            max_count = desc.max_count if desc.max_count is not None else len(card_ids)
-            max_count = min(max_count, len(card_ids))
-            min_count = max(0, desc.min_count)
-            for count in range(min_count, max_count + 1):
-                for selected in combinations(card_ids, count):
-                    if not selected:
-                        continue
-                    if len(selected) == 1:
-                        actions.append(Action(
-                            ACTION_PLAY_CARD,
-                            actor=player,
-                            card=source,
-                            target=selected[0],
-                            choice={"targets": selected},
-                        ))
-                    else:
-                        actions.append(Action(
-                            ACTION_PLAY_CARD,
-                            actor=player,
-                            card=source,
-                            target=selected[0],
-                            choice={"targets": selected},
-                        ))
+            for selected in enumerate_target_selections(candidates, desc, candidate_kind="card"):
+                if not selected:
+                    continue
+                actions.append(Action(
+                    ACTION_PLAY_CARD,
+                    actor=player,
+                    card=source,
+                    target=selected[0],
+                    choice={"targets": selected},
+                ))
         return actions
 
     def _effect_target_candidates_for_card(
@@ -3187,11 +3223,17 @@ class GameEngine:
         if ability is None:
             raise IllegalActionError(f"Ability not found on card {source_id}")
 
-        selected_targets = (action.target,) if action.target is not None else ()
+        if action.choice and isinstance(action.choice, dict) and action.choice.get("targets") is not None:
+            selected_targets = tuple(int(target_id) for target_id in action.choice.get("targets") or ())
+        elif action.target is not None:
+            selected_targets = (action.target,)
+        else:
+            selected_targets = ()
+
         if self._activated_ability_requires_target(ability):
-            valid_targets = self._activated_ability_target_candidates(state, ability, action.actor)
-            if not valid_targets or action.target not in valid_targets:
-                raise IllegalActionError("USE_ABILITY requires a valid selected target")
+            valid_selections = self._activated_ability_target_selections(state, ability, action.actor)
+            if valid_selections is None or selected_targets not in valid_selections:
+                raise IllegalActionError("USE_ABILITY requires a valid selected target selection")
 
         if self._ability_requires_discard_cost_choice(ability):
             self._create_activated_discard_cost_pending(state, ability, action.actor, selected_targets)

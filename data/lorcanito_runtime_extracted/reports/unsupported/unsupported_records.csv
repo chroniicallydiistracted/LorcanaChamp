@@ -79,14 +79,6 @@ unsupported_engine_mechanic,effect,for-each-opponent,unsupported_engine_mechanic
 mapped_not_executable,ability,static,mapped_not_executable,W1g,Lawrence - Jealous Manservant,character,002,186,1rx-1,static,PAYBACK,mapped_not_executable
 unsupported_choice,ability,triggered,unsupported_choice,NN3,Lucifer - Cunning Cat,character,002,85,oq4-1,triggered,MOUSE CATCHER,unsupported_choice
 unsupported_choice,effect,choice,unsupported_choice,NN3,Lucifer - Cunning Cat,character,002,85,oq4-1,triggered,MOUSE CATCHER,unsupported_choice
-unsupported_targeting,ability,triggered,unsupported_targeting,EHY,Madam Mim - Purple Dragon,character,002,47,12t-2,triggered,"I WIN, I WIN!",unsupported_targeting
-unsupported_targeting,effect,or,unsupported_targeting,EHY,Madam Mim - Purple Dragon,character,002,47,12t-2,triggered,"I WIN, I WIN!",unsupported_targeting
-unsupported_targeting,effect,return-to-hand,unsupported_targeting,EHY,Madam Mim - Purple Dragon,character,002,47,12t-2,triggered,"I WIN, I WIN!",unsupported_targeting
-unsupported_targeting,target,selector,unsupported_targeting,EHY,Madam Mim - Purple Dragon,character,002,47,12t-2,triggered,"I WIN, I WIN!",unsupported_targeting
-unsupported_targeting,ability,triggered,unsupported_targeting,1uc,Madam Mim - Purple Dragon,character,002,208,12t-2,triggered,"I WIN, I WIN!",unsupported_targeting
-unsupported_targeting,effect,or,unsupported_targeting,1uc,Madam Mim - Purple Dragon,character,002,208,12t-2,triggered,"I WIN, I WIN!",unsupported_targeting
-unsupported_targeting,effect,return-to-hand,unsupported_targeting,1uc,Madam Mim - Purple Dragon,character,002,208,12t-2,triggered,"I WIN, I WIN!",unsupported_targeting
-unsupported_targeting,target,selector,unsupported_targeting,1uc,Madam Mim - Purple Dragon,character,002,208,12t-2,triggered,"I WIN, I WIN!",unsupported_targeting
 unsupported_engine_mechanic,ability,static,unsupported_engine_mechanic,5YN,Mother Gothel - Withered and Wicked,character,002,116,6fh-1,static,WHAT HAVE YOU DONE?!,unsupported_engine_mechanic
 unsupported_engine_mechanic,effect,enters-with-damage,unsupported_engine_mechanic,5YN,Mother Gothel - Withered and Wicked,character,002,116,6fh-1,static,WHAT HAVE YOU DONE?!,unsupported_engine_mechanic
 mapped_not_executable,ability,static,mapped_not_executable,EAX,Namaari - Morning Mist,character,002,189,1dg-2,static,BLADES,mapped_not_executable
@@ -805,9 +797,6 @@ unsupported_targeting,ability,triggered,unsupported_targeting,aPy,Roger Radcliff
 unsupported_targeting,effect,optional,unsupported_targeting,aPy,Roger Radcliffe - Dog Lover,character,007,5,1t4-1,triggered,THERE YOU GO,unsupported_targeting
 unsupported_targeting,effect,remove-damage,unsupported_targeting,aPy,Roger Radcliffe - Dog Lover,character,007,5,1t4-1,triggered,THERE YOU GO,unsupported_targeting
 unsupported_targeting,target,alias,unsupported_targeting,aPy,Roger Radcliffe - Dog Lover,character,007,5,1t4-1,triggered,THERE YOU GO,unsupported_targeting
-unsupported_targeting,ability,action,unsupported_targeting,eru,Scrooge McDuck - Resourceful Miser,character,007,154,18b-1,action,PUT IT TO GOOD USE,unsupported_targeting
-unsupported_targeting,effect,exert,unsupported_targeting,eru,Scrooge McDuck - Resourceful Miser,character,007,154,18b-1,action,PUT IT TO GOOD USE,unsupported_targeting
-unsupported_targeting,target,selector,unsupported_targeting,eru,Scrooge McDuck - Resourceful Miser,character,007,154,18b-1,action,PUT IT TO GOOD USE,unsupported_targeting
 mapped_not_executable,ability,static,mapped_not_executable,3bd,Snow White - Fairest in the Land,character,007,33,1wd-1,static,HIDDEN AWAY,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,ij4,Stabbington Brother - Without a Patch,character,007,125,ij4-2,static,GET 'EM!,mapped_not_executable
 unsupported_targeting,ability,activated,unsupported_targeting,J3O,The Queen - Jealous Beauty,character,007,74,ce7-1,activated,NO ORDINARY APPLE,unsupported_targeting
@@ -1195,11 +1184,6 @@ mapped_not_executable,ability,static,mapped_not_executable,dQW,Flash - Records S
 mapped_not_executable,ability,static,mapped_not_executable,fzp,Flintheart Glomgold - Scheming Billionaire,character,010,76,l2o-1,static,TRY ME,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,Gbt,Flynn Rider - Spectral Scoundrel,character,010,81,73r-2,static,I'LL TAKE THAT,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,Gbt,Flynn Rider - Spectral Scoundrel,character,010,81,73r-3,static,I'LL TAKE THAT,mapped_not_executable
-unsupported_targeting,ability,triggered,unsupported_targeting,pYT,Goldie O'Gilt - Cunning Prospector,character,010,87,pYT-2,triggered,STRIKE GOLD,unsupported_targeting
-unsupported_targeting,effect,optional,unsupported_targeting,pYT,Goldie O'Gilt - Cunning Prospector,character,010,87,pYT-2,triggered,STRIKE GOLD,unsupported_targeting
-unsupported_targeting,effect,sequence,unsupported_targeting,pYT,Goldie O'Gilt - Cunning Prospector,character,010,87,pYT-2,triggered,STRIKE GOLD,unsupported_targeting
-unsupported_targeting,effect,put-on-bottom,unsupported_targeting,pYT,Goldie O'Gilt - Cunning Prospector,character,010,87,pYT-2,triggered,STRIKE GOLD,unsupported_targeting
-unsupported_targeting,target,selector,unsupported_targeting,pYT,Goldie O'Gilt - Cunning Prospector,character,010,87,pYT-2,triggered,STRIKE GOLD,unsupported_targeting
 mapped_not_executable,ability,static,mapped_not_executable,Y3G,Goliath - Clan Leader,character,010,173,2,static,STONE BY DAY,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,wwB,Goliath - Clan Leader,character,010,238,2,static,STONE BY DAY,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,5GE,Goliath - Guardian of Castle Wyvern,character,010,119,1,static,STONE BY DAY,mapped_not_executable
@@ -1442,13 +1426,10 @@ unsupported_engine_mechanic,effect,sequence,unsupported_engine_mechanic,RUA,Scro
 unsupported_engine_mechanic,effect,put-under,unsupported_engine_mechanic,RUA,Scrooge McDuck - Reformed Ebenezer,character,011,235,1yi-2,triggered,SPREADING JOY,unsupported_engine_mechanic
 mapped_not_executable,ability,static,mapped_not_executable,q39,Splatter Phoenix - Rejected Artist,character,011,153,ability,static,UNDERDOG,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-1,static,WAKE OF DESTRUCTION,mapped_not_executable
-unsupported_targeting,ability,triggered,unsupported_targeting,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_targeting
-unsupported_targeting,effect,sequence,unsupported_targeting,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_targeting
-unsupported_targeting,effect,optional,unsupported_targeting,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_targeting
-unsupported_targeting,effect,put-on-bottom,unsupported_targeting,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_targeting
-unsupported_targeting,target,selector,unsupported_targeting,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_targeting
-unsupported_condition,effect,conditional,unsupported_condition,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_targeting
-unsupported_condition,effect_condition,if-you-do,unsupported_condition,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_targeting
+unsupported_condition,ability,triggered,unsupported_condition,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_condition
+unsupported_condition,effect,sequence,unsupported_condition,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_condition
+unsupported_condition,effect,conditional,unsupported_condition,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_condition
+unsupported_condition,effect_condition,if-you-do,unsupported_condition,28g,Stegmutt - Clumsy Dinosaur,character,011,79,10u-2,triggered,COLLATERAL DAMAGE,unsupported_condition
 mapped_not_executable,ability,static,mapped_not_executable,xeg,Stitch - High Badness Level,character,011,185,qzq-1,static,AMPED UP,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,AqR,Tinker Bell - Snowflake Collector,character,011,48,t9a-1,static,FLURRY OF DELIGHT,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,AqR,Tinker Bell - Snowflake Collector,character,011,48,t9a-2,static,SPECTACULAR FIND,mapped_not_executable
@@ -1614,11 +1595,6 @@ unsupported_engine_mechanic,effect,optional,unsupported_engine_mechanic,D1V,Pres
 unsupported_engine_mechanic,effect,mill,unsupported_engine_mechanic,D1V,Preston Whitmore - Expedition Financier,character,012,110,D1V-1,triggered,PRICE OF PROGRESS,unsupported_engine_mechanic
 mapped_not_executable,ability,static,mapped_not_executable,zSo,Rat Capone - Rodent Gangster,character,012,183,zSo-1,static,SHADAAP!,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,Q20,RC - Remote-Controlled Car,character,012,77,Q20-1,static,LOW BATTERIES,mapped_not_executable
-unsupported_targeting,ability,triggered,unsupported_targeting,uOj,Roller Bob - Sid's Toy,character,012,113,uOj-1,triggered,TIME TO MOVE,unsupported_targeting
-unsupported_targeting,effect,optional,unsupported_targeting,uOj,Roller Bob - Sid's Toy,character,012,113,uOj-1,triggered,TIME TO MOVE,unsupported_targeting
-unsupported_targeting,effect,sequence,unsupported_targeting,uOj,Roller Bob - Sid's Toy,character,012,113,uOj-1,triggered,TIME TO MOVE,unsupported_targeting
-unsupported_targeting,effect,put-on-bottom,unsupported_targeting,uOj,Roller Bob - Sid's Toy,character,012,113,uOj-1,triggered,TIME TO MOVE,unsupported_targeting
-unsupported_targeting,target,selector,unsupported_targeting,uOj,Roller Bob - Sid's Toy,character,012,113,uOj-1,triggered,TIME TO MOVE,unsupported_targeting
 unsupported_choice,ability,triggered,unsupported_choice,lRX,Sid Phillips - Toy Surgeon,character,012,126,Esk-1,triggered,PLAYTIME'S OVER,unsupported_choice
 unsupported_choice,effect,optional,unsupported_choice,lRX,Sid Phillips - Toy Surgeon,character,012,126,Esk-1,triggered,PLAYTIME'S OVER,unsupported_choice
 unsupported_choice,effect,sequence,unsupported_choice,lRX,Sid Phillips - Toy Surgeon,character,012,126,Esk-1,triggered,PLAYTIME'S OVER,unsupported_choice
@@ -1646,8 +1622,6 @@ unsupported_engine_mechanic,ability,static,unsupported_engine_mechanic,6F2,Escap
 unsupported_engine_mechanic,effect,self-play-condition,unsupported_engine_mechanic,6F2,Escape Plan,action,012,164,ability,static,,unsupported_engine_mechanic
 unsupported_choice,ability,action,unsupported_choice,6F2,Escape Plan,action,012,164,1,action,,unsupported_choice
 unsupported_choice,effect,sequence,unsupported_choice,6F2,Escape Plan,action,012,164,1,action,,unsupported_choice
-unsupported_targeting,effect,put-into-inkwell,unsupported_targeting,6F2,Escape Plan,action,012,164,1,action,,unsupported_choice
-unsupported_targeting,target,selector,unsupported_targeting,6F2,Escape Plan,action,012,164,1,action,,unsupported_choice
 unsupported_choice,effect,for-each-opponent,unsupported_choice,6F2,Escape Plan,action,012,164,1,action,,unsupported_choice
 unsupported_choice,ability,action,unsupported_choice,idk,The Family Scattered,action,012,97,ability,action,,unsupported_choice
 unsupported_choice,effect,sequence,unsupported_choice,idk,The Family Scattered,action,012,97,ability,action,,unsupported_choice

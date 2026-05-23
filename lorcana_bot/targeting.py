@@ -10,6 +10,7 @@ Brief 3 adds target selection availability analysis and protection filtering
 
 from __future__ import annotations
 
+import itertools
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -727,6 +728,8 @@ def _normalize_max_count(value: Any) -> int | None:
     if isinstance(value, str) and value.lower() in {"any", "all", "unbounded", "unlimited", "inf", "infinity"}:
         return None
     if isinstance(value, dict):
+        if "exactly" in value:
+            return int(value["exactly"])
         if "upTo" in value:
             return int(value["upTo"])
         if "up_to" in value:
@@ -740,6 +743,9 @@ def _normalize_count_bounds(value: Any, default_min: int, default_max: int | Non
     if value is None:
         return default_min, default_max
     if isinstance(value, dict):
+        if "exactly" in value:
+            exact = int(value["exactly"])
+            return exact, exact
         if "upTo" in value:
             return 0, int(value["upTo"])
         if "up_to" in value:
@@ -1539,6 +1545,47 @@ def analyze_target_selection_availability(
         requires_explicit_target_selection=requires_explicit,
         should_auto_reject_for_no_valid_targets=auto_reject,
     )
+
+
+def enumerate_target_selections(
+    candidates: tuple[TargetCandidate, ...],
+    descriptor: TargetDescriptor,
+    *,
+    candidate_kind: str = "card",
+) -> tuple[tuple[int, ...], ...]:
+    """Enumerate legal target id selections for a descriptor.
+
+    Lorcanito target inputs are submitted as arrays. This helper centralizes
+    Python enumeration for action cards, activated abilities, bag input, and
+    pending input so all paths share the same min/max/duplicate semantics.
+    """
+    ids = tuple(candidate.id for candidate in candidates if candidate.kind == candidate_kind)
+    if not ids:
+        return ((),) if descriptor.min_count <= 0 else ()
+
+    min_count = max(0, int(descriptor.min_count or 0))
+    if descriptor.max_count is None:
+        max_count = len(ids) if not descriptor.allow_duplicate_targets else max(min_count, len(ids))
+    else:
+        max_count = max(0, int(descriptor.max_count))
+
+    if not descriptor.allow_duplicate_targets:
+        max_count = min(max_count, len(ids))
+
+    if max_count < min_count:
+        return ()
+
+    selections: list[tuple[int, ...]] = []
+    if min_count == 0:
+        selections.append(())
+
+    for count in range(max(1, min_count), max_count + 1):
+        if descriptor.allow_duplicate_targets:
+            selections.extend(tuple(choice) for choice in itertools.product(ids, repeat=count))
+        else:
+            selections.extend(tuple(choice) for choice in itertools.combinations(ids, count))
+
+    return tuple(selections)
 
 
 def apply_target_protections(

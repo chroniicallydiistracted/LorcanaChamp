@@ -191,3 +191,53 @@ def test_microfix19_lorcanito_seven_dwarfs_alias_maps_executable():
     assert ability.execution_status == ExecutionStatus.EXECUTABLE
     assert ability.effects[0].target is not None
     assert ability.effects[0].target.execution_status == ExecutionStatus.EXECUTABLE
+
+
+def test_microfix20_lorcanito_chosen_count_two_target_projects():
+    ability = map_raw_ability({
+        "type": "action",
+        "effect": {
+            "type": "deal-damage",
+            "amount": 1,
+            "target": {
+                "selector": "chosen",
+                "count": 2,
+                "owner": "opponent",
+                "zones": ["play"],
+                "cardTypes": ["character"],
+            },
+        },
+    })
+
+    assert ability.execution_status == ExecutionStatus.EXECUTABLE
+    assert ability.effects[0].target is not None
+    assert ability.effects[0].target.execution_status == ExecutionStatus.EXECUTABLE
+
+    effects = project_action_effects(_card(ability))
+
+    assert len(effects) == 1
+    assert effects[0].kind == "deal_damage"
+    assert isinstance(effects[0].target, dict)
+    assert effects[0].target["selector"] == "chosen"
+    assert effects[0].target["count"] == 2
+    assert effects[0].target["cardTypes"] == ["character"]
+
+
+def test_microfix20_lorcanito_exactly_count_target_projects():
+    ability = map_raw_ability({
+        "type": "action",
+        "effect": {
+            "type": "exert",
+            "target": {
+                "selector": "chosen",
+                "count": {"exactly": 2},
+                "owner": "any",
+                "zones": ["play"],
+                "cardTypes": ["character"],
+            },
+        },
+    })
+
+    assert ability.execution_status == ExecutionStatus.EXECUTABLE
+    assert ability.effects[0].target is not None
+    assert ability.effects[0].target.execution_status == ExecutionStatus.EXECUTABLE

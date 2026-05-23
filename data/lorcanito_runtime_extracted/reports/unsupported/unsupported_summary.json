@@ -12,30 +12,30 @@
   "detailed_reason_counts": {
     "mapped_not_executable": 512,
     "unsupported_choice": 148,
-    "unsupported_condition": 262,
+    "unsupported_condition": 264,
     "unsupported_cost": 52,
     "unsupported_engine_mechanic": 242,
-    "unsupported_targeting": 496,
+    "unsupported_targeting": 468,
     "unsupported_trigger": 1
   },
-  "detailed_record_count": 1713,
+  "detailed_record_count": 1687,
   "errors": [],
   "execution_status_counts": {
-    "executable": 10867,
+    "executable": 10893,
     "mapped_not_executable": 512,
     "unsupported_choice": 148,
-    "unsupported_condition": 262,
+    "unsupported_condition": 264,
     "unsupported_cost": 52,
     "unsupported_engine_mechanic": 242,
-    "unsupported_targeting": 496,
+    "unsupported_targeting": 468,
     "unsupported_trigger": 1
   },
   "object_type_counts": {
-    "ability": 862,
+    "ability": 857,
     "cost": 28,
-    "effect": 615,
+    "effect": 601,
     "effect_condition": 66,
-    "target": 141,
+    "target": 134,
     "trigger": 1
   },
   "outputs": {
@@ -58,6 +58,7 @@
     "Belle - Strange but Special": 4,
     "Bibbidi Bobbidi Boo": 4,
     "Blast from Your Past": 5,
+    "Bounce": 4,
     "Bruno Madrigal - Undetected Uncle": 6,
     "Captain Amelia - Commander of the Legacy": 8,
     "Captain Hook - Master Swordsman": 12,
@@ -70,12 +71,11 @@
     "Donald Duck - Ruby Champion": 6,
     "Edna Mode - Fashion Designer": 10,
     "Eeyore - In the Way": 6,
-    "Escape Plan": 7,
+    "Escape Plan": 5,
     "Fairy Godmother - Magical Benefactor": 5,
     "Fix-It Felix, Jr. - Pint-Sized Hero": 5,
     "Gaston - Arrogant Showoff": 5,
     "Giant Cobra - Ghostly Serpent": 5,
-    "Goldie O'Gilt - Cunning Prospector": 5,
     "Goofy - Set for Adventure": 8,
     "Graveyard of Christmas Future - Lonely Resting Place": 6,
     "Gustav the Giant - Terror of the Kingdom": 6,
@@ -91,10 +91,10 @@
     "King Candy - Sweet Abomination": 10,
     "Kuzco - Impulsive Llama": 6,
     "Lady Tremaine - Imperious Queen": 4,
+    "Launch": 4,
     "Let's Get Dangerous": 6,
     "Luisa Madrigal - Confident Climber": 8,
     "Lyle Tiberius Rourke - Crystallized Commander": 6,
-    "Madam Mim - Purple Dragon": 8,
     "Madame Medusa - Diamond Lover": 6,
     "Magic Broom - Illuminary Keeper": 7,
     "Magica De Spell - Shadow Form": 6,
@@ -113,7 +113,6 @@
     "Ratigan - Very Large Mouse": 4,
     "Raya - Headstrong": 14,
     "Raya - Kumandran Rider": 10,
-    "Roller Bob - Sid's Toy": 5,
     "Royal Tantrum": 8,
     "Safety Rope": 5,
     "Scar - Finally King": 12,
@@ -123,11 +122,12 @@
     "Sign the Scroll": 5,
     "Sleepy Hollow - The Bridge": 7,
     "Snow White - Merry as the Morning": 5,
-    "Stegmutt - Clumsy Dinosaur": 8,
+    "Stegmutt - Clumsy Dinosaur": 5,
     "Stitch - Rock Star": 10,
     "Sugar Rush Speedway - Finish Line": 10,
     "Sugar Rush Speedway - Starting Line": 6,
     "Syndrome's Remote": 5,
+    "Teeth and Ambitions": 4,
     "The Black Cauldron": 8,
     "The Family Scattered": 10,
     "The Glass Slipper": 6,
@@ -148,12 +148,12 @@
     "Wrong Lever!": 10
   },
   "top_object_kind_counts": {
-    "ability:action": 58,
+    "ability:action": 57,
     "ability:activated": 44,
     "ability:keyword": 6,
     "ability:replacement": 6,
     "ability:static": 580,
-    "ability:triggered": 168,
+    "ability:triggered": 164,
     "cost:banishCharacter": 4,
     "cost:banishCharacterTarget": 1,
     "cost:banishItem": 6,
@@ -171,7 +171,7 @@
     "effect:discard": 4,
     "effect:enable-play-from-under": 2,
     "effect:enters-with-damage": 7,
-    "effect:exert": 7,
+    "effect:exert": 6,
     "effect:for-each-opponent": 10,
     "effect:gain-keyword": 29,
     "effect:grant-abilities-while-here": 2,
@@ -183,23 +183,23 @@
     "effect:move-cost-reduction": 9,
     "effect:move-to-location": 16,
     "effect:name-a-card": 6,
-    "effect:optional": 100,
-    "effect:or": 8,
+    "effect:optional": 97,
+    "effect:or": 6,
     "effect:pay-cost": 3,
     "effect:property-modification": 9,
-    "effect:put-into-inkwell": 6,
-    "effect:put-on-bottom": 12,
+    "effect:put-into-inkwell": 5,
+    "effect:put-on-bottom": 9,
     "effect:put-on-top": 2,
     "effect:put-under": 18,
     "effect:ready": 12,
     "effect:remove-damage": 11,
     "effect:restriction": 14,
-    "effect:return-to-hand": 8,
+    "effect:return-to-hand": 6,
     "effect:reveal-until-match": 1,
     "effect:scry": 3,
     "effect:select-target": 1,
     "effect:self-play-condition": 3,
-    "effect:sequence": 152,
+    "effect:sequence": 150,
     "effect:shuffle-into-deck": 2,
     "effect:stat-floor": 1,
     "effect:suppress-ability": 1,
@@ -211,7 +211,7 @@
     "effect_condition:returned-card-is-princess": 2,
     "target:alias": 49,
     "target:object": 8,
-    "target:selector": 84,
+    "target:selector": 77,
     "trigger:boost": 1
   },
   "top_unsupported_patterns": [
@@ -224,24 +224,20 @@
       "pattern": "effect.type:conditional:unsupported_condition"
     },
     {
-      "count": 63,
+      "count": 58,
       "pattern": "ability.type:triggered:unsupported_targeting"
     },
     {
-      "count": 55,
+      "count": 56,
       "pattern": "effect.type:sequence:unsupported_condition"
     },
     {
-      "count": 48,
+      "count": 45,
       "pattern": "effect.type:sequence:unsupported_targeting"
     },
     {
-      "count": 39,
+      "count": 40,
       "pattern": "ability.type:triggered:unsupported_condition"
-    },
-    {
-      "count": 39,
-      "pattern": "effect.type:optional:unsupported_targeting"
     },
     {
       "count": 38,
@@ -250,6 +246,10 @@
     {
       "count": 36,
       "pattern": "ability.type:static:unsupported_engine_mechanic"
+    },
+    {
+      "count": 36,
+      "pattern": "effect.type:optional:unsupported_targeting"
     },
     {
       "count": 35,
@@ -299,10 +299,10 @@
   "unsupported_by_reason": {
     "mapped_not_executable": 512,
     "unsupported_choice": 148,
-    "unsupported_condition": 196,
+    "unsupported_condition": 198,
     "unsupported_cost": 24,
     "unsupported_engine_mechanic": 242,
-    "unsupported_targeting": 355
+    "unsupported_targeting": 334
   },
   "warnings": []
 }

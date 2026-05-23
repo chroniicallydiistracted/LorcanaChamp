@@ -141,6 +141,66 @@ def test_resolve_bag_action_processes_effects(engine):
         assert next_state is not None
 
 
+def test_bag_target_input_enumerates_multi_target_tuple_actions(engine):
+    state = engine.setup_game([["test_char"] * 30, ["test_char"] * 30], seed=42)
+    next_id = max(state.cards.keys()) + 1
+    source = next_id
+    target_1 = next_id + 1
+    target_2 = next_id + 2
+    target_3 = next_id + 3
+
+    state.cards[source] = CardInstance(instance_id=source, card_id="test_char", owner=0, controller=0, zone=ZONE_PLAY)
+    state.cards[target_1] = CardInstance(instance_id=target_1, card_id="test_char", owner=1, controller=1, zone=ZONE_PLAY)
+    state.cards[target_2] = CardInstance(instance_id=target_2, card_id="test_char", owner=1, controller=1, zone=ZONE_PLAY)
+    state.cards[target_3] = CardInstance(instance_id=target_3, card_id="test_char", owner=1, controller=1, zone=ZONE_PLAY)
+    state.players[0].play.append(source)
+    state.players[1].play.extend([target_1, target_2, target_3])
+
+    state.bag.append(BagEffectEntry(
+        id="bag_multi_target",
+        kind="triggered_ability",
+        ability_id="multi_target",
+        ability_index=0,
+        ability_key="multi_target:0",
+        ability_name="Multi Target",
+        auto_resolve=False,
+        controller_id=0,
+        chooser_id=0,
+        source_id=source,
+        source_card_id="test_char",
+        trigger={"event": "play", "on": "SELF"},
+        condition=None,
+        effects=(
+            EffectDef(
+                "optional",
+                effects=(
+                    EffectDef(
+                        "deal_damage",
+                        1,
+                        {
+                            "selector": "chosen",
+                            "count": 2,
+                            "owner": "opponent",
+                            "zones": ["play"],
+                            "cardTypes": ["character"],
+                        },
+                    ),
+                ),
+            ),
+        ),
+        occurrence_index=1,
+    ))
+
+    actions = [action for action in engine.legal_actions(state, 0) if action.kind == ACTION_RESOLVE_BAG]
+    selections = {tuple(action.choice["targets"]) for action in actions if action.choice.get("targets")}
+
+    assert selections == {
+        (target_1, target_2),
+        (target_1, target_3),
+        (target_2, target_3),
+    }
+
+
 class TestTriggerContextInBagResolution:
     """Tests for trigger context being passed to effect resolution."""
 

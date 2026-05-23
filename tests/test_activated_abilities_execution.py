@@ -73,6 +73,24 @@ def _chosen_character_target() -> SourceTargetDef:
     )
 
 
+def _chosen_two_characters_target() -> SourceTargetDef:
+    return SourceTargetDef(
+        kind="selector",
+        selector="chosen",
+        count=2,
+        owner="opponent",
+        zones=("play",),
+        card_types=("character",),
+        raw={
+            "selector": "chosen",
+            "count": 2,
+            "owner": "opponent",
+            "zones": ["play"],
+            "cardTypes": ["character"],
+        },
+    )
+
+
 def _make_source_effect(kind: str, **kwargs) -> SourceEffectDef:
     """Create a mock source effect."""
     target = kwargs.pop("target", None)
@@ -147,6 +165,69 @@ class TestUseAbilityAction:
 
         assert len(use_ability_actions) == 1
         assert use_ability_actions[0].source == 1
+
+    def test_use_ability_generates_multi_target_actions_and_resolves_all_selected_targets(self):
+        """USE_ABILITY should carry selected target tuples for count=2 target requirements."""
+        db = MagicMock(spec=CardDatabase)
+
+        source_card = _make_card_def("multi_target_card", abilities=[
+            _make_source_ability(
+                "damage_two",
+                costs=[],
+                effects=[
+                    _make_source_effect(
+                        "deal-damage",
+                        amount=1,
+                        target=_chosen_two_characters_target(),
+                    ),
+                ],
+            )
+        ])
+        target_card = _make_card_def("target_character")
+
+        def get_card(card_id):
+            if card_id == "multi_target_card":
+                return source_card
+            return target_card
+
+        db.get.side_effect = get_card
+
+        engine = GameEngine(db)
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={
+                1: CardInstance(instance_id=1, card_id="multi_target_card", owner=0, controller=0),
+                2: CardInstance(instance_id=2, card_id="target_character", owner=1, controller=1),
+                3: CardInstance(instance_id=3, card_id="target_character", owner=1, controller=1),
+                4: CardInstance(instance_id=4, card_id="target_character", owner=1, controller=1),
+            },
+        )
+        state.cards[1].zone = ZONE_PLAY
+        state.cards[2].zone = ZONE_PLAY
+        state.cards[3].zone = ZONE_PLAY
+        state.cards[4].zone = ZONE_PLAY
+        state.players[0].play = [1]
+        state.players[1].play = [2, 3, 4]
+        state.phase = PHASE_MAIN
+        state.active_player = 0
+
+        legal = engine.legal_actions(state, 0)
+        use_ability_actions = [action for action in legal if action.kind == ACTION_USE_ABILITY]
+
+        selections = {tuple(action.choice["targets"]) for action in use_ability_actions}
+
+        assert selections == {
+            (2, 3),
+            (2, 4),
+            (3, 4),
+        }
+
+        action = next(action for action in use_ability_actions if tuple(action.choice["targets"]) == (2, 3))
+        next_state = engine.apply_action(state, action)
+
+        assert next_state.cards[2].damage == 1
+        assert next_state.cards[3].damage == 1
+        assert next_state.cards[4].damage == 0
 
     def test_use_ability_exerts_source(self):
         """USE_ABILITY with exert cost should exert the source."""

@@ -40084,7 +40084,151 @@
         "id": "10u-2",
         "kind": "triggered",
         "name": "COLLATERAL DAMAGE",
-        "status": "unsupported_targeting",
+        "status": "unsupported_condition",
+        "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character."
+      },
+      "card": {
+        "card_type": "character",
+        "collector_number": "79",
+        "cost": 8,
+        "full_name": "Stegmutt - Clumsy Dinosaur",
+        "id": "28g",
+        "ink": "emerald",
+        "set_code": "011"
+      },
+      "object_kind": "triggered",
+      "object_status": "unsupported_condition",
+      "object_type": "ability",
+      "raw": {
+        "_source_index": 1,
+        "effect": {
+          "steps": [
+            {
+              "chooser": "CONTROLLER",
+              "effect": {
+                "target": {
+                  "cardTypes": [
+                    "item"
+                  ],
+                  "count": 3,
+                  "owner": "you",
+                  "selector": "chosen",
+                  "zones": [
+                    "discard"
+                  ]
+                },
+                "type": "put-on-bottom"
+              },
+              "type": "optional"
+            },
+            {
+              "condition": {
+                "type": "if-you-do"
+              },
+              "then": {
+                "amount": 3,
+                "target": {
+                  "cardTypes": [
+                    "character"
+                  ],
+                  "count": 1,
+                  "owner": "any",
+                  "selector": "chosen",
+                  "zones": [
+                    "play"
+                  ]
+                },
+                "type": "deal-damage"
+              },
+              "type": "conditional"
+            }
+          ],
+          "type": "sequence"
+        },
+        "id": "10u-2",
+        "name": "COLLATERAL DAMAGE",
+        "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character.",
+        "trigger": {
+          "event": "play",
+          "on": "SELF",
+          "timing": "when"
+        },
+        "type": "triggered"
+      },
+      "reason": "unsupported_condition"
+    },
+    {
+      "ability": {
+        "id": "10u-2",
+        "kind": "triggered",
+        "name": "COLLATERAL DAMAGE",
+        "status": "unsupported_condition",
+        "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character."
+      },
+      "card": {
+        "card_type": "character",
+        "collector_number": "79",
+        "cost": 8,
+        "full_name": "Stegmutt - Clumsy Dinosaur",
+        "id": "28g",
+        "ink": "emerald",
+        "set_code": "011"
+      },
+      "object_kind": "sequence",
+      "object_status": "unsupported_condition",
+      "object_type": "effect",
+      "raw": {
+        "steps": [
+          {
+            "chooser": "CONTROLLER",
+            "effect": {
+              "target": {
+                "cardTypes": [
+                  "item"
+                ],
+                "count": 3,
+                "owner": "you",
+                "selector": "chosen",
+                "zones": [
+                  "discard"
+                ]
+              },
+              "type": "put-on-bottom"
+            },
+            "type": "optional"
+          },
+          {
+            "condition": {
+              "type": "if-you-do"
+            },
+            "then": {
+              "amount": 3,
+              "target": {
+                "cardTypes": [
+                  "character"
+                ],
+                "count": 1,
+                "owner": "any",
+                "selector": "chosen",
+                "zones": [
+                  "play"
+                ]
+              },
+              "type": "deal-damage"
+            },
+            "type": "conditional"
+          }
+        ],
+        "type": "sequence"
+      },
+      "reason": "unsupported_condition"
+    },
+    {
+      "ability": {
+        "id": "10u-2",
+        "kind": "triggered",
+        "name": "COLLATERAL DAMAGE",
+        "status": "unsupported_condition",
         "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character."
       },
       "card": {
@@ -40127,7 +40271,7 @@
         "id": "10u-2",
         "kind": "triggered",
         "name": "COLLATERAL DAMAGE",
-        "status": "unsupported_targeting",
+        "status": "unsupported_condition",
         "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character."
       },
       "card": {
@@ -54082,372 +54226,6 @@
   "unsupported_targeting": [
     {
       "ability": {
-        "id": "12t-2",
-        "kind": "triggered",
-        "name": "I WIN, I WIN!",
-        "status": "unsupported_targeting",
-        "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "47",
-        "cost": 7,
-        "full_name": "Madam Mim - Purple Dragon",
-        "id": "EHY",
-        "ink": "amethyst",
-        "set_code": "002"
-      },
-      "object_kind": "triggered",
-      "object_status": "unsupported_targeting",
-      "object_type": "ability",
-      "raw": {
-        "_source_index": 1,
-        "effect": {
-          "optionLabels": [
-            "banish her",
-            "return another 2 chosen characters of yours to your hand"
-          ],
-          "options": [
-            {
-              "target": "SELF",
-              "type": "banish"
-            },
-            {
-              "target": {
-                "cardTypes": [
-                  "character"
-                ],
-                "count": 2,
-                "excludeSelf": true,
-                "owner": "you",
-                "selector": "chosen",
-                "zones": [
-                  "play"
-                ]
-              },
-              "type": "return-to-hand"
-            }
-          ],
-          "type": "or"
-        },
-        "id": "12t-2",
-        "name": "I WIN, I WIN!",
-        "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand.",
-        "trigger": {
-          "event": "play",
-          "on": "SELF",
-          "timing": "when"
-        },
-        "type": "triggered"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "12t-2",
-        "kind": "triggered",
-        "name": "I WIN, I WIN!",
-        "status": "unsupported_targeting",
-        "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "47",
-        "cost": 7,
-        "full_name": "Madam Mim - Purple Dragon",
-        "id": "EHY",
-        "ink": "amethyst",
-        "set_code": "002"
-      },
-      "object_kind": "or",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "optionLabels": [
-          "banish her",
-          "return another 2 chosen characters of yours to your hand"
-        ],
-        "options": [
-          {
-            "target": "SELF",
-            "type": "banish"
-          },
-          {
-            "target": {
-              "cardTypes": [
-                "character"
-              ],
-              "count": 2,
-              "excludeSelf": true,
-              "owner": "you",
-              "selector": "chosen",
-              "zones": [
-                "play"
-              ]
-            },
-            "type": "return-to-hand"
-          }
-        ],
-        "type": "or"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "12t-2",
-        "kind": "triggered",
-        "name": "I WIN, I WIN!",
-        "status": "unsupported_targeting",
-        "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "47",
-        "cost": 7,
-        "full_name": "Madam Mim - Purple Dragon",
-        "id": "EHY",
-        "ink": "amethyst",
-        "set_code": "002"
-      },
-      "object_kind": "return-to-hand",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "target": {
-          "cardTypes": [
-            "character"
-          ],
-          "count": 2,
-          "excludeSelf": true,
-          "owner": "you",
-          "selector": "chosen",
-          "zones": [
-            "play"
-          ]
-        },
-        "type": "return-to-hand"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "12t-2",
-        "kind": "triggered",
-        "name": "I WIN, I WIN!",
-        "status": "unsupported_targeting",
-        "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "47",
-        "cost": 7,
-        "full_name": "Madam Mim - Purple Dragon",
-        "id": "EHY",
-        "ink": "amethyst",
-        "set_code": "002"
-      },
-      "object_kind": "selector",
-      "object_status": "unsupported_targeting",
-      "object_type": "target",
-      "raw": {
-        "cardTypes": [
-          "character"
-        ],
-        "count": 2,
-        "excludeSelf": true,
-        "owner": "you",
-        "selector": "chosen",
-        "zones": [
-          "play"
-        ]
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "12t-2",
-        "kind": "triggered",
-        "name": "I WIN, I WIN!",
-        "status": "unsupported_targeting",
-        "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "208",
-        "cost": 7,
-        "full_name": "Madam Mim - Purple Dragon",
-        "id": "1uc",
-        "ink": "amethyst",
-        "set_code": "002"
-      },
-      "object_kind": "triggered",
-      "object_status": "unsupported_targeting",
-      "object_type": "ability",
-      "raw": {
-        "_source_index": 1,
-        "effect": {
-          "optionLabels": [
-            "banish her",
-            "return another 2 chosen characters of yours to your hand"
-          ],
-          "options": [
-            {
-              "target": "SELF",
-              "type": "banish"
-            },
-            {
-              "target": {
-                "cardTypes": [
-                  "character"
-                ],
-                "count": 2,
-                "excludeSelf": true,
-                "owner": "you",
-                "selector": "chosen",
-                "zones": [
-                  "play"
-                ]
-              },
-              "type": "return-to-hand"
-            }
-          ],
-          "type": "or"
-        },
-        "id": "12t-2",
-        "name": "I WIN, I WIN!",
-        "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand.",
-        "trigger": {
-          "event": "play",
-          "on": "SELF",
-          "timing": "when"
-        },
-        "type": "triggered"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "12t-2",
-        "kind": "triggered",
-        "name": "I WIN, I WIN!",
-        "status": "unsupported_targeting",
-        "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "208",
-        "cost": 7,
-        "full_name": "Madam Mim - Purple Dragon",
-        "id": "1uc",
-        "ink": "amethyst",
-        "set_code": "002"
-      },
-      "object_kind": "or",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "optionLabels": [
-          "banish her",
-          "return another 2 chosen characters of yours to your hand"
-        ],
-        "options": [
-          {
-            "target": "SELF",
-            "type": "banish"
-          },
-          {
-            "target": {
-              "cardTypes": [
-                "character"
-              ],
-              "count": 2,
-              "excludeSelf": true,
-              "owner": "you",
-              "selector": "chosen",
-              "zones": [
-                "play"
-              ]
-            },
-            "type": "return-to-hand"
-          }
-        ],
-        "type": "or"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "12t-2",
-        "kind": "triggered",
-        "name": "I WIN, I WIN!",
-        "status": "unsupported_targeting",
-        "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "208",
-        "cost": 7,
-        "full_name": "Madam Mim - Purple Dragon",
-        "id": "1uc",
-        "ink": "amethyst",
-        "set_code": "002"
-      },
-      "object_kind": "return-to-hand",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "target": {
-          "cardTypes": [
-            "character"
-          ],
-          "count": 2,
-          "excludeSelf": true,
-          "owner": "you",
-          "selector": "chosen",
-          "zones": [
-            "play"
-          ]
-        },
-        "type": "return-to-hand"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "12t-2",
-        "kind": "triggered",
-        "name": "I WIN, I WIN!",
-        "status": "unsupported_targeting",
-        "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "208",
-        "cost": 7,
-        "full_name": "Madam Mim - Purple Dragon",
-        "id": "1uc",
-        "ink": "amethyst",
-        "set_code": "002"
-      },
-      "object_kind": "selector",
-      "object_status": "unsupported_targeting",
-      "object_type": "target",
-      "raw": {
-        "cardTypes": [
-          "character"
-        ],
-        "count": 2,
-        "excludeSelf": true,
-        "owner": "you",
-        "selector": "chosen",
-        "zones": [
-          "play"
-        ]
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
         "id": "1wj-1",
         "kind": "triggered",
         "name": "THIS IS MY KINGDOM",
@@ -64741,134 +64519,6 @@
     },
     {
       "ability": {
-        "id": "18b-1",
-        "kind": "action",
-        "name": "PUT IT TO GOOD USE",
-        "status": "unsupported_targeting",
-        "text": "PUT IT TO GOOD USE You may exert 4 items of yours to play this character for free."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "154",
-        "cost": 4,
-        "full_name": "Scrooge McDuck - Resourceful Miser",
-        "id": "eru",
-        "ink": "sapphire",
-        "set_code": "007"
-      },
-      "object_kind": "action",
-      "object_status": "unsupported_targeting",
-      "object_type": "ability",
-      "raw": {
-        "_source_index": 0,
-        "alternativeCost": "exert-4-items",
-        "effect": {
-          "target": {
-            "cardTypes": [
-              "item"
-            ],
-            "count": 4,
-            "filter": [
-              {
-                "type": "ready"
-              }
-            ],
-            "owner": "you",
-            "selector": "chosen",
-            "zones": [
-              "play"
-            ]
-          },
-          "type": "exert"
-        },
-        "id": "18b-1",
-        "name": "PUT IT TO GOOD USE",
-        "text": "PUT IT TO GOOD USE You may exert 4 items of yours to play this character for free.",
-        "type": "action"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "18b-1",
-        "kind": "action",
-        "name": "PUT IT TO GOOD USE",
-        "status": "unsupported_targeting",
-        "text": "PUT IT TO GOOD USE You may exert 4 items of yours to play this character for free."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "154",
-        "cost": 4,
-        "full_name": "Scrooge McDuck - Resourceful Miser",
-        "id": "eru",
-        "ink": "sapphire",
-        "set_code": "007"
-      },
-      "object_kind": "exert",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "target": {
-          "cardTypes": [
-            "item"
-          ],
-          "count": 4,
-          "filter": [
-            {
-              "type": "ready"
-            }
-          ],
-          "owner": "you",
-          "selector": "chosen",
-          "zones": [
-            "play"
-          ]
-        },
-        "type": "exert"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "18b-1",
-        "kind": "action",
-        "name": "PUT IT TO GOOD USE",
-        "status": "unsupported_targeting",
-        "text": "PUT IT TO GOOD USE You may exert 4 items of yours to play this character for free."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "154",
-        "cost": 4,
-        "full_name": "Scrooge McDuck - Resourceful Miser",
-        "id": "eru",
-        "ink": "sapphire",
-        "set_code": "007"
-      },
-      "object_kind": "selector",
-      "object_status": "unsupported_targeting",
-      "object_type": "target",
-      "raw": {
-        "cardTypes": [
-          "item"
-        ],
-        "count": 4,
-        "filter": [
-          {
-            "type": "ready"
-          }
-        ],
-        "owner": "you",
-        "selector": "chosen",
-        "zones": [
-          "play"
-        ]
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
         "id": "ce7-1",
         "kind": "activated",
         "name": "NO ORDINARY APPLE",
@@ -69027,261 +68677,6 @@
     },
     {
       "ability": {
-        "id": "pYT-2",
-        "kind": "triggered",
-        "name": "STRIKE GOLD",
-        "status": "unsupported_targeting",
-        "text": "STRIKE GOLD Whenever this character quests, you may put a location card from chosen player's discard on the bottom of their deck to gain 1 lore."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "87",
-        "cost": 3,
-        "full_name": "Goldie O'Gilt - Cunning Prospector",
-        "id": "pYT",
-        "ink": "emerald",
-        "set_code": "010"
-      },
-      "object_kind": "triggered",
-      "object_status": "unsupported_targeting",
-      "object_type": "ability",
-      "raw": {
-        "_source_index": 1,
-        "effect": {
-          "chooser": "CONTROLLER",
-          "effect": {
-            "steps": [
-              {
-                "target": {
-                  "cardTypes": [
-                    "location"
-                  ],
-                  "count": {
-                    "exactly": 1
-                  },
-                  "owner": "any",
-                  "selector": "chosen",
-                  "zones": [
-                    "discard"
-                  ]
-                },
-                "type": "put-on-bottom"
-              },
-              {
-                "counter": {
-                  "type": "last-effect-target-count"
-                },
-                "effect": {
-                  "amount": 1,
-                  "target": "CONTROLLER",
-                  "type": "gain-lore"
-                },
-                "type": "for-each"
-              }
-            ],
-            "type": "sequence"
-          },
-          "type": "optional"
-        },
-        "id": "pYT-2",
-        "name": "STRIKE GOLD",
-        "text": "STRIKE GOLD Whenever this character quests, you may put a location card from chosen player's discard on the bottom of their deck to gain 1 lore.",
-        "trigger": {
-          "event": "quest",
-          "on": "SELF",
-          "timing": "whenever"
-        },
-        "type": "triggered"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "pYT-2",
-        "kind": "triggered",
-        "name": "STRIKE GOLD",
-        "status": "unsupported_targeting",
-        "text": "STRIKE GOLD Whenever this character quests, you may put a location card from chosen player's discard on the bottom of their deck to gain 1 lore."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "87",
-        "cost": 3,
-        "full_name": "Goldie O'Gilt - Cunning Prospector",
-        "id": "pYT",
-        "ink": "emerald",
-        "set_code": "010"
-      },
-      "object_kind": "optional",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "chooser": "CONTROLLER",
-        "effect": {
-          "steps": [
-            {
-              "target": {
-                "cardTypes": [
-                  "location"
-                ],
-                "count": {
-                  "exactly": 1
-                },
-                "owner": "any",
-                "selector": "chosen",
-                "zones": [
-                  "discard"
-                ]
-              },
-              "type": "put-on-bottom"
-            },
-            {
-              "counter": {
-                "type": "last-effect-target-count"
-              },
-              "effect": {
-                "amount": 1,
-                "target": "CONTROLLER",
-                "type": "gain-lore"
-              },
-              "type": "for-each"
-            }
-          ],
-          "type": "sequence"
-        },
-        "type": "optional"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "pYT-2",
-        "kind": "triggered",
-        "name": "STRIKE GOLD",
-        "status": "unsupported_targeting",
-        "text": "STRIKE GOLD Whenever this character quests, you may put a location card from chosen player's discard on the bottom of their deck to gain 1 lore."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "87",
-        "cost": 3,
-        "full_name": "Goldie O'Gilt - Cunning Prospector",
-        "id": "pYT",
-        "ink": "emerald",
-        "set_code": "010"
-      },
-      "object_kind": "sequence",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "steps": [
-          {
-            "target": {
-              "cardTypes": [
-                "location"
-              ],
-              "count": {
-                "exactly": 1
-              },
-              "owner": "any",
-              "selector": "chosen",
-              "zones": [
-                "discard"
-              ]
-            },
-            "type": "put-on-bottom"
-          },
-          {
-            "counter": {
-              "type": "last-effect-target-count"
-            },
-            "effect": {
-              "amount": 1,
-              "target": "CONTROLLER",
-              "type": "gain-lore"
-            },
-            "type": "for-each"
-          }
-        ],
-        "type": "sequence"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "pYT-2",
-        "kind": "triggered",
-        "name": "STRIKE GOLD",
-        "status": "unsupported_targeting",
-        "text": "STRIKE GOLD Whenever this character quests, you may put a location card from chosen player's discard on the bottom of their deck to gain 1 lore."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "87",
-        "cost": 3,
-        "full_name": "Goldie O'Gilt - Cunning Prospector",
-        "id": "pYT",
-        "ink": "emerald",
-        "set_code": "010"
-      },
-      "object_kind": "put-on-bottom",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "target": {
-          "cardTypes": [
-            "location"
-          ],
-          "count": {
-            "exactly": 1
-          },
-          "owner": "any",
-          "selector": "chosen",
-          "zones": [
-            "discard"
-          ]
-        },
-        "type": "put-on-bottom"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "pYT-2",
-        "kind": "triggered",
-        "name": "STRIKE GOLD",
-        "status": "unsupported_targeting",
-        "text": "STRIKE GOLD Whenever this character quests, you may put a location card from chosen player's discard on the bottom of their deck to gain 1 lore."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "87",
-        "cost": 3,
-        "full_name": "Goldie O'Gilt - Cunning Prospector",
-        "id": "pYT",
-        "ink": "emerald",
-        "set_code": "010"
-      },
-      "object_kind": "selector",
-      "object_status": "unsupported_targeting",
-      "object_type": "target",
-      "raw": {
-        "cardTypes": [
-          "location"
-        ],
-        "count": {
-          "exactly": 1
-        },
-        "owner": "any",
-        "selector": "chosen",
-        "zones": [
-          "discard"
-        ]
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
         "id": "bau-2",
         "kind": "static",
         "name": "PROVIDE COVER",
@@ -71491,259 +70886,6 @@
     },
     {
       "ability": {
-        "id": "10u-2",
-        "kind": "triggered",
-        "name": "COLLATERAL DAMAGE",
-        "status": "unsupported_targeting",
-        "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "79",
-        "cost": 8,
-        "full_name": "Stegmutt - Clumsy Dinosaur",
-        "id": "28g",
-        "ink": "emerald",
-        "set_code": "011"
-      },
-      "object_kind": "triggered",
-      "object_status": "unsupported_targeting",
-      "object_type": "ability",
-      "raw": {
-        "_source_index": 1,
-        "effect": {
-          "steps": [
-            {
-              "chooser": "CONTROLLER",
-              "effect": {
-                "target": {
-                  "cardTypes": [
-                    "item"
-                  ],
-                  "count": 3,
-                  "owner": "you",
-                  "selector": "chosen",
-                  "zones": [
-                    "discard"
-                  ]
-                },
-                "type": "put-on-bottom"
-              },
-              "type": "optional"
-            },
-            {
-              "condition": {
-                "type": "if-you-do"
-              },
-              "then": {
-                "amount": 3,
-                "target": {
-                  "cardTypes": [
-                    "character"
-                  ],
-                  "count": 1,
-                  "owner": "any",
-                  "selector": "chosen",
-                  "zones": [
-                    "play"
-                  ]
-                },
-                "type": "deal-damage"
-              },
-              "type": "conditional"
-            }
-          ],
-          "type": "sequence"
-        },
-        "id": "10u-2",
-        "name": "COLLATERAL DAMAGE",
-        "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character.",
-        "trigger": {
-          "event": "play",
-          "on": "SELF",
-          "timing": "when"
-        },
-        "type": "triggered"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "10u-2",
-        "kind": "triggered",
-        "name": "COLLATERAL DAMAGE",
-        "status": "unsupported_targeting",
-        "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "79",
-        "cost": 8,
-        "full_name": "Stegmutt - Clumsy Dinosaur",
-        "id": "28g",
-        "ink": "emerald",
-        "set_code": "011"
-      },
-      "object_kind": "sequence",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "steps": [
-          {
-            "chooser": "CONTROLLER",
-            "effect": {
-              "target": {
-                "cardTypes": [
-                  "item"
-                ],
-                "count": 3,
-                "owner": "you",
-                "selector": "chosen",
-                "zones": [
-                  "discard"
-                ]
-              },
-              "type": "put-on-bottom"
-            },
-            "type": "optional"
-          },
-          {
-            "condition": {
-              "type": "if-you-do"
-            },
-            "then": {
-              "amount": 3,
-              "target": {
-                "cardTypes": [
-                  "character"
-                ],
-                "count": 1,
-                "owner": "any",
-                "selector": "chosen",
-                "zones": [
-                  "play"
-                ]
-              },
-              "type": "deal-damage"
-            },
-            "type": "conditional"
-          }
-        ],
-        "type": "sequence"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "10u-2",
-        "kind": "triggered",
-        "name": "COLLATERAL DAMAGE",
-        "status": "unsupported_targeting",
-        "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "79",
-        "cost": 8,
-        "full_name": "Stegmutt - Clumsy Dinosaur",
-        "id": "28g",
-        "ink": "emerald",
-        "set_code": "011"
-      },
-      "object_kind": "optional",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "chooser": "CONTROLLER",
-        "effect": {
-          "target": {
-            "cardTypes": [
-              "item"
-            ],
-            "count": 3,
-            "owner": "you",
-            "selector": "chosen",
-            "zones": [
-              "discard"
-            ]
-          },
-          "type": "put-on-bottom"
-        },
-        "type": "optional"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "10u-2",
-        "kind": "triggered",
-        "name": "COLLATERAL DAMAGE",
-        "status": "unsupported_targeting",
-        "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "79",
-        "cost": 8,
-        "full_name": "Stegmutt - Clumsy Dinosaur",
-        "id": "28g",
-        "ink": "emerald",
-        "set_code": "011"
-      },
-      "object_kind": "put-on-bottom",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "target": {
-          "cardTypes": [
-            "item"
-          ],
-          "count": 3,
-          "owner": "you",
-          "selector": "chosen",
-          "zones": [
-            "discard"
-          ]
-        },
-        "type": "put-on-bottom"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "10u-2",
-        "kind": "triggered",
-        "name": "COLLATERAL DAMAGE",
-        "status": "unsupported_targeting",
-        "text": "COLLATERAL DAMAGE When you play this character, you may put 3 item cards from your discard on the bottom of your deck in any order. If you do, deal 3 damage to chosen character."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "79",
-        "cost": 8,
-        "full_name": "Stegmutt - Clumsy Dinosaur",
-        "id": "28g",
-        "ink": "emerald",
-        "set_code": "011"
-      },
-      "object_kind": "selector",
-      "object_status": "unsupported_targeting",
-      "object_type": "target",
-      "raw": {
-        "cardTypes": [
-          "item"
-        ],
-        "count": 3,
-        "owner": "you",
-        "selector": "chosen",
-        "zones": [
-          "discard"
-        ]
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
         "id": "qk5-1",
         "kind": "action",
         "name": null,
@@ -73210,309 +72352,6 @@
       "object_type": "target",
       "raw": {
         "value": "OPPONENTS"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "uOj-1",
-        "kind": "triggered",
-        "name": "TIME TO MOVE",
-        "status": "unsupported_targeting",
-        "text": "TIME TO MOVE When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character Rush this turn."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "113",
-        "cost": 3,
-        "full_name": "Roller Bob - Sid's Toy",
-        "id": "uOj",
-        "ink": "ruby",
-        "set_code": "012"
-      },
-      "object_kind": "triggered",
-      "object_status": "unsupported_targeting",
-      "object_type": "ability",
-      "raw": {
-        "_source_index": 0,
-        "effect": {
-          "chooser": "CONTROLLER",
-          "effect": {
-            "steps": [
-              {
-                "target": {
-                  "cardTypes": [
-                    "character"
-                  ],
-                  "count": 2,
-                  "owner": "you",
-                  "selector": "chosen",
-                  "zones": [
-                    "discard"
-                  ]
-                },
-                "type": "put-on-bottom"
-              },
-              {
-                "duration": "this-turn",
-                "keyword": "Rush",
-                "target": "SELF",
-                "type": "gain-keyword"
-              }
-            ],
-            "type": "sequence"
-          },
-          "type": "optional"
-        },
-        "id": "uOj-1",
-        "name": "TIME TO MOVE",
-        "text": "TIME TO MOVE When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character Rush this turn.",
-        "trigger": {
-          "event": "play",
-          "on": "SELF",
-          "timing": "when"
-        },
-        "type": "triggered"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "uOj-1",
-        "kind": "triggered",
-        "name": "TIME TO MOVE",
-        "status": "unsupported_targeting",
-        "text": "TIME TO MOVE When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character Rush this turn."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "113",
-        "cost": 3,
-        "full_name": "Roller Bob - Sid's Toy",
-        "id": "uOj",
-        "ink": "ruby",
-        "set_code": "012"
-      },
-      "object_kind": "optional",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "chooser": "CONTROLLER",
-        "effect": {
-          "steps": [
-            {
-              "target": {
-                "cardTypes": [
-                  "character"
-                ],
-                "count": 2,
-                "owner": "you",
-                "selector": "chosen",
-                "zones": [
-                  "discard"
-                ]
-              },
-              "type": "put-on-bottom"
-            },
-            {
-              "duration": "this-turn",
-              "keyword": "Rush",
-              "target": "SELF",
-              "type": "gain-keyword"
-            }
-          ],
-          "type": "sequence"
-        },
-        "type": "optional"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "uOj-1",
-        "kind": "triggered",
-        "name": "TIME TO MOVE",
-        "status": "unsupported_targeting",
-        "text": "TIME TO MOVE When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character Rush this turn."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "113",
-        "cost": 3,
-        "full_name": "Roller Bob - Sid's Toy",
-        "id": "uOj",
-        "ink": "ruby",
-        "set_code": "012"
-      },
-      "object_kind": "sequence",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "steps": [
-          {
-            "target": {
-              "cardTypes": [
-                "character"
-              ],
-              "count": 2,
-              "owner": "you",
-              "selector": "chosen",
-              "zones": [
-                "discard"
-              ]
-            },
-            "type": "put-on-bottom"
-          },
-          {
-            "duration": "this-turn",
-            "keyword": "Rush",
-            "target": "SELF",
-            "type": "gain-keyword"
-          }
-        ],
-        "type": "sequence"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "uOj-1",
-        "kind": "triggered",
-        "name": "TIME TO MOVE",
-        "status": "unsupported_targeting",
-        "text": "TIME TO MOVE When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character Rush this turn."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "113",
-        "cost": 3,
-        "full_name": "Roller Bob - Sid's Toy",
-        "id": "uOj",
-        "ink": "ruby",
-        "set_code": "012"
-      },
-      "object_kind": "put-on-bottom",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "target": {
-          "cardTypes": [
-            "character"
-          ],
-          "count": 2,
-          "owner": "you",
-          "selector": "chosen",
-          "zones": [
-            "discard"
-          ]
-        },
-        "type": "put-on-bottom"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "uOj-1",
-        "kind": "triggered",
-        "name": "TIME TO MOVE",
-        "status": "unsupported_targeting",
-        "text": "TIME TO MOVE When you play this character, you may put 2 character cards from your discard on the bottom of your deck to give this character Rush this turn."
-      },
-      "card": {
-        "card_type": "character",
-        "collector_number": "113",
-        "cost": 3,
-        "full_name": "Roller Bob - Sid's Toy",
-        "id": "uOj",
-        "ink": "ruby",
-        "set_code": "012"
-      },
-      "object_kind": "selector",
-      "object_status": "unsupported_targeting",
-      "object_type": "target",
-      "raw": {
-        "cardTypes": [
-          "character"
-        ],
-        "count": 2,
-        "owner": "you",
-        "selector": "chosen",
-        "zones": [
-          "discard"
-        ]
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "1",
-        "kind": "action",
-        "name": null,
-        "status": "unsupported_choice",
-        "text": "Each player chooses 2 of their characters and puts them into their inkwell facedown and exerted."
-      },
-      "card": {
-        "card_type": "action",
-        "collector_number": "164",
-        "cost": 5,
-        "full_name": "Escape Plan",
-        "id": "6F2",
-        "ink": "sapphire",
-        "set_code": "012"
-      },
-      "object_kind": "put-into-inkwell",
-      "object_status": "unsupported_targeting",
-      "object_type": "effect",
-      "raw": {
-        "chosenBy": "you",
-        "exerted": true,
-        "facedown": true,
-        "source": "chosen-character",
-        "target": {
-          "cardTypes": [
-            "character"
-          ],
-          "count": 2,
-          "owner": "you",
-          "selector": "chosen",
-          "zones": [
-            "play"
-          ]
-        },
-        "type": "put-into-inkwell"
-      },
-      "reason": "unsupported_targeting"
-    },
-    {
-      "ability": {
-        "id": "1",
-        "kind": "action",
-        "name": null,
-        "status": "unsupported_choice",
-        "text": "Each player chooses 2 of their characters and puts them into their inkwell facedown and exerted."
-      },
-      "card": {
-        "card_type": "action",
-        "collector_number": "164",
-        "cost": 5,
-        "full_name": "Escape Plan",
-        "id": "6F2",
-        "ink": "sapphire",
-        "set_code": "012"
-      },
-      "object_kind": "selector",
-      "object_status": "unsupported_targeting",
-      "object_type": "target",
-      "raw": {
-        "cardTypes": [
-          "character"
-        ],
-        "count": 2,
-        "owner": "you",
-        "selector": "chosen",
-        "zones": [
-          "play"
-        ]
       },
       "reason": "unsupported_targeting"
     },
