@@ -22,7 +22,6 @@ _ALWAYS_SUPPORTED_REQUIREMENTS = frozenset({
     "optional",
     "choice",
     "target",
-    "opponent_choice",
 })
 
 
@@ -51,6 +50,10 @@ _SUPPORTED_REQUIREMENTS_BY_EFFECT_KIND = {
 def _requirement_supported_for_effect(effect: SourceEffectDef, requirement: str) -> bool:
     if requirement in _ALWAYS_SUPPORTED_REQUIREMENTS:
         return True
+    if requirement == "opponent_choice":
+        raw = effect.raw or {}
+        chosen_by = str(raw.get("chosenBy") or raw.get("chosen_by") or "").casefold()
+        return chosen_by == "opponent" and raw.get("target") is not None
     return requirement in _SUPPORTED_REQUIREMENTS_BY_EFFECT_KIND.get(effect.kind, frozenset())
 
 

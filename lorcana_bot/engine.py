@@ -3219,11 +3219,19 @@ class GameEngine:
     ) -> None:
         card = self.card_def(state, source)
         selected_targets = current_targets or ((target,) if target is not None else ())
+        slotted_flat: tuple[int, ...] = ()
+        if slotted_targets:
+            from .targeting import flatten_slotted_targets, normalize_slotted_target_input
+            slotted_flat = flatten_slotted_targets(normalize_slotted_target_input(slotted_targets))
+        be_chosen_targets = tuple(dict.fromkeys((
+            *(int(target_id) for target_id in selected_targets),
+            *(int(target_id) for target_id in slotted_flat),
+        )))
         self._emit_be_chosen_events(
             state,
             actor=player,
             source=source,
-            selected_targets=tuple(int(target_id) for target_id in selected_targets),
+            selected_targets=be_chosen_targets,
         )
         self.effect_resolver.resolve_many(
             state,
@@ -3875,32 +3883,46 @@ class GameEngine:
 
             # Build context with target from pending effect and current_targets for multi-target effects
             # pending_trigger_id is set if origin is "bag", trigger_source/trigger_subject from event
+            resolution_input = raw.get("resolution_input", {}) or {}
             context = EffectResolutionContext(
                 actor=pe.controller_id,
+                chooser=pe.chooser_id,
                 source=pe.source_id,
                 target=selected_target,
                 event=event,
                 event_payload=event_payload,
                 choice=selected_choice,
+                choice_index=selected_choice if isinstance(selected_choice, int) else None,
                 pending_trigger_id=pe.origin_id if pe.origin == "bag" else None,
                 trigger_source=pe.source_id if pe.origin == "bag" else None,
                 trigger_subject=raw.get("trigger_subject"),
-                current_targets=selected_targets,
-                context_targets=tuple(raw.get("context_targets", ()) or ()),
-                slotted_targets=raw.get("slotted_targets") or raw.get("resolution_input", {}).get("slotted_targets"),
+                current_targets=selected_targets or tuple(resolution_input.get("targets", ()) or ()),
+                context_targets=tuple(raw.get("context_targets", ()) or resolution_input.get("context_targets", ()) or ()),
+                slotted_targets=raw.get("slotted_targets") or resolution_input.get("slotted_targets"),
                 destinations=tuple(
                     dict(destination)
                     for destination in (
                         raw.get("destinations")
-                        or raw.get("resolution_input", {}).get("destinations")
+                        or resolution_input.get("destinations")
                         or ()
                     )
                     if isinstance(destination, dict)
                 ),
+                named_card=raw.get("named_card") or resolution_input.get("named_card"),
+                amount_choice=raw.get("amount") or resolution_input.get("amount"),
+                resolve_optional=raw.get("resolve_optional") or resolution_input.get("resolve_optional"),
+                enter_play_exerted=raw.get("enter_play_exerted") or resolution_input.get("enter_play_exerted"),
+                last_effect_performed=bool(raw.get("last_effect_performed", False)),
+                last_effect_target_count=int(raw.get("last_effect_target_count", 0) or 0),
             )
 
             # Resolve the effect
-            self.effect_resolver.resolve(state, current_effect, context)
+            updated_context = self.effect_resolver.resolve(state, current_effect, context)
+            pe.raw["last_effect_performed"] = updated_context.last_effect_performed
+            pe.raw["last_effect_target_count"] = updated_context.last_effect_target_count
+            pe.raw["current_targets"] = updated_context.current_targets
+            pe.raw["context_targets"] = updated_context.context_targets
+            pe.raw["named_card"] = updated_context.named_card
 
         # Advance to next effect or complete
         advance_pending_effect(state, pending_id)

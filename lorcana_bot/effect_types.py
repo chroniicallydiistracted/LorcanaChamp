@@ -28,22 +28,47 @@ class ConditionContext:
 
 @dataclass(frozen=True, slots=True)
 class EffectResolutionContext:
+    """Runtime context carried through action-effect resolution.
+
+    actor is always the original effect controller / semantic player.
+    chooser is the current player supplying input when different from actor.
+
+    This dataclass is frozen intentionally. Do not mutate it. Use
+    dataclasses.replace() or helper builders in EffectResolver.
+    """
     actor: int
     source: int | None = None
     target: int | None = None
     choice: Any | None = None
     optional_choices: dict[str, bool] = field(default_factory=dict)
-    # B2: Trigger context fields for proper effect resolution
+
+    # Current chooser, if a nested chooser/optional/opponent choice is active.
+    chooser: int | None = None
+
+    # Trigger context fields for proper effect resolution.
     event: Any | None = None
     event_payload: dict[str, Any] = field(default_factory=dict)
     pending_trigger_id: str | None = None
     trigger_source: int | None = None
     trigger_subject: int | None = None
+
+    # Lorcanito-aligned selection state.
     current_targets: tuple[int, ...] = ()
     context_targets: tuple[int, ...] = ()
     slotted_targets: dict[str, Any] | None = None
     destinations: tuple[dict[str, Any], ...] = ()
+
+    # Additional pending/action resolution input.
+    named_card: str | None = None
+    amount_choice: int | None = None
+    choice_index: int | None = None
+    resolve_optional: bool | None = None
+    enter_play_exerted: bool | None = None
+    target_selection_resolved: bool = False
+
+    # Result state used by if-you-do / downstream dynamic effects.
     last_effect_performed: bool = False
+    last_effect_target_count: int = 0
 
 
 SUPPORTED_EFFECT_KINDS = frozenset(

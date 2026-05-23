@@ -4,7 +4,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
 from .cards import EffectDef
-from .constants import ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_INKWELL, ZONE_PLAY
+from .constants import EVENT_MOVED_TO_LOCATION, ZONE_DECK, ZONE_DISCARD, ZONE_HAND, ZONE_INKWELL, ZONE_PLAY
 from .effect_types import EffectResolutionContext, SUPPORTED_EFFECT_KINDS
 from .state import GameState
 
@@ -20,29 +20,224 @@ class EffectResolver:
     def __init__(self, engine: "GameEngine"):
         self.engine = engine
 
-    def resolve_many(self, state: GameState, effects: tuple[EffectDef, ...], context: EffectResolutionContext) -> None:
-        for effect in effects:
-            self.resolve(state, effect, context)
+    # ------------------------------------------------------------------
+    # Lorcanito-aligned context builders
+    # ------------------------------------------------------------------
 
-    def resolve(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+    def _ctx(
+        self,
+        context: EffectResolutionContext,
+        **updates: Any,
+    ) -> EffectResolutionContext:
+        """Return an updated frozen EffectResolutionContext."""
+        return replace(context, **updates)
+
+    def _chooser(self, context: EffectResolutionContext) -> int:
+        return context.chooser if context.chooser is not None else context.actor
+
+    def _state_resolution_signature(self, state: GameState) -> tuple[Any, ...]:
+        """Snapshot board-visible state used to detect whether a leaf effect performed.
+
+        Do not include pending_effects or bag length here. Creating pending input
+        is not the same as performing the underlying effect for if-you-do.
+        """
+        player_sig = tuple(
+            (
+                tuple(player.deck),
+                tuple(player.hand),
+                tuple(player.play),
+                tuple(player.discard),
+                tuple(player.inkwell),
+                int(player.lore),
+            )
+            for player in state.players
+        )
+        card_sig = tuple(
+            sorted(
+                (
+                    card_id,
+                    inst.zone,
+                    inst.owner,
+                    inst.controller,
+                    inst.exerted,
+                    inst.damage,
+                    inst.location_instance_id,
+                    tuple(getattr(inst, "cards_under", ()) or ()),
+                    tuple(getattr(inst, "temporary_keywords", ()) or ()),
+                    tuple(sorted(getattr(inst, "temporary_modifiers", {}) or {})),
+                    tuple(getattr(inst, "temporary_granted_abilities", ()) or ()),
+                )
+                for card_id, inst in state.cards.items()
+            )
+        )
+        return (player_sig, card_sig)
+
+    def _mark_result(
+        self,
+        context: EffectResolutionContext,
+        *,
+        performed: bool,
+        target_count: int = 0,
+    ) -> EffectResolutionContext:
+        return self._ctx(
+            context,
+            last_effect_performed=bool(performed),
+            last_effect_target_count=int(target_count or 0),
+        )
+
+    def _mark_from_state_change(
+        self,
+        before: tuple[Any, ...],
+        state: GameState,
+        context: EffectResolutionContext,
+        *,
+        target_count: int = 0,
+    ) -> EffectResolutionContext:
+        return self._mark_result(
+            context,
+            performed=before != self._state_resolution_signature(state),
+            target_count=target_count,
+        )
+
+    def _with_current_targets(
+        self,
+        context: EffectResolutionContext,
+        targets: tuple[int, ...],
+        *,
+        target: int | None = None,
+        performed: bool | None = None,
+    ) -> EffectResolutionContext:
+        if performed is None:
+            performed = bool(targets)
+        return self._ctx(
+            context,
+            target=target if target is not None else (targets[0] if targets else context.target),
+            current_targets=tuple(int(target_id) for target_id in targets),
+            target_selection_resolved=bool(targets),
+            last_effect_performed=bool(performed),
+            last_effect_target_count=len(targets),
+        )
+
+    def _with_slotted_targets(
+        self,
+        context: EffectResolutionContext,
+        slotted_targets: dict[str, Any] | None,
+    ) -> EffectResolutionContext:
+        if not slotted_targets:
+            return context
+        flat = self._flatten_slotted_target_ids(slotted_targets)
+        return self._ctx(
+            context,
+            slotted_targets=slotted_targets,
+            current_targets=flat,
+            target=flat[0] if flat else context.target,
+            target_selection_resolved=bool(flat),
+            last_effect_performed=bool(flat),
+            last_effect_target_count=len(flat),
+        )
+
+    def _promote_current_targets_to_context(
+        self,
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
+        """Promote currentTargets into contextTargets after a sequence step.
+
+        Mirrors Lorcanito's promoteCurrentSelectionTargetsToContext().
+        """
+        if not context.current_targets:
+            return context
+        combined = tuple(dict.fromkeys((*context.context_targets, *context.current_targets)))
+        return self._ctx(
+            context,
+            context_targets=combined,
+            current_targets=(),
+            target=None,
+        )
+
+    def _flatten_slotted_target_ids(self, slotted_targets: dict[str, Any] | None) -> tuple[int, ...]:
+        if not slotted_targets:
+            return ()
+        from .targeting import flatten_slotted_targets, normalize_slotted_target_input
+        normalized = normalize_slotted_target_input(slotted_targets)
+        return tuple(flatten_slotted_targets(normalized))
+
+    def _emit_be_chosen_for_context(
+        self,
+        state: GameState,
+        context: EffectResolutionContext,
+        source_id: int | None = None,
+    ) -> None:
+        selected = tuple(dict.fromkeys((
+            *(context.current_targets or ()),
+            *self._flatten_slotted_target_ids(context.slotted_targets),
+        )))
+        if not selected:
+            return
+        if source_id is None:
+            source_id = context.source
+        if source_id is None or source_id not in state.cards:
+            return
+        try:
+            self.engine._emit_be_chosen_events(
+                state,
+                actor=context.actor,
+                source=source_id,
+                selected_targets=selected,
+            )
+        except AttributeError:
+            return
+
+    def resolve_many(
+        self,
+        state: GameState,
+        effects: tuple[EffectDef, ...],
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
+        """Resolve a sequence of effects while carrying Lorcanito selection state.
+
+        Each child may update current_targets, context_targets, chooser,
+        named_card, destinations, or last_effect_performed. The updated context
+        must be passed to the next effect.
+        """
+        current_context = context
+        for effect in effects:
+            current_context = self.resolve(state, effect, current_context)
+            current_context = self._promote_current_targets_to_context(current_context)
+        return current_context
+
+    def resolve(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
         if effect.kind not in SUPPORTED_EFFECT_KINDS:
             raise EffectResolutionError(f"Unsupported effect kind {effect.kind}")
 
         kind = effect.kind
-        if self._effect_chosen_by_opponent(effect) and context.source is not None and not context.current_targets:
-            self._create_opponent_target_pending(state, effect, context)
-            return
 
         if kind == "sequence":
-            self.resolve_many(state, effect.effects, context)
-        elif kind == "optional":
-            if self._optional_accepted(effect, context):
-                self.resolve_many(state, effect.effects, context)
-        elif kind == "choice":
-            self._resolve_choice(state, effect, context)
-        elif kind == "select_target":
-            return
-        elif kind == "restriction":
+            return self.resolve_many(state, effect.effects, context)
+
+        if kind == "optional":
+            return self._resolve_optional(state, effect, context)
+
+        if kind == "choice":
+            return self._resolve_choice(state, effect, context)
+
+        if kind == "conditional":
+            return self._resolve_conditional(state, effect, context)
+
+        if kind == "select_target":
+            return self._resolve_select_target(state, effect, context)
+
+        if self._effect_needs_external_chooser(effect, context):
+            self._create_pending_choice_for_effect(state, effect, context)
+            return self._mark_result(context, performed=False)
+
+        before = self._state_resolution_signature(state)
+
+        if kind == "restriction":
             self._resolve_restriction(state, effect, context)
         elif kind == "conditional":
             if self._condition_matches(state, effect, context):
@@ -173,9 +368,9 @@ class EffectResolver:
         elif kind == "put_card_in_hand":
             self._resolve_put_card_in_hand(state, effect, context)
         elif kind == "put_card_on_top":
-            self._resolve_put_card_on_top(state, effect, context)
+            return self._resolve_put_card_on_top(state, effect, context)
         elif kind == "put_card_on_bottom":
-            self._resolve_put_card_on_bottom(state, effect, context)
+            return self._resolve_put_card_on_bottom(state, effect, context)
         elif kind == "put_card_in_discard":
             self._resolve_put_card_in_discard(state, effect, context)
         elif kind == "shuffle_deck":
@@ -183,9 +378,9 @@ class EffectResolver:
         elif kind == "shuffle_into_deck":
             self._resolve_shuffle_into_deck(state, effect, context)
         elif kind == "name_a_card":
-            self._resolve_name_a_card(state, effect, context)
+            return self._resolve_name_a_card(state, effect, context)
         elif kind == "reveal_and_route":
-            self._resolve_reveal_and_route(state, effect, context)
+            return self._resolve_reveal_and_route(state, effect, context)
         elif kind == "put_into_inkwell":
             self._resolve_put_into_inkwell(state, effect, context)
         elif kind == "play_card":
@@ -200,18 +395,49 @@ class EffectResolver:
             self._resolve_create_replacement_effect(state, effect, context)
         elif kind == "return_random_from_inkwell":
             self._resolve_return_random_from_inkwell(state, effect, context)
+        else:
+            raise EffectResolutionError(f"Unsupported effect kind {kind}")
 
-    def _resolve_choice(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        return self._mark_from_state_change(
+            before,
+            state,
+            context,
+            target_count=len(context.current_targets or ()),
+        )
+
+    def _resolve_choice(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
+        raw = self._source_raw(effect)
+        chooser_id = self._resolve_effect_chooser(state, raw, context)
+
+        if context.choice_index is None and not isinstance(context.choice, int) and not isinstance(effect.value, int):
+            self._create_choice_pending(state, effect, context, chooser_id)
+            return self._mark_result(context, performed=False)
+
         if not effect.effects:
-            return
-        index = 0
-        if isinstance(context.choice, int):
+            return self._mark_result(context, performed=False)
+
+        if isinstance(context.choice_index, int):
+            index = context.choice_index
+        elif isinstance(context.choice, int):
             index = context.choice
-        elif isinstance(effect.value, int):
-            index = effect.value
+        else:
+            index = int(effect.value or 0)
+
         if index < 0 or index >= len(effect.effects):
             raise EffectResolutionError(f"Choice index {index} out of range for {len(effect.effects)} options")
-        self.resolve(state, effect.effects[index], context)
+
+        branch_context = self._ctx(
+            context,
+            chooser=chooser_id,
+            choice_index=index,
+            choice=index,
+        )
+        return self.resolve(state, effect.effects[index], branch_context)
 
     def _resolve_for_each(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         collection = str(effect.value or effect.target or "")
@@ -234,21 +460,90 @@ class EffectResolver:
             )
             self.resolve_many(state, effect.effects, nested_context)
 
-    def _effect_chosen_by_opponent(self, effect: EffectDef) -> bool:
-        raw = self._source_raw(effect)
-        target = raw.get("target")
-        return target is not None and str(raw.get("chosenBy") or raw.get("chosen_by") or "").casefold() == "opponent"
+    def _resolve_effect_chooser(
+        self,
+        state: GameState,
+        raw: dict[str, Any],
+        context: EffectResolutionContext,
+    ) -> int:
+        """Resolve the player who should make the current prompt choice.
 
-    def _create_opponent_target_pending(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
-        from .pending_effects import create_pending_effect
+        Mirrors Lorcanito selection-context.ts.
+        """
+        chooser = raw.get("chooser")
+        chosen_by = raw.get("chosenBy") or raw.get("chosen_by")
+        normalized = str(chooser or chosen_by or "").replace("_", "-").casefold()
 
+        if normalized in {"you", "controller", "self"}:
+            return context.actor
+
+        if normalized in {"opponent", "opponents"}:
+            return state.opponent(context.actor)
+
+        if normalized == "chosen-player":
+            if isinstance(context.choice, int):
+                return int(context.choice)
+            if context.current_targets:
+                selected = context.current_targets[0]
+                if selected in range(len(state.players)):
+                    return int(selected)
+            return context.actor
+
+        if normalized == "card-owner":
+            selected = context.current_targets or context.context_targets
+            for target_id in selected:
+                if target_id in state.cards:
+                    return state.cards[target_id].owner
+            return context.actor
+
+        if normalized == "target":
+            if isinstance(context.choice, int):
+                return int(context.choice)
+            selected = context.current_targets or context.context_targets
+            for target_id in selected:
+                if target_id in state.cards:
+                    return state.cards[target_id].owner
+            return context.actor
+
+        if context.chooser is not None:
+            return context.chooser
+        return context.actor
+
+    def _effect_needs_external_chooser(
+        self,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> bool:
         raw = self._source_raw(effect)
         target = raw.get("target") or effect.target
         if target is None:
-            raise EffectResolutionError("chosenBy opponent effect requires a target")
+            return False
+        chosen_by = str(raw.get("chosenBy") or raw.get("chosen_by") or "").casefold()
+        chooser = str(raw.get("chooser") or "").casefold()
+        if chosen_by == "opponent" and not context.current_targets:
+            return True
+        if chooser in {"opponent", "opponents"} and not context.current_targets:
+            return True
+        return False
+
+    def _create_pending_choice_for_effect(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> None:
+        raw = self._source_raw(effect)
+        chooser_id = self._resolve_effect_chooser(state, raw, context)
+        target = raw.get("target") or effect.target
+
+        if target is None:
+            raise EffectResolutionError("External chooser effect requires a target")
+
+        from .pending_effects import create_pending_effect
 
         source_card_id = self.engine.card_def(state, context.source).id if context.source in state.cards else None
-        pending_target = "target" if isinstance(effect.target, dict) else effect.target
+        pending_target = target if isinstance(target, dict) else effect.target
+
         pending_effect = EffectDef(
             kind=effect.kind,
             amount=effect.amount,
@@ -265,18 +560,103 @@ class EffectResolver:
         create_pending_effect(
             state,
             controller_id=context.actor,
-            chooser_id=state.opponent(context.actor),
+            chooser_id=chooser_id,
             source_id=context.source,
             source_card_id=source_card_id,
             effects=(pending_effect,),
-            origin="opponent_choice",
+            origin="opponent_choice" if chooser_id != context.actor else "choice",
             raw={
-                "requirement_kind": "opponent_choice",
+                "requirement_kind": "opponent_choice" if chooser_id != context.actor else "target",
                 "choice_type": "target",
                 "target": target,
                 "target_actor": context.actor,
+                "protection_actor": chooser_id,
+                "chooser_id": chooser_id,
+                "controller_id": context.actor,
                 "selected_targets": context.current_targets,
+                "current_targets": context.current_targets,
                 "context_targets": context.context_targets,
+                "slotted_targets": context.slotted_targets,
+                "destinations": context.destinations,
+                "named_card": context.named_card,
+                "last_effect_performed": context.last_effect_performed,
+                "last_effect_target_count": context.last_effect_target_count,
+            },
+        )
+
+    def _create_choice_pending(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+        chooser_id: int,
+    ) -> None:
+        from .pending_effects import create_pending_effect
+
+        raw = self._source_raw(effect)
+        options = raw.get("options") or raw.get("choices") or list(range(len(effect.effects or ())))
+        source_card_id = self.engine.card_def(state, context.source).id if context.source in state.cards else None
+
+        create_pending_effect(
+            state,
+            controller_id=context.actor,
+            chooser_id=chooser_id,
+            source_id=context.source,
+            source_card_id=source_card_id,
+            effects=(effect,),
+            origin="choice",
+            raw={
+                "requirement_kind": "choice" if chooser_id == context.actor else "opponent_choice",
+                "choice_type": "choice",
+                "options": tuple(options),
+                "target_actor": context.actor,
+                "protection_actor": chooser_id,
+                "chooser_id": chooser_id,
+                "controller_id": context.actor,
+                "current_targets": context.current_targets,
+                "context_targets": context.context_targets,
+                "slotted_targets": context.slotted_targets,
+                "destinations": context.destinations,
+                "named_card": context.named_card,
+                "last_effect_performed": context.last_effect_performed,
+                "last_effect_target_count": context.last_effect_target_count,
+            },
+        )
+
+    def _create_optional_pending(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+        chooser_id: int,
+    ) -> None:
+        from .pending_effects import create_pending_effect
+
+        source_card_id = self.engine.card_def(state, context.source).id if context.source in state.cards else None
+
+        create_pending_effect(
+            state,
+            controller_id=context.actor,
+            chooser_id=chooser_id,
+            source_id=context.source,
+            source_card_id=source_card_id,
+            effects=(effect,),
+            optional=True,
+            origin="optional",
+            raw={
+                "requirement_kind": "optional" if chooser_id == context.actor else "opponent_choice",
+                "choice_type": "optional",
+                "target_actor": context.actor,
+                "protection_actor": chooser_id,
+                "chooser_id": chooser_id,
+                "controller_id": context.actor,
+                "current_targets": context.current_targets,
+                "context_targets": context.context_targets,
+                "slotted_targets": context.slotted_targets,
+                "destinations": context.destinations,
+                "named_card": context.named_card,
+                "last_effect_performed": context.last_effect_performed,
+                "last_effect_target_count": context.last_effect_target_count,
             },
         )
 
@@ -292,6 +672,143 @@ class EffectResolver:
             player = context.actor if condition.get("player", "actor") == "actor" else state.opponent(context.actor)
             return state.players[player].lore >= int(condition.get("amount", 0))
         raise EffectResolutionError(f"Unsupported condition kind {kind}")
+    
+    def _resolve_optional(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
+        raw = self._source_raw(effect)
+        chooser_id = self._resolve_effect_chooser(state, raw, context)
+
+        if context.resolve_optional is None and raw.get("resolveOptional") is None:
+            self._create_optional_pending(state, effect, context, chooser_id)
+            return self._mark_result(context, performed=False)
+
+        accepted = (
+            bool(context.resolve_optional)
+            if context.resolve_optional is not None
+            else bool(raw.get("resolveOptional"))
+        )
+        if not accepted:
+            return self._mark_result(context, performed=False)
+
+        child_effects = effect.effects
+        if not child_effects:
+            child = raw.get("effect")
+            if isinstance(child, dict):
+                from lorcana_bot.importers.lorcanito_source_mapper import map_raw_effect
+                mapped = map_raw_effect(child)
+                if mapped is not None:
+                    child_effects = (EffectDef(
+                        kind=mapped.kind.replace("-", "_"),
+                        amount=mapped.amount,
+                        target=mapped.target,
+                        value=mapped.value,
+                        keyword=mapped.keyword,
+                        effects=tuple(
+                            EffectDef(
+                                kind=nested.kind.replace("-", "_"),
+                                amount=nested.amount,
+                                target=nested.target,
+                                raw=nested.raw,
+                            )
+                            for nested in mapped.effects
+                        ),
+                        condition=mapped.condition,
+                        optional=mapped.optional,
+                        duration=mapped.duration,
+                        raw=mapped.raw,
+                    ),)
+
+        optional_context = self._ctx(
+            context,
+            chooser=chooser_id,
+            resolve_optional=True,
+        )
+        return self.resolve_many(state, tuple(child_effects), optional_context)
+    
+    def _resolve_conditional(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
+        condition = effect.condition or {}
+        kind = str(condition.get("type") or condition.get("kind") or "always")
+
+        if kind == "if-you-do":
+            condition_met = context.last_effect_performed is True
+        else:
+            condition_met = self._condition_matches(state, effect, context)
+
+        raw = self._source_raw(effect)
+        if condition_met:
+            child_effects = effect.effects
+            if not child_effects:
+                branch = raw.get("then") or raw.get("ifTrue") or raw.get("effect")
+                if isinstance(branch, dict):
+                    from lorcana_bot.importers.lorcanito_source_mapper import map_raw_effect
+                    mapped = map_raw_effect(branch)
+                    if mapped is not None:
+                        child_effects = (EffectDef(
+                            kind=mapped.kind.replace("-", "_"),
+                            amount=mapped.amount,
+                            target=mapped.target,
+                            value=mapped.value,
+                            keyword=mapped.keyword,
+                            effects=tuple(
+                                EffectDef(
+                                    kind=nested.kind.replace("-", "_"),
+                                    amount=nested.amount,
+                                    target=nested.target,
+                                    raw=nested.raw,
+                                )
+                                for nested in mapped.effects
+                            ),
+                            condition=mapped.condition,
+                            optional=mapped.optional,
+                            duration=mapped.duration,
+                            raw=mapped.raw,
+                        ),)
+            return self.resolve_many(state, tuple(child_effects), context)
+
+        else_branch = raw.get("else") or raw.get("ifFalse")
+        if isinstance(else_branch, dict):
+            from lorcana_bot.importers.lorcanito_source_mapper import map_raw_effect
+            mapped = map_raw_effect(else_branch)
+            if mapped is not None:
+                return self.resolve(state, EffectDef(
+                    kind=mapped.kind.replace("-", "_"),
+                    amount=mapped.amount,
+                    target=mapped.target,
+                    value=mapped.value,
+                    keyword=mapped.keyword,
+                    raw=mapped.raw,
+                ), context)
+
+        return self._mark_result(context, performed=False)
+    
+    def _resolve_select_target(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
+        """Resolve a Lorcanito select-target effect.
+
+        select-target does not mutate the board, but it does establish
+        currentTargets and lastEffectPerformed for later sequence steps.
+        """
+        targets = tuple(self._target_cards(state, effect, context, require_target=False))
+        if not targets and context.current_targets:
+            targets = context.current_targets
+        return self._with_current_targets(
+            context,
+            tuple(int(target_id) for target_id in targets),
+            performed=bool(targets),
+        )
 
     def _optional_accepted(self, effect: EffectDef, context: EffectResolutionContext) -> bool:
         if not effect.optional:
@@ -544,6 +1061,8 @@ class EffectResolver:
             event_payload=event_payload,
             current_targets=context.current_targets,
             context_targets=context.context_targets,
+            chooser=context.chooser,
+            protection_actor=context.chooser,
         )
 
     def _uses_selected_card_context(self, selector: str) -> bool:
@@ -554,6 +1073,12 @@ class EffectResolver:
     def _selected_card_targets_from_context(self, context: EffectResolutionContext) -> tuple[int, ...]:
         if context.current_targets:
             return context.current_targets
+        if context.context_targets:
+            return context.context_targets
+        if context.slotted_targets:
+            flat = self._flatten_slotted_target_ids(context.slotted_targets)
+            if flat:
+                return flat
         if context.target is not None:
             return (context.target,)
         return ()
@@ -840,7 +1365,7 @@ class EffectResolver:
             moved_any = True
             self.engine.emit_event(
                 state,
-                "CARD_MOVED_TO_LOCATION",
+                EVENT_MOVED_TO_LOCATION,
                 actor=context.actor,
                 source=character_id,
                 target=location_id,
@@ -1264,12 +1789,16 @@ class EffectResolver:
                 payload={"player": state.cards[card_id].owner},
             )
 
-    def _resolve_put_card_on_top(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+    def _resolve_put_card_on_top(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
         """Move selected/resolved cards to the top of their owners' decks.
 
         Lorcanito uses selected target order when the player supplied ordering.
-        The last moved to index 0 becomes the final top card, so reverse selected
-        order when placing multiple cards on top.
+        The supplied order should become the final top order.
         """
         targets = tuple(context.current_targets or ())
         if not targets:
@@ -1277,6 +1806,8 @@ class EffectResolver:
         if not targets and context.choice is not None:
             targets = (int(context.choice),)
 
+        # To make final deck top order match selected order, move in reverse
+        # because each move inserts at index 0.
         for card_id in reversed(tuple(int(cid) for cid in targets)):
             if card_id not in state.cards:
                 continue
@@ -1290,7 +1821,18 @@ class EffectResolver:
                 index=0,
             )
 
-    def _resolve_put_card_on_bottom(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        return self._mark_result(
+            context,
+            performed=bool(targets),
+            target_count=len(targets),
+        )
+
+    def _resolve_put_card_on_bottom(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
         """Move selected/resolved cards to the bottom of their owners' decks.
 
         For ordering: player-choice, current_targets carries the selected order.
@@ -1301,8 +1843,8 @@ class EffectResolver:
         if not targets and context.choice is not None:
             targets = (int(context.choice),)
 
-        # Keep supplied order for bottom movement; deck moves without an index
-        # append to the bottom in current engine state movement semantics.
+        # Keep supplied order for bottom movement. _move_card_eventful without
+        # index appends to deck bottom in current engine movement semantics.
         for card_id in tuple(int(cid) for cid in targets):
             if card_id not in state.cards:
                 continue
@@ -1314,6 +1856,12 @@ class EffectResolver:
                 source_id=context.source,
                 controller=state.cards[card_id].owner,
             )
+
+        return self._mark_result(
+            context,
+            performed=bool(targets),
+            target_count=len(targets),
+        )
 
     def _draw_until_hand_size(self, effect: EffectDef) -> int:
         raw = effect.raw or {}
@@ -1378,92 +1926,187 @@ class EffectResolver:
         rng = random.Random(f"{state.seed}:shuffle_effect:{player}:{state.shuffle_counter}")
         rng.shuffle(state.players[player].deck)
 
-    def _resolve_name_a_card(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
-        """Handle name_a_card effect - name a specific card.
+    def _resolve_name_a_card(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
+        """Handle name_a_card effect.
 
-        This requires pending player input to choose the card name.
-        The named card is then used for comparison or routing.
+        If a named card is already present in context, return a performed
+        context. Otherwise create pending input and suspend without performing.
         """
-        # Create a pending effect that requires player to name a card
-        named_card_id = context.choice
-        if named_card_id is None:
-            from .pending_effects import create_named_card_pending_effect
-
-            raw_valid_ids = effect.raw.get("valid_card_def_ids") or effect.raw.get("validCardDefIds") or ()
-            valid_card_def_ids = tuple(str(card_id) for card_id in raw_valid_ids)
-            create_named_card_pending_effect(
-                state=state,
-                controller_id=context.actor,
-                chooser_id=context.actor,
-                source_id=context.source,
-                source_card_id=self.engine.card_def(state, context.source).id if context.source else None,
-                valid_card_def_ids=valid_card_def_ids,
-                origin="name_a_card",
+        named_card_id = context.named_card or (str(context.choice) if context.choice is not None else None)
+        if named_card_id:
+            return self._ctx(
+                context,
+                named_card=named_card_id,
+                last_effect_performed=True,
+                last_effect_target_count=0,
             )
 
-    def _resolve_reveal_and_route(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
-        """Handle reveal_and_route effect - reveal a card and move it to a destination.
+        from .pending_effects import create_named_card_pending_effect
 
-        This combines reveal and routing in one effect.
+        raw = self._source_raw(effect)
+        chooser_id = self._resolve_effect_chooser(state, raw, context)
+        raw_valid_ids = raw.get("valid_card_def_ids") or raw.get("validCardDefIds") or ()
+        valid_card_def_ids = tuple(str(card_id) for card_id in raw_valid_ids)
+
+        pe = create_named_card_pending_effect(
+            state=state,
+            controller_id=context.actor,
+            chooser_id=chooser_id,
+            source_id=context.source,
+            source_card_id=self.engine.card_def(state, context.source).id if context.source else None,
+            valid_card_def_ids=valid_card_def_ids,
+            origin="name_a_card",
+        )
+        pe.raw["target_actor"] = context.actor
+        pe.raw["protection_actor"] = chooser_id
+        pe.raw["context_targets"] = context.context_targets
+        pe.raw["current_targets"] = context.current_targets
+        pe.raw["last_effect_performed"] = context.last_effect_performed
+        pe.raw["last_effect_target_count"] = context.last_effect_target_count
+
+        return self._mark_result(context, performed=False)
+
+    def _resolve_reveal_and_route(
+        self,
+        state: GameState,
+        effect: EffectDef,
+        context: EffectResolutionContext,
+    ) -> EffectResolutionContext:
+        """Reveal the top card and route it according to Lorcanito routes/fallback.
+
+        Supports the currently reported named-card patterns:
+        - name-a-card
+        - reveal top card
+        - if revealed matches named, move to hand/inkwell and run side effects
+        - otherwise fallback to top/bottom
         """
         source_raw = self._source_raw(effect)
-        destination = self._route_destination(source_raw, effect.value)
-
         player = self._target_player(state, effect, context)
         player_deck = state.players[player].deck
 
         if not player_deck:
-            return
+            return self._mark_result(context, performed=False)
 
         cid = player_deck[0]
         inst = state.cards[cid]
-        reveal_public = source_raw.get("visibility", "public") != "private" and source_raw.get("private") is not True
-        if reveal_public:
-            inst.revealed = True
+        inst.revealed = True
 
-            self.engine.emit_event(
-                state,
-                "CARD_REVEALED",
-                actor=player,
-                source=cid,
-                payload={
-                    "card_id": cid,
-                    "card_def_id": inst.card_id,
-                    "from_zone": ZONE_DECK,
-                    "player": player,
-                },
-            )
+        self.engine.emit_event(
+            state,
+            "CARD_REVEALED",
+            actor=player,
+            source=cid,
+            payload={
+                "card_id": cid,
+                "card_def_id": inst.card_id,
+                "from_zone": ZONE_DECK,
+                "player": player,
+            },
+        )
+
+        routes = source_raw.get("routes") if isinstance(source_raw.get("routes"), list) else ()
+        matched_route: dict[str, Any] | None = None
+
+        for route in routes:
+            if not isinstance(route, dict):
+                continue
+            condition = route.get("condition")
+            if self._reveal_route_condition_matches(state, cid, condition, context):
+                matched_route = route
+                break
+
+        if matched_route is not None:
+            destination = matched_route.get("destination") or {}
+            self._move_revealed_card_to_destination(state, cid, destination, player, context)
+            context = self._mark_result(context, performed=True, target_count=1)
+
+            side_effects = matched_route.get("sideEffects") or matched_route.get("side_effects") or ()
+            if isinstance(side_effects, dict):
+                side_effects = (side_effects,)
+            for raw_side_effect in side_effects:
+                if isinstance(raw_side_effect, dict):
+                    from lorcana_bot.importers.lorcanito_source_mapper import map_raw_effect
+                    mapped = map_raw_effect(raw_side_effect)
+                    if mapped is not None:
+                        context = self.resolve(state, EffectDef(
+                            kind=mapped.kind.replace("-", "_"),
+                            amount=mapped.amount,
+                            target=mapped.target,
+                            value=mapped.value,
+                            keyword=mapped.keyword,
+                            raw=mapped.raw,
+                        ), context)
+            return context
+
+        fallback = source_raw.get("fallback")
+        if isinstance(fallback, dict):
+            self._move_revealed_card_to_destination(state, cid, fallback, player, context)
         else:
-            self.engine.emit_event(
-                state,
-                "PRIVATE_CARD_LOOKED_AT",
-                actor=player,
-                source=context.source,
-                payload={"private": True, "count": 1, "from_zone": ZONE_DECK, "player": player},
-                queue_triggers=False,
-            )
+            destination = self._route_destination(source_raw, effect.value)
+            self._move_revealed_card_to_destination(state, cid, {"zone": destination}, player, context)
 
-        if destination == "hand":
-            self.engine._move_card_eventful(state, cid, ZONE_HAND, actor=player, source_id=context.source)
-        elif destination == "discard":
-            self.engine._move_card_eventful(state, cid, ZONE_DISCARD, actor=player, source_id=context.source)
-        elif destination == "deck-top":
-            self.engine._move_card_eventful(state, cid, ZONE_DECK, actor=player, source_id=context.source, index=0)
-        elif destination == "deck-bottom":
-            self.engine._move_card_eventful(state, cid, ZONE_DECK, actor=player, source_id=context.source)
-        elif destination == "inkwell":
+        return self._mark_result(context, performed=False, target_count=1)
+
+    def _reveal_route_condition_matches(
+        self,
+        state: GameState,
+        card_id: int,
+        condition: Any,
+        context: EffectResolutionContext,
+    ) -> bool:
+        if not isinstance(condition, dict):
+            return True
+        kind = str(condition.get("type") or condition.get("kind") or "")
+        if kind == "revealed-matches-named":
+            if not context.named_card:
+                return False
+            cdef = self.engine.card_def(state, card_id)
+            names = {
+                cdef.id,
+                cdef.full_name,
+                getattr(cdef, "name", ""),
+                getattr(cdef, "simple_name", ""),
+            }
+            return context.named_card in names
+        return False
+
+    def _move_revealed_card_to_destination(
+        self,
+        state: GameState,
+        card_id: int,
+        destination: dict[str, Any],
+        player: int,
+        context: EffectResolutionContext,
+    ) -> None:
+        zone = self._route_destination(destination, destination.get("zone"))
+        if zone == "hand":
+            self.engine._move_card_eventful(state, card_id, ZONE_HAND, actor=player, source_id=context.source)
+        elif zone == "discard":
+            self.engine._move_card_eventful(state, card_id, ZONE_DISCARD, actor=player, source_id=context.source)
+        elif zone == "deck-top":
+            self.engine._move_card_eventful(state, card_id, ZONE_DECK, actor=player, source_id=context.source, index=0)
+        elif zone == "deck-bottom":
+            self.engine._move_card_eventful(state, card_id, ZONE_DECK, actor=player, source_id=context.source)
+        elif zone == "inkwell":
             self.engine._put_into_inkwell_eventful(
                 state,
-                cid,
+                card_id,
                 actor=player,
                 source_id=context.source,
                 queue_triggers=False,
-                exerted=bool(source_raw.get("exerted", True)),
+                exerted=bool(destination.get("exerted", True)),
             )
-        elif destination == "play":
-            cdef = self.engine.card_def(state, cid)
+        elif zone == "play":
+            cdef = self.engine.card_def(state, card_id)
             if cdef.card_type == "character":
-                self.engine._move_card_eventful(state, cid, ZONE_PLAY, actor=player, source_id=context.source)
+                self.engine._move_card_eventful(state, card_id, ZONE_PLAY, actor=player, source_id=context.source)
+        else:
+            raise EffectResolutionError(f"Unsupported reveal route destination {zone!r}")
 
     def _route_destination(self, source_raw: dict[str, Any], value: Any) -> str:
         destination = (

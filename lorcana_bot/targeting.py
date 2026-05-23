@@ -77,14 +77,40 @@ class TargetCandidate:
 class TargetQueryContext:
     """Context for target query resolution.
 
-    Contains all the information needed to resolve a target descriptor
-    against the current game state.
+    actor:
+        The semantic controller of the effect. Owner/controller target filters
+        such as owner="you" and owner="opponent" are evaluated relative to this
+        player.
+
+    chooser:
+        The player currently making an input choice, when different from actor.
+
+    protection_actor:
+        The player whose act of choosing should be used for Ward and
+        cannot-be-targeted checks. This is normally chooser when a prompt is
+        pending, otherwise actor.
+
+    This split mirrors Lorcanito's controller/chooser separation.
     """
     actor: int
     source_id: int | None = None
     event_payload: dict[str, Any] = field(default_factory=dict)
     current_targets: tuple[int, ...] = ()
     context_targets: tuple[int, ...] = ()
+    chooser: int | None = None
+    protection_actor: int | None = None
+
+    @property
+    def chooser_actor(self) -> int:
+        return self.chooser if self.chooser is not None else self.actor
+
+    @property
+    def protection_player(self) -> int:
+        if self.protection_actor is not None:
+            return self.protection_actor
+        if self.chooser is not None:
+            return self.chooser
+        return self.actor
 
 
 # Alias mapping from Lorcanito DSL selectors to normalized selectors
@@ -1674,7 +1700,8 @@ def apply_target_protections(
     if source_id is None:
         source_id = context.source_id
 
-    actor = context.actor
+    semantic_actor = context.actor
+    protection_actor = context.protection_player
     seen_ids: set[tuple[str, int]] = set()
     results: list[TargetCandidate] = []
 
@@ -1707,17 +1734,21 @@ def apply_target_protections(
         if descriptor.zones and inst.zone not in descriptor.zones:
             continue
 
-        # Ward protection applies when the opponent is choosing a card target.
+        # Ward protection applies when the choosing player is choosing an
+        # opposing card. For chosenBy: opponent, the descriptor may still be
+        # semantically relative to the original controller, but Ward must be
+        # evaluated relative to the physical chooser.
         if (
             requires_explicit_target_selection(descriptor.selector)
             and engine is not None
-            and inst.controller != actor
+            and inst.controller != protection_actor
             and engine.has_keyword(state, cid, "WARD")
         ):
             continue
 
-        # Cannot-be-targeted protection
-        if _is_protected_from_targeting(state, cid, actor, source_id):
+        # Cannot-be-targeted protection is also evaluated relative to the
+        # physical chooser, not necessarily the original effect controller.
+        if _is_protected_from_targeting(state, cid, protection_actor, source_id):
             continue
 
         results.append(cand)

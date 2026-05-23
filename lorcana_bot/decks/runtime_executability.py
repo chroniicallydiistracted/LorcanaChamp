@@ -731,20 +731,34 @@ def _source_sing_together_shape_supported(card: CardDef) -> bool:
 
 
 def _source_opponent_choice_requirement_supported(effect: SourceEffectDef) -> bool:
-    raw = effect.raw or {}
+    """Return True only for opponent-choice shapes the runtime actually supports.
 
-    def walk(value: Any) -> bool:
-        if isinstance(value, dict):
-            if str(value.get("chosenBy", value.get("chosen_by", ""))).casefold() == "opponent":
-                return True
-            if str(value.get("chooser", "")).casefold() == "opponent":
-                return True
-            return any(walk(child) for child in value.values())
-        if isinstance(value, (list, tuple)):
-            return any(walk(child) for child in value)
+    Supported:
+      1. leaf effect with chosenBy/chosen_by="opponent"
+      2. leaf effect has a supported target shape
+      3. effect kind is executable by EffectResolver
+
+    Not supported here:
+      - parent optional with chooser="OPPONENT"
+      - parent choice with chooser="OPPONENT"
+      - arbitrary nested chooser inheritance
+      - for-each-opponent
+    Those become executable only after their runtime continuation tests exist.
+    """
+    raw = effect.raw or {}
+    chosen_by = str(raw.get("chosenBy") or raw.get("chosen_by") or "").casefold()
+    if chosen_by != "opponent":
         return False
 
-    return walk(raw)
+    target = raw.get("target")
+    if target is None:
+        return False
+
+    if not _source_target_shape_supported(target):
+        return False
+
+    engine_kind = _runtime_effect_kind(effect.kind)
+    return engine_kind in SUPPORTED_EFFECT_KINDS
 
 
 def _source_scry_requirement_supported(effect: SourceEffectDef, requirement: str) -> bool:

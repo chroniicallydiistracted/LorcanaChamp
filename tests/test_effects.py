@@ -203,6 +203,68 @@ def test_move_from_discard_emits_leave_discard_event(engine, state):
     assert leave_events[0].payload["to_zone"] == ZONE_HAND
 
 
+def test_slotted_targets_emit_be_chosen_for_subject_and_location(engine, state):
+    from lorcana_bot.cards import DEMO_FEATURE_CARD_IDS, EffectDef
+    from lorcana_bot.effect_types import EffectResolutionContext
+    from lorcana_bot.constants import EVENT_BE_CHOSEN
+    from lorcana_bot.state import CardInstance
+    from tests.conftest import put_card
+
+    source = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+    character = put_card(state, engine, 0, "Amber Guard", ZONE_PLAY)
+
+    location = max(state.cards) + 1
+    state.cards[location] = CardInstance(
+        instance_id=location,
+        card_id=DEMO_FEATURE_CARD_IDS["location"],
+        owner=0,
+        controller=0,
+        zone=ZONE_PLAY,
+    )
+    state.players[0].play.append(location)
+
+    effect = EffectDef(
+        "move_to_location",
+        raw={
+            "raw": {
+                "character": {
+                    "selector": "chosen",
+                    "owner": "you",
+                    "zones": ["play"],
+                    "cardTypes": ["character"],
+                },
+                "location": {
+                    "selector": "chosen",
+                    "owner": "you",
+                    "zones": ["play"],
+                    "cardTypes": ["location"],
+                },
+            }
+        },
+    )
+
+    engine.effect_resolver.resolve(
+        state,
+        effect,
+        EffectResolutionContext(
+            actor=0,
+            source=source,
+            slotted_targets={
+                "kind": "move-to-location",
+                "subject": (character,),
+                "location": (location,),
+            },
+        ),
+    )
+
+    be_chosen_targets = [
+        event.target for event in state.event_log
+        if event.event_type == EVENT_BE_CHOSEN
+    ]
+    assert character in be_chosen_targets
+    assert location in be_chosen_targets
+
+
 def test_ready_exert_discard_and_for_each_effects():
     engine, state = setup_effect_game()
     ally = put_card(state, engine, 0, "Ally", ZONE_PLAY, exerted=False, drying=False)
@@ -331,6 +393,67 @@ def test_choice_optional_and_conditional_control_flow_are_declarative():
     )
     engine.effect_resolver.resolve(state, conditional, EffectResolutionContext(actor=0))
     assert state.players[0].lore == 3
+
+def test_if_you_do_uses_last_effect_performed_true(engine, state):
+    from lorcana_bot.cards import EffectDef
+    from lorcana_bot.effect_types import EffectResolutionContext
+    from tests.conftest import put_card
+
+    source = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+    target = put_card(state, engine, 1, "Amber Guard", ZONE_PLAY)
+
+    effect = EffectDef(
+        "sequence",
+        effects=(
+            EffectDef("exert", target="chosen_character"),
+            EffectDef(
+                "conditional",
+                condition={"type": "if-you-do"},
+                effects=(EffectDef("draw", amount=1, target="controller"),),
+            ),
+        ),
+    )
+
+    hand_before = len(state.players[0].hand)
+
+    engine.effect_resolver.resolve(
+        state,
+        effect,
+        EffectResolutionContext(actor=0, source=source, current_targets=(target,)),
+    )
+
+    assert state.cards[target].exerted is True
+    assert len(state.players[0].hand) == hand_before + 1
+
+
+def test_if_you_do_false_when_previous_effect_did_not_perform(engine, state):
+    from lorcana_bot.cards import EffectDef
+    from lorcana_bot.effect_types import EffectResolutionContext
+    from tests.conftest import put_card
+
+    source = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+
+    effect = EffectDef(
+        "sequence",
+        effects=(
+            EffectDef("select_target", target="chosen_character"),
+            EffectDef(
+                "conditional",
+                condition={"type": "if-you-do"},
+                effects=(EffectDef("draw", amount=1, target="controller"),),
+            ),
+        ),
+    )
+
+    hand_before = len(state.players[0].hand)
+
+    engine.effect_resolver.resolve(
+        state,
+        effect,
+        EffectResolutionContext(actor=0, source=source, current_targets=()),
+    )
+
+    assert len(state.players[0].hand) == hand_before
 
 
 class TestEventContextTargets:
@@ -462,6 +585,30 @@ class TestEventContextTargets:
 
         assert state.cards[target].damage == 2
         assert state.cards[ally].damage == 0
+
+    def test_sequence_promotes_current_targets_for_previous_target(self):
+        from lorcana_bot.cards import EffectDef
+        from lorcana_bot.effect_types import EffectResolutionContext
+
+        engine, state = setup_effect_game()
+        source = put_card(state, engine, 0, "Ally", ZONE_PLAY)
+        target = put_card(state, engine, 1, "Target", ZONE_PLAY)
+
+        effect = EffectDef(
+            "sequence",
+            effects=(
+                EffectDef("select_target", target="chosen_character"),
+                EffectDef("deal_damage", amount=2, target={"ref": "previous-target"}),
+            ),
+        )
+
+        engine.effect_resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=source, current_targets=(target,)),
+        )
+
+        assert state.cards[target].damage == 2
 
 
 class TestEventPayloadTargets:

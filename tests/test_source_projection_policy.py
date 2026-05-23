@@ -278,3 +278,44 @@ def test_microfix21_challenged_this_turn_filter_is_supported():
     })
 
     assert target.execution_status == ExecutionStatus.EXECUTABLE
+
+
+def test_opponent_choice_parent_chooser_not_marked_supported_without_runtime_shape():
+    ability = map_raw_ability({
+        "type": "triggered",
+        "trigger": {"event": "play", "on": "SELF", "timing": "when"},
+        "effect": {
+            "type": "optional",
+            "chooser": "OPPONENT",
+            "effect": {
+                "type": "discard",
+                "target": "OPPONENT",
+                "chosen": True,
+                "amount": 1,
+                "from": "hand",
+            },
+        },
+    })
+
+    # This should remain unsupported until optional chooser continuation is
+    # fully tested end-to-end. Do not allow broad recursive classifier support.
+    assert ability.execution_status != ExecutionStatus.EXECUTABLE
+
+
+def test_leaf_chosen_by_opponent_target_shape_projects_supported():
+    ability = map_raw_ability({
+        "type": "action",
+        "effect": {
+            "type": "deal-damage",
+            "amount": 1,
+            "chosenBy": "opponent",
+            "target": {
+                "selector": "chosen",
+                "owner": "opponent",
+                "zones": ["play"],
+                "cardTypes": ["character"],
+            },
+        },
+    })
+
+    assert ability.execution_status == ExecutionStatus.EXECUTABLE

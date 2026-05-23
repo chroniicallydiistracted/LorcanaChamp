@@ -368,6 +368,36 @@ def test_challenged_this_turn_filter_matches_runtime_flag(engine, state):
     assert unchallenged not in resolve_candidate_card_ids(state, engine, descriptor, context)
 
 
+def test_protection_actor_allows_opponent_to_choose_own_ward_character(engine, state):
+    from lorcana_bot.constants import KEYWORD_WARD, ZONE_PLAY
+    from lorcana_bot.targeting import (
+        TargetQueryContext,
+        apply_target_protections,
+        normalize_target_descriptor,
+        resolve_candidate_targets,
+    )
+    from tests.conftest import put_card
+
+    ward_card = put_card(state, engine, 1, "Amber Guard", ZONE_PLAY)
+    state.cards[ward_card].temporary_keywords.append(KEYWORD_WARD)
+
+    descriptor = normalize_target_descriptor({
+        "selector": "chosen",
+        "owner": "opponent",
+        "zones": ["play"],
+        "cardTypes": ["character"],
+    })
+    assert descriptor is not None
+
+    # Semantic actor is player 0, so owner="opponent" means player 1.
+    # Physical chooser/protection actor is player 1, so Ward should not block.
+    context = TargetQueryContext(actor=0, chooser=1, protection_actor=1)
+    candidates = resolve_candidate_targets(state, engine, descriptor, context)
+    protected = apply_target_protections(state, engine, candidates, descriptor, context)
+
+    assert ward_card in {candidate.id for candidate in protected}
+
+
 def test_infer_candidate_zones_matches_lorcanito_action_selection_zones(engine, state):
     hand = put_card(state, engine, 0, "Amber Recruit", ZONE_HAND)
     play = put_card(state, engine, 0, "Amber Guard", ZONE_PLAY, exclude=frozenset({hand}))

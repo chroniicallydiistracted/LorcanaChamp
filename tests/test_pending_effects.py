@@ -1382,6 +1382,141 @@ class TestRequirementKindLegalActions:
         resolve_p1 = [a for a in actions_p1 if a.kind == ACTION_RESOLVE_PENDING_EFFECT]
         assert len(resolve_p1) == 1
         assert resolve_p1[0].target == cid
+        
+
+    def test_chosen_by_opponent_effect_creates_pending_for_opponent_and_resolves_under_controller(self, state_with_pending):
+        from lorcana_bot.cards import EffectDef
+        from lorcana_bot.effect_types import EffectResolutionContext
+        from lorcana_bot.constants import ACTION_RESOLVE_PENDING_EFFECT, ZONE_PLAY
+        from lorcana_bot.state import CardInstance
+
+        state, engine = state_with_pending
+
+        state.cards[1] = CardInstance(
+            instance_id=1,
+            card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+            owner=0,
+            controller=0,
+            zone=ZONE_PLAY,
+        )
+        state.players[0].play.append(1)
+
+        state.cards[40] = CardInstance(
+            instance_id=40,
+            card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+            owner=1,
+            controller=1,
+            zone=ZONE_PLAY,
+        )
+        state.players[1].play.append(40)
+
+        effect = EffectDef(
+            "deal_damage",
+            amount=1,
+            target={
+                "selector": "chosen",
+                "owner": "opponent",
+                "zones": ["play"],
+                "cardTypes": ["character"],
+            },
+            raw={
+                "raw": {
+                    "type": "deal-damage",
+                    "amount": 1,
+                    "chosenBy": "opponent",
+                    "target": {
+                        "selector": "chosen",
+                        "owner": "opponent",
+                        "zones": ["play"],
+                        "cardTypes": ["character"],
+                    },
+                }
+            },
+        )
+
+        engine.effect_resolver.resolve(state, effect, EffectResolutionContext(actor=0, source=1))
+
+        assert len(state.pending_effects) == 1
+        pe = state.pending_effects[0]
+        assert pe.controller_id == 0
+        assert pe.chooser_id == 1
+        assert pe.raw["target_actor"] == 0
+        assert pe.raw["protection_actor"] == 1
+
+        assert not [
+            action for action in engine.legal_actions(state, 0)
+            if action.kind == ACTION_RESOLVE_PENDING_EFFECT
+        ]
+
+        actions = [
+            action for action in engine.legal_actions(state, 1)
+            if action.kind == ACTION_RESOLVE_PENDING_EFFECT
+        ]
+        assert actions
+
+        action = next(action for action in actions if action.target == 40)
+        next_state = engine.apply_action(state, action)
+
+        assert next_state.cards[40].damage == 1
+        assert not next_state.pending_effects
+
+    def test_opponent_choice_ward_uses_chooser_for_protection(self, state_with_pending):
+        from lorcana_bot.cards import EffectDef
+        from lorcana_bot.effect_types import EffectResolutionContext
+        from lorcana_bot.constants import ACTION_RESOLVE_PENDING_EFFECT, KEYWORD_WARD, ZONE_PLAY
+        from lorcana_bot.state import CardInstance
+
+        state, engine = state_with_pending
+
+        state.cards[1] = CardInstance(
+            instance_id=1,
+            card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+            owner=0,
+            controller=0,
+            zone=ZONE_PLAY,
+        )
+        state.players[0].play.append(1)
+
+        state.cards[40] = CardInstance(
+            instance_id=40,
+            card_id=DEMO_FEATURE_CARD_IDS["basic_character"],
+            owner=1,
+            controller=1,
+            zone=ZONE_PLAY,
+        )
+        state.cards[40].temporary_keywords.append(KEYWORD_WARD)
+        state.players[1].play.append(40)
+
+        effect = EffectDef(
+            "deal_damage",
+            amount=1,
+            target={
+                "selector": "chosen",
+                "owner": "opponent",
+                "zones": ["play"],
+                "cardTypes": ["character"],
+            },
+            raw={
+                "raw": {
+                    "chosenBy": "opponent",
+                    "target": {
+                        "selector": "chosen",
+                        "owner": "opponent",
+                        "zones": ["play"],
+                        "cardTypes": ["character"],
+                    },
+                }
+            },
+        )
+
+        engine.effect_resolver.resolve(state, effect, EffectResolutionContext(actor=0, source=1))
+
+        actions = [
+            action for action in engine.legal_actions(state, 1)
+            if action.kind == ACTION_RESOLVE_PENDING_EFFECT
+        ]
+        assert any(action.target == 40 for action in actions)
+
 
     def test_enter_play_exerted_requirement_kind(self, state_with_pending):
         """Test that enter_play_exerted requirement_kind emits true and false choices."""

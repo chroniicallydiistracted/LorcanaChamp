@@ -383,13 +383,20 @@ def execute_ability_effects(
         slotted_targets=slotted_targets,
     )
 
-    if selected_targets:
-        from lorcana_bot.constants import CARD_ACTION, CARD_CHARACTER, CARD_ITEM, EVENT_BE_CHOSEN
+    slotted_flat: tuple[int, ...] = ()
+    if slotted_targets:
+        from lorcana_bot.targeting import flatten_slotted_targets, normalize_slotted_target_input
+        slotted_flat = flatten_slotted_targets(normalize_slotted_target_input(slotted_targets))
+
+    be_chosen_targets = tuple(dict.fromkeys((*selected_targets, *slotted_flat)))
+
+    if be_chosen_targets:
+        from lorcana_bot.constants import CARD_ACTION, CARD_CHARACTER, CARD_ITEM, CARD_LOCATION, EVENT_BE_CHOSEN
 
         source_card = engine.card_def(state, ability.source_instance_id)
-        if source_card.card_type in {CARD_ACTION, CARD_ITEM, CARD_CHARACTER}:
+        if source_card.card_type in {CARD_ACTION, CARD_ITEM, CARD_CHARACTER, CARD_LOCATION}:
             seen: set[int] = set()
-            for target_id in selected_targets:
+            for target_id in be_chosen_targets:
                 if target_id in seen:
                     continue
                 seen.add(target_id)

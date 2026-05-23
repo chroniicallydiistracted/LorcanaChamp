@@ -1752,12 +1752,20 @@ def resolve_slotted_target_selection(
         raise ValueError(f"Pending effect {pending_id} not found")
 
     normalized = normalize_slotted_target_input(slotted_targets)
-    validate_slotted_targets(state, normalized, actor=pe.chooser_id, source_id=pe.source_id, engine=engine)
+    validate_slotted_targets(
+        state,
+        normalized,
+        actor=pe.raw.get("target_actor", pe.controller_id),
+        source_id=pe.source_id,
+        engine=engine,
+    )
     flat_targets = flatten_slotted_targets(normalized)
     _validate_targets(state, pe, flat_targets)
 
     pe.selected_targets = flat_targets
     pe.raw["slotted_targets"] = normalized
+    pe.raw["target_actor"] = pe.raw.get("target_actor", pe.controller_id)
+    pe.raw["protection_actor"] = pe.raw.get("protection_actor", pe.chooser_id)
     resolution_input = pe.raw.setdefault("resolution_input", {})
     resolution_input["slotted_targets"] = normalized
     resolution_input["targets"] = flat_targets
@@ -2162,13 +2170,16 @@ def get_valid_target_candidates_for_pending(
         return ()
 
     raw = pe.raw or {}
-    target_actor = raw.get("target_actor", chooser_id)
+    target_actor = raw.get("target_actor", pe.controller_id)
+    protection_actor = raw.get("protection_actor", chooser_id)
     context = TargetQueryContext(
-        actor=target_actor,
+        actor=int(target_actor),
         source_id=pe.source_id,
         event_payload=raw.get("event_payload", {}) or {},
-        current_targets=tuple(raw.get("current_targets", ()) or ()),
+        current_targets=tuple(raw.get("current_targets", ()) or raw.get("selected_targets", ()) or ()),
         context_targets=tuple(raw.get("context_targets", ()) or ()),
+        chooser=chooser_id,
+        protection_actor=int(protection_actor),
     )
 
     all_candidates: list[TargetCandidate] = []
