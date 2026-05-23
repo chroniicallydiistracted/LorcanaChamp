@@ -11,29 +11,29 @@
   "cards_loaded": 2754,
   "detailed_reason_counts": {
     "mapped_not_executable": 516,
-    "unsupported_choice": 18,
-    "unsupported_condition": 290,
+    "unsupported_choice": 113,
+    "unsupported_condition": 275,
     "unsupported_cost": 52,
-    "unsupported_engine_mechanic": 210,
+    "unsupported_engine_mechanic": 197,
     "unsupported_targeting": 354,
     "unsupported_trigger": 1
   },
-  "detailed_record_count": 1441,
+  "detailed_record_count": 1508,
   "errors": [],
   "execution_status_counts": {
-    "executable": 11139,
+    "executable": 11072,
     "mapped_not_executable": 516,
-    "unsupported_choice": 18,
-    "unsupported_condition": 290,
+    "unsupported_choice": 113,
+    "unsupported_condition": 275,
     "unsupported_cost": 52,
-    "unsupported_engine_mechanic": 210,
+    "unsupported_engine_mechanic": 197,
     "unsupported_targeting": 354,
     "unsupported_trigger": 1
   },
   "object_type_counts": {
-    "ability": 787,
+    "ability": 813,
     "cost": 28,
-    "effect": 458,
+    "effect": 499,
     "effect_condition": 66,
     "target": 101,
     "trigger": 1
@@ -50,10 +50,12 @@
     "All Is Found": 6,
     "And Then Along Came Zeus": 6,
     "Andy's Room - Home Base": 6,
+    "Anna - Diplomatic Queen": 4,
     "Anna - Little Sister": 10,
     "Arthur - Wizard's Apprentice": 12,
     "Atlantica - Concert Hall": 4,
     "Bad-Anon - Villain Support Center": 6,
+    "Basil - Disguised Detective": 6,
     "Belle - Strange but Special": 4,
     "Bibbidi Bobbidi Boo": 4,
     "Blast from Your Past": 5,
@@ -65,9 +67,9 @@
     "Casa Madrigal - Courtyard": 8,
     "Cinderella - Dream Come True": 10,
     "Daisy Duck - Trendy Traveler": 10,
-    "Dale - Mischievous Ranger": 4,
     "Darkwing Tower - Icy Headquarters": 5,
     "Diablo - Devoted Herald": 4,
+    "Donald Duck - Perfect Gentleman": 4,
     "Donald Duck - Ruby Champion": 6,
     "Edna Mode - Fashion Designer": 10,
     "Eeyore - In the Way": 6,
@@ -76,9 +78,9 @@
     "Fix-It Felix, Jr. - Pint-Sized Hero": 5,
     "Gaston - Arrogant Showoff": 5,
     "Giant Cobra - Ghostly Serpent": 5,
-    "Glimmer vs Glimmer": 4,
     "Graveyard of Christmas Future - Lonely Resting Place": 6,
     "Hades - Fast Talker": 5,
+    "Hades - Looking for a Deal": 8,
     "Hidden Cove - Tranquil Haven": 4,
     "Hiro Hamada - Armor Designer": 12,
     "Jafar - High Sultan of Lorcana": 5,
@@ -90,6 +92,7 @@
     "King Candy - Sweet Abomination": 10,
     "Lady Tremaine - Imperious Queen": 4,
     "Launch": 4,
+    "Let's Get Dangerous": 6,
     "Luisa Madrigal - Confident Climber": 8,
     "Lyle Tiberius Rourke - Crystallized Commander": 6,
     "Madame Medusa - Diamond Lover": 6,
@@ -114,11 +117,9 @@
     "Royal Tantrum": 8,
     "Safety Rope": 5,
     "Scar - Finally King": 12,
-    "Scar - Heartless Hunter": 4,
     "Scrooge McDuck - Reformed Ebenezer": 8,
-    "Sherwood Forest - Outlaw Hideaway": 4,
     "Sid Phillips - Toy Surgeon": 5,
-    "Sign the Scroll": 4,
+    "Sign the Scroll": 5,
     "Simba - Son of Mufasa": 4,
     "Sleepy Hollow - The Bridge": 5,
     "Snow White - Merry as the Morning": 5,
@@ -134,26 +135,25 @@
     "The Most Diabolical Scheme": 4,
     "The Queen - Devious Disguise": 5,
     "The Queen - Jealous Beauty": 6,
+    "The Return of Hercules": 6,
     "The Sorcerer's Hat": 6,
     "Tuk Tuk - Lively Partner": 10,
     "Ursula - Deceiver of All": 10,
     "Ursula\u2019s Lair - Eye of the Storm": 7,
-    "Ursula\u2019s Trickery": 4,
-    "We Know the Way": 4,
+    "Ursula\u2019s Trickery": 5,
     "Winter Camp - Medical Tent": 4,
     "Witches of Morva - Orddu, Orwen, and Orgoch": 6,
-    "Wreck-It Ralph - Admiral Underpants": 4,
     "Wreck-It Ralph - Big Lug": 20,
     "Wreck-It Ralph - Ham Hands": 10,
     "Wrong Lever!": 10
   },
   "top_object_kind_counts": {
-    "ability:action": 35,
-    "ability:activated": 39,
+    "ability:action": 44,
+    "ability:activated": 40,
     "ability:keyword": 6,
     "ability:replacement": 6,
     "ability:static": 580,
-    "ability:triggered": 121,
+    "ability:triggered": 137,
     "cost:banishCharacter": 4,
     "cost:banishCharacterTarget": 1,
     "cost:banishItem": 6,
@@ -162,7 +162,7 @@
     "cost:exertCharactersClassification": 2,
     "cost:exertItems": 1,
     "effect:banish": 12,
-    "effect:choice": 3,
+    "effect:choice": 9,
     "effect:conditional": 66,
     "effect:cost-increase": 1,
     "effect:create-triggered-ability": 6,
@@ -182,8 +182,9 @@
     "effect:move-cards-from-under": 6,
     "effect:move-cost-reduction": 9,
     "effect:name-a-card": 6,
-    "effect:optional": 70,
-    "effect:or": 2,
+    "effect:optional": 82,
+    "effect:or": 5,
+    "effect:pay-cost": 3,
     "effect:property-modification": 9,
     "effect:put-into-inkwell": 2,
     "effect:put-on-bottom": 5,
@@ -193,9 +194,10 @@
     "effect:restriction": 7,
     "effect:return-to-hand": 2,
     "effect:reveal-until-match": 1,
+    "effect:scry": 3,
     "effect:select-target": 1,
     "effect:self-play-condition": 3,
-    "effect:sequence": 122,
+    "effect:sequence": 136,
     "effect:shuffle-into-deck": 2,
     "effect:stat-floor": 1,
     "effect:suppress-ability": 1,
@@ -216,15 +218,15 @@
       "pattern": "ability.type:static:mapped_not_executable"
     },
     {
-      "count": 66,
-      "pattern": "effect.type:sequence:unsupported_condition"
-    },
-    {
-      "count": 66,
+      "count": 63,
       "pattern": "effect.type:conditional:unsupported_condition"
     },
     {
-      "count": 47,
+      "count": 61,
+      "pattern": "effect.type:sequence:unsupported_condition"
+    },
+    {
+      "count": 44,
       "pattern": "ability.type:triggered:unsupported_condition"
     },
     {
@@ -244,12 +246,8 @@
       "pattern": "effect.type:sequence:unsupported_targeting"
     },
     {
-      "count": 33,
-      "pattern": "ability.type:triggered:unsupported_engine_mechanic"
-    },
-    {
       "count": 28,
-      "pattern": "effect.type:optional:unsupported_condition"
+      "pattern": "ability.type:triggered:unsupported_engine_mechanic"
     },
     {
       "count": 28,
@@ -258,6 +256,18 @@
     {
       "count": 28,
       "pattern": "effect.type:gain-keyword:unsupported_targeting"
+    },
+    {
+      "count": 26,
+      "pattern": "effect.type:optional:unsupported_condition"
+    },
+    {
+      "count": 26,
+      "pattern": "effect.type:sequence:unsupported_choice"
+    },
+    {
+      "count": 25,
+      "pattern": "ability.type:triggered:unsupported_choice"
     },
     {
       "count": 20,
@@ -272,32 +282,24 @@
       "pattern": "effect.type:put-under:unsupported_engine_mechanic"
     },
     {
-      "count": 16,
+      "count": 15,
       "pattern": "effect.type:sequence:unsupported_engine_mechanic"
     },
     {
       "count": 14,
+      "pattern": "effect.type:optional:unsupported_choice"
+    },
+    {
+      "count": 14,
       "pattern": "effect.type:optional:unsupported_engine_mechanic"
-    },
-    {
-      "count": 13,
-      "pattern": "ability.type:action:unsupported_targeting"
-    },
-    {
-      "count": 12,
-      "pattern": "effect.type:banish:unsupported_targeting"
-    },
-    {
-      "count": 11,
-      "pattern": "ability.type:action:unsupported_condition"
     }
   ],
   "unsupported_by_reason": {
     "mapped_not_executable": 516,
-    "unsupported_choice": 18,
-    "unsupported_condition": 224,
+    "unsupported_choice": 113,
+    "unsupported_condition": 209,
     "unsupported_cost": 24,
-    "unsupported_engine_mechanic": 210,
+    "unsupported_engine_mechanic": 197,
     "unsupported_targeting": 253
   },
   "warnings": []

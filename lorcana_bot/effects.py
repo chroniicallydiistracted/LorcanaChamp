@@ -2011,20 +2011,39 @@ class EffectResolver:
 
         cid = player_deck[0]
         inst = state.cards[cid]
-        inst.revealed = True
 
-        self.engine.emit_event(
-            state,
-            "CARD_REVEALED",
-            actor=player,
-            source=cid,
-            payload={
-                "card_id": cid,
-                "card_def_id": inst.card_id,
-                "from_zone": ZONE_DECK,
-                "player": player,
-            },
-        )
+        visibility = str(source_raw.get("visibility") or source_raw.get("reveal") or "public").casefold()
+        is_private = visibility in {"private", "look", "hidden"}
+
+        if is_private:
+            self.engine.emit_event(
+                state,
+                "PRIVATE_CARD_LOOKED_AT",
+                actor=player,
+                source=context.source,
+                target=cid,
+                payload={
+                    "private": True,
+                    "count": 1,
+                    "from_zone": ZONE_DECK,
+                    "player": player,
+                },
+                queue_triggers=False,
+            )
+        else:
+            inst.revealed = True
+            self.engine.emit_event(
+                state,
+                "CARD_REVEALED",
+                actor=player,
+                source=cid,
+                payload={
+                    "card_id": cid,
+                    "card_def_id": inst.card_id,
+                    "from_zone": ZONE_DECK,
+                    "player": player,
+                },
+            )
 
         routes = source_raw.get("routes") if isinstance(source_raw.get("routes"), list) else ()
         matched_route: dict[str, Any] | None = None

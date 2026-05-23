@@ -733,32 +733,40 @@ def _source_sing_together_shape_supported(card: CardDef) -> bool:
 def _source_opponent_choice_requirement_supported(effect: SourceEffectDef) -> bool:
     """Return True only for opponent-choice shapes the runtime actually supports.
 
-    Supported:
-      1. leaf effect with chosenBy/chosen_by="opponent"
-      2. leaf effect has a supported target shape
-      3. effect kind is executable by EffectResolver
+    Supported currently:
+      1. leaf target effect with chosenBy/chosen_by="opponent" and supported target shape
+      2. choice effect with chosenBy/chosen_by="opponent" and executable options
 
     Not supported here:
       - parent optional with chooser="OPPONENT"
-      - parent choice with chooser="OPPONENT"
       - arbitrary nested chooser inheritance
       - for-each-opponent
-    Those become executable only after their runtime continuation tests exist.
     """
     raw = effect.raw or {}
     chosen_by = str(raw.get("chosenBy") or raw.get("chosen_by") or "").casefold()
-    if chosen_by != "opponent":
+    chooser = str(raw.get("chooser") or "").casefold()
+
+    if chosen_by != "opponent" and chooser not in {"opponent", "opponents"}:
         return False
 
+    engine_kind = _runtime_effect_kind(effect.kind)
+    if engine_kind not in SUPPORTED_EFFECT_KINDS:
+        return False
+
+    # Opponent chooses one branch of a choice effect. This is not target-based,
+    # so it must not require raw["target"].
+    if engine_kind == "choice":
+        options = raw.get("options") or raw.get("choices") or ()
+        if not isinstance(options, (list, tuple)) or not options:
+            return False
+        return all(isinstance(option, dict) for option in options)
+
+    # Leaf target choice by opponent.
     target = raw.get("target")
     if target is None:
         return False
 
-    if not _source_target_shape_supported(target):
-        return False
-
-    engine_kind = _runtime_effect_kind(effect.kind)
-    return engine_kind in SUPPORTED_EFFECT_KINDS
+    return _source_target_shape_supported(target)
 
 
 def _source_scry_requirement_supported(effect: SourceEffectDef, requirement: str) -> bool:

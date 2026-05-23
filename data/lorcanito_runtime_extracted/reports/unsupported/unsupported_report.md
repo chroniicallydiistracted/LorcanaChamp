@@ -11,10 +11,10 @@
 | Reason | Count |
 |---|---:|
 | `mapped_not_executable` | 516 |
-| `unsupported_choice` | 18 |
-| `unsupported_condition` | 224 |
+| `unsupported_choice` | 113 |
+| `unsupported_condition` | 209 |
 | `unsupported_cost` | 24 |
-| `unsupported_engine_mechanic` | 210 |
+| `unsupported_engine_mechanic` | 197 |
 | `unsupported_targeting` | 253 |
 
 ## Examples
@@ -151,102 +151,137 @@ Total detailed records: `516`
 
 ### `unsupported_choice`
 
-Total detailed records: `18`
+Total detailed records: `113`
 
-- **The Sorcerer's Hat** (`geu`)
-  - Object: `ability` / `activated`
-  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "cost": {"exert": true, "ink": 1}, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "geu-1", "name": "INCREDIBLE ENERGY", "text": "INCREDIBLE ENERGY {E}, 1 {I} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand. Otherwise, put it on the top of your deck.", "type": "activated"}`
-- **The Sorcerer's Hat** (`geu`)
-  - Object: `effect` / `sequence`
-  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
-  - Status: `unsupported_choice`
-  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
-- **The Sorcerer's Hat** (`geu`)
-  - Object: `effect` / `name-a-card`
-  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
-  - Status: `unsupported_choice`
-  - Raw: `{"type": "name-a-card"}`
-- **The Sorcerer's Hat** (`mE1`)
-  - Object: `ability` / `activated`
-  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "cost": {"exert": true, "ink": 1}, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "geu-1", "name": "INCREDIBLE ENERGY", "text": "INCREDIBLE ENERGY {E}, 1 {I} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand. Otherwise, put it on the top of your deck.", "type": "activated"}`
-- **The Sorcerer's Hat** (`mE1`)
-  - Object: `effect` / `sequence`
-  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
-  - Status: `unsupported_choice`
-  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
-- **The Sorcerer's Hat** (`mE1`)
-  - Object: `effect` / `name-a-card`
-  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
-  - Status: `unsupported_choice`
-  - Raw: `{"type": "name-a-card"}`
-- **Bruno Madrigal - Undetected Uncle** (`Hx7`)
-  - Object: `ability` / `activated`
-  - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 1, "cost": {"exert": true}, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}, "sideEffects": [{"amount": 3, "target": "CONTROLLER", "type": "gain-lore"}]}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "13f-2", "name": "YOU JUST HAVE TO SEE IT", "text": "YOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.", "type": "activated"}`
-- **Bruno Madrigal - Undetected Uncle** (`Hx7`)
-  - Object: `effect` / `sequence`
-  - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
-  - Status: `unsupported_choice`
-  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}, "sideEffects": [{"amount": 3, "target": "CONTROLLER", "type": "gain-lore"}]}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
-- **Bruno Madrigal - Undetected Uncle** (`Hx7`)
-  - Object: `effect` / `name-a-card`
-  - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
-  - Status: `unsupported_choice`
-  - Raw: `{"type": "name-a-card"}`
-- **Blast from Your Past** (`hV2`)
-  - Object: `ability` / `action`
-  - Ability: `action` `1tj-1` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"type": "name-a-card"}, {"target": {"cardTypes": ["character"], "count": "all", "filter": [{"type": "named-card"}], "owner": "you", "selector": "all", "zones": ["discard"]}, "type": "return-to-hand"}], "type": "sequence"}, "id": "1tj-1", "text": "Name a card. Return all character cards with that name from your discard to your hand.", "type": "action"}`
-- **Blast from Your Past** (`hV2`)
-  - Object: `effect` / `sequence`
-  - Ability: `action` `1tj-1` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"steps": [{"type": "name-a-card"}, {"target": {"cardTypes": ["character"], "count": "all", "filter": [{"type": "named-card"}], "owner": "you", "selector": "all", "zones": ["discard"]}, "type": "return-to-hand"}], "type": "sequence"}`
-- **Blast from Your Past** (`hV2`)
-  - Object: `effect` / `name-a-card`
-  - Ability: `action` `1tj-1` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"type": "name-a-card"}`
-- **Merlin - Clever Clairvoyant** (`qhP`)
+- **Donald Duck - Perfect Gentleman** (`fS0`)
   - Object: `ability` / `triggered`
-  - Ability: `triggered` `1c1-1` — PRESTIDIGITONIUM
+  - Ability: `triggered` `wjj-3` — ALLOW ME
   - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"exerted": true, "zone": "inkwell"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "1c1-1", "name": "PRESTIDIGITONIUM", "text": "PRESTIDIGITONIUM Whenever this character quests, name a card, then reveal the top card of your deck. If it's the named card, put it into your inkwell facedown and exerted. Otherwise, put it on the top of your deck.", "trigger": {"event": "quest", "on": "SELF", "timing": "whenever"}, "type": "triggered"}`
-- **Merlin - Clever Clairvoyant** (`qhP`)
+  - Raw: `{"_source_index": 2, "effect": {"chooser": "OPPONENT", "effect": {"amount": 1, "target": "OPPONENT", "type": "draw"}, "type": "optional"}, "id": "wjj-3", "name": "ALLOW ME", "text": "ALLOW ME At the start of your turn, each player may draw a card.", "trigger": {"event": "start-turn", "on": "YOU", "timing": "at"}, "type": "triggered"}`
+- **Donald Duck - Perfect Gentleman** (`fS0`)
+  - Object: `effect` / `optional`
+  - Ability: `triggered` `wjj-3` — ALLOW ME
+  - Status: `unsupported_choice`
+  - Raw: `{"chooser": "OPPONENT", "effect": {"amount": 1, "target": "OPPONENT", "type": "draw"}, "type": "optional"}`
+- **Lady Tremaine - Imperious Queen** (`h4L`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 1, "effect": {"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}, "id": "2qj-2", "name": "POWER TO RULE AT LAST", "text": "POWER TO RULE AT LAST When you play this character, each opponent chooses and banishes one of their characters.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Lady Tremaine - Imperious Queen** (`h4L`)
+  - Object: `effect` / `for-each-opponent`
+  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
+  - Status: `unsupported_choice`
+  - Raw: `{"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}`
+- **Lady Tremaine - Imperious Queen** (`SlK`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 1, "effect": {"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}, "id": "2qj-2", "name": "POWER TO RULE AT LAST", "text": "POWER TO RULE AT LAST When you play this character, each opponent chooses and banishes one of their characters.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Lady Tremaine - Imperious Queen** (`SlK`)
+  - Object: `effect` / `for-each-opponent`
+  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
+  - Status: `unsupported_choice`
+  - Raw: `{"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}`
+- **Lucifer - Cunning Cat** (`NN3`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `oq4-1` — MOUSE CATCHER
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "effect": {"chooser": "OPPONENT", "optionLabels": ["discard 2 cards", "discard 1 action card"], "options": [{"amount": 2, "chosen": true, "target": "OPPONENT", "type": "discard"}, {"amount": 1, "chosen": true, "filter": {"cardType": "action"}, "target": "OPPONENT", "type": "discard"}], "type": "choice"}, "id": "oq4-1", "name": "MOUSE CATCHER", "text": "MOUSE CATCHER When you play this character, each opponent chooses and discards either 2 cards or 1 action card.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Lucifer - Cunning Cat** (`NN3`)
+  - Object: `effect` / `choice`
+  - Ability: `triggered` `oq4-1` — MOUSE CATCHER
+  - Status: `unsupported_choice`
+  - Raw: `{"chooser": "OPPONENT", "optionLabels": ["discard 2 cards", "discard 1 action card"], "options": [{"amount": 2, "chosen": true, "target": "OPPONENT", "type": "discard"}, {"amount": 1, "chosen": true, "filter": {"cardType": "action"}, "target": "OPPONENT", "type": "discard"}], "type": "choice"}`
+- **Falling Down the Rabbit Hole** (`kL9`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}, {"chosenBy": "opponent", "exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}], "type": "sequence"}, "type": "action"}`
+- **Falling Down the Rabbit Hole** (`kL9`)
   - Object: `effect` / `sequence`
-  - Ability: `triggered` `1c1-1` — PRESTIDIGITONIUM
+  - Ability: `action` `ability` — None
   - Status: `unsupported_choice`
-  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"exerted": true, "zone": "inkwell"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
-- **Merlin - Clever Clairvoyant** (`qhP`)
+  - Raw: `{"steps": [{"exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}, {"chosenBy": "opponent", "exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}], "type": "sequence"}`
+- **The Sorcerer's Hat** (`geu`)
+  - Object: `ability` / `activated`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "cost": {"exert": true, "ink": 1}, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "geu-1", "name": "INCREDIBLE ENERGY", "text": "INCREDIBLE ENERGY {E}, 1 {I} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand. Otherwise, put it on the top of your deck.", "type": "activated"}`
+- **The Sorcerer's Hat** (`geu`)
+  - Object: `effect` / `sequence`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
+- **The Sorcerer's Hat** (`geu`)
   - Object: `effect` / `name-a-card`
-  - Ability: `triggered` `1c1-1` — PRESTIDIGITONIUM
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
   - Status: `unsupported_choice`
   - Raw: `{"type": "name-a-card"}`
-- **Bruno Madrigal - Undetected Uncle** (`Plh`)
+- **The Sorcerer's Hat** (`mE1`)
+  - Object: `ability` / `activated`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "cost": {"exert": true, "ink": 1}, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "geu-1", "name": "INCREDIBLE ENERGY", "text": "INCREDIBLE ENERGY {E}, 1 {I} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand. Otherwise, put it on the top of your deck.", "type": "activated"}`
+- **The Sorcerer's Hat** (`mE1`)
+  - Object: `effect` / `sequence`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
+- **The Sorcerer's Hat** (`mE1`)
+  - Object: `effect` / `name-a-card`
+  - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
+  - Status: `unsupported_choice`
+  - Raw: `{"type": "name-a-card"}`
+- **Bruno Madrigal - Undetected Uncle** (`Hx7`)
   - Object: `ability` / `activated`
   - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
   - Status: `unsupported_choice`
   - Raw: `{"_source_index": 1, "cost": {"exert": true}, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}, "sideEffects": [{"amount": 3, "target": "CONTROLLER", "type": "gain-lore"}]}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "13f-2", "name": "YOU JUST HAVE TO SEE IT", "text": "YOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.", "type": "activated"}`
-- **Bruno Madrigal - Undetected Uncle** (`Plh`)
+- **Bruno Madrigal - Undetected Uncle** (`Hx7`)
   - Object: `effect` / `sequence`
   - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
   - Status: `unsupported_choice`
   - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}, "sideEffects": [{"amount": 3, "target": "CONTROLLER", "type": "gain-lore"}]}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
-- **Bruno Madrigal - Undetected Uncle** (`Plh`)
+- **Bruno Madrigal - Undetected Uncle** (`Hx7`)
   - Object: `effect` / `name-a-card`
   - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
   - Status: `unsupported_choice`
   - Raw: `{"type": "name-a-card"}`
+- **Sign the Scroll** (`zkw`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ggh-1` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "OPPONENT", "effect": {"amount": 1, "chosen": true, "target": "OPPONENT", "type": "discard"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "else": {"amount": 2, "target": "CONTROLLER", "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}, "id": "ggh-1", "text": "Each opponent may choose and discard a card. For each opponent who doesn't, you gain 2 lore.", "type": "action"}`
+- **Sign the Scroll** (`zkw`)
+  - Object: `effect` / `sequence`
+  - Ability: `action` `ggh-1` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"steps": [{"chooser": "OPPONENT", "effect": {"amount": 1, "chosen": true, "target": "OPPONENT", "type": "discard"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "else": {"amount": 2, "target": "CONTROLLER", "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}`
+- **Sign the Scroll** (`zkw`)
+  - Object: `effect` / `optional`
+  - Ability: `action` `ggh-1` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"chooser": "OPPONENT", "effect": {"amount": 1, "chosen": true, "target": "OPPONENT", "type": "discard"}, "type": "optional"}`
+- **Ursula’s Plan** (`SrO`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ygy-1` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "exert"}, {"duration": "until-start-of-next-turn", "restriction": "cant-ready", "target": {"ref": "previous-target"}, "type": "restriction"}], "type": "sequence"}, "id": "ygy-1", "text": "Each opponent chooses and exerts one of their characters. Those characters can't ready at the start of their next turn.", "type": "action"}`
+- **Ursula’s Plan** (`SrO`)
+  - Object: `effect` / `sequence`
+  - Ability: `action` `ygy-1` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"steps": [{"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "exert"}, {"duration": "until-start-of-next-turn", "restriction": "cant-ready", "target": {"ref": "previous-target"}, "type": "restriction"}], "type": "sequence"}`
+- **Ursula’s Trickery** (`zNr`)
+  - Object: `ability` / `action`
+  - Ability: `action` `1sb-1` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "OPPONENT", "effect": {"amount": 1, "chosen": true, "target": "OPPONENT", "type": "discard"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "else": {"amount": 1, "target": "CONTROLLER", "type": "draw"}, "type": "conditional"}], "type": "sequence"}, "id": "1sb-1", "text": "Each opponent may choose and discard a card. For each opponent who doesn't, you draw a card.", "type": "action"}`
 
 ### `unsupported_condition`
 
-Total detailed records: `290`
+Total detailed records: `275`
 
 - **Stitch - Rock Star** (`kSG`)
   - Object: `ability` / `triggered`
@@ -506,7 +541,7 @@ Total detailed records: `52`
 
 ### `unsupported_engine_mechanic`
 
-Total detailed records: `210`
+Total detailed records: `197`
 
 - **Steal from the Rich** (`mkJ`)
   - Object: `ability` / `action`
@@ -518,26 +553,6 @@ Total detailed records: `210`
   - Ability: `action` `ability` — None
   - Status: `unsupported_engine_mechanic`
   - Raw: `{"ability": {"effect": {"amount": 1, "target": "EACH_OPPONENT", "type": "lose-lore"}, "trigger": {"event": "quest", "on": "YOUR_CHARACTERS", "timing": "whenever"}}, "lifecycle": {"duration": "this-turn", "kind": "floating"}, "type": "create-triggered-ability"}`
-- **Lady Tremaine - Imperious Queen** (`h4L`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
-  - Status: `unsupported_engine_mechanic`
-  - Raw: `{"_source_index": 1, "effect": {"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}, "id": "2qj-2", "name": "POWER TO RULE AT LAST", "text": "POWER TO RULE AT LAST When you play this character, each opponent chooses and banishes one of their characters.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Lady Tremaine - Imperious Queen** (`h4L`)
-  - Object: `effect` / `for-each-opponent`
-  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
-  - Status: `unsupported_engine_mechanic`
-  - Raw: `{"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}`
-- **Lady Tremaine - Imperious Queen** (`SlK`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
-  - Status: `unsupported_engine_mechanic`
-  - Raw: `{"_source_index": 1, "effect": {"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}, "id": "2qj-2", "name": "POWER TO RULE AT LAST", "text": "POWER TO RULE AT LAST When you play this character, each opponent chooses and banishes one of their characters.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Lady Tremaine - Imperious Queen** (`SlK`)
-  - Object: `effect` / `for-each-opponent`
-  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
-  - Status: `unsupported_engine_mechanic`
-  - Raw: `{"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}`
 - **Lady Tremaine - Overbearing Matriarch** (`B8N`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `r0v-1` — NOT FOR YOU
@@ -633,6 +648,26 @@ Total detailed records: `210`
   - Ability: `static` `UV5-2` — ALL HANDS ON DECK!
   - Status: `unsupported_engine_mechanic`
   - Raw: `{"filter": {"classification": "Pirate"}, "location": "here", "reduction": "free", "type": "move-cost-reduction"}`
+- **RLS Legacy - Solar Galleon** (`Lt1`)
+  - Object: `ability` / `static`
+  - Ability: `static` `Lt1-2` — HEAVE TOGETHER NOW
+  - Status: `unsupported_engine_mechanic`
+  - Raw: `{"_source_index": 1, "condition": {"comparison": {"operator": "gte", "value": 1}, "query": {"cardType": "character", "filters": [{"type": "same-location-as-source"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "target-query"}, "effect": {"filter": {"cardType": "character"}, "location": "here", "reduction": 2, "type": "move-cost-reduction"}, "id": "Lt1-2", "name": "HEAVE TOGETHER NOW", "text": "HEAVE TOGETHER NOW If you have a character here, you pay 2 {I} less to move a character of yours here.", "type": "static"}`
+- **RLS Legacy - Solar Galleon** (`Lt1`)
+  - Object: `effect` / `move-cost-reduction`
+  - Ability: `static` `Lt1-2` — HEAVE TOGETHER NOW
+  - Status: `unsupported_engine_mechanic`
+  - Raw: `{"filter": {"cardType": "character"}, "location": "here", "reduction": 2, "type": "move-cost-reduction"}`
+- **RLS Legacy - Solar Galleon** (`2t3`)
+  - Object: `ability` / `static`
+  - Ability: `static` `Lt1-2` — HEAVE TOGETHER NOW
+  - Status: `unsupported_engine_mechanic`
+  - Raw: `{"_source_index": 1, "condition": {"comparison": {"operator": "gte", "value": 1}, "query": {"cardType": "character", "filters": [{"type": "same-location-as-source"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "target-query"}, "effect": {"filter": {"cardType": "character"}, "location": "here", "reduction": 2, "type": "move-cost-reduction"}, "id": "Lt1-2", "name": "HEAVE TOGETHER NOW", "text": "HEAVE TOGETHER NOW If you have a character here, you pay 2 {I} less to move a character of yours here.", "type": "static"}`
+- **RLS Legacy - Solar Galleon** (`2t3`)
+  - Object: `effect` / `move-cost-reduction`
+  - Ability: `static` `Lt1-2` — HEAVE TOGETHER NOW
+  - Status: `unsupported_engine_mechanic`
+  - Raw: `{"filter": {"cardType": "character"}, "location": "here", "reduction": 2, "type": "move-cost-reduction"}`
 
 ### `unsupported_targeting`
 
