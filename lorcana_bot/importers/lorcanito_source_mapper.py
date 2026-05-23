@@ -323,6 +323,32 @@ SUPPORTED_TRIGGER_EVENTS = frozenset({
     "ready",
 })
 
+SUPPORTED_TRIGGER_ON_VALUES = frozenset({
+    "SELF",
+    "YOU",
+    "CONTROLLER",
+    "OPPONENT",
+    "ANY_PLAYER",
+    "YOUR_CHARACTERS",
+    "YOUR_OTHER_CHARACTERS",
+    "OPPOSING_CHARACTERS",
+    "ANY_CHARACTER",
+    "YOUR_ITEMS",
+    "YOUR_LOCATIONS",
+    "CHARACTERS_HERE",
+    "CHARACTER_HERE",
+    "ANY_ITEM",
+    "YOUR_ACTIONS",
+    "YOUR_SONGS",
+    "YOUR_CHARACTERS_OR_LOCATIONS",
+    "YOUR_CHARACTERS_OR_LOCATIONS_WITH_CARD_UNDER",
+})
+
+# Kept as an exported compatibility constant for trigger blocker tests/reports.
+# The current condition evaluator supports used-shift and the previously blocked
+# real-deck condition families, so nothing is intentionally blocked here.
+BLOCKED_CONDITION_KINDS = frozenset()
+
 # Source effect kinds allowed during trigger projection.
 # This is exported for lorcana_bot.decks.trigger_blocker_report compatibility.
 SUPPORTED_TRIGGER_EFFECT_KINDS = frozenset({
@@ -440,13 +466,13 @@ def map_raw_ability(raw: dict[str, Any]) -> SourceAbilityDef:
         AbilityKind.ACTION,
         AbilityKind.TRIGGERED,
         AbilityKind.ACTIVATED,
-        AbilityKind.STATIC,
     }:
         execution = ExecutionStatus.EXECUTABLE
-    elif kind == AbilityKind.REPLACEMENT:
-        # Replacement source can be structurally preserved, and specific created
-        # replacement effects can execute, but top-level replacement abilities
-        # are still conservative until full replacement registration parity exists.
+    elif kind in {AbilityKind.STATIC, AbilityKind.REPLACEMENT}:
+        # Static and replacement abilities are structurally preserved, but they
+        # are not projected as one-shot action/trigger effects. They remain
+        # reported as unsupported/mapped-not-executable at the source ability
+        # layer unless handled by a dedicated registry path.
         execution = ExecutionStatus.MAPPED_NOT_EXECUTABLE
 
     return SourceAbilityDef(
@@ -851,7 +877,6 @@ def map_static_ability(raw: dict[str, Any]) -> SourceStaticEffectDef:
     elif raw.get("staticEffect"):
         kind = str(raw.get("staticEffect"))
 
-    execution = ExecutionStatus.EXECUTABLE if effect and effect.execution_status == ExecutionStatus.EXECUTABLE else ExecutionStatus.UNSUPPORTED_STATIC_EFFECT
     return SourceStaticEffectDef(
         kind=kind,
         target=map_raw_target(raw.get("target")) if raw.get("target") is not None else None,
@@ -860,7 +885,7 @@ def map_static_ability(raw: dict[str, Any]) -> SourceStaticEffectDef:
         source_zones=tuple(raw.get("sourceZones", ())),
         raw=dict(raw),
         mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
-        execution_status=execution,
+        execution_status=ExecutionStatus.UNSUPPORTED_STATIC_EFFECT,
     )
 
 
@@ -869,14 +894,13 @@ def map_replacement_ability(raw: dict[str, Any]) -> SourceReplacementEffectDef:
     value = raw.get("replacement") or raw.get("effect")
     if isinstance(value, dict):
         replacement = map_raw_effect(value)
-    execution = ExecutionStatus.EXECUTABLE if replacement and replacement.execution_status == ExecutionStatus.EXECUTABLE else ExecutionStatus.UNSUPPORTED_REPLACEMENT_EFFECT
     return SourceReplacementEffectDef(
         replaces=raw.get("replaces") or raw.get("event") or raw.get("trigger") or "unknown",
         condition=map_raw_condition(raw.get("condition")) if raw.get("condition") is not None else None,
         replacement=replacement,
         raw=dict(raw),
         mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
-        execution_status=execution,
+        execution_status=ExecutionStatus.UNSUPPORTED_REPLACEMENT_EFFECT,
     )
 
 
@@ -1231,7 +1255,11 @@ def _project_trigger_condition(condition: SourceConditionDef) -> dict[str, Any] 
 def _project_condition(condition: SourceConditionDef | None) -> dict[str, Any] | None:
     if condition is None:
         return None
-    return _project_trigger_condition(condition)
+    if condition.kind == "always":
+        return {"kind": "always"}
+    if condition.kind in {"target_damaged", "target-damaged"}:
+        return {"kind": "target_damaged"}
+    return None
 
 
 def _project_target(target: SourceTargetDef | None) -> str | dict[str, Any] | None:
@@ -1334,8 +1362,14 @@ def _source_target_shape_supported(raw: Any) -> bool:
     if any(zone not in {"play", "discard", "hand", "inkwell", "deck"} for zone in zones):
         return False
 
+    # Bare {"selector": "chosen"} is too ambiguous for safe action projection.
+    # Lorcanito chosen selectors must provide cardTypes/cardType before the
+    # engine can validate legal targets.
+    if "cardTypes" not in raw and "cardType" not in raw:
+        return False
+
     card_types = tuple(raw.get("cardTypes", (raw.get("cardType"),) if raw.get("cardType") else ()))
-    if card_types and any(card_type not in {"character", "item", "location", "action"} for card_type in card_types):
+    if any(card_type not in {"character", "item", "location", "action"} for card_type in card_types):
         return False
 
     count = raw.get("count", 1)

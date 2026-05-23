@@ -227,13 +227,13 @@ class TestSupportedTriggerEffectKinds:
     def test_deal_damage_supported(self):
         assert "deal-damage" in SUPPORTED_TRIGGER_EFFECT_KINDS
 
-    def test_scry_not_supported(self):
-        """Scry effect is not supported in B2."""
-        assert "scry" not in SUPPORTED_TRIGGER_EFFECT_KINDS
+    def test_scry_supported(self):
+        """Scry effects are supported by the current engine projection layer."""
+        assert "scry" in SUPPORTED_TRIGGER_EFFECT_KINDS
 
-    def test_search_deck_not_supported(self):
-        """Search deck effect is not supported in B2."""
-        assert "search-deck" not in SUPPORTED_TRIGGER_EFFECT_KINDS
+    def test_search_deck_supported(self):
+        """Search deck effects are supported by the current engine projection layer."""
+        assert "search-deck" in SUPPORTED_TRIGGER_EFFECT_KINDS
 
 
 class TestEventDerivedTargetProjection:
