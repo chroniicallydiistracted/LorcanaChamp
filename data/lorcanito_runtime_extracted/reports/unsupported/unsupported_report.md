@@ -10,7 +10,7 @@
 
 | Reason | Count |
 |---|---:|
-| `mapped_not_executable` | 516 |
+| `mapped_not_executable` | 54 |
 | `unsupported_choice` | 113 |
 | `unsupported_condition` | 21 |
 | `unsupported_cost` | 24 |
@@ -21,133 +21,133 @@
 
 ### `mapped_not_executable`
 
-Total detailed records: `516`
+Total detailed records: `54`
 
-- **Ariel - On Human Legs** (`WeA`)
+- **Tamatoa - So Shiny!** (`Z2D`)
   - Object: `ability` / `static`
-  - Ability: `static` `2c9-1` — VOICELESS
+  - Ability: `static` `sj3-2` — GLAM
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 0, "effect": {"restriction": "cant-sing", "target": "SELF", "type": "restriction"}, "id": "2c9-1", "name": "VOICELESS", "text": "VOICELESS This character can't {E} to sing songs.", "type": "static"}`
-- **Aurora - Dreaming Guardian** (`Au0`)
+  - Raw: `{"_source_index": 2, "effect": {"modifier": {"controller": "you", "type": "items-in-play"}, "stat": "lore", "target": "SELF", "type": "modify-stat"}, "id": "sj3-2", "name": "GLAM", "text": "GLAM This character gets +1 {L} for each item you have in play.", "type": "static"}`
+- **Beast - Selfless Protector** (`sLs`)
+  - Object: `ability` / `replacement`
+  - Ability: `replacement` `sLs-1` — SHIELD ANOTHER
+  - Status: `mapped_not_executable`
+  - Raw: `{"_source_index": 0, "id": "sLs-1", "name": "SHIELD ANOTHER", "replacement": {"appliesTo": "your-other-characters", "redirectTo": "self", "type": "redirect-damage"}, "replaces": "damage-to-character", "text": "SHIELD ANOTHER Whenever one of your other characters would be dealt damage, put that many damage counters on this character instead.", "type": "replacement"}`
+- **Cogsworth - Talking Clock** (`xGr`)
   - Object: `ability` / `static`
-  - Ability: `static` `11z-2` — PROTECTIVE EMBRACE
+  - Ability: `static` `y7r-1` — WAIT A MINUTE
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "effect": {"keyword": "Ward", "target": {"cardTypes": ["character"], "count": "all", "excludeSelf": true, "owner": "you", "selector": "all", "zones": ["play"]}, "type": "gain-keyword"}, "id": "11z-2", "name": "PROTECTIVE EMBRACE", "text": "PROTECTIVE EMBRACE Your other characters gain Ward.", "type": "static"}`
-- **Aurora - Dreaming Guardian** (`P5F`)
+  - Raw: `{"_source_index": 0, "effect": {"ability": {"cost": {"exert": true}, "effect": {"amount": 1, "target": "CONTROLLER", "type": "gain-lore"}, "name": "WAIT A MINUTE", "text": "{E} - Gain 1 lore.", "type": "activated"}, "target": {"cardTypes": ["character"], "count": "all", "filter": [{"keyword": "Reckless", "type": "has-keyword"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "grant-ability"}, "id": "y7r-1", "name": "WAIT A MINUTE", "text": "WAIT A MINUTE Your characters with Reckless gain \"{E} - Gain 1 lore.\"", "type": "static"}`
+- **Donald Duck - Not Again!** (`2q9`)
   - Object: `ability` / `static`
-  - Ability: `static` `11z-2` — PROTECTIVE EMBRACE
+  - Ability: `static` `1mm-2` — PHOOEY!
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "effect": {"keyword": "Ward", "target": {"cardTypes": ["character"], "count": "all", "excludeSelf": true, "owner": "you", "selector": "all", "zones": ["play"]}, "type": "gain-keyword"}, "id": "11z-2", "name": "PROTECTIVE EMBRACE", "text": "PROTECTIVE EMBRACE Your other characters gain Ward.", "type": "static"}`
-- **Belle - Strange but Special** (`6qy`)
+  - Raw: `{"_source_index": 1, "effect": {"modifier": {"type": "damage-on-self"}, "stat": "lore", "target": "SELF", "type": "modify-stat"}, "id": "1mm-2", "name": "PHOOEY!", "text": "PHOOEY! This character gets +1 {L} for each 1 damage on him.", "type": "static"}`
+- **Namaari - Morning Mist** (`EAX`)
   - Object: `ability` / `static`
-  - Ability: `static` `uxx-1` — READ A BOOK
+  - Ability: `static` `1dg-2` — BLADES
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 1, "type": "additional-inkwell"}, "id": "uxx-1", "name": "READ A BOOK", "text": "**READ A BOOK** During your turn, you may put an additional card from your hand into your inkwell facedown.", "type": "static"}`
-- **Belle - Strange but Special** (`6qy`)
+  - Raw: `{"_source_index": 1, "effect": {"ability": "can-challenge-ready", "target": "SELF", "type": "grant-ability"}, "id": "1dg-2", "name": "BLADES", "text": "BLADES This character can challenge ready characters.", "type": "static"}`
+- **Namaari - Morning Mist** (`2qq`)
   - Object: `ability` / `static`
-  - Ability: `static` `uxx-2` — MY FAVORITE PART!
+  - Ability: `static` `1dg-2` — BLADES
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "effect": {"condition": {"comparison": "greater-or-equal", "controller": "you", "count": 10, "type": "inkwell-count"}, "then": {"duration": "while-in-play", "modifier": 4, "stat": "lore", "target": "SELF", "type": "modify-stat"}, "type": "conditional"}, "id": "uxx-2", "name": "MY FAVORITE PART!", "text": "**MY FAVORITE PART!** While you have 10 or more cards in your inkwell, this character gets +4 {L}.", "type": "static"}`
-- **Belle - Strange but Special** (`Mfr`)
+  - Raw: `{"_source_index": 1, "effect": {"ability": "can-challenge-ready", "target": "SELF", "type": "grant-ability"}, "id": "1dg-2", "name": "BLADES", "text": "BLADES This character can challenge ready characters.", "type": "static"}`
+- **Morph - Space Goo** (`f1i`)
   - Object: `ability` / `static`
-  - Ability: `static` `uxx-1` — READ A BOOK
+  - Ability: `static` `vo5-1` — MIMICRY
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 1, "type": "additional-inkwell"}, "id": "uxx-1", "name": "READ A BOOK", "text": "**READ A BOOK** During your turn, you may put an additional card from your hand into your inkwell facedown.", "type": "static"}`
-- **Belle - Strange but Special** (`Mfr`)
+  - Raw: `{"_source_index": 0, "effect": {"chooser": "CONTROLLER", "effect": {"from": "hand", "type": "play-card"}, "type": "optional"}, "id": "vo5-1", "name": "MIMICRY", "text": "MIMICRY You may play any character with Shift on this character as if this character had any name.", "type": "static"}`
+- **Morph - Space Goo** (`UdW`)
   - Object: `ability` / `static`
-  - Ability: `static` `uxx-2` — MY FAVORITE PART!
+  - Ability: `static` `vo5-1` — MIMICRY
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "effect": {"condition": {"comparison": "greater-or-equal", "controller": "you", "count": 10, "type": "inkwell-count"}, "then": {"duration": "while-in-play", "modifier": 4, "stat": "lore", "target": "SELF", "type": "modify-stat"}, "type": "conditional"}, "id": "uxx-2", "name": "MY FAVORITE PART!", "text": "**MY FAVORITE PART!** While you have 10 or more cards in your inkwell, this character gets +4 {L}.", "type": "static"}`
-- **Captain Hook - Ruthless Pirate** (`eM3`)
+  - Raw: `{"_source_index": 0, "effect": {"chooser": "CONTROLLER", "effect": {"from": "hand", "type": "play-card"}, "type": "optional"}, "id": "vo5-1", "name": "MIMICRY", "text": "MIMICRY You may play any character with Shift on this character as if this character had any name.", "type": "static"}`
+- **Slightly - Lost Boy** (`pa7`)
   - Object: `ability` / `static`
-  - Ability: `static` `1k7-2` — YOU COWARD!
+  - Ability: `static` `1pb-1` — THE FOX
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "condition": {"type": "exerted"}, "effect": {"keyword": "Reckless", "target": {"count": "all", "filter": [{"keyword": "Evasive", "type": "has-keyword"}], "owner": "opponent", "selector": "all", "zones": ["play"]}, "type": "gain-keyword"}, "id": "1k7-2", "name": "YOU COWARD!", "text": "YOU COWARD! While this character is exerted, opposing characters with Evasive gain Reckless.", "type": "static"}`
-- **Captain Hook - Thinking a Happy Thought** (`3Ri`)
+  - Raw: `{"_source_index": 0, "effect": {"amount": {"max": 1, "type": "clamp", "value": {"cardType": "character", "filters": [{"name": "Peter Pan", "type": "has-name"}], "owner": "you", "type": "filtered-count", "zones": ["play"]}}, "cardType": "character", "type": "cost-reduction"}, "id": "1pb-1", "name": "THE FOX", "sourceZones": ["hand"], "text": "THE FOX If you have a character named Peter Pan in play, you pay 1 {I} less to play this character.", "type": "static"}`
+- **Treasure Guardian - Protector of the Cave** (`gsz`)
   - Object: `ability` / `static`
-  - Ability: `static` `4hp-3` — STOLEN DUST
+  - Ability: `static` `1bw-2` — WHO DISTURBS MY SLUMBER?
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 2, "effect": {"challengerFilter": {"operator": "lte", "type": "cost-comparison", "value": 3}, "restriction": "cant-be-challenged", "target": "SELF", "type": "restriction"}, "id": "4hp-3", "name": "STOLEN DUST", "text": "STOLEN DUST Characters with cost 3 or less can't challenge this character.", "type": "static"}`
-- **Donald Duck - Musketeer** (`8Ze`)
+  - Raw: `{"_source_index": 0, "condition": {"condition": {"type": "at-location"}, "type": "not"}, "effect": {"steps": [{"restriction": "cant-challenge", "target": "SELF", "type": "restriction"}, {"restriction": "cant-quest", "target": "SELF", "type": "restriction"}], "type": "sequence"}, "id": "1bw-2", "name": "WHO DISTURBS MY SLUMBER?", "text": "WHO DISTURBS MY SLUMBER? This character can't challenge or quest unless it is at a location.", "type": "static"}`
+- **Piglet - Sturdy Swordsman** (`ATc`)
   - Object: `ability` / `static`
-  - Ability: `static` `1te-2` — STAY ALERT!
+  - Ability: `static` `1bb-2` — NOT SO SMALL ANYMORE
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "condition": {"type": "during-turn", "whose": "your"}, "effect": {"keyword": "Evasive", "target": {"cardTypes": ["character"], "count": "all", "filter": [{"classification": "Musketeer", "type": "has-classification"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "gain-keyword"}, "id": "1te-2", "name": "STAY ALERT!", "text": "STAY ALERT! During your turn, your Musketeer characters gain Evasive.", "type": "static"}`
-- **Flotsam - Ursula’s Spy** (`BDi`)
+  - Raw: `{"_source_index": 1, "condition": {"comparison": "equal", "controller": "you", "type": "resource-count", "value": 0, "what": "cards-in-hand"}, "effect": {"ability": "can-challenge-ready", "target": "SELF", "type": "grant-ability"}, "id": "1bb-2", "name": "NOT SO SMALL ANYMORE", "text": "NOT SO SMALL ANYMORE While you have no cards in your hand, this character can challenge ready characters.", "type": "static"}`
+- **Piglet - Sturdy Swordsman** (`WaO`)
   - Object: `ability` / `static`
-  - Ability: `static` `4d0-2` — DEXTEROUS LUNGE
+  - Ability: `static` `1bb-2` — NOT SO SMALL ANYMORE
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "effect": {"keyword": "Rush", "target": {"cardTypes": ["character"], "count": "all", "filter": [{"name": "Jetsam", "type": "has-name"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "gain-keyword"}, "id": "4d0-2", "name": "DEXTEROUS LUNGE", "text": "DEXTEROUS LUNGE Your characters named Jetsam gain Rush.", "type": "static"}`
-- **Gantu - Galactic Federation Captain** (`A1d`)
+  - Raw: `{"_source_index": 1, "condition": {"comparison": "equal", "controller": "you", "type": "resource-count", "value": 0, "what": "cards-in-hand"}, "effect": {"ability": "can-challenge-ready", "target": "SELF", "type": "grant-ability"}, "id": "1bb-2", "name": "NOT SO SMALL ANYMORE", "text": "NOT SO SMALL ANYMORE While you have no cards in your hand, this character can challenge ready characters.", "type": "static"}`
+- **Vision Slab** (`Kxi`)
+  - Object: `ability` / `replacement`
+  - Ability: `replacement` `Kxi-2` — TRAPPED!
+  - Status: `mapped_not_executable`
+  - Raw: `{"_source_index": 1, "id": "Kxi-2", "name": "TRAPPED!", "replacement": {"appliesTo": "all", "type": "prevent-remove-damage"}, "replaces": "remove-damage", "text": "TRAPPED! Damage counters can't be removed.", "type": "replacement"}`
+- **Koda - Talkative Cub** (`4iY`)
+  - Object: `ability` / `replacement`
+  - Ability: `replacement` `4iY-1` — TELL EVERYBODY
+  - Status: `mapped_not_executable`
+  - Raw: `{"_source_index": 0, "condition": {"type": "during-turn", "whose": "opponent"}, "id": "4iY-1", "name": "TELL EVERYBODY", "replacement": "prevent", "replaces": "lose-lore", "text": "TELL EVERYBODY During opponents' turns, you can't lose lore.", "type": "replacement"}`
+- **Magica De Spell - Cruel Sorceress** (`8Yk`)
+  - Object: `ability` / `replacement`
+  - Ability: `replacement` `8Yk-1` — PLAYING WITH POWER
+  - Status: `mapped_not_executable`
+  - Raw: `{"_source_index": 0, "condition": {"type": "during-turn", "whose": "opponent"}, "id": "8Yk-1", "name": "PLAYING WITH POWER", "replacement": "prevent", "replaces": "discard", "text": "PLAYING WITH POWER - During opponents' turns, if an effect would cause you to discard one or more cards from your hand, you don't discard.", "type": "replacement"}`
+- **Namaari - Resolute Daughter** (`2TR`)
   - Object: `ability` / `static`
-  - Ability: `static` `c3k-1` — UNDER ARREST
+  - Ability: `static` `1t7-1` — I DON'T HAVE ANY OTHER CHOICE
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 0, "effect": {"challengerFilter": {"operator": "lte", "type": "cost-comparison", "value": 2}, "restriction": "cant-be-challenged", "target": "YOUR_CHARACTERS", "type": "restriction"}, "id": "c3k-1", "name": "UNDER ARREST", "text": "UNDER ARREST Characters with cost 2 or less can't challenge your characters.", "type": "static"}`
-- **Hades - King of Olympus** (`XhN`)
+  - Raw: `{"_source_index": 0, "effect": {"amount": {"metric": "banished-in-challenge-count", "multiplier": 2, "owner": "opponent", "type": "turn-metric"}, "type": "cost-reduction"}, "id": "1t7-1", "name": "I DON'T HAVE ANY OTHER CHOICE", "sourceZones": ["hand"], "text": "I DON'T HAVE ANY OTHER CHOICE For each opposing character banished in a challenge this turn, you pay 2 {I} less to play this character.", "type": "static"}`
+- **Robin Hood - Timely Contestant** (`LKY`)
   - Object: `ability` / `static`
-  - Ability: `static` `1e5-2` — SINISTER PLOT
+  - Ability: `static` `rhk-1` — TAG ME IN!
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "effect": {"modifier": {"classification": "Villain", "controller": "you", "excludeSelf": true, "type": "classification-character-count"}, "stat": "lore", "target": "SELF", "type": "modify-stat"}, "id": "1e5-2", "name": "SINISTER PLOT", "text": "SINISTER PLOT This character gets +1 {L} for each other Villain character you have in play.", "type": "static"}`
-- **Hades - King of Olympus** (`QmK`)
+  - Raw: `{"_source_index": 0, "effect": {"amount": {"cardType": "character", "filters": [{"type": "damaged"}], "owner": "opponent", "reducer": "damage", "type": "reducer", "zones": ["play"]}, "type": "cost-reduction"}, "id": "rhk-1", "name": "TAG ME IN!", "sourceZones": ["hand"], "text": "TAG ME IN! For each 1 damage on opposing characters, you pay 1 {I} less to play this character.", "type": "static"}`
+- **Sheriff of Nottingham - Bushel Britches** (`ROz`)
   - Object: `ability` / `static`
-  - Ability: `static` `1e5-2` — SINISTER PLOT
+  - Ability: `static` `ROz-1` — EVERY LITTLE BIT HELPS
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "effect": {"modifier": {"classification": "Villain", "controller": "you", "excludeSelf": true, "type": "classification-character-count"}, "stat": "lore", "target": "SELF", "type": "modify-stat"}, "id": "1e5-2", "name": "SINISTER PLOT", "text": "SINISTER PLOT This character gets +1 {L} for each other Villain character you have in play.", "type": "static"}`
-- **Jafar - Keeper of Secrets** (`vm4`)
+  - Raw: `{"_source_index": 0, "effect": {"amount": {"controller": "you", "type": "items-in-play"}, "type": "cost-reduction"}, "id": "ROz-1", "name": "EVERY LITTLE BIT HELPS", "sourceZones": ["hand"], "text": "EVERY LITTLE BIT HELPS For each item you have in play, you pay 1 {I} less to play this character.", "type": "static"}`
+- **The Queen - Fairest of All** (`Wpl`)
   - Object: `ability` / `static`
-  - Ability: `static` `1u7-1` — HIDDEN WONDERS
+  - Ability: `static` `1ho-3` — REFLECTIONS OF VANITY
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 0, "effect": {"modifier": {"controller": "you", "type": "cards-in-hand"}, "stat": "strength", "target": "SELF", "type": "modify-stat"}, "id": "1u7-1", "name": "HIDDEN WONDERS", "text": "HIDDEN WONDERS This character gets +1 {S} for each card in your hand.", "type": "static"}`
-- **Jetsam - Ursula’s Spy** (`0Bx`)
+  - Raw: `{"_source_index": 2, "effect": {"modifier": {"controller": "you", "excludeSelf": true, "name": "The Queen", "type": "name-character-count"}, "stat": "lore", "target": "SELF", "type": "modify-stat"}, "id": "1ho-3", "name": "REFLECTIONS OF VANITY", "text": "REFLECTIONS OF VANITY For each other character named The Queen you have in play, this character gets +1 {L}.", "type": "static"}`
+- **Merlin's Cottage - The Wizard's Home** (`yVb`)
   - Object: `ability` / `static`
-  - Ability: `static` `cdv-2` — SINISTER SLITHER
+  - Ability: `static` `fdq-1` — KNOWLEDGE IS POWER
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "effect": {"keyword": "Evasive", "target": {"cardTypes": ["character"], "count": "all", "filter": [{"name": "Flotsam", "type": "has-name"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "gain-keyword"}, "id": "cdv-2", "name": "SINISTER SLITHER", "text": "SINISTER SLITHER Your characters named Flotsam gain Evasive.", "type": "static"}`
-- **LeFou - Bumbler** (`irS`)
+  - Raw: `{"_source_index": 0, "effect": {"target": "EACH_PLAYER", "type": "reveal-top-card"}, "id": "fdq-1", "name": "KNOWLEDGE IS POWER", "text": "KNOWLEDGE IS POWER Each player plays with the top card of their deck face up.", "type": "static"}`
+- **Sherwood Forest - Outlaw Hideaway** (`DoZ`)
   - Object: `ability` / `static`
-  - Ability: `static` `9i4-1` — LOYAL
+  - Ability: `static` `1kh-3` — FAMILIAR TERRAIN
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 0, "condition": {"controller": "you", "name": "Gaston", "type": "has-named-character"}, "effect": {"amount": 1, "cardType": "character", "type": "cost-reduction"}, "id": "9i4-1", "name": "LOYAL", "sourceZones": ["hand"], "text": "LOYAL If you have a character named Gaston in play, you pay 1 {I} less to play this character.", "type": "static"}`
-- **Mickey Mouse - Musketeer** (`sdI`)
+  - Raw: `{"_source_index": 2, "effect": {"abilities": [{"cost": {"exert": true, "ink": 1}, "effect": {"amount": 2, "target": {"cardTypes": ["character"], "count": 1, "filter": [{"type": "damaged"}], "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "deal-damage"}, "id": "1kh-3a", "name": "FAMILIAR TERRAIN", "text": "{E}, 1 {I} — Deal 2 damage to chosen damaged character.", "type": "activated"}], "target": "CHARACTERS_HERE", "type": "grant-abilities-while-here"}, "id": "1kh-3", "name": "FAMILIAR TERRAIN", "text": "FAMILIAR TERRAIN Characters gain Ward and “{E}, {d} {I} — Deal {d} damage to chosen damaged character” while here.", "type": "static"}`
+- **Tadashi Hamada - Baymax Inventor** (`AMb`)
   - Object: `ability` / `static`
-  - Ability: `static` `9h9-2` — ALL FOR ONE
+  - Ability: `static` `16i-1` — LET'S GET BACK TO WORK
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "effect": {"modifier": 1, "stat": "strength", "target": {"cardTypes": ["character"], "count": "all", "excludeSelf": true, "filter": [{"classification": "Musketeer", "type": "has-classification"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "modify-stat"}, "id": "9h9-2", "name": "ALL FOR ONE", "text": "ALL FOR ONE Your other Musketeer characters get +1 {S}.", "type": "static"}`
-- **Mickey Mouse - Wayward Sorcerer** (`iGH`)
+  - Raw: `{"_source_index": 0, "effect": {"modifier": {"controller": "you", "type": "items-in-play"}, "stat": "strength", "target": "SELF", "type": "modify-stat"}, "id": "16i-1", "name": "LET'S GET BACK TO WORK", "text": "LET'S GET BACK TO WORK This character gets +1 {S} and +1 {W} for each item you have in play.", "type": "static"}`
+- **Tadashi Hamada - Baymax Inventor** (`AMb`)
   - Object: `ability` / `static`
-  - Ability: `static` `kuw-1` — ANIMATE BROOM
+  - Ability: `static` `16i-2` — LET'S GET BACK TO WORK
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 1, "cardType": "character", "classification": "Broom", "type": "cost-reduction"}, "id": "kuw-1", "name": "ANIMATE BROOM", "text": "ANIMATE BROOM You pay 1 {I} less to play Broom characters.", "type": "static"}`
-- **Mickey Mouse - Wayward Sorcerer** (`N5a`)
+  - Raw: `{"_source_index": 1, "effect": {"modifier": {"controller": "you", "type": "items-in-play"}, "stat": "willpower", "target": "SELF", "type": "modify-stat"}, "id": "16i-2", "name": "LET'S GET BACK TO WORK", "text": "LET'S GET BACK TO WORK This character gets +1 {S} and +1 {W} for each item you have in play.", "type": "static"}`
+- **Gizmoduck - Suited Up** (`4Oe`)
   - Object: `ability` / `static`
-  - Ability: `static` `kuw-1` — ANIMATE BROOM
+  - Ability: `static` `4Oe-2` — BLATHERING BLATHERSKITE
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 1, "cardType": "character", "classification": "Broom", "type": "cost-reduction"}, "id": "kuw-1", "name": "ANIMATE BROOM", "text": "ANIMATE BROOM You pay 1 {I} less to play Broom characters.", "type": "static"}`
-- **Mother Gothel - Selfish Manipulator** (`QPF`)
-  - Object: `ability` / `static`
-  - Ability: `static` `xse-1` — SKIP THE DRAMA, STAY WITH MAMA
+  - Raw: `{"_source_index": 1, "effect": {"ability": {"onlyDamaged": true, "type": "can-challenge-ready"}, "target": "SELF", "type": "grant-ability"}, "id": "4Oe-2", "name": "BLATHERING BLATHERSKITE", "text": "BLATHERING BLATHERSKITE This character can challenge ready damaged characters.", "type": "static"}`
+- **Kronk - Laid Back** (`5gf`)
+  - Object: `ability` / `replacement`
+  - Ability: `replacement` `im-lovin-this` — I'M LOVIN' THIS
   - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 0, "condition": {"type": "exerted"}, "effect": {"restriction": "cant-quest", "target": {"count": "all", "owner": "opponent", "selector": "all", "zones": ["play"]}, "type": "restriction"}, "id": "xse-1", "name": "SKIP THE DRAMA, STAY WITH MAMA", "text": "SKIP THE DRAMA, STAY WITH MAMA While this character is exerted, opposing characters can't quest.", "type": "static"}`
-- **Pascal - Rapunzel’s Companion** (`81V`)
-  - Object: `ability` / `static`
-  - Ability: `static` `1f9-1` — CAMOUFLAGE
-  - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 0, "condition": {"type": "has-another-character"}, "effect": {"keyword": "Evasive", "target": "SELF", "type": "gain-keyword"}, "id": "1f9-1", "name": "CAMOUFLAGE", "text": "CAMOUFLAGE While you have another character in play, this character gains Evasive.", "type": "static"}`
-- **Robin Hood - Unrivaled Archer** (`0is`)
-  - Object: `ability` / `static`
-  - Ability: `static` `v3n-2` — GOOD SHOT
-  - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "condition": {"type": "turn", "whose": "your"}, "effect": {"keyword": "Evasive", "target": "SELF", "type": "gain-keyword"}, "id": "v3n-2", "name": "GOOD SHOT", "text": "GOOD SHOT During your turn, this character gains Evasive.", "type": "static"}`
-- **Simba - Returned King** (`mW3`)
-  - Object: `ability` / `static`
-  - Ability: `static` `nj8-2` — POUNCE
-  - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "condition": {"type": "turn", "whose": "your"}, "effect": {"keyword": "Evasive", "target": "SELF", "type": "gain-keyword"}, "id": "nj8-2", "name": "POUNCE", "text": "POUNCE During your turn, this character gains Evasive.", "type": "static"}`
-- **Simba - Returned King** (`vpZ`)
-  - Object: `ability` / `static`
-  - Ability: `static` `nj8-2` — POUNCE
-  - Status: `mapped_not_executable`
-  - Raw: `{"_source_index": 1, "condition": {"type": "turn", "whose": "your"}, "effect": {"keyword": "Evasive", "target": "SELF", "type": "gain-keyword"}, "id": "nj8-2", "name": "POUNCE", "text": "POUNCE During your turn, this character gains Evasive.", "type": "static"}`
+  - Raw: `{"_source_index": 1, "id": "im-lovin-this", "name": "I'M LOVIN' THIS", "replacement": "prevent", "replaces": "discard", "text": "I'M LOVIN' THIS - If an effect would cause you to discard one or more cards, you don't discard.", "type": "replacement"}`
 
 ### `unsupported_choice`
 
