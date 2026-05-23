@@ -383,7 +383,9 @@ def _resolve_static_amount(state: GameState, engine: GameEngine, source_id: int,
         return total
 
     if amount_type == "filtered-count":
-        owner = raw_amount.get("owner")
+        source_inst = state.cards[source_id]
+        source_controller = source_inst.controller
+        owner = raw_amount.get("owner") or raw_amount.get("controller")
         zones = raw_amount.get("zones") or (ZONE_PLAY,)
         if isinstance(zones, str):
             zones = (zones,)
@@ -391,19 +393,26 @@ def _resolve_static_amount(state: GameState, engine: GameEngine, source_id: int,
         filters = raw_amount.get("filters") or raw_amount.get("filter") or ()
         if isinstance(filters, dict):
             filters = (filters,)
+        exclude_self = bool(raw_amount.get("excludeSelf") or raw_amount.get("exclude_self"))
+
         total = 0
         for cid, inst in state.cards.items():
+            if exclude_self and cid == source_id:
+                continue
             if inst.zone not in zones:
                 continue
-            if owner == "you" and inst.controller != state.cards[source_id].controller:
+
+            if owner in {"you", "controller", "self"} and inst.controller != source_controller:
                 continue
-            if owner == "opponent" and inst.controller == state.cards[source_id].controller:
+            if owner in {"opponent", "opponents", "opposing"} and inst.controller == source_controller:
                 continue
+
             card = engine.card_def(state, cid)
             if card_type and not _card_type_matches(card.card_type, card_type):
                 continue
             if all(isinstance(item, dict) and _filter_matches(state, engine, source_id, cid, item) for item in filters):
                 total += 1
+
         return total * int(raw_amount.get("multiplier") or 1)
 
     return 0

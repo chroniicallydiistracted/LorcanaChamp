@@ -96,6 +96,48 @@ def _ready_ink(state: GameState, player: int, count: int) -> None:
         state.players[player].inkwell.append(cid)
 
 
+
+_REAL_LORCANITO_DB = None
+
+
+def _load_real_lorcanito_db():
+    """Load the committed Lorcanito-derived normalized card database.
+
+    Integration/parity tests should use this instead of synthetic CardDef data
+    when proving runtime support for real card behavior.
+    """
+    global _REAL_LORCANITO_DB
+    if _REAL_LORCANITO_DB is None:
+        from pathlib import Path
+        from lorcana_bot.importers.lorcanito_source_importer import import_lorcanito_source_cards
+
+        source_path = (
+            Path(__file__).resolve().parents[1]
+            / "data"
+            / "lorcanito_runtime_extracted"
+            / "cards.normalized.json"
+        )
+        db, report = import_lorcanito_source_cards(source_path)
+        assert not report.errors, report.errors
+        _REAL_LORCANITO_DB = db
+    return _REAL_LORCANITO_DB
+
+
+def _ready_real_ink(state: GameState, player: int, card_id: str, count: int) -> None:
+    """Add ready ink using a real card id from the loaded card database."""
+    start = 10000 + len(state.cards)
+    for offset in range(count):
+        cid = start + offset
+        state.cards[cid] = CardInstance(
+            instance_id=cid,
+            card_id=card_id,
+            owner=player,
+            controller=player,
+            zone="inkwell",
+        )
+        state.players[player].inkwell.append(cid)
+
+
 class TestShiftKeywordParsing:
     """Tests for Shift keyword parsing."""
 
@@ -1043,63 +1085,52 @@ class TestLifecycleRegistrationOnEntry:
 
         return engine, state
 
-    def test_normal_character_entry_registers_static_effects(self):
-        """Test that a normally played character registers static effects."""
-        from lorcana_bot.cards import CardDef, CardDatabase
-        from lorcana_bot.static_effects import StaticEffectRegistry
+    def test_normal_character_entry_materializes_real_static_effects(self):
+        """Real-card parity: normal public entry exposes materialized static effects.
 
-        # Create a character with a static ability
-        char_card = CardDef(
-            id="static_char",
-            full_name="Test Character",
-            ink="amber",
-            cost=3,
-            inkable=True,
-            card_type="character",
-            strength=2,
-            willpower=3,
-            lore=1,
-            abilities=({
-                "type": "static",
-                "effect": {
-                    "type": "modify-stat",
-                    "attribute": "strength",
-                    "amount": 2,
-                },
-            },),
-        )
+        Lorcanito parity: static effects are continuous derived state from active
+        public sources. They should be visible through engine-aware static reads,
+        not through legacy entry-time manual registry mutation.
+        """
+        from lorcana_bot.actions import Action
+        from lorcana_bot.constants import ACTION_PLAY_CARD
+        from lorcana_bot.static_effects import StaticEffectType
 
-        cards = [char_card]
-        engine = GameEngine(CardDatabase(cards))
+        db = _load_real_lorcanito_db()
+        card = db.get("XGm")  # Chi-Fu - Imperial Advisor
+        assert card.full_name == "Chi-Fu - Imperial Advisor"
+        assert any(ability.kind == "static" for ability in card.source_abilities)
+
+        engine = GameEngine(db)
         state = GameState(players=[PlayerState(), PlayerState()], cards={})
 
-        # Add ink for player 0
-        for i in range(10):
-            state.cards[100 + i] = CardInstance(
-                instance_id=100 + i, card_id="ink_amber", owner=0, controller=0, zone="inkwell"
-            )
-            state.players[0].inkwell.append(100 + i)
+        _ready_real_ink(state, 0, card.id, card.cost)
 
-        # Add character to hand
         state.cards[1] = CardInstance(
-            instance_id=1, card_id="static_char", owner=0, controller=0, zone="hand"
+            instance_id=1,
+            card_id=card.id,
+            owner=0,
+            controller=0,
+            zone="hand",
         )
         state.players[0].hand.append(1)
 
-        # Play the character
-        from lorcana_bot.actions import Action
-        from lorcana_bot.constants import ACTION_PLAY_CARD
-        action = Action(ACTION_PLAY_CARD, actor=0, card=1)
-        next_state = engine.apply_action(state, action)
+        next_state = engine.apply_action(state, Action(ACTION_PLAY_CARD, actor=0, card=1))
 
-        # Verify character is in play
         assert next_state.cards[1].zone == "play"
 
-        # Verify static effects were registered (registry should have effects for this card)
-        static_effects = next_state.static_effect_registry.get_effects_for_instance(next_state, 1)
-        # The card registers its own static effects as "self" target
-        assert len(static_effects) == 1
-        assert static_effects[0].source_id == 1
+        # Static effects are not physically registered on entry anymore.
+        # They are derived/materialized from active public source abilities.
+        assert next_state.static_effect_registry.effects == []
+
+        materialized = next_state.static_effect_registry.get_effects_for_instance(next_state, 1, engine)
+        assert len(materialized) == 1
+        assert materialized[0].source_id == 1
+        assert materialized[0].effect_type == StaticEffectType.MODIFY_LORE
+        assert materialized[0].amount == 2
+
+        # Chi-Fu has printed 1 lore and OVERLY CAUTIOUS gives +2 lore.
+        assert engine.effective_lore(next_state, 1) == 3
 
     def test_normal_character_entry_registers_replacement_effects(self):
         """Test that a normally played character registers replacement effects."""
@@ -1159,79 +1190,85 @@ class TestLifecycleRegistrationOnEntry:
         assert len(replacement_effects) == 1
         assert replacement_effects[0].source_id == 1
 
-    def test_shifted_character_entry_registers_static_effects(self):
-        """Test that a shifted character entering play registers static effects."""
-        from lorcana_bot.cards import CardDef, CardDatabase
-        from lorcana_bot.static_effects import StaticEffectRegistry
+    def test_shifted_character_entry_materializes_real_static_effects(self):
+        """Real-card parity: shifted public top card exposes materialized statics.
 
-        # Create shift cards with static abilities
-        base_card = CardDef(
-            id="static_base",
-            full_name="Test Character",
-            ink="amber",
-            cost=3,
-            inkable=True,
-            card_type="character",
-            strength=2,
-            willpower=3,
-            lore=1,
-        )
-        shifted_card = CardDef(
-            id="static_shifted",
-            full_name="Test Character",
-            ink="amber",
-            cost=8,
-            inkable=True,
-            card_type="character",
-            strength=5,
-            willpower=5,
-            lore=2,
-            keywords=("SHIFT(3)",),
-            abilities=({
-                "type": "static",
-                "effect": {
-                    "type": "modify-stat",
-                    "attribute": "strength",
-                    "amount": 3,
-                },
-            },),
-        )
+        Lorcanito parity: only the public top shifted character is an active
+        static source. The card underneath is not a public static source.
+        """
+        from lorcana_bot.actions import Action
+        from lorcana_bot.static_effects import StaticEffectType
 
-        cards = [base_card, shifted_card]
-        engine = GameEngine(CardDatabase(cards))
+        db = _load_real_lorcanito_db()
+        shifted = db.get("qoz")  # Mr. Incredible - Super Strong
+        base = db.get("MpT")     # Mr. Incredible - Bob Parr
+        ally = db.get("Y1z")     # Mr. Incredible - Taking Out the Trash
+
+        assert shifted.full_name == "Mr. Incredible - Super Strong"
+        assert base.name == "Mr. Incredible"
+        assert ally.name == "Mr. Incredible"
+        assert any(ability.kind == "static" for ability in shifted.source_abilities)
+
+        engine = GameEngine(db)
         state = GameState(players=[PlayerState(), PlayerState()], cards={})
 
-        # Add ink for player 0
-        for i in range(10):
-            state.cards[100 + i] = CardInstance(
-                instance_id=100 + i, card_id="ink_amber", owner=0, controller=0, zone="inkwell"
-            )
-            state.players[0].inkwell.append(100 + i)
+        # Mr. Incredible - Super Strong has Shift 3.
+        _ready_real_ink(state, 0, shifted.id, 3)
 
-        # Add base character to play
+        # Shift target.
         state.cards[1] = CardInstance(
-            instance_id=1, card_id="static_base", owner=0, controller=0, zone="play"
+            instance_id=1,
+            card_id=base.id,
+            owner=0,
+            controller=0,
+            zone="play",
         )
         state.players[0].play.append(1)
 
-        # Add shifted character to hand
+        # Other character counted by ALWAYS UNITED.
+        state.cards[3] = CardInstance(
+            instance_id=3,
+            card_id=ally.id,
+            owner=0,
+            controller=0,
+            zone="play",
+        )
+        state.players[0].play.append(3)
+
+        # Shifted card in hand.
         state.cards[2] = CardInstance(
-            instance_id=2, card_id="static_shifted", owner=0, controller=0, zone="hand"
+            instance_id=2,
+            card_id=shifted.id,
+            owner=0,
+            controller=0,
+            zone="hand",
         )
         state.players[0].hand.append(2)
 
-        # Shift play the character
-        from lorcana_bot.actions import Action
-        action = Action("PLAY_SHIFTED", actor=0, card=2, target=1)
-        next_state = engine.apply_action(state, action)
+        next_state = engine.apply_action(state, Action(ACTION_PLAY_SHIFTED, actor=0, card=2, target=1))
 
-        # Verify shifted character is in play
         assert next_state.cards[2].zone == "play"
+        assert next_state.cards[2].played_via_shift is True
+        assert next_state.cards[1].zone == ZONE_UNDER
+        assert next_state.cards[1].stack_parent_id == 2
+        assert 1 in next_state.cards[2].cards_under
+        assert next_state.cards[3].zone == "play"
 
-        # Verify static effects were registered for the shifted card
-        static_effects = next_state.static_effect_registry.get_effects_for_instance(next_state, 2)
-        assert len(static_effects) == 1
-        assert static_effects[0].source_id == 2
+        # Static effects are not physically registered on entry anymore.
+        # They are derived/materialized from active public source abilities.
+        assert next_state.static_effect_registry.effects == []
+
+        materialized = next_state.static_effect_registry.get_effects_for_instance(next_state, 2, engine)
+        assert len(materialized) == 1
+        assert materialized[0].source_id == 2
+        assert materialized[0].effect_type == StaticEffectType.MODIFY_STRENGTH
+        assert materialized[0].amount == 2
+
+        # Mr. Incredible - Super Strong has printed 6 strength.
+        # ALWAYS UNITED gives +2 strength for each other character you have in play.
+        # The shifted-under base card is not public/in play; the ally is public/in play.
+        assert engine.effective_strength(next_state, 2) == 8
+
 
     def test_shifted_character_entry_registers_replacement_effects(self):
         """Test that a shifted character entering play registers replacement effects."""
