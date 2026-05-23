@@ -2014,7 +2014,9 @@ def target_descriptor_from_requirement(
 # Known selectors that the targeting service can resolve.  Unknown strings
 # must NOT be inferred into broad default descriptors (fail closed).
 _KNOWN_SELECTORS: frozenset[str] = frozenset({
-    "chosen_card", "chosen_character", "chosen_opposing_character",
+    "chosen", "chosen_card", "chosen_character", "chosen_opposing_character",
+    "up_to_2_chosen_characters", "chosen_opposing_character_3_strength_or_less",
+    "chosen_exerted_character", "your_exerted_characters",
     "chosen_damaged_character", "chosen_item", "chosen_location",
     "chosen_player", "opposing_character", "self", "event_source",
     "event_target", "trigger_subject", "your_characters", "your_other_characters",
@@ -2160,8 +2162,9 @@ def get_valid_target_candidates_for_pending(
         return ()
 
     raw = pe.raw or {}
+    target_actor = raw.get("target_actor", chooser_id)
     context = TargetQueryContext(
-        actor=chooser_id,
+        actor=target_actor,
         source_id=pe.source_id,
         event_payload=raw.get("event_payload", {}) or {},
         current_targets=tuple(raw.get("current_targets", ()) or ()),

@@ -2519,3 +2519,62 @@ class TestBagOriginScryPending:
         assert isinstance(retrieved_req, ScryRequirement)
         assert retrieved_req.candidate_ids == scry_req.candidate_ids
         assert retrieved_req.amount == 2
+
+
+def test_chosen_by_opponent_creates_pending_for_opponent():
+    db = CardDatabase([
+        CardDef("source", "Source", "amber", 2, True, "character", 2, 2, 1),
+        CardDef("target", "Target", "ruby", 2, True, "character", 2, 2, 1),
+    ])
+    engine = GameEngine(db)
+    state = GameState(players=[PlayerState(), PlayerState()], cards={})
+    state.cards[1] = CardInstance(instance_id=1, card_id="source", owner=0, controller=0, zone=ZONE_PLAY)
+    state.cards[2] = CardInstance(instance_id=2, card_id="target", owner=1, controller=1, zone=ZONE_PLAY)
+    state.players[0].play = [1]
+    state.players[1].play = [2]
+    state.active_player = 0
+
+    effect = EffectDef(
+        "deal_damage",
+        1,
+        {
+            "selector": "chosen",
+            "count": 1,
+            "owner": "opponent",
+            "zones": ["play"],
+            "cardTypes": ["character"],
+        },
+        raw={
+            "raw": {
+                "type": "deal-damage",
+                "amount": 1,
+                "chosenBy": "opponent",
+                "target": {
+                    "selector": "chosen",
+                    "count": 1,
+                    "owner": "opponent",
+                    "zones": ["play"],
+                    "cardTypes": ["character"],
+                },
+            },
+        },
+    )
+
+    engine.effect_resolver.resolve(
+        state,
+        effect,
+        EffectResolutionContext(actor=0, source=1),
+    )
+
+    assert len(state.pending_effects) == 1
+    pending = state.pending_effects[0]
+    assert pending.controller_id == 0
+    assert pending.chooser_id == 1
+
+    actions = [action for action in engine.legal_actions(state, 1) if action.kind == ACTION_RESOLVE_PENDING_EFFECT]
+    assert len(actions) == 1
+    assert actions[0].choice["targets"] == (2,)
+
+    next_state = engine.apply_action(state, actions[0])
+
+    assert next_state.cards[2].damage == 1

@@ -1089,6 +1089,40 @@ class TestZoneRoutingEffectRegression:
         # No index specified means bottom (default)
         assert kwargs.get("actor") == 0
 
+    def test_put_card_on_top_preserves_selected_target_order(self):
+        """Multiple selected cards should end on top in the supplied order."""
+        engine, state = setup_effect_game()
+
+        first = put_card(state, engine, 0, "Filler", ZONE_DISCARD)
+        second = put_card(state, engine, 0, "Ally", ZONE_DISCARD)
+        third = put_card(state, engine, 0, "Target", ZONE_DISCARD)
+
+        effect = EffectDef("put_card_on_top")
+        engine.effect_resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=5, current_targets=(first, second, third)),
+        )
+
+        assert state.players[0].deck[:3] == [first, second, third]
+
+    def test_put_card_on_bottom_preserves_selected_target_order(self):
+        """Multiple selected cards should append to deck bottom in supplied order."""
+        engine, state = setup_effect_game()
+
+        first = put_card(state, engine, 0, "Filler", ZONE_DISCARD)
+        second = put_card(state, engine, 0, "Ally", ZONE_DISCARD)
+        third = put_card(state, engine, 0, "Target", ZONE_DISCARD)
+
+        effect = EffectDef("put_card_on_bottom")
+        engine.effect_resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=6, current_targets=(first, second, third)),
+        )
+
+        assert state.players[0].deck[-3:] == [first, second, third]
+
     def test_put_card_in_discard_routes_via_engine(self):
         """put_card_in_discard effect must call _move_card_eventful."""
         engine, state = setup_effect_game()

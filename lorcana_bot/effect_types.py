@@ -41,6 +41,9 @@ class EffectResolutionContext:
     trigger_subject: int | None = None
     current_targets: tuple[int, ...] = ()
     context_targets: tuple[int, ...] = ()
+    slotted_targets: dict[str, Any] | None = None
+    destinations: tuple[dict[str, Any], ...] = ()
+    last_effect_performed: bool = False
 
 
 SUPPORTED_EFFECT_KINDS = frozenset(
@@ -50,6 +53,7 @@ SUPPORTED_EFFECT_KINDS = frozenset(
         "lose_lore",
         "deal_damage",
         "move_damage",
+        "move_to_location",
         "remove_damage",
         "banish",
         "discard",

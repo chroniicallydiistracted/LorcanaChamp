@@ -10,18 +10,18 @@
 
 | Reason | Count |
 |---|---:|
-| `mapped_not_executable` | 512 |
-| `unsupported_choice` | 148 |
-| `unsupported_condition` | 198 |
+| `mapped_not_executable` | 516 |
+| `unsupported_choice` | 18 |
+| `unsupported_condition` | 224 |
 | `unsupported_cost` | 24 |
-| `unsupported_engine_mechanic` | 242 |
-| `unsupported_targeting` | 334 |
+| `unsupported_engine_mechanic` | 210 |
+| `unsupported_targeting` | 253 |
 
 ## Examples
 
 ### `mapped_not_executable`
 
-Total detailed records: `512`
+Total detailed records: `516`
 
 - **Ariel - On Human Legs** (`WeA`)
   - Object: `ability` / `static`
@@ -151,63 +151,8 @@ Total detailed records: `512`
 
 ### `unsupported_choice`
 
-Total detailed records: `148`
+Total detailed records: `18`
 
-- **Donald Duck - Perfect Gentleman** (`fS0`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `wjj-3` — ALLOW ME
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 2, "effect": {"chooser": "OPPONENT", "effect": {"amount": 1, "target": "OPPONENT", "type": "draw"}, "type": "optional"}, "id": "wjj-3", "name": "ALLOW ME", "text": "ALLOW ME At the start of your turn, each player may draw a card.", "trigger": {"event": "start-turn", "on": "YOU", "timing": "at"}, "type": "triggered"}`
-- **Donald Duck - Perfect Gentleman** (`fS0`)
-  - Object: `effect` / `optional`
-  - Ability: `triggered` `wjj-3` — ALLOW ME
-  - Status: `unsupported_choice`
-  - Raw: `{"chooser": "OPPONENT", "effect": {"amount": 1, "target": "OPPONENT", "type": "draw"}, "type": "optional"}`
-- **Lady Tremaine - Imperious Queen** (`h4L`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 1, "effect": {"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}, "id": "2qj-2", "name": "POWER TO RULE AT LAST", "text": "POWER TO RULE AT LAST When you play this character, each opponent chooses and banishes one of their characters.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Lady Tremaine - Imperious Queen** (`h4L`)
-  - Object: `effect` / `for-each-opponent`
-  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
-  - Status: `unsupported_choice`
-  - Raw: `{"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}`
-- **Lady Tremaine - Imperious Queen** (`SlK`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 1, "effect": {"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}, "id": "2qj-2", "name": "POWER TO RULE AT LAST", "text": "POWER TO RULE AT LAST When you play this character, each opponent chooses and banishes one of their characters.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Lady Tremaine - Imperious Queen** (`SlK`)
-  - Object: `effect` / `for-each-opponent`
-  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
-  - Status: `unsupported_choice`
-  - Raw: `{"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}`
-- **Lucifer - Cunning Cat** (`NN3`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `oq4-1` — MOUSE CATCHER
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"chooser": "OPPONENT", "optionLabels": ["discard 2 cards", "discard 1 action card"], "options": [{"amount": 2, "chosen": true, "target": "OPPONENT", "type": "discard"}, {"amount": 1, "chosen": true, "filter": {"cardType": "action"}, "target": "OPPONENT", "type": "discard"}], "type": "choice"}, "id": "oq4-1", "name": "MOUSE CATCHER", "text": "MOUSE CATCHER When you play this character, each opponent chooses and discards either 2 cards or 1 action card.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Lucifer - Cunning Cat** (`NN3`)
-  - Object: `effect` / `choice`
-  - Ability: `triggered` `oq4-1` — MOUSE CATCHER
-  - Status: `unsupported_choice`
-  - Raw: `{"chooser": "OPPONENT", "optionLabels": ["discard 2 cards", "discard 1 action card"], "options": [{"amount": 2, "chosen": true, "target": "OPPONENT", "type": "discard"}, {"amount": 1, "chosen": true, "filter": {"cardType": "action"}, "target": "OPPONENT", "type": "discard"}], "type": "choice"}`
-- **Falling Down the Rabbit Hole** (`kL9`)
-  - Object: `ability` / `action`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}, {"chosenBy": "opponent", "exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}], "type": "sequence"}, "type": "action"}`
-- **Falling Down the Rabbit Hole** (`kL9`)
-  - Object: `effect` / `sequence`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"steps": [{"exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}, {"chosenBy": "opponent", "exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}], "type": "sequence"}`
-- **Falling Down the Rabbit Hole** (`kL9`)
-  - Object: `effect` / `put-into-inkwell`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_choice`
-  - Raw: `{"chosenBy": "opponent", "exerted": true, "facedown": true, "source": "chosen-character", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "put-into-inkwell"}`
 - **The Sorcerer's Hat** (`geu`)
   - Object: `ability` / `activated`
   - Ability: `activated` `geu-1` — INCREDIBLE ENERGY
@@ -253,35 +198,55 @@ Total detailed records: `148`
   - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
   - Status: `unsupported_choice`
   - Raw: `{"type": "name-a-card"}`
-- **Gunther - Interior Designer** (`2U5`)
+- **Blast from Your Past** (`hV2`)
+  - Object: `ability` / `action`
+  - Ability: `action` `1tj-1` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"type": "name-a-card"}, {"target": {"cardTypes": ["character"], "count": "all", "filter": [{"type": "named-card"}], "owner": "you", "selector": "all", "zones": ["discard"]}, "type": "return-to-hand"}], "type": "sequence"}, "id": "1tj-1", "text": "Name a card. Return all character cards with that name from your discard to your hand.", "type": "action"}`
+- **Blast from Your Past** (`hV2`)
+  - Object: `effect` / `sequence`
+  - Ability: `action` `1tj-1` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"steps": [{"type": "name-a-card"}, {"target": {"cardTypes": ["character"], "count": "all", "filter": [{"type": "named-card"}], "owner": "you", "selector": "all", "zones": ["discard"]}, "type": "return-to-hand"}], "type": "sequence"}`
+- **Blast from Your Past** (`hV2`)
+  - Object: `effect` / `name-a-card`
+  - Ability: `action` `1tj-1` — None
+  - Status: `unsupported_choice`
+  - Raw: `{"type": "name-a-card"}`
+- **Merlin - Clever Clairvoyant** (`qhP`)
   - Object: `ability` / `triggered`
-  - Ability: `triggered` `2U5-1` — SAD-EYED PUPPY
+  - Ability: `triggered` `1c1-1` — PRESTIDIGITONIUM
   - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, "id": "2U5-1", "name": "SAD-EYED PUPPY", "sourceZones": ["play", "discard"], "text": "SAD-EYED PUPPY When this character is challenged and banished, each opponent chooses one of their characters and returns that card to their hand.", "trigger": {"challengeContext": {"role": "defender"}, "event": "challenged-and-banished", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Gunther - Interior Designer** (`2U5`)
-  - Object: `effect` / `return-to-hand`
-  - Ability: `triggered` `2U5-1` — SAD-EYED PUPPY
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"exerted": true, "zone": "inkwell"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "1c1-1", "name": "PRESTIDIGITONIUM", "text": "PRESTIDIGITONIUM Whenever this character quests, name a card, then reveal the top card of your deck. If it's the named card, put it into your inkwell facedown and exerted. Otherwise, put it on the top of your deck.", "trigger": {"event": "quest", "on": "SELF", "timing": "whenever"}, "type": "triggered"}`
+- **Merlin - Clever Clairvoyant** (`qhP`)
+  - Object: `effect` / `sequence`
+  - Ability: `triggered` `1c1-1` — PRESTIDIGITONIUM
   - Status: `unsupported_choice`
-  - Raw: `{"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}`
-- **Be King Undisputed** (`PNr`)
-  - Object: `ability` / `action`
-  - Ability: `action` `ability` — None
+  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"exerted": true, "zone": "inkwell"}}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
+- **Merlin - Clever Clairvoyant** (`qhP`)
+  - Object: `effect` / `name-a-card`
+  - Ability: `triggered` `1c1-1` — PRESTIDIGITONIUM
   - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "action"}`
-- **Be King Undisputed** (`PNr`)
-  - Object: `effect` / `banish`
-  - Ability: `action` `ability` — None
+  - Raw: `{"type": "name-a-card"}`
+- **Bruno Madrigal - Undetected Uncle** (`Plh`)
+  - Object: `ability` / `activated`
+  - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
   - Status: `unsupported_choice`
-  - Raw: `{"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}`
-- **Sign the Scroll** (`zkw`)
-  - Object: `ability` / `action`
-  - Ability: `action` `ggh-1` — None
+  - Raw: `{"_source_index": 1, "cost": {"exert": true}, "effect": {"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}, "sideEffects": [{"amount": 3, "target": "CONTROLLER", "type": "gain-lore"}]}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}, "id": "13f-2", "name": "YOU JUST HAVE TO SEE IT", "text": "YOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it's the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.", "type": "activated"}`
+- **Bruno Madrigal - Undetected Uncle** (`Plh`)
+  - Object: `effect` / `sequence`
+  - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
   - Status: `unsupported_choice`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "OPPONENT", "effect": {"amount": 1, "chosen": true, "target": "OPPONENT", "type": "discard"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "else": {"amount": 2, "target": "CONTROLLER", "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}, "id": "ggh-1", "text": "Each opponent may choose and discard a card. For each opponent who doesn't, you gain 2 lore.", "type": "action"}`
+  - Raw: `{"steps": [{"type": "name-a-card"}, {"fallback": {"zone": "deck-top"}, "routes": [{"condition": {"type": "revealed-matches-named"}, "destination": {"zone": "hand"}, "sideEffects": [{"amount": 3, "target": "CONTROLLER", "type": "gain-lore"}]}], "target": "CONTROLLER", "type": "reveal-and-route"}], "type": "sequence"}`
+- **Bruno Madrigal - Undetected Uncle** (`Plh`)
+  - Object: `effect` / `name-a-card`
+  - Ability: `activated` `13f-2` — YOU JUST HAVE TO SEE IT
+  - Status: `unsupported_choice`
+  - Raw: `{"type": "name-a-card"}`
 
 ### `unsupported_condition`
 
-Total detailed records: `264`
+Total detailed records: `290`
 
 - **Stitch - Rock Star** (`kSG`)
   - Object: `ability` / `triggered`
@@ -389,6 +354,16 @@ Total detailed records: `264`
   - Status: `unsupported_condition`
   - Raw: `{"type": "if-you-do"}`
 - **Raya - Headstrong** (`8Xm`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
+  - Status: `unsupported_condition`
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "then": {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}, "type": "conditional"}], "type": "sequence"}, "id": "1jb-1", "name": "NOTE TO SELF, DON'T DIE", "text": "NOTE TO SELF, DON'T DIE During your turn, whenever this character banishes another character in a challenge, you may ready this character. She can't quest for the rest of this turn.", "trigger": {"event": "banish-in-challenge", ...`
+- **Raya - Headstrong** (`8Xm`)
+  - Object: `effect` / `sequence`
+  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
+  - Status: `unsupported_condition`
+  - Raw: `{"steps": [{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "then": {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}, "type": "conditional"}], "type": "sequence"}`
+- **Raya - Headstrong** (`8Xm`)
   - Object: `effect` / `conditional`
   - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
   - Status: `unsupported_condition`
@@ -398,16 +373,6 @@ Total detailed records: `264`
   - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
   - Status: `unsupported_condition`
   - Raw: `{"type": "if-you-do"}`
-- **Bibbidi Bobbidi Boo** (`GrH`)
-  - Object: `ability` / `action`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_condition`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"cardType": "character", "cost": "free", "filter": {"excludeChosenCard": true, "maxCost": {"type": "chosen-card-cost"}}, "from": "hand", "type": "play-card"}, "type": "conditional"}], "type": "sequence"}, "type": "action"}`
-- **Bibbidi Bobbidi Boo** (`GrH`)
-  - Object: `effect` / `sequence`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_condition`
-  - Raw: `{"steps": [{"target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"cardType": "character", "cost": "free", "filter": {"excludeChosenCard": true, "maxCost": {"type": "chosen-card-cost"}}, "from": "hand", "type": "play-card"}, "type": "conditional"}], "type": "sequence"}`
 
 ### `unsupported_cost`
 
@@ -541,7 +506,7 @@ Total detailed records: `52`
 
 ### `unsupported_engine_mechanic`
 
-Total detailed records: `242`
+Total detailed records: `210`
 
 - **Steal from the Rich** (`mkJ`)
   - Object: `ability` / `action`
@@ -553,6 +518,26 @@ Total detailed records: `242`
   - Ability: `action` `ability` — None
   - Status: `unsupported_engine_mechanic`
   - Raw: `{"ability": {"effect": {"amount": 1, "target": "EACH_OPPONENT", "type": "lose-lore"}, "trigger": {"event": "quest", "on": "YOUR_CHARACTERS", "timing": "whenever"}}, "lifecycle": {"duration": "this-turn", "kind": "floating"}, "type": "create-triggered-ability"}`
+- **Lady Tremaine - Imperious Queen** (`h4L`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
+  - Status: `unsupported_engine_mechanic`
+  - Raw: `{"_source_index": 1, "effect": {"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}, "id": "2qj-2", "name": "POWER TO RULE AT LAST", "text": "POWER TO RULE AT LAST When you play this character, each opponent chooses and banishes one of their characters.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Lady Tremaine - Imperious Queen** (`h4L`)
+  - Object: `effect` / `for-each-opponent`
+  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
+  - Status: `unsupported_engine_mechanic`
+  - Raw: `{"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}`
+- **Lady Tremaine - Imperious Queen** (`SlK`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
+  - Status: `unsupported_engine_mechanic`
+  - Raw: `{"_source_index": 1, "effect": {"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}, "id": "2qj-2", "name": "POWER TO RULE AT LAST", "text": "POWER TO RULE AT LAST When you play this character, each opponent chooses and banishes one of their characters.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Lady Tremaine - Imperious Queen** (`SlK`)
+  - Object: `effect` / `for-each-opponent`
+  - Ability: `triggered` `2qj-2` — POWER TO RULE AT LAST
+  - Status: `unsupported_engine_mechanic`
+  - Raw: `{"effect": {"chosenBy": "opponent", "target": {"cardTypes": ["character"], "count": 1, "owner": "opponent", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "for-each-opponent"}`
 - **Lady Tremaine - Overbearing Matriarch** (`B8N`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `r0v-1` — NOT FOR YOU
@@ -593,31 +578,6 @@ Total detailed records: `242`
   - Ability: `static` `gip-2` — MAN-TO-MAN
   - Status: `unsupported_engine_mechanic`
   - Raw: `{"keyword": "Evasive", "target": {"cardTypes": ["character"], "count": "all", "filter": [{"name": "Peter Pan", "type": "has-name"}], "owner": "any", "selector": "all", "zones": ["play"]}, "type": "lose-keyword"}`
-- **Jim Hawkins - Space Traveler** (`emY`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `emY-2` — TAKE THE HELM
-  - Status: `unsupported_engine_mechanic`
-  - Raw: `{"_source_index": 1, "effect": {"chooser": "CONTROLLER", "effect": {"character": "SELF", "cost": "free", "location": {"ref": "trigger-subject"}, "type": "move-to-location"}, "type": "optional"}, "id": "emY-2", "name": "TAKE THE HELM", "text": "TAKE THE HELM Whenever you play a location, this character may move there for free.", "trigger": {"event": "play", "on": {"cardType": "location", "controller": "you"}, "timing": "whenever"}, "type": "triggered"}`
-- **Jim Hawkins - Space Traveler** (`emY`)
-  - Object: `effect` / `optional`
-  - Ability: `triggered` `emY-2` — TAKE THE HELM
-  - Status: `unsupported_engine_mechanic`
-  - Raw: `{"chooser": "CONTROLLER", "effect": {"character": "SELF", "cost": "free", "location": {"ref": "trigger-subject"}, "type": "move-to-location"}, "type": "optional"}`
-- **Jim Hawkins - Space Traveler** (`emY`)
-  - Object: `effect` / `move-to-location`
-  - Ability: `triggered` `emY-2` — TAKE THE HELM
-  - Status: `unsupported_engine_mechanic`
-  - Raw: `{"character": "SELF", "cost": "free", "location": {"ref": "trigger-subject"}, "type": "move-to-location"}`
-- **Magic Carpet - Flying Rug** (`oLg`)
-  - Object: `ability` / `activated`
-  - Ability: `activated` `oLg-2` — FIND THE WAY
-  - Status: `unsupported_engine_mechanic`
-  - Raw: `{"_source_index": 1, "cost": {"exert": true}, "effect": {"character": "CHOSEN_CHARACTER_OF_YOURS", "cost": "free", "location": {"cardTypes": ["location"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "move-to-location"}, "id": "oLg-2", "name": "FIND THE WAY", "text": "FIND THE WAY {E} — Move a character of yours to a location for free.", "type": "activated"}`
-- **Magic Carpet - Flying Rug** (`oLg`)
-  - Object: `effect` / `move-to-location`
-  - Ability: `activated` `oLg-2` — FIND THE WAY
-  - Status: `unsupported_engine_mechanic`
-  - Raw: `{"character": "CHOSEN_CHARACTER_OF_YOURS", "cost": "free", "location": {"cardTypes": ["location"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "move-to-location"}`
 - **Maui - Soaring Demigod** (`IYc`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `q08-2` — IN MA BELLY
@@ -653,151 +613,156 @@ Total detailed records: `242`
   - Ability: `action` `ability` — None
   - Status: `unsupported_engine_mechanic`
   - Raw: `{"ability": {"effect": {"amount": 1, "target": "CONTROLLER", "type": "gain-lore"}, "trigger": {"event": "quest", "on": "YOUR_CHARACTERS", "timing": "whenever"}}, "lifecycle": {"duration": "this-turn", "kind": "floating"}, "type": "create-triggered-ability"}`
-- **I Will Find My Way** (`iQ6`)
-  - Object: `ability` / `action`
-  - Ability: `action` `ability` — None
+- **Map of Treasure Planet** (`Bf0`)
+  - Object: `ability` / `static`
+  - Ability: `static` `7x0-2` — SHOW THE WAY
   - Status: `unsupported_engine_mechanic`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"duration": "this-turn", "modifier": 2, "stat": "strength", "target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "modify-stat"}, {"effect": {"character": {"ref": "previous-target"}, "cost": "free", "location": {"cardTypes": ["location"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "move-to-location"}, "type": "optional"}], "type": "sequence"}, "type": "action"}`
-- **I Will Find My Way** (`iQ6`)
-  - Object: `effect` / `sequence`
-  - Ability: `action` `ability` — None
+  - Raw: `{"_source_index": 1, "effect": {"reduction": 1, "type": "move-cost-reduction"}, "id": "7x0-2", "name": "SHOW THE WAY", "text": "SHOW THE WAY You pay 1 {I} less to move your characters to a location.", "type": "static"}`
+- **Map of Treasure Planet** (`Bf0`)
+  - Object: `effect` / `move-cost-reduction`
+  - Ability: `static` `7x0-2` — SHOW THE WAY
   - Status: `unsupported_engine_mechanic`
-  - Raw: `{"steps": [{"duration": "this-turn", "modifier": 2, "stat": "strength", "target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "modify-stat"}, {"effect": {"character": {"ref": "previous-target"}, "cost": "free", "location": {"cardTypes": ["location"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "move-to-location"}, "type": "optional"}], "type": "sequence"}`
-- **I Will Find My Way** (`iQ6`)
-  - Object: `effect` / `optional`
-  - Ability: `action` `ability` — None
+  - Raw: `{"reduction": 1, "type": "move-cost-reduction"}`
+- **Jolly Roger - Hook's Ship** (`UV5`)
+  - Object: `ability` / `static`
+  - Ability: `static` `UV5-2` — ALL HANDS ON DECK!
   - Status: `unsupported_engine_mechanic`
-  - Raw: `{"effect": {"character": {"ref": "previous-target"}, "cost": "free", "location": {"cardTypes": ["location"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "move-to-location"}, "type": "optional"}`
+  - Raw: `{"_source_index": 1, "effect": {"filter": {"classification": "Pirate"}, "location": "here", "reduction": "free", "type": "move-cost-reduction"}, "id": "UV5-2", "name": "ALL HANDS ON DECK!", "text": "ALL HANDS ON DECK! Your Pirate characters may move here for free.", "type": "static"}`
+- **Jolly Roger - Hook's Ship** (`UV5`)
+  - Object: `effect` / `move-cost-reduction`
+  - Ability: `static` `UV5-2` — ALL HANDS ON DECK!
+  - Status: `unsupported_engine_mechanic`
+  - Raw: `{"filter": {"classification": "Pirate"}, "location": "here", "reduction": "free", "type": "move-cost-reduction"}`
 
 ### `unsupported_targeting`
 
-Total detailed records: `468`
+Total detailed records: `354`
 
-- **Ratigan - Very Large Mouse** (`jfe`)
+- **Friar Tuck - Priest of Nottingham** (`29m`)
   - Object: `ability` / `triggered`
-  - Ability: `triggered` `1wj-1` — THIS IS MY KINGDOM
+  - Ability: `triggered` `f7m-1` — YOU THIEVING SCOUNDREL
   - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"target": "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS", "type": "exert"}, {"target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest", "target": {"ref": "previous-target"}, "type": "restriction"}], "type": "sequence"}, "id": "1wj-1", "name": "THIS IS MY KINGDOM", "text": "THIS IS MY KINGDOM When you play this character, exert chosen opposing character with 3 {S} or less. Choose one of your characters and ready them. They can't quest for the rest of this turn.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type...`
-- **Ratigan - Very Large Mouse** (`jfe`)
-  - Object: `effect` / `sequence`
-  - Ability: `triggered` `1wj-1` — THIS IS MY KINGDOM
+  - Raw: `{"_source_index": 0, "effect": {"amount": 1, "chosen": true, "from": "hand", "target": {"filter": {"minCount": 1, "rank": "highest", "ties": "all", "type": "zone-count-rank", "zone": "hand"}, "selector": "each-player"}, "type": "discard"}, "id": "f7m-1", "name": "YOU THIEVING SCOUNDREL", "text": "YOU THIEVING SCOUNDREL When you play this character, the player or players with the most cards in their hand chooses and discards a card.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Friar Tuck - Priest of Nottingham** (`29m`)
+  - Object: `effect` / `discard`
+  - Ability: `triggered` `f7m-1` — YOU THIEVING SCOUNDREL
   - Status: `unsupported_targeting`
-  - Raw: `{"steps": [{"target": "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS", "type": "exert"}, {"target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest", "target": {"ref": "previous-target"}, "type": "restriction"}], "type": "sequence"}`
-- **Ratigan - Very Large Mouse** (`jfe`)
-  - Object: `effect` / `exert`
-  - Ability: `triggered` `1wj-1` — THIS IS MY KINGDOM
-  - Status: `unsupported_targeting`
-  - Raw: `{"target": "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS", "type": "exert"}`
-- **Ratigan - Very Large Mouse** (`jfe`)
-  - Object: `target` / `alias`
-  - Ability: `triggered` `1wj-1` — THIS IS MY KINGDOM
-  - Status: `unsupported_targeting`
-  - Raw: `{"value": "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS"}`
-- **Raya - Headstrong** (`8Xm`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "then": {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}, "type": "conditional"}], "type": "sequence"}, "id": "1jb-1", "name": "NOTE TO SELF, DON'T DIE", "text": "NOTE TO SELF, DON'T DIE During your turn, whenever this character banishes another character in a challenge, you may ready this character. She can't quest for the rest of this turn.", "trigger": {"event": "banish-in-challenge", ...`
-- **Raya - Headstrong** (`8Xm`)
-  - Object: `effect` / `sequence`
-  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
-  - Status: `unsupported_targeting`
-  - Raw: `{"steps": [{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "then": {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}, "type": "conditional"}], "type": "sequence"}`
-- **Raya - Headstrong** (`8Xm`)
-  - Object: `effect` / `optional`
-  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
-  - Status: `unsupported_targeting`
-  - Raw: `{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, "type": "optional"}`
-- **Raya - Headstrong** (`8Xm`)
-  - Object: `effect` / `ready`
-  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
-  - Status: `unsupported_targeting`
-  - Raw: `{"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}`
-- **Raya - Headstrong** (`8Xm`)
+  - Raw: `{"amount": 1, "chosen": true, "from": "hand", "target": {"filter": {"minCount": 1, "rank": "highest", "ties": "all", "type": "zone-count-rank", "zone": "hand"}, "selector": "each-player"}, "type": "discard"}`
+- **Friar Tuck - Priest of Nottingham** (`29m`)
   - Object: `target` / `selector`
-  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
+  - Ability: `triggered` `f7m-1` — YOU THIEVING SCOUNDREL
   - Status: `unsupported_targeting`
-  - Raw: `{"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}`
-- **Tiana - Celebrating Princess** (`ivr`)
-  - Object: `ability` / `static`
-  - Ability: `static` `14e-2` — WHAT YOU GIVE IS WHAT YOU GET
+  - Raw: `{"filter": {"minCount": 1, "rank": "highest", "ties": "all", "type": "zone-count-rank", "zone": "hand"}, "selector": "each-player"}`
+- **Moana - Born Leader** (`xR2`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `cku-2` — WELCOME TO MY BOAT
   - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 1, "condition": {"conditions": [{"type": "exerted"}, {"comparison": "equal", "controller": "you", "type": "resource-count", "value": 0, "what": "cards-in-hand"}], "type": "and"}, "effect": {"restriction": "cant-play-actions", "target": "OPPONENTS", "type": "restriction"}, "id": "14e-2", "name": "WHAT YOU GIVE IS WHAT YOU GET", "text": "WHAT YOU GIVE IS WHAT YOU GET While this character is exerted and you have no cards in your hand, opponents can't play actions.", "type": "static"}`
-- **Tiana - Celebrating Princess** (`ivr`)
-  - Object: `effect` / `restriction`
-  - Ability: `static` `14e-2` — WHAT YOU GIVE IS WHAT YOU GET
+  - Raw: `{"_source_index": 1, "condition": {"comparison": {"operator": "gte", "value": 1}, "query": {"filter": [{"type": "at-location"}], "reference": "trigger-subject", "selector": "all"}, "type": "target-query"}, "effect": {"restriction": "cant-quest", "target": {"cardTypes": ["character"], "count": "all", "excludeSelf": true, "filter": [{"type": "same-location-as-source"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "ready"}, "id": "cku-2", "name": "WELCOME TO MY BOAT", "text": "WELCOME TO MY BOAT Whenever this character quests while at a location, ready all other characters here. They can't quest for the rest of this turn.", "trigger": {"event": "quest", "on": "SELF", "timing"...`
+- **Moana - Born Leader** (`xR2`)
+  - Object: `effect` / `ready`
+  - Ability: `triggered` `cku-2` — WELCOME TO MY BOAT
   - Status: `unsupported_targeting`
-  - Raw: `{"restriction": "cant-play-actions", "target": "OPPONENTS", "type": "restriction"}`
-- **Tiana - Celebrating Princess** (`ivr`)
-  - Object: `target` / `alias`
-  - Ability: `static` `14e-2` — WHAT YOU GIVE IS WHAT YOU GET
+  - Raw: `{"restriction": "cant-quest", "target": {"cardTypes": ["character"], "count": "all", "excludeSelf": true, "filter": [{"type": "same-location-as-source"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "ready"}`
+- **Moana - Born Leader** (`xR2`)
+  - Object: `target` / `selector`
+  - Ability: `triggered` `cku-2` — WELCOME TO MY BOAT
   - Status: `unsupported_targeting`
-  - Raw: `{"value": "OPPONENTS"}`
-- **Last Stand** (`Eg2`)
+  - Raw: `{"cardTypes": ["character"], "count": "all", "excludeSelf": true, "filter": [{"type": "same-location-as-source"}], "owner": "you", "selector": "all", "zones": ["play"]}`
+- **And Then Along Came Zeus** (`DXq`)
   - Object: `ability` / `action`
   - Ability: `action` `ability` — None
   - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"target": {"cardTypes": ["character"], "count": 1, "filter": [{"type": "challenged-this-turn"}], "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "action"}`
-- **Last Stand** (`Eg2`)
+  - Raw: `{"_source_index": 0, "effect": {"amount": 5, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "type": "action"}`
+- **And Then Along Came Zeus** (`DXq`)
+  - Object: `effect` / `deal-damage`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"amount": 5, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}`
+- **And Then Along Came Zeus** (`DXq`)
+  - Object: `target` / `alias`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "CHOSEN_CHARACTER_OR_LOCATION"}`
+- **And Then Along Came Zeus** (`8f3`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"amount": 5, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "type": "action"}`
+- **And Then Along Came Zeus** (`8f3`)
+  - Object: `effect` / `deal-damage`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"amount": 5, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}`
+- **And Then Along Came Zeus** (`8f3`)
+  - Object: `target` / `alias`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "CHOSEN_CHARACTER_OR_LOCATION"}`
+- **Ba-Boom!** (`GSJ`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"amount": 2, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "type": "action"}`
+- **Ba-Boom!** (`GSJ`)
+  - Object: `effect` / `deal-damage`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"amount": 2, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}`
+- **Ba-Boom!** (`GSJ`)
+  - Object: `target` / `alias`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "CHOSEN_CHARACTER_OR_LOCATION"}`
+- **Rise of the Titans** (`uvL`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"target": "CHOSEN_ITEM_OR_LOCATION", "type": "banish"}, "type": "action"}`
+- **Rise of the Titans** (`uvL`)
   - Object: `effect` / `banish`
   - Ability: `action` `ability` — None
   - Status: `unsupported_targeting`
-  - Raw: `{"target": {"cardTypes": ["character"], "count": 1, "filter": [{"type": "challenged-this-turn"}], "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "banish"}`
-- **Last Stand** (`Eg2`)
-  - Object: `target` / `selector`
+  - Raw: `{"target": "CHOSEN_ITEM_OR_LOCATION", "type": "banish"}`
+- **Rise of the Titans** (`uvL`)
+  - Object: `target` / `alias`
   - Ability: `action` `ability` — None
   - Status: `unsupported_targeting`
-  - Raw: `{"cardTypes": ["character"], "count": 1, "filter": [{"type": "challenged-this-turn"}], "owner": "any", "selector": "chosen", "zones": ["play"]}`
-- **Gumbo Pot** (`MEA`)
-  - Object: `ability` / `activated`
-  - Ability: `activated` `1ee-1` — THE BEST I'VE EVER TASTED
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "cost": {"exert": true}, "effect": {"amount": 1, "target": "UP_TO_2_CHOSEN_CHARACTERS", "type": "remove-damage"}, "id": "1ee-1", "name": "THE BEST I'VE EVER TASTED", "text": "THE BEST I'VE EVER TASTED {E} — Remove 1 damage each from up to 2 chosen characters.", "type": "activated"}`
-- **Gumbo Pot** (`MEA`)
-  - Object: `effect` / `remove-damage`
-  - Ability: `activated` `1ee-1` — THE BEST I'VE EVER TASTED
-  - Status: `unsupported_targeting`
-  - Raw: `{"amount": 1, "target": "UP_TO_2_CHOSEN_CHARACTERS", "type": "remove-damage"}`
-- **Gumbo Pot** (`MEA`)
-  - Object: `target` / `alias`
-  - Ability: `activated` `1ee-1` — THE BEST I'VE EVER TASTED
-  - Status: `unsupported_targeting`
-  - Raw: `{"value": "UP_TO_2_CHOSEN_CHARACTERS"}`
-- **Sardine Can** (`QGa`)
-  - Object: `ability` / `static`
-  - Ability: `static` `2oi-1` — FLIGHT CABIN
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"keyword": "Ward", "target": "YOUR_EXERTED_CHARACTERS", "type": "gain-keyword"}, "id": "2oi-1", "name": "FLIGHT CABIN", "text": "FLIGHT CABIN Your exerted characters gain Ward.", "type": "static"}`
-- **Sardine Can** (`QGa`)
-  - Object: `effect` / `gain-keyword`
-  - Ability: `static` `2oi-1` — FLIGHT CABIN
-  - Status: `unsupported_targeting`
-  - Raw: `{"keyword": "Ward", "target": "YOUR_EXERTED_CHARACTERS", "type": "gain-keyword"}`
-- **Sardine Can** (`QGa`)
-  - Object: `target` / `alias`
-  - Ability: `static` `2oi-1` — FLIGHT CABIN
-  - Status: `unsupported_targeting`
-  - Raw: `{"value": "YOUR_EXERTED_CHARACTERS"}`
-- **Captain Hook - Master Swordsman** (`ICh`)
+  - Raw: `{"value": "CHOSEN_ITEM_OR_LOCATION"}`
+- **Robin's Bow** (`Ezk`)
   - Object: `ability` / `triggered`
-  - Ability: `triggered` `gip-1` — NEMESIS
+  - Ability: `triggered` `1mp-2` — A BIT OF A LARK
   - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}], "type": "sequence"}, "id": "gip-1", "name": "NEMESIS", "text": "NEMESIS During your turn, whenever this character banishes another character in a challenge, ready this character. He can't quest for the rest of this turn.", "trigger": {"event": "banish-in-challenge", "on": "SELF", "restrictions": [{"type": "during-turn", "whose": "your"}], "timing": "whenever"}, "type": "triggered"}`
-- **Captain Hook - Master Swordsman** (`ICh`)
-  - Object: `effect` / `sequence`
-  - Ability: `triggered` `gip-1` — NEMESIS
+  - Raw: `{"_source_index": 1, "effect": {"chooser": "CONTROLLER", "effect": {"target": "THIS_ITEM", "type": "ready"}, "type": "optional"}, "id": "1mp-2", "name": "A BIT OF A LARK", "text": "A BIT OF A LARK Whenever a character of yours named Robin Hood quests, you may ready this item.", "trigger": {"event": "quest", "on": {"cardType": "character", "controller": "you", "name": "Robin Hood"}, "timing": "whenever"}, "type": "triggered"}`
+- **Robin's Bow** (`Ezk`)
+  - Object: `effect` / `optional`
+  - Ability: `triggered` `1mp-2` — A BIT OF A LARK
   - Status: `unsupported_targeting`
-  - Raw: `{"steps": [{"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}], "type": "sequence"}`
-- **Captain Hook - Master Swordsman** (`ICh`)
+  - Raw: `{"chooser": "CONTROLLER", "effect": {"target": "THIS_ITEM", "type": "ready"}, "type": "optional"}`
+- **Robin's Bow** (`Ezk`)
   - Object: `effect` / `ready`
-  - Ability: `triggered` `gip-1` — NEMESIS
+  - Ability: `triggered` `1mp-2` — A BIT OF A LARK
   - Status: `unsupported_targeting`
-  - Raw: `{"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}`
-- **Captain Hook - Master Swordsman** (`ICh`)
-  - Object: `target` / `selector`
-  - Ability: `triggered` `gip-1` — NEMESIS
+  - Raw: `{"target": "THIS_ITEM", "type": "ready"}`
+- **Robin's Bow** (`Ezk`)
+  - Object: `target` / `alias`
+  - Ability: `triggered` `1mp-2` — A BIT OF A LARK
   - Status: `unsupported_targeting`
-  - Raw: `{"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}`
+  - Raw: `{"value": "THIS_ITEM"}`
+- **Ling - Imperial Soldier** (`HyV`)
+  - Object: `ability` / `static`
+  - Ability: `static` `joz-1` — FULL OF SPIRIT
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"modifier": 1, "stat": "strength", "target": "YOUR_HERO_CHARACTERS", "type": "modify-stat"}, "id": "joz-1", "name": "FULL OF SPIRIT", "text": "FULL OF SPIRIT Your Hero characters get +1 {S}.", "type": "static"}`
+- **Ling - Imperial Soldier** (`HyV`)
+  - Object: `effect` / `modify-stat`
+  - Ability: `static` `joz-1` — FULL OF SPIRIT
+  - Status: `unsupported_targeting`
+  - Raw: `{"modifier": 1, "stat": "strength", "target": "YOUR_HERO_CHARACTERS", "type": "modify-stat"}`
+- **Ling - Imperial Soldier** (`HyV`)
+  - Object: `target` / `alias`
+  - Ability: `static` `joz-1` — FULL OF SPIRIT
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "YOUR_HERO_CHARACTERS"}`
 
 ### `unsupported_trigger`
 

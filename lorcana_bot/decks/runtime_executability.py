@@ -523,6 +523,16 @@ def _classify_effect(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]
                 "automation:RESOLVE_EFFECT",
             ))
             evidence.append("scry_requirement_supported:destination")
+        if requirements.requires_opponent_choice and _source_opponent_choice_requirement_supported(effect):
+            statuses.append("executable")
+            required.append("pending:opponent_choice")
+            verified.extend((
+                "legal_actions:RESOLVE_PENDING_EFFECT",
+                "apply_action:RESOLVE_PENDING_EFFECT",
+                "pending:opponent_choice",
+                "bag_completion:pure_input",
+            ))
+            evidence.append("opponent_choice_requirement_supported")
         for requirement in requirements.unsupported_requirements:
             if _source_scry_requirement_supported(effect, requirement):
                 statuses.append("executable")

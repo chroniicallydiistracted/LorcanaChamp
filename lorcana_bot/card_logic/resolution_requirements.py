@@ -22,6 +22,7 @@ _ALWAYS_SUPPORTED_REQUIREMENTS = frozenset({
     "optional",
     "choice",
     "target",
+    "opponent_choice",
 })
 
 
@@ -35,6 +36,14 @@ _SUPPORTED_REQUIREMENTS_BY_EFFECT_KIND = {
     "scry": frozenset({
         "ordering",
         "destination",
+    }),
+    "put-on-bottom": frozenset({
+        "ordering",
+        "target",
+    }),
+    "put-on-top": frozenset({
+        "ordering",
+        "target",
     }),
 }
 

@@ -719,7 +719,10 @@ class GameEngine:
             if self.play_cost(state, player, cid) <= self.available_ink(state, player):
                 if card.card_type == CARD_ACTION and self._effect_has_unsupported_target(card.effects):
                     continue
-                if card.card_type == CARD_ACTION and any(self._effect_requires_target(e) for e in card.effects):
+                if card.card_type == CARD_ACTION and (
+                    any(self._effect_requires_target(e) for e in card.effects)
+                    or self._effect_requires_slotted_targets(card.effects)
+                ):
                     actions.extend(self._targeted_play_actions(state, player, cid))
                 else:
                     actions.append(Action(ACTION_PLAY_CARD, actor=player, card=cid))
@@ -791,6 +794,10 @@ class GameEngine:
             # Check effects are supported (no pending prompts required)
             effects_supported, _ = validate_effects_supported(ability)
             if not effects_supported:
+                continue
+            slotted_actions = self._activated_ability_slotted_target_actions(state, ability, player)
+            if slotted_actions is not None:
+                actions.extend(slotted_actions)
                 continue
             target_selections = self._activated_ability_target_selections(state, ability, player)
             if target_selections is None:
@@ -876,6 +883,38 @@ class GameEngine:
             return None
         return tuple(selection[0] for selection in selections if selection)
 
+    def _activated_ability_slotted_target_actions(
+        self,
+        state: GameState,
+        ability: ActivatedAbility,
+        player: int,
+    ) -> list[Action] | None:
+        specs = self._move_to_location_slot_specs(ability.effects)
+        if not specs:
+            return None
+
+        result: list[Action] = []
+        for spec in specs:
+            for slotted in self._enumerate_move_to_location_slotted_targets(
+                state,
+                actor=player,
+                source_id=ability.source_instance_id,
+                spec=spec,
+            ):
+                subjects = tuple(slotted.get("subject", ()) or ())
+                result.append(Action(
+                    ACTION_USE_ABILITY,
+                    actor=player,
+                    source=ability.source_instance_id,
+                    target=subjects[0] if subjects else None,
+                    choice={
+                        "ability_id": ability.ability_id,
+                        "ability_index": ability.ability_index,
+                        "slotted_targets": slotted,
+                    },
+                ))
+        return result
+
     def _activated_ability_explicit_target_descriptors(self, ability: ActivatedAbility):
         from .targeting import normalize_target_descriptor, requires_explicit_target_selection
         descriptors = []
@@ -921,7 +960,8 @@ class GameEngine:
             if entry.event:
                 event_payload.update(entry.event.event_snapshot or {})
                 event_payload.update(entry.event.payload or {})
-            context = TargetQueryContext(actor=entry.controller_id, source_id=entry.source_id, event_payload=event_payload)
+            chooser_actor = entry.chooser_id
+            context = TargetQueryContext(actor=chooser_actor, source_id=entry.source_id, event_payload=event_payload)
             candidates = apply_target_protections(
                 state,
                 self,
@@ -938,6 +978,47 @@ class GameEngine:
                     actor=player,
                     source=entry.source_id,
                     target=selected[0] if selected else None,
+                    choice=choice,
+                ))
+            return result
+
+        def move_to_location_actions(effect: Any, base_choice: dict[str, Any]) -> list[Action]:
+            raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
+            if not isinstance(raw, dict):
+                return []
+            character = raw.get("character") or raw.get("subject")
+            location = raw.get("location")
+            if character is None or location is None:
+                return []
+
+            event_payload = {}
+            if entry.event:
+                event_payload.update(entry.event.event_snapshot or {})
+                event_payload.update(entry.event.payload or {})
+
+            spec = {
+                "kind": "move-to-location",
+                "slots": {
+                    "subject": character,
+                    "location": location,
+                },
+            }
+            result: list[Action] = []
+            for slotted in self._enumerate_move_to_location_slotted_targets(
+                state,
+                actor=entry.chooser_id,
+                source_id=entry.source_id,
+                spec=spec,
+                event_payload=event_payload,
+            ):
+                choice = dict(base_choice)
+                choice["slotted_targets"] = slotted
+                subjects = tuple(slotted.get("subject", ()) or ())
+                result.append(Action(
+                    ACTION_RESOLVE_BAG,
+                    actor=player,
+                    source=entry.source_id,
+                    target=subjects[0] if subjects else None,
                     choice=choice,
                 ))
             return result
@@ -984,6 +1065,9 @@ class GameEngine:
             raw = effect.raw.get("raw") if isinstance(getattr(effect, "raw", None), dict) and isinstance(effect.raw.get("raw"), dict) else getattr(effect, "raw", {}) or {}
             if effect.kind == "optional" and effect.effects:
                 child = effect.effects[0]
+                if getattr(child, "kind", None) == "move_to_location":
+                    actions.extend(move_to_location_actions(child, {"bag_id": entry.id, "accept": True}))
+                    continue
                 if getattr(child, "kind", None) == "move_damage":
                     actions.extend(move_damage_actions(child, {"bag_id": entry.id, "accept": True}))
                     continue
@@ -1018,6 +1102,8 @@ class GameEngine:
                         actions.append(Action(ACTION_RESOLVE_BAG, actor=player, source=entry.source_id, choice=base))
             elif isinstance(raw.get("amount"), dict) and raw["amount"].get("type") == "lore-value-of":
                 actions.extend(target_actions(raw["amount"].get("target"), {"bag_id": entry.id, "accept": True}))
+            elif effect.kind == "move_to_location":
+                actions.extend(move_to_location_actions(effect, {"bag_id": entry.id, "accept": True}))
 
         return actions
 
@@ -1101,7 +1187,7 @@ class GameEngine:
         desc = normalize_target_descriptor(raw_target)
         if desc is None:
             return []
-        context = TargetQueryContext(actor=entry.controller_id, source_id=entry.source_id, event_payload={})
+        context = TargetQueryContext(actor=entry.chooser_id, source_id=entry.source_id, event_payload={})
         candidates = apply_target_protections(state, self, resolve_candidate_targets(state, self, desc, context), desc, context)
         result = []
         for selected in enumerate_target_selections(candidates, desc, candidate_kind="card"):
@@ -2364,6 +2450,9 @@ class GameEngine:
                 current_targets = tuple(action.choice.get("targets") or ())
             elif action.target is not None:
                 current_targets = (action.target,)
+            slotted_targets = None
+            if action.choice and isinstance(action.choice, dict):
+                slotted_targets = action.choice.get("slotted_targets")
             self._resolve_effects(
                 state,
                 player,
@@ -2371,6 +2460,7 @@ class GameEngine:
                 action.target,
                 choice=player_target,
                 current_targets=current_targets,
+                slotted_targets=slotted_targets,
             )
             to_zone = ZONE_DISCARD
         else:
@@ -2576,6 +2666,133 @@ class GameEngine:
         state.cards[action.source].location_instance_id = action.target
         self.emit_event(state, EVENT_MOVED_TO_LOCATION, actor=player, source=action.source, target=action.target)
 
+    def _effect_source_raw(self, effect: Any) -> dict[str, Any]:
+        raw = getattr(effect, "raw", {}) or {}
+        if isinstance(raw, dict) and isinstance(raw.get("raw"), dict):
+            return raw["raw"]
+        return raw if isinstance(raw, dict) else {}
+
+    def _effect_kind_name(self, effect: Any) -> str:
+        return str(getattr(effect, "kind", "") or "").replace("_", "-")
+
+    def _effect_choice_actor(
+        self,
+        state: GameState,
+        *,
+        controller_id: int,
+        raw: dict[str, Any],
+        parent_chooser_id: int | None = None,
+    ) -> int:
+        chooser = raw.get("chooser")
+        chosen_by = raw.get("chosenBy") or raw.get("chosen_by")
+
+        if parent_chooser_id is not None and chooser is None and chosen_by is None:
+            return parent_chooser_id
+
+        normalized = str(chooser or chosen_by or "").replace("_", "-").lower()
+        if normalized in {"opponent", "opponents"}:
+            return state.opponent(controller_id)
+        if normalized in {"controller", "you", "self"}:
+            return controller_id
+        return controller_id
+
+    def _move_to_location_slot_specs(self, effects: tuple[Any, ...]) -> tuple[dict[str, Any], ...]:
+        specs: list[dict[str, Any]] = []
+        for effect in effects:
+            if self._effect_kind_name(effect) == "move-to-location":
+                raw = self._effect_source_raw(effect)
+                character = raw.get("character") or raw.get("subject")
+                location = raw.get("location")
+                if character is not None and location is not None:
+                    specs.append({
+                        "kind": "move-to-location",
+                        "slots": {
+                            "subject": character,
+                            "location": location,
+                        },
+                    })
+            child_effects = tuple(getattr(effect, "effects", ()) or ())
+            if child_effects:
+                specs.extend(self._move_to_location_slot_specs(child_effects))
+        return tuple(specs)
+
+    def _effect_requires_slotted_targets(self, effects: tuple[Any, ...]) -> bool:
+        return bool(self._move_to_location_slot_specs(effects))
+
+    def _slot_target_selections(
+        self,
+        state: GameState,
+        *,
+        actor: int,
+        source_id: int | None,
+        raw_target: Any,
+        event_payload: dict[str, Any] | None = None,
+    ) -> tuple[tuple[int, ...], ...]:
+        from .targeting import (
+            TargetQueryContext,
+            apply_target_protections,
+            enumerate_target_selections,
+            normalize_target_descriptor,
+            resolve_candidate_targets,
+        )
+
+        descriptor = normalize_target_descriptor(raw_target)
+        if descriptor is None:
+            return ()
+
+        context = TargetQueryContext(
+            actor=actor,
+            source_id=source_id,
+            event_payload=dict(event_payload or {}),
+        )
+        candidates = apply_target_protections(
+            state,
+            self,
+            resolve_candidate_targets(state, self, descriptor, context),
+            descriptor,
+            context,
+        )
+        return enumerate_target_selections(candidates, descriptor, candidate_kind="card")
+
+    def _enumerate_move_to_location_slotted_targets(
+        self,
+        state: GameState,
+        *,
+        actor: int,
+        source_id: int | None,
+        spec: dict[str, Any],
+        event_payload: dict[str, Any] | None = None,
+    ) -> tuple[dict[str, Any], ...]:
+        slots = spec.get("slots", {})
+        subject_options = self._slot_target_selections(
+            state,
+            actor=actor,
+            source_id=source_id,
+            raw_target=slots.get("subject"),
+            event_payload=event_payload,
+        )
+        location_options = self._slot_target_selections(
+            state,
+            actor=actor,
+            source_id=source_id,
+            raw_target=slots.get("location"),
+            event_payload=event_payload,
+        )
+
+        result: list[dict[str, Any]] = []
+        for subjects in subject_options:
+            if not subjects:
+                continue
+            for locations in location_options:
+                if len(locations) != 1:
+                    continue
+                result.append({
+                    "kind": "move-to-location",
+                    "subject": tuple(subjects),
+                    "location": tuple(locations),
+                })
+        return tuple(result)
+
     def _apply_end_turn(self, state: GameState, action: Action) -> None:
         player = action.actor
         if not state.players[player].deck:
@@ -2760,6 +2977,21 @@ class GameEngine:
 
         actions: list[Action] = []
         query_context = TargetQueryContext(actor=player, source_id=source)
+        for spec in self._move_to_location_slot_specs(self.card_def(state, source).effects):
+            for slotted in self._enumerate_move_to_location_slotted_targets(
+                state,
+                actor=player,
+                source_id=source,
+                spec=spec,
+            ):
+                subjects = tuple(slotted.get("subject", ()) or ())
+                actions.append(Action(
+                    ACTION_PLAY_CARD,
+                    actor=player,
+                    card=source,
+                    target=subjects[0] if subjects else None,
+                    choice={"slotted_targets": slotted},
+                ))
         for desc in self._effect_target_descriptors_for_card(state, source):
             raw = resolve_candidate_targets(state, self, desc, query_context)
             candidates = apply_target_protections(state, self, raw, desc, query_context)
@@ -2982,6 +3214,8 @@ class GameEngine:
         *,
         choice: Any = None,
         current_targets: tuple[int, ...] = (),
+        slotted_targets: dict[str, Any] | None = None,
+        destinations: tuple[dict[str, Any], ...] = (),
     ) -> None:
         card = self.card_def(state, source)
         selected_targets = current_targets or ((target,) if target is not None else ())
@@ -3000,6 +3234,8 @@ class GameEngine:
                 target=target,
                 choice=choice,
                 current_targets=current_targets,
+                slotted_targets=slotted_targets,
+                destinations=destinations,
             ),
         )
 
@@ -3095,6 +3331,12 @@ class GameEngine:
             event_payload.update(entry.event.event_snapshot or {})
             event_payload.update(entry.event.payload or {})
         selected_targets = tuple(entry.resolution_input.get("targets", ()) or ())
+        slotted_targets = entry.resolution_input.get("slotted_targets")
+        destinations = tuple(
+            dict(destination)
+            for destination in entry.resolution_input.get("destinations", ()) or ()
+            if isinstance(destination, dict)
+        )
         event_target = (
             event_payload.get('event_target_id')
             or event_payload.get('target_id')
@@ -3119,6 +3361,8 @@ class GameEngine:
             trigger_source=entry.source_id,
             trigger_subject=entry.event.subject_card_id if entry.event else None,
             current_targets=current_targets,
+            slotted_targets=slotted_targets,
+            destinations=destinations,
         )
 
         # Count pending effects BEFORE resolution to detect if effects create new pending
@@ -3230,6 +3474,10 @@ class GameEngine:
         else:
             selected_targets = ()
 
+        slotted_targets = None
+        if action.choice and isinstance(action.choice, dict):
+            slotted_targets = action.choice.get("slotted_targets")
+
         if self._activated_ability_requires_target(ability):
             valid_selections = self._activated_ability_target_selections(state, ability, action.actor)
             if valid_selections is None or selected_targets not in valid_selections:
@@ -3240,7 +3488,13 @@ class GameEngine:
             return
 
         # Execute the ability (validates costs, pays them, and resolves effects)
-        result = use_ability(state, self, ability, selected_targets=selected_targets)
+        result = use_ability(
+            state,
+            self,
+            ability,
+            selected_targets=selected_targets,
+            slotted_targets=slotted_targets,
+        )
 
         if not result.success:
             raise AbilityExecutionError(f"Ability execution failed: {result.error_message}")
@@ -3633,6 +3887,16 @@ class GameEngine:
                 trigger_subject=raw.get("trigger_subject"),
                 current_targets=selected_targets,
                 context_targets=tuple(raw.get("context_targets", ()) or ()),
+                slotted_targets=raw.get("slotted_targets") or raw.get("resolution_input", {}).get("slotted_targets"),
+                destinations=tuple(
+                    dict(destination)
+                    for destination in (
+                        raw.get("destinations")
+                        or raw.get("resolution_input", {}).get("destinations")
+                        or ()
+                    )
+                    if isinstance(destination, dict)
+                ),
             )
 
             # Resolve the effect

@@ -108,6 +108,7 @@ ENGINE_EFFECT_MAP = {
     "deal-damage": "deal_damage",
     "put-damage": "deal_damage",
     "move-damage": "move_damage",
+    "move-to-location": "move_to_location",
     "remove-damage": "remove_damage",
     "banish": "banish",
     "discard": "discard",
@@ -161,10 +162,12 @@ TARGET_MAP = {
     "ACTOR": "actor",
     "YOU": "you",
     "OPPONENT": "opponent",
+    "OPPONENTS": "opponent",
     "EACH_OPPONENT": "opponent",
     "ALL_PLAYERS": "each_player",
     "EACH_PLAYER": "each_player",
     "CHOSEN_CHARACTER": "chosen_character",
+    "UP_TO_2_CHOSEN_CHARACTERS": "up_to_2_chosen_characters",
     "CHOSEN_CHARACTER_OF_YOURS": "your_chosen_character",
     "YOUR_CHOSEN_CHARACTER": "your_chosen_character",
     "YOUR_CHOSEN_DAMAGED_CHARACTER": "your_chosen_damaged_character",
@@ -172,6 +175,7 @@ TARGET_MAP = {
     "ANOTHER_CHOSEN_CHARACTER_OF_YOURS": "another_chosen_character_of_yours",
     "CHOSEN_EXERTED_CHARACTER": "chosen_exerted_character",
     "CHOSEN_OPPOSING_CHARACTER": "opposing_character",
+    "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS": "chosen_opposing_character_3_strength_or_less",
     "CHOSEN_DAMAGED_CHARACTER": "chosen_damaged_character",
     "CHOSEN_DAMAGED_OPPOSING_CHARACTER": "chosen_opposing_damaged_character",
     "CHOSEN_OPPOSING_DAMAGED_CHARACTER": "chosen_opposing_damaged_character",
@@ -186,6 +190,7 @@ TARGET_MAP = {
     "CHOSEN_CHARACTER_IN_DISCARD": "chosen_character_in_discard",
     "CHOSEN_CARD_FROM_DECK": "chosen_card_from_deck",
     "YOUR_CHARACTERS": "your_characters",
+    "YOUR_EXERTED_CHARACTERS": "your_exerted_characters",
     "YOUR_OTHER_CHARACTERS": "your_other_characters",
     "YOUR_ITEMS": "your_items",
     "YOUR_LOCATIONS": "your_locations",
@@ -220,6 +225,7 @@ SUPPORTED_TARGET_ALIASES = frozenset({
     "ACTOR",
     "YOU",
     "OPPONENT",
+    "OPPONENTS",
     "EACH_OPPONENT",
     "ALL_PLAYERS",
     "EACH_PLAYER",
@@ -238,6 +244,7 @@ SUPPORTED_TARGET_ALIASES = frozenset({
     "DAMAGED_CHARACTERS",
     "OPPOSING_DAMAGED_CHARACTERS",
     "CHOSEN_CHARACTER",
+    "UP_TO_2_CHOSEN_CHARACTERS",
     "CHOSEN_CHARACTER_OF_YOURS",
     "YOUR_CHOSEN_CHARACTER",
     "YOUR_CHOSEN_DAMAGED_CHARACTER",
@@ -245,6 +252,7 @@ SUPPORTED_TARGET_ALIASES = frozenset({
     "ANOTHER_CHOSEN_CHARACTER_OF_YOURS",
     "CHOSEN_EXERTED_CHARACTER",
     "CHOSEN_OPPOSING_CHARACTER",
+    "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS",
     "CHOSEN_DAMAGED_CHARACTER",
     "CHOSEN_DAMAGED_OPPOSING_CHARACTER",
     "CHOSEN_OPPOSING_DAMAGED_CHARACTER",
@@ -258,6 +266,7 @@ SUPPORTED_TARGET_ALIASES = frozenset({
     "CHOSEN_CARD_IN_DISCARD",
     "CHOSEN_CHARACTER_IN_DISCARD",
     "CHOSEN_CARD_FROM_DECK",
+    "YOUR_EXERTED_CHARACTERS",
     "CHARACTERS_HERE",
     "CHARACTER_HERE",
     "YOUR_ACTIONS",
@@ -404,6 +413,7 @@ SUPPORTED_TRIGGER_EFFECT_KINDS = frozenset({
     "deal-damage",
     "put-damage",
     "move-damage",
+    "move-to-location",
     "remove-damage",
     "banish",
     "discard",
@@ -1414,6 +1424,39 @@ def _source_target_count_supported(count: Any) -> bool:
     return False
 
 
+def _source_context_target_shape_supported(raw: dict[str, Any]) -> bool:
+    selector = raw.get("selector") or raw.get("type") or raw.get("kind")
+    if selector not in {
+        "self",
+        "source",
+        "trigger-source",
+        "trigger-subject",
+        "trigger-destination",
+        "event-source",
+        "event-target",
+        "attacker",
+        "defender",
+        "previous-target",
+        "selected-first",
+        "selected-all",
+    }:
+        return False
+
+    zones = tuple(raw.get("zones", (raw.get("zone"),) if raw.get("zone") else ()))
+    if any(zone not in {"play", "discard", "hand", "inkwell", "deck"} for zone in zones):
+        return False
+
+    card_types = tuple(raw.get("cardTypes", (raw.get("cardType"),) if raw.get("cardType") else ()))
+    if any(card_type not in {"card", "character", "item", "location", "action"} for card_type in card_types):
+        return False
+
+    count = raw.get("count", 1)
+    if count not in {1, "1", None}:
+        return False
+
+    return _target_filters_supported(raw)
+
+
 def _source_target_shape_supported(raw: Any) -> bool:
     if not isinstance(raw, dict):
         return False
@@ -1422,6 +1465,9 @@ def _source_target_shape_supported(raw: Any) -> bool:
         return raw.get("ref") in SUPPORTED_TARGET_REFS
 
     selector = raw.get("selector") or raw.get("type") or raw.get("kind")
+
+    if _source_context_target_shape_supported(raw):
+        return True
 
     if selector == "all":
         zones = tuple(raw.get("zones", (raw.get("zone"),) if raw.get("zone") else ("play",)))
@@ -1476,6 +1522,7 @@ def _target_filters_supported(raw: dict[str, Any]) -> bool:
         "undamaged",
         "exerted",
         "ready",
+        "challenged-this-turn",
         "strength-comparison",
         "cost-comparison",
         "classification",

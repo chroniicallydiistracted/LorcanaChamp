@@ -101,6 +101,8 @@ SELECTOR_ALIASES: dict[str, str] = {
     "chosen_damaged_character": "chosen_damaged_character",
     "chosen_opposing_damaged_character": "chosen_opposing_damaged_character",
     "chosen_damaged_opposing_character": "chosen_opposing_damaged_character",
+    "up_to_2_chosen_characters": "up_to_2_chosen_characters",
+    "chosen_opposing_character_3_strength_or_less": "chosen_opposing_character_3_strength_or_less",
     "chosen_character_in_discard": "chosen_character_in_discard",
     "chosen_card_in_discard": "chosen_card_from_discard",
     "chosen_card_from_discard": "chosen_card_from_discard",
@@ -129,6 +131,7 @@ SELECTOR_ALIASES: dict[str, str] = {
 
     # Character set targets
     "your_characters": "your_characters",
+    "your_exerted_characters": "your_exerted_characters",
     "your_other_characters": "your_other_characters",
     "opposing_characters": "opposing_characters",
     "all_characters": "all_characters",
@@ -145,6 +148,7 @@ SELECTOR_ALIASES: dict[str, str] = {
     "controller": "you",
     "actor": "you",
     "opponent": "opponent",
+    "opponents": "opponent",
     "each_player": "each_player",
     "challenging_player": "challenging_player",
 }
@@ -807,6 +811,16 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor | None:
             owner="any",
         )
 
+    if selector == "up_to_2_chosen_characters":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=0,
+            max_count=2,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            owner="any",
+        )
+
     if selector == "chosen_exerted_character":
         return TargetDescriptor(
             selector=selector,
@@ -844,6 +858,19 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor | None:
             zones=(ZONE_PLAY,),
             card_types=(CARD_CHARACTER,),
             controller="opponent",
+        )
+
+    if selector == "chosen_opposing_character_3_strength_or_less":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=1,
+            max_count=1,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            controller="opponent",
+            filters=(
+                {"type": "strength-comparison", "comparison": "less-or-equal", "value": 3},
+            ),
         )
 
     if selector == "chosen_damaged_character":
@@ -1072,6 +1099,17 @@ def _create_descriptor_for_selector(selector: str) -> TargetDescriptor | None:
             controller="you",
         )
 
+    if selector == "your_exerted_characters":
+        return TargetDescriptor(
+            selector=selector,
+            min_count=0,
+            max_count=_PLURAL_SELECTOR_MAX,
+            zones=(ZONE_PLAY,),
+            card_types=(CARD_CHARACTER,),
+            owner="you",
+            filters=({"type": "exerted"},),
+        )
+
     if selector == "your_other_characters":
         return TargetDescriptor(
             selector=selector,
@@ -1218,6 +1256,10 @@ _FILTER_FIELD_ALIASES: dict[str, str] = {
     "exerted": "exerted",
     "ready": "ready",
     "drying": "drying",
+    "challenged_this_turn": "challenged_this_turn",
+    "challengedThisTurn": "challenged_this_turn",
+    "was_challenged_this_turn": "challenged_this_turn",
+    "wasChallengedThisTurn": "challenged_this_turn",
 }
 
 
@@ -1289,6 +1331,9 @@ def _apply_filter(
 
     if filter_type == "ready":
         return not inst.exerted
+
+    if filter_type == "challenged-this-turn":
+        return bool(getattr(inst, "was_challenged_this_turn", False))
 
     if filter_type == "drying":
         return inst.drying
@@ -1397,6 +1442,10 @@ def _apply_filter(
         if bool(normalized["drying"]) != inst.drying:
             return False
 
+    if "challenged_this_turn" in normalized:
+        if bool(normalized["challenged_this_turn"]) != bool(getattr(inst, "was_challenged_this_turn", False)):
+            return False
+
     # location_instance_id filter
     if "location_instance_id" in normalized:
         loc = normalized["location_instance_id"]
@@ -1454,15 +1503,14 @@ def _compare_int(actual: int, comparison: str, threshold: int) -> bool:
 def requires_explicit_target_selection(selector: str) -> bool:
     """Return True when *selector* requires a player target choice.
 
-    Lorcanito represents these prompts as selector="chosen".  The Python
-    migration still carries enum-expanded aliases such as YOUR_CHOSEN_CHARACTER
-    and ANOTHER_CHOSEN_CHARACTER_OF_YOURS; keep that mapping centralized so
-    engine and protection behavior do not drift.
+    Chosen selectors and enum-expanded chosen aliases require explicit target
+    input. Collection aliases like your_exerted_characters do not.
     """
     return (
         selector.startswith("chosen")
         or selector.startswith("your_chosen")
         or selector.startswith("another_chosen")
+        or selector.startswith("up_to_")
         or selector == "opposing_character"
     )
 

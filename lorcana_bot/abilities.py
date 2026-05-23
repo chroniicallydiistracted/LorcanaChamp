@@ -352,6 +352,7 @@ def execute_ability_effects(
     ability: ActivatedAbility,
     *,
     selected_targets: tuple[int, ...] = (),
+    slotted_targets: dict[str, Any] | None = None,
 ) -> None:
     """Execute the effects of an activated ability.
 
@@ -379,6 +380,7 @@ def execute_ability_effects(
         trigger_source=None,
         trigger_subject=None,
         current_targets=selected_targets,
+        slotted_targets=slotted_targets,
     )
 
     if selected_targets:
@@ -587,6 +589,7 @@ def use_ability(
     ability: ActivatedAbility,
     *,
     selected_targets: tuple[int, ...] = (),
+    slotted_targets: dict[str, Any] | None = None,
 ) -> AbilityUseResult:
     """Execute an activated ability: validate costs, pay costs, resolve effects.
 
@@ -634,7 +637,13 @@ def use_ability(
 
     # Execute effects
     try:
-        execute_ability_effects(state, engine, ability, selected_targets=selected_targets)
+        execute_ability_effects(
+            state,
+            engine,
+            ability,
+            selected_targets=selected_targets,
+            slotted_targets=slotted_targets,
+        )
         return AbilityUseResult(
             success=True,
             costs_paid=paid_costs,

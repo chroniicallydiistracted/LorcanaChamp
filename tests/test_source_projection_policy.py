@@ -4,6 +4,7 @@ from lorcana_bot.card_logic import ExecutionStatus
 from lorcana_bot.cards import CardDef
 from lorcana_bot.importers.lorcanito_source_mapper import (
     map_raw_ability,
+    map_raw_target,
     project_action_effects,
     project_keywords,
     project_unsupported_abilities,
@@ -241,3 +242,39 @@ def test_microfix20_lorcanito_exactly_count_target_projects():
     assert ability.execution_status == ExecutionStatus.EXECUTABLE
     assert ability.effects[0].target is not None
     assert ability.effects[0].target.execution_status == ExecutionStatus.EXECUTABLE
+
+
+def test_microfix21_remaining_target_aliases_project():
+    for alias in (
+        "OPPONENTS",
+        "UP_TO_2_CHOSEN_CHARACTERS",
+        "CHOSEN_OPPOSING_CHARACTER_3_STRENGTH_OR_LESS",
+        "YOUR_EXERTED_CHARACTERS",
+    ):
+        target = map_raw_target(alias)
+        assert target.execution_status == ExecutionStatus.EXECUTABLE
+
+
+def test_microfix21_selector_self_object_is_executable():
+    target = map_raw_target({
+        "selector": "self",
+        "count": 1,
+        "owner": "any",
+        "zones": ["play"],
+        "cardTypes": ["character"],
+    })
+
+    assert target.execution_status == ExecutionStatus.EXECUTABLE
+
+
+def test_microfix21_challenged_this_turn_filter_is_supported():
+    target = map_raw_target({
+        "selector": "chosen",
+        "count": 1,
+        "owner": "any",
+        "zones": ["play"],
+        "cardTypes": ["character"],
+        "filter": [{"type": "challenged-this-turn"}],
+    })
+
+    assert target.execution_status == ExecutionStatus.EXECUTABLE

@@ -49,10 +49,24 @@ from tests.conftest import find_card, put_card
     ("alias", "expected"),
     [
         ("chosen_character", {"card_types": (CARD_CHARACTER,)}),
+        (
+            "up_to_2_chosen_characters",
+            {"card_types": (CARD_CHARACTER,), "min_count": 0, "max_count": 2},
+        ),
         ("chosen_card", {"card_types": ()}),
         ("chosen_item", {"card_types": (CARD_ITEM,)}),
         ("chosen_location", {"card_types": (CARD_LOCATION,)}),
         ("chosen_opposing_character", {"card_types": (CARD_CHARACTER,), "controller": "opponent"}),
+        (
+            "chosen_opposing_character_3_strength_or_less",
+            {
+                "card_types": (CARD_CHARACTER,),
+                "controller": "opponent",
+                "filters": (
+                    {"type": "strength-comparison", "comparison": "less-or-equal", "value": 3},
+                ),
+            },
+        ),
         (
             "chosen_damaged_character",
             {"card_types": (CARD_CHARACTER,), "filters": ({"type": "damaged", "min": 1},)},
@@ -85,6 +99,15 @@ from tests.conftest import find_card, put_card
         ("event_target", {"zones": ()}),
         ("trigger_subject", {"zones": ()}),
         ("your_characters", {"card_types": (CARD_CHARACTER,), "controller": "you", "max_count": None}),
+        (
+            "your_exerted_characters",
+            {
+                "card_types": (CARD_CHARACTER,),
+                "owner": "you",
+                "filters": ({"type": "exerted"},),
+                "max_count": None,
+            },
+        ),
         (
             "your_other_characters",
             {"card_types": (CARD_CHARACTER,), "controller": "you", "exclude_self": True, "max_count": None},
@@ -152,6 +175,22 @@ def test_normalize_target_descriptor_accepts_lorcanito_and_python_field_names():
         filters=({"type": "exerted"},),
         exclude_self=True,
     )
+
+
+def test_normalize_selector_self_object_keeps_lorcanito_constraints():
+    descriptor = normalize_target_descriptor({
+        "selector": "self",
+        "count": 1,
+        "owner": "any",
+        "zones": [ZONE_PLAY],
+        "cardTypes": [CARD_CHARACTER],
+    })
+
+    assert descriptor is not None
+    assert descriptor.selector == "self"
+    assert descriptor.zones == (ZONE_PLAY,)
+    assert descriptor.card_types == (CARD_CHARACTER,)
+    assert descriptor.owner == "any"
 
 
 def test_normalize_target_descriptor_supports_multi_target_counts():
@@ -308,6 +347,25 @@ def test_enumerate_target_selections_uses_lorcanito_min_max_count_semantics():
         (1, 3),
         (2, 3),
     )
+
+
+def test_challenged_this_turn_filter_matches_runtime_flag(engine, state):
+    challenged = put_card(state, engine, 0, "Amber Guard", ZONE_PLAY)
+    unchallenged = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY, exclude={challenged})
+    state.cards[challenged].was_challenged_this_turn = True
+
+    descriptor = normalize_target_descriptor({
+        "selector": "chosen",
+        "count": 1,
+        "zones": [ZONE_PLAY],
+        "cardTypes": [CARD_CHARACTER],
+        "filter": [{"type": "challenged-this-turn"}],
+    })
+
+    assert descriptor is not None
+    context = TargetQueryContext(actor=0)
+    assert resolve_candidate_card_ids(state, engine, descriptor, context) == (challenged,)
+    assert unchallenged not in resolve_candidate_card_ids(state, engine, descriptor, context)
 
 
 def test_infer_candidate_zones_matches_lorcanito_action_selection_zones(engine, state):

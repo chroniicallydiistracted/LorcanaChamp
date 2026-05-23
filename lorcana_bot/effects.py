@@ -29,6 +29,10 @@ class EffectResolver:
             raise EffectResolutionError(f"Unsupported effect kind {effect.kind}")
 
         kind = effect.kind
+        if self._effect_chosen_by_opponent(effect) and context.source is not None and not context.current_targets:
+            self._create_opponent_target_pending(state, effect, context)
+            return
+
         if kind == "sequence":
             self.resolve_many(state, effect.effects, context)
         elif kind == "optional":
@@ -81,6 +85,8 @@ class EffectResolver:
                 )
         elif kind == "move_damage":
             self._resolve_move_damage(state, effect, context)
+        elif kind == "move_to_location":
+            self._resolve_move_to_location(state, effect, context)
         elif kind == "remove_damage":
             for target in self._target_cards(state, effect, context):
                 self.engine._remove_damage_eventful(
@@ -227,6 +233,52 @@ class EffectResolver:
                 context_targets=context.context_targets,
             )
             self.resolve_many(state, effect.effects, nested_context)
+
+    def _effect_chosen_by_opponent(self, effect: EffectDef) -> bool:
+        raw = self._source_raw(effect)
+        target = raw.get("target")
+        return target is not None and str(raw.get("chosenBy") or raw.get("chosen_by") or "").casefold() == "opponent"
+
+    def _create_opponent_target_pending(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        from .pending_effects import create_pending_effect
+
+        raw = self._source_raw(effect)
+        target = raw.get("target") or effect.target
+        if target is None:
+            raise EffectResolutionError("chosenBy opponent effect requires a target")
+
+        source_card_id = self.engine.card_def(state, context.source).id if context.source in state.cards else None
+        pending_target = "target" if isinstance(effect.target, dict) else effect.target
+        pending_effect = EffectDef(
+            kind=effect.kind,
+            amount=effect.amount,
+            target=pending_target,
+            value=effect.value,
+            keyword=effect.keyword,
+            effects=effect.effects,
+            condition=effect.condition,
+            optional=effect.optional,
+            duration=effect.duration,
+            raw=effect.raw,
+        )
+
+        create_pending_effect(
+            state,
+            controller_id=context.actor,
+            chooser_id=state.opponent(context.actor),
+            source_id=context.source,
+            source_card_id=source_card_id,
+            effects=(pending_effect,),
+            origin="opponent_choice",
+            raw={
+                "requirement_kind": "opponent_choice",
+                "choice_type": "target",
+                "target": target,
+                "target_actor": context.actor,
+                "selected_targets": context.current_targets,
+                "context_targets": context.context_targets,
+            },
+        )
 
     def _condition_matches(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> bool:
         condition = effect.condition or {}
@@ -741,6 +793,71 @@ class EffectResolver:
                 apply_resist=False,
             )
 
+    def _resolve_move_to_location(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
+        raw = self._source_raw(effect)
+        slotted = context.slotted_targets if isinstance(context.slotted_targets, dict) else None
+
+        character_ids: tuple[int, ...] = ()
+        location_ids: tuple[int, ...] = ()
+
+        if slotted and slotted.get("kind") == "move-to-location":
+            character_ids = tuple(int(cid) for cid in slotted.get("subject", ()) or ())
+            location_ids = tuple(int(cid) for cid in slotted.get("location", ()) or ())
+        else:
+            character_target = raw.get("character") or raw.get("subject")
+            location_target = raw.get("location")
+
+            if character_target is not None:
+                character_effect = EffectDef("select_target", target=character_target, raw={"raw": {"target": character_target}})
+                character_ids = tuple(self._target_cards(state, character_effect, context, require_target=False))
+
+            if location_target is not None:
+                location_effect = EffectDef("select_target", target=location_target, raw={"raw": {"target": location_target}})
+                location_ids = tuple(self._target_cards(state, location_effect, context, require_target=False))
+
+        if raw.get("includeSelf") is True and context.source is not None:
+            source_card = self.engine.card_def(state, context.source)
+            if source_card.card_type == "character":
+                character_ids = tuple(dict.fromkeys((*character_ids, context.source)))
+
+        if len(location_ids) != 1:
+            raise EffectResolutionError("move-to-location requires exactly one location target")
+
+        location_id = int(location_ids[0])
+        if location_id not in state.cards or self.engine.card_def(state, location_id).card_type != "location":
+            raise EffectResolutionError("move-to-location location target must be a location")
+
+        moved_any = False
+        for character_id in character_ids:
+            if character_id not in state.cards:
+                continue
+            if self.engine.card_def(state, character_id).card_type != "character":
+                continue
+            if state.cards[character_id].zone != ZONE_PLAY:
+                continue
+            previous_location = state.cards[character_id].location_instance_id
+            state.cards[character_id].location_instance_id = location_id
+            moved_any = True
+            self.engine.emit_event(
+                state,
+                "CARD_MOVED_TO_LOCATION",
+                actor=context.actor,
+                source=character_id,
+                target=location_id,
+                payload={
+                    "player_id": context.actor,
+                    "subject_card_id": character_id,
+                    "location_id": location_id,
+                    "from_zone": f"location:{previous_location}" if previous_location is not None else ZONE_PLAY,
+                    "to_zone": f"location:{location_id}",
+                    "source_card_id": context.source,
+                    "trigger_source_card_id": context.source,
+                },
+            )
+
+        if not moved_any and not raw.get("includeSelf"):
+            return
+
     def _resolve_return_from_discard(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
         raw = effect.raw.get("raw") if isinstance(effect.raw.get("raw"), dict) else effect.raw
         if raw.get("target") not in {"CONTROLLER", "controller"}:
@@ -1148,16 +1265,21 @@ class EffectResolver:
             )
 
     def _resolve_put_card_on_top(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
-        """Handle put_card_on_top effect - move card to top of deck.
+        """Move selected/resolved cards to the top of their owners' decks.
 
-        The card to move is determined by context.choice or the pending effect selection.
+        Lorcanito uses selected target order when the player supplied ordering.
+        The last moved to index 0 becomes the final top card, so reverse selected
+        order when placing multiple cards on top.
         """
-        # The card to move should be specified in context.choice
-        card_id = context.choice
-        if card_id is None:
-            return
+        targets = tuple(context.current_targets or ())
+        if not targets:
+            targets = tuple(self._target_cards(state, effect, context, require_target=False))
+        if not targets and context.choice is not None:
+            targets = (int(context.choice),)
 
-        if card_id in state.cards:
+        for card_id in reversed(tuple(int(cid) for cid in targets)):
+            if card_id not in state.cards:
+                continue
             self.engine._move_card_eventful(
                 state,
                 card_id,
@@ -1169,16 +1291,19 @@ class EffectResolver:
             )
 
     def _resolve_put_card_on_bottom(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> None:
-        """Handle put_card_on_bottom effect - move card to bottom of deck.
+        """Move selected/resolved cards to the bottom of their owners' decks.
 
-        Moves all resolved targets for selector:all shapes, or a selected
-        context.choice card for legacy pending routing.
+        For ordering: player-choice, current_targets carries the selected order.
         """
-        targets = self._target_cards(state, effect, context, require_target=False)
+        targets = tuple(context.current_targets or ())
+        if not targets:
+            targets = tuple(self._target_cards(state, effect, context, require_target=False))
         if not targets and context.choice is not None:
-            targets = [int(context.choice)]
+            targets = (int(context.choice),)
 
-        for card_id in targets:
+        # Keep supplied order for bottom movement; deck moves without an index
+        # append to the bottom in current engine state movement semantics.
+        for card_id in tuple(int(cid) for cid in targets):
             if card_id not in state.cards:
                 continue
             self.engine._move_card_eventful(

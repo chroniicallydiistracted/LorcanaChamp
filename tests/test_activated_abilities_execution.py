@@ -99,7 +99,7 @@ def _make_source_effect(kind: str, **kwargs) -> SourceEffectDef:
         target=target,
         amount=kwargs.get("amount"),
         effects=kwargs.get("effects", ()),
-        raw={},
+        raw=kwargs.get("raw", {}),
     )
 
 
@@ -228,6 +228,76 @@ class TestUseAbilityAction:
         assert next_state.cards[2].damage == 1
         assert next_state.cards[3].damage == 1
         assert next_state.cards[4].damage == 0
+
+    def test_move_to_location_activated_ability_uses_slotted_targets(self):
+        db = MagicMock(spec=CardDatabase)
+
+        source_card = _make_card_def("move_source", card_type="item", abilities=[
+            _make_source_ability(
+                "move_to_location",
+                costs=[],
+                effects=[
+                    _make_source_effect(
+                        "move-to-location",
+                        raw={
+                            "character": {
+                                "selector": "chosen",
+                                "count": 1,
+                                "owner": "you",
+                                "zones": ["play"],
+                                "cardTypes": ["character"],
+                            },
+                            "location": {
+                                "selector": "chosen",
+                                "count": 1,
+                                "owner": "you",
+                                "zones": ["play"],
+                                "cardTypes": ["location"],
+                            },
+                        },
+                    ),
+                ],
+            )
+        ])
+        character_card = _make_card_def("friendly_character")
+        location_card = _make_card_def("friendly_location", card_type="location")
+
+        def get_card(card_id):
+            if card_id == "move_source":
+                return source_card
+            if card_id == "friendly_location":
+                return location_card
+            return character_card
+
+        db.get.side_effect = get_card
+
+        engine = GameEngine(db)
+        state = GameState(
+            players=[PlayerState(), PlayerState()],
+            cards={
+                1: CardInstance(instance_id=1, card_id="move_source", owner=0, controller=0),
+                2: CardInstance(instance_id=2, card_id="friendly_character", owner=0, controller=0),
+                3: CardInstance(instance_id=3, card_id="friendly_location", owner=0, controller=0),
+            },
+        )
+        for cid in (1, 2, 3):
+            state.cards[cid].zone = ZONE_PLAY
+        state.players[0].play = [1, 2, 3]
+        state.phase = PHASE_MAIN
+        state.active_player = 0
+
+        use_ability_actions = [action for action in engine.legal_actions(state, 0) if action.kind == ACTION_USE_ABILITY]
+
+        assert len(use_ability_actions) == 1
+        assert use_ability_actions[0].choice["slotted_targets"] == {
+            "kind": "move-to-location",
+            "subject": (2,),
+            "location": (3,),
+        }
+
+        next_state = engine.apply_action(state, use_ability_actions[0])
+
+        assert next_state.cards[2].location_instance_id == 3
 
     def test_use_ability_exerts_source(self):
         """USE_ABILITY with exert cost should exert the source."""
