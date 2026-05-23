@@ -1,6 +1,7 @@
 import json
 
 from lorcana_bot.importers.lorcanito_source_importer import import_lorcanito_source_cards
+from lorcana_bot.importers.lorcanito_source_mapper import _get_amount_shape
 
 
 def test_source_importer_loads_generated_cards_and_preserves_raw():
@@ -49,3 +50,88 @@ def test_malicious_mean_and_scary_imports_with_correct_full_name():
     # Verify ability/effect structure is preserved
     assert card.effects or card.unsupported_abilities or card.source_abilities
 
+def test_lore_value_of_amount_shape_accepts_string_target_alias():
+    assert (
+        _get_amount_shape(
+            {
+                "type": "lore-value-of",
+                "target": "CHOSEN_OPPOSING_CHARACTER",
+            }
+        )
+        == "lore_value_of_target"
+    )
+
+
+def test_import_runtime_card_with_lore_value_of_string_target_alias(tmp_path):
+    payload = {
+        "schema_version": 1,
+        "cards": [
+            {
+                "id": "Ath",
+                "canonicalId": "ci_Ath",
+                "cardType": "character",
+                "name": "Abu",
+                "version": "Illusory Pachyderm",
+                "inkType": ["amethyst", "steel"],
+                "set": "008",
+                "cardNumber": 50,
+                "rarity": "uncommon",
+                "cost": 6,
+                "inkable": True,
+                "strength": 3,
+                "willpower": 7,
+                "lore": 1,
+                "classifications": ["Dreamborn", "Ally", "Illusion"],
+                "text": [
+                    {"title": "Vanish"},
+                    {
+                        "title": "GRASPING TRUNK",
+                        "description": "Whenever this character quests, gain lore equal to the {L} of chosen opposing character.",
+                    },
+                ],
+                "abilities": [
+                    {
+                        "keyword": "Vanish",
+                        "text": "Vanish",
+                        "type": "keyword",
+                    },
+                    {
+                        "id": "Ath-2",
+                        "name": "GRASPING TRUNK",
+                        "text": "GRASPING TRUNK Whenever this character quests, gain lore equal to the {L} of chosen opposing character.",
+                        "type": "triggered",
+                        "trigger": {
+                            "event": "quest",
+                            "on": "SELF",
+                            "timing": "whenever",
+                        },
+                        "effect": {
+                            "type": "gain-lore",
+                            "target": "CONTROLLER",
+                            "amount": {
+                                "type": "lore-value-of",
+                                "target": "CHOSEN_OPPOSING_CHARACTER",
+                            },
+                        },
+                    },
+                ],
+            }
+        ],
+    }
+
+    path = tmp_path / "cards.normalized.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    db, report = import_lorcanito_source_cards(path)
+
+    assert report.errors == []
+    card = db.get("Ath")
+    assert card.id == "Ath"
+    assert len(card.source_abilities) == 2
+    assert len(card.triggers) == 1
+    assert card.triggers[0].event == "quest"
+    assert card.triggers[0].effects[0].kind == "gain_lore"
+    assert card.triggers[0].effects[0].raw["raw"]["amount"] == {
+        "type": "lore-value-of",
+        "target": "CHOSEN_OPPOSING_CHARACTER",
+    }

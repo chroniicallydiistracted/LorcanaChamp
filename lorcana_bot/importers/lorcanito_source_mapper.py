@@ -933,8 +933,8 @@ def _get_amount_shape(raw_amount: Any) -> str | None:
                 return "event_snapshot_cards_under_count"
         if raw_amount.get("type") == "cards-under-self":
             return "cards_under_self"
-        if raw_amount.get("type") == "lore-value-of" and _source_target_shape_supported(raw_amount.get("target")):
-            return "lore_value_of_target"
+        if raw_amount.get("type") == "lore-value-of":
+            return "lore_value_of_target" if _source_target_reference_supported(raw_amount.get("target")) else None
         if raw_amount.get("type") == "up-to":
             try:
                 if int(raw_amount.get("value") or 0) > 0:
@@ -1214,8 +1214,21 @@ def _project_target(target: SourceTargetDef | None) -> str | None:
         return dict(target.raw)
     return None
 
+def _source_target_reference_supported(raw: Any) -> bool:
+    """Return whether a target reference used inside an amount object is supported.
 
-def _source_target_shape_supported(raw: dict[str, Any]) -> bool:
+    Lorcanito amount objects may reference targets either as string aliases
+    such as CHOSEN_OPPOSING_CHARACTER or as full selector dictionaries.
+    """
+    if isinstance(raw, str):
+        return raw in SUPPORTED_TARGET_ALIASES or raw in EXECUTABLE_TARGET_ALIASES
+    if isinstance(raw, dict):
+        return _source_target_shape_supported(raw)
+    return False
+
+def _source_target_shape_supported(raw: Any) -> bool:
+    if not isinstance(raw, dict):
+        return False
     selector = raw.get("selector") or raw.get("type") or raw.get("kind")
     if selector == "all":
         zones = tuple(raw.get("zones", (raw.get("zone"),) if raw.get("zone") else ("play",)))

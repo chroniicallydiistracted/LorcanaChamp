@@ -1,0 +1,130 @@
+{
+  "ability_type_counts": {
+    "action": 364,
+    "activated": 279,
+    "keyword": 847,
+    "replacement": 6,
+    "static": 580,
+    "triggered": 1369
+  },
+  "canonical_entries": 2860,
+  "canonical_id_mismatches": [],
+  "cards_exported": 2754,
+  "cards_missing_canonical": [
+    {
+      "canonicalKey": "P03-043-promo",
+      "cardNumber": 43,
+      "id": "Zl0",
+      "name": "Ariel",
+      "set": "P03",
+      "version": "Curious Traveler"
+    },
+    {
+      "canonicalKey": "P03-047-promo",
+      "cardNumber": 47,
+      "id": "otc",
+      "name": "Cinderella",
+      "set": "P03",
+      "version": "Resourceful Traveler"
+    },
+    {
+      "canonicalKey": "P03-045-promo",
+      "cardNumber": 45,
+      "id": "464",
+      "name": "Cruella De Vil",
+      "set": "P03",
+      "version": "Judgmental Traveler"
+    },
+    {
+      "canonicalKey": "P03-052-promo",
+      "cardNumber": 52,
+      "id": "UC4",
+      "name": "Dash Parr",
+      "set": "P03",
+      "version": "Lava Runner"
+    },
+    {
+      "canonicalKey": "P03-049-challenge",
+      "cardNumber": 49,
+      "id": "0LB",
+      "name": "Lenny",
+      "set": "P03",
+      "version": "Toy Binoculars"
+    },
+    {
+      "canonicalKey": "P03-044-promo",
+      "cardNumber": 44,
+      "id": "NKp",
+      "name": "Maleficent",
+      "set": "P03",
+      "version": "Imperious Traveler"
+    },
+    {
+      "canonicalKey": "P03-048-promo",
+      "cardNumber": 48,
+      "id": "876",
+      "name": "Pocahontas",
+      "set": "P03",
+      "version": "Steadfast Traveler"
+    },
+    {
+      "canonicalKey": "P03-046-promo",
+      "cardNumber": 46,
+      "id": "dHA",
+      "name": "Queen of Hearts",
+      "set": "P03",
+      "version": "Impatient Traveler"
+    },
+    {
+      "canonicalKey": "P03-055-promo",
+      "cardNumber": 55,
+      "id": "Fdq",
+      "name": "Violet Parr",
+      "set": "P03",
+      "version": "Learning New Powers"
+    },
+    {
+      "canonicalKey": "P03-051-challenge",
+      "cardNumber": 51,
+      "id": "Wxj",
+      "name": "Will o' the Wisp",
+      "set": "P03",
+      "version": "Forest Spirit"
+    },
+    {
+      "canonicalKey": "P03-053-challenge",
+      "cardNumber": 53,
+      "id": "N4A",
+      "name": "Woody",
+      "set": "P03",
+      "version": "Jungle Guide"
+    },
+    {
+      "canonicalKey": "P03-054-enchanted",
+      "cardNumber": 54,
+      "id": "aEL",
+      "name": "Woody",
+      "set": "P03",
+      "version": "Jungle Guide"
+    },
+    {
+      "canonicalKey": "P03-050-challenge",
+      "cardNumber": 50,
+      "id": "u1R",
+      "name": "Zipper",
+      "set": "P03",
+      "version": "Tiny Helper"
+    }
+  ],
+  "duplicate_ids": [],
+  "generated_at": "2026-05-22T23:49:40+00:00",
+  "non_serializable_marker_count": 0,
+  "outputs": {
+    "canonical_cards": "canonical-cards.json",
+    "normalized_cards": "cards.normalized.json",
+    "runtime_raw": "cards.runtime_raw.json"
+  },
+  "schema_version": 1,
+  "source_root": "/home/andre/LorcanaChamp/lorcanito-full-src-code",
+  "unknown_ability_records": 0
+}
