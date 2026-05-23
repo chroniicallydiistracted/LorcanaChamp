@@ -10,19 +10,19 @@
 
 | Reason | Count |
 |---|---:|
-| `mapped_not_executable` | 508 |
+| `mapped_not_executable` | 510 |
 | `unsupported_choice` | 394 |
-| `unsupported_condition` | 182 |
-| `unsupported_cost` | 21 |
+| `unsupported_condition` | 188 |
+| `unsupported_cost` | 23 |
 | `unsupported_engine_mechanic` | 240 |
-| `unsupported_targeting` | 808 |
-| `unsupported_trigger` | 24 |
+| `unsupported_targeting` | 477 |
+| `unsupported_trigger` | 21 |
 
 ## Examples
 
 ### `mapped_not_executable`
 
-Total detailed records: `508`
+Total detailed records: `510`
 
 - **Ariel - On Human Legs** (`WeA`)
   - Object: `ability` / `static`
@@ -282,8 +282,23 @@ Total detailed records: `394`
 
 ### `unsupported_condition`
 
-Total detailed records: `248`
+Total detailed records: `254`
 
+- **Stitch - Rock Star** (`kSG`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `y9k-2` — ADORING FANS
+  - Status: `unsupported_condition`
+  - Raw: `{"_source_index": 1, "effect": {"chooser": "CONTROLLER", "effect": {"effects": [{"target": {"ref": "trigger-subject"}, "type": "exert"}, {"condition": {"type": "if-you-do"}, "ifTrue": {"amount": 1, "target": "CONTROLLER", "type": "draw"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}, "id": "y9k-2", "name": "ADORING FANS", "text": "ADORING FANS Whenever you play a character with cost 2 or less, you may exert them to draw a card.", "trigger": {"event": "play", "on": {"cardType": "character", "controller": "you", "filters": [{"comparison": "less-or-equal", "type": "cost-comparison", "value": 2}]}, "timing": "whenever"}, "type": "triggered"}`
+- **Stitch - Rock Star** (`kSG`)
+  - Object: `effect` / `optional`
+  - Ability: `triggered` `y9k-2` — ADORING FANS
+  - Status: `unsupported_condition`
+  - Raw: `{"chooser": "CONTROLLER", "effect": {"effects": [{"target": {"ref": "trigger-subject"}, "type": "exert"}, {"condition": {"type": "if-you-do"}, "ifTrue": {"amount": 1, "target": "CONTROLLER", "type": "draw"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}`
+- **Stitch - Rock Star** (`kSG`)
+  - Object: `effect` / `sequence`
+  - Ability: `triggered` `y9k-2` — ADORING FANS
+  - Status: `unsupported_condition`
+  - Raw: `{"effects": [{"target": {"ref": "trigger-subject"}, "type": "exert"}, {"condition": {"type": "if-you-do"}, "ifTrue": {"amount": 1, "target": "CONTROLLER", "type": "draw"}, "type": "conditional"}], "type": "sequence"}`
 - **Stitch - Rock Star** (`kSG`)
   - Object: `effect` / `conditional`
   - Ability: `triggered` `y9k-2` — ADORING FANS
@@ -394,25 +409,10 @@ Total detailed records: `248`
   - Ability: `action` `ability` — None
   - Status: `unsupported_condition`
   - Raw: `{"steps": [{"target": {"cardTypes": ["character"], "count": 1, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"cardType": "character", "cost": "free", "filter": {"excludeChosenCard": true, "maxCost": {"type": "chosen-card-cost"}}, "from": "hand", "type": "play-card"}, "type": "conditional"}], "type": "sequence"}`
-- **Bibbidi Bobbidi Boo** (`GrH`)
-  - Object: `effect` / `conditional`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_condition`
-  - Raw: `{"condition": {"type": "if-you-do"}, "then": {"cardType": "character", "cost": "free", "filter": {"excludeChosenCard": true, "maxCost": {"type": "chosen-card-cost"}}, "from": "hand", "type": "play-card"}, "type": "conditional"}`
-- **Bibbidi Bobbidi Boo** (`GrH`)
-  - Object: `effect_condition` / `if-you-do`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_condition`
-  - Raw: `{"type": "if-you-do"}`
-- **Bounce** (`FHZ`)
-  - Object: `effect` / `conditional`
-  - Ability: `action` `ability` — None
-  - Status: `unsupported_condition`
-  - Raw: `{"condition": {"type": "if-you-do"}, "then": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "requireDifferentTargets": true, "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, "type": "conditional"}`
 
 ### `unsupported_cost`
 
-Total detailed records: `49`
+Total detailed records: `51`
 
 - **The Queen - Disguised Peddler** (`zX1`)
   - Object: `ability` / `activated`
@@ -672,83 +672,8 @@ Total detailed records: `240`
 
 ### `unsupported_targeting`
 
-Total detailed records: `1126`
+Total detailed records: `668`
 
-- **Cheshire Cat - Not All There** (`qpX`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `qpX-1` — LOSE SOMETHING?
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"target": {"ref": "attacker"}, "type": "banish"}, "id": "qpX-1", "name": "LOSE SOMETHING?", "sourceZones": ["play", "discard"], "text": "LOSE SOMETHING? When this character is challenged and banished, banish the challenging character.", "trigger": {"event": "challenged-and-banished", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Cheshire Cat - Not All There** (`qpX`)
-  - Object: `effect` / `banish`
-  - Ability: `triggered` `qpX-1` — LOSE SOMETHING?
-  - Status: `unsupported_targeting`
-  - Raw: `{"target": {"ref": "attacker"}, "type": "banish"}`
-- **Cheshire Cat - Not All There** (`qpX`)
-  - Object: `target` / `object`
-  - Ability: `triggered` `qpX-1` — LOSE SOMETHING?
-  - Status: `unsupported_targeting`
-  - Raw: `{"ref": "attacker"}`
-- **Dr. Facilier - Agent Provocateur** (`Af3`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `Af3-2` — INTO THE SHADOWS
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 1, "effect": {"chooser": "CONTROLLER", "effect": {"target": {"ref": "trigger-source"}, "type": "return-to-hand"}, "type": "optional"}, "id": "Af3-2", "name": "INTO THE SHADOWS", "sourceZones": ["play", "discard"], "text": "**INTO THE SHADOWS** Whenever one of your other characters is banished in a challenge, you may return that card to your hand.", "trigger": {"event": "banish", "on": "YOUR_OTHER_CHARACTERS", "restrictions": [{"type": "in-challenge"}], "timing": "whenever"}, "type": "triggered"}`
-- **Dr. Facilier - Agent Provocateur** (`Af3`)
-  - Object: `effect` / `optional`
-  - Ability: `triggered` `Af3-2` — INTO THE SHADOWS
-  - Status: `unsupported_targeting`
-  - Raw: `{"chooser": "CONTROLLER", "effect": {"target": {"ref": "trigger-source"}, "type": "return-to-hand"}, "type": "optional"}`
-- **Dr. Facilier - Agent Provocateur** (`Af3`)
-  - Object: `effect` / `return-to-hand`
-  - Ability: `triggered` `Af3-2` — INTO THE SHADOWS
-  - Status: `unsupported_targeting`
-  - Raw: `{"target": {"ref": "trigger-source"}, "type": "return-to-hand"}`
-- **Dr. Facilier - Agent Provocateur** (`Af3`)
-  - Object: `target` / `object`
-  - Ability: `triggered` `Af3-2` — INTO THE SHADOWS
-  - Status: `unsupported_targeting`
-  - Raw: `{"ref": "trigger-source"}`
-- **Elsa - Spirit of Winter** (`1t0`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `95w-2` — DEEP FREEZE
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 1, "effect": {"effects": [{"target": {"cardTypes": ["character"], "count": {"upTo": 2}, "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "exert"}, {"duration": "their-next-turn", "restriction": "cant-ready", "target": {"ref": "selected-all"}, "type": "restriction"}], "type": "sequence"}, "id": "95w-2", "name": "DEEP FREEZE", "text": "DEEP FREEZE When you play this character, exert up to 2 chosen characters. They can’t ready at the start of their next turn.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Elsa - Spirit of Winter** (`1t0`)
-  - Object: `effect` / `sequence`
-  - Ability: `triggered` `95w-2` — DEEP FREEZE
-  - Status: `unsupported_targeting`
-  - Raw: `{"effects": [{"target": {"cardTypes": ["character"], "count": {"upTo": 2}, "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "exert"}, {"duration": "their-next-turn", "restriction": "cant-ready", "target": {"ref": "selected-all"}, "type": "restriction"}], "type": "sequence"}`
-- **Elsa - Spirit of Winter** (`1t0`)
-  - Object: `effect` / `restriction`
-  - Ability: `triggered` `95w-2` — DEEP FREEZE
-  - Status: `unsupported_targeting`
-  - Raw: `{"duration": "their-next-turn", "restriction": "cant-ready", "target": {"ref": "selected-all"}, "type": "restriction"}`
-- **Elsa - Spirit of Winter** (`1t0`)
-  - Object: `target` / `object`
-  - Ability: `triggered` `95w-2` — DEEP FREEZE
-  - Status: `unsupported_targeting`
-  - Raw: `{"ref": "selected-all"}`
-- **Elsa - Spirit of Winter** (`yio`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `95w-2` — DEEP FREEZE
-  - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 1, "effect": {"effects": [{"target": {"cardTypes": ["character"], "count": {"upTo": 2}, "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "exert"}, {"duration": "their-next-turn", "restriction": "cant-ready", "target": {"ref": "selected-all"}, "type": "restriction"}], "type": "sequence"}, "id": "95w-2", "name": "DEEP FREEZE", "text": "DEEP FREEZE When you play this character, exert up to 2 chosen characters. They can’t ready at the start of their next turn.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Elsa - Spirit of Winter** (`yio`)
-  - Object: `effect` / `sequence`
-  - Ability: `triggered` `95w-2` — DEEP FREEZE
-  - Status: `unsupported_targeting`
-  - Raw: `{"effects": [{"target": {"cardTypes": ["character"], "count": {"upTo": 2}, "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "exert"}, {"duration": "their-next-turn", "restriction": "cant-ready", "target": {"ref": "selected-all"}, "type": "restriction"}], "type": "sequence"}`
-- **Elsa - Spirit of Winter** (`yio`)
-  - Object: `effect` / `restriction`
-  - Ability: `triggered` `95w-2` — DEEP FREEZE
-  - Status: `unsupported_targeting`
-  - Raw: `{"duration": "their-next-turn", "restriction": "cant-ready", "target": {"ref": "selected-all"}, "type": "restriction"}`
-- **Elsa - Spirit of Winter** (`yio`)
-  - Object: `target` / `object`
-  - Ability: `triggered` `95w-2` — DEEP FREEZE
-  - Status: `unsupported_targeting`
-  - Raw: `{"ref": "selected-all"}`
 - **Flynn Rider - Charming Rogue** (`a9K`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `qk8-1` — HERE COMES THE SMOLDER
@@ -764,66 +689,121 @@ Total detailed records: `1126`
   - Ability: `triggered` `qk8-1` — HERE COMES THE SMOLDER
   - Status: `unsupported_targeting`
   - Raw: `{"value": "CHALLENGING_PLAYER"}`
-- **Kuzco - Temperamental Emperor** (`H6u`)
+- **Magic Broom - Bucket Brigade** (`Ors`)
   - Object: `ability` / `triggered`
-  - Ability: `triggered` `1og-2` — NO TOUCHY!
+  - Ability: `triggered` `zyc-1` — SWEEP
   - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 1, "effect": {"chooser": "CONTROLLER", "effect": {"target": {"ref": "attacker"}, "type": "banish"}, "type": "optional"}, "id": "1og-2", "name": "NO TOUCHY!", "sourceZones": ["play", "discard"], "text": "NO TOUCHY! When this character is challenged and banished, you may banish the challenging character.", "trigger": {"event": "challenged-and-banished", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Kuzco - Temperamental Emperor** (`H6u`)
+  - Raw: `{"_source_index": 0, "effect": {"effect": {"intoDeck": "owner", "target": {"cardTypes": ["card"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["discard"]}, "type": "shuffle-into-deck"}, "type": "optional"}, "id": "zyc-1", "name": "SWEEP", "text": "**SWEEP** When you play this character, you may shuffle a card from any discard into its player's deck.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Magic Broom - Bucket Brigade** (`Ors`)
   - Object: `effect` / `optional`
-  - Ability: `triggered` `1og-2` — NO TOUCHY!
+  - Ability: `triggered` `zyc-1` — SWEEP
   - Status: `unsupported_targeting`
-  - Raw: `{"chooser": "CONTROLLER", "effect": {"target": {"ref": "attacker"}, "type": "banish"}, "type": "optional"}`
-- **Kuzco - Temperamental Emperor** (`H6u`)
-  - Object: `effect` / `banish`
-  - Ability: `triggered` `1og-2` — NO TOUCHY!
+  - Raw: `{"effect": {"intoDeck": "owner", "target": {"cardTypes": ["card"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["discard"]}, "type": "shuffle-into-deck"}, "type": "optional"}`
+- **Magic Broom - Bucket Brigade** (`Ors`)
+  - Object: `effect` / `shuffle-into-deck`
+  - Ability: `triggered` `zyc-1` — SWEEP
   - Status: `unsupported_targeting`
-  - Raw: `{"target": {"ref": "attacker"}, "type": "banish"}`
-- **Kuzco - Temperamental Emperor** (`H6u`)
-  - Object: `target` / `object`
-  - Ability: `triggered` `1og-2` — NO TOUCHY!
+  - Raw: `{"intoDeck": "owner", "target": {"cardTypes": ["card"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["discard"]}, "type": "shuffle-into-deck"}`
+- **Magic Broom - Bucket Brigade** (`Ors`)
+  - Object: `target` / `selector`
+  - Ability: `triggered` `zyc-1` — SWEEP
   - Status: `unsupported_targeting`
-  - Raw: `{"ref": "attacker"}`
-- **LeFou - Instigator** (`S44`)
+  - Raw: `{"cardTypes": ["card"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["discard"]}`
+- **Rapunzel - Gifted with Healing** (`mTY`)
   - Object: `ability` / `triggered`
-  - Ability: `triggered` `kll-1` — FAN THE FLAMES
+  - Ability: `triggered` `kro-1` — GLEAM AND GLOW
   - Status: `unsupported_targeting`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest", "target": {"ref": "previous-target"}, "type": "restriction"}], "type": "sequence"}, "id": "kll-1", "name": "FAN THE FLAMES", "text": "FAN THE FLAMES When you play this character, ready chosen character. They can't quest for the rest of this turn.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **LeFou - Instigator** (`S44`)
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"amount": {"type": "up-to", "value": 3}, "target": "YOUR_CHOSEN_CHARACTER", "type": "remove-damage"}, {"amount": "DAMAGE_REMOVED", "target": "CONTROLLER", "type": "draw"}], "type": "sequence"}, "id": "kro-1", "name": "GLEAM AND GLOW", "text": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Rapunzel - Gifted with Healing** (`mTY`)
   - Object: `effect` / `sequence`
-  - Ability: `triggered` `kll-1` — FAN THE FLAMES
+  - Ability: `triggered` `kro-1` — GLEAM AND GLOW
   - Status: `unsupported_targeting`
-  - Raw: `{"steps": [{"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest", "target": {"ref": "previous-target"}, "type": "restriction"}], "type": "sequence"}`
-- **LeFou - Instigator** (`S44`)
-  - Object: `effect` / `restriction`
-  - Ability: `triggered` `kll-1` — FAN THE FLAMES
+  - Raw: `{"steps": [{"amount": {"type": "up-to", "value": 3}, "target": "YOUR_CHOSEN_CHARACTER", "type": "remove-damage"}, {"amount": "DAMAGE_REMOVED", "target": "CONTROLLER", "type": "draw"}], "type": "sequence"}`
+- **Rapunzel - Gifted with Healing** (`mTY`)
+  - Object: `effect` / `remove-damage`
+  - Ability: `triggered` `kro-1` — GLEAM AND GLOW
   - Status: `unsupported_targeting`
-  - Raw: `{"duration": "this-turn", "restriction": "cant-quest", "target": {"ref": "previous-target"}, "type": "restriction"}`
+  - Raw: `{"amount": {"type": "up-to", "value": 3}, "target": "YOUR_CHOSEN_CHARACTER", "type": "remove-damage"}`
+- **Rapunzel - Gifted with Healing** (`mTY`)
+  - Object: `target` / `alias`
+  - Ability: `triggered` `kro-1` — GLEAM AND GLOW
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "YOUR_CHOSEN_CHARACTER"}`
+- **Stampede** (`0r9`)
+  - Object: `ability` / `action`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"amount": 2, "target": {"cardTypes": ["character"], "count": 1, "filter": [{"status": "damaged", "type": "status"}], "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "deal-damage"}, "type": "action"}`
+- **Stampede** (`0r9`)
+  - Object: `effect` / `deal-damage`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"amount": 2, "target": {"cardTypes": ["character"], "count": 1, "filter": [{"status": "damaged", "type": "status"}], "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "deal-damage"}`
+- **Stampede** (`0r9`)
+  - Object: `target` / `selector`
+  - Ability: `action` `ability` — None
+  - Status: `unsupported_targeting`
+  - Raw: `{"cardTypes": ["character"], "count": 1, "filter": [{"status": "damaged", "type": "status"}], "owner": "any", "selector": "chosen", "zones": ["play"]}`
+- **Belle - Hidden Archer** (`df2`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `cyn-2` — THORNY ARROWS
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 1, "effect": {"amount": "all", "target": "CHALLENGING_PLAYER", "type": "discard"}, "id": "cyn-2", "name": "THORNY ARROWS", "text": "THORNY ARROWS Whenever this character is challenged, the challenging character's player discards all cards in their hand.", "trigger": {"event": "challenged", "on": "SELF", "timing": "whenever"}, "type": "triggered"}`
+- **Belle - Hidden Archer** (`df2`)
+  - Object: `effect` / `discard`
+  - Ability: `triggered` `cyn-2` — THORNY ARROWS
+  - Status: `unsupported_targeting`
+  - Raw: `{"amount": "all", "target": "CHALLENGING_PLAYER", "type": "discard"}`
+- **Belle - Hidden Archer** (`df2`)
+  - Object: `target` / `alias`
+  - Ability: `triggered` `cyn-2` — THORNY ARROWS
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "CHALLENGING_PLAYER"}`
+- **Dopey - Always Playful** (`2Jv`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `7r7-1` — ODD ONE OUT
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"duration": "until-start-of-next-turn", "modifier": 2, "stat": "strength", "target": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS", "type": "modify-stat"}, "id": "7r7-1", "name": "ODD ONE OUT", "text": "ODD ONE OUT When this character is banished, your other Seven Dwarfs characters get +2 {S} until the start of your next turn.", "trigger": {"event": "banish", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Dopey - Always Playful** (`2Jv`)
+  - Object: `effect` / `modify-stat`
+  - Ability: `triggered` `7r7-1` — ODD ONE OUT
+  - Status: `unsupported_targeting`
+  - Raw: `{"duration": "until-start-of-next-turn", "modifier": 2, "stat": "strength", "target": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS", "type": "modify-stat"}`
+- **Dopey - Always Playful** (`2Jv`)
+  - Object: `target` / `alias`
+  - Ability: `triggered` `7r7-1` — ODD ONE OUT
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS"}`
+- **Grumpy - Bad-Tempered** (`Xv5`)
+  - Object: `ability` / `static`
+  - Ability: `static` `Xv5-1` — THERE'S TROUBLE A-BREWIN'
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 0, "effect": {"modifier": 1, "stat": "strength", "target": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS", "type": "modify-stat"}, "id": "Xv5-1", "name": "THERE'S TROUBLE A-BREWIN'", "text": "THERE'S TROUBLE A-BREWIN' Your other Seven Dwarfs characters get +1 {S}.", "type": "static"}`
+- **Grumpy - Bad-Tempered** (`Xv5`)
+  - Object: `effect` / `modify-stat`
+  - Ability: `static` `Xv5-1` — THERE'S TROUBLE A-BREWIN'
+  - Status: `unsupported_targeting`
+  - Raw: `{"modifier": 1, "stat": "strength", "target": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS", "type": "modify-stat"}`
+- **Grumpy - Bad-Tempered** (`Xv5`)
+  - Object: `target` / `alias`
+  - Ability: `static` `Xv5-1` — THERE'S TROUBLE A-BREWIN'
+  - Status: `unsupported_targeting`
+  - Raw: `{"value": "YOUR_OTHER_SEVEN_DWARFS_CHARACTERS"}`
+- **Madam Mim - Purple Dragon** (`EHY`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `12t-2` — I WIN, I WIN!
+  - Status: `unsupported_targeting`
+  - Raw: `{"_source_index": 1, "effect": {"optionLabels": ["banish her", "return another 2 chosen characters of yours to your hand"], "options": [{"target": "SELF", "type": "banish"}, {"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}], "type": "or"}, "id": "12t-2", "name": "I WIN, I WIN!", "text": "I WIN, I WIN! When you play this character, banish her or return another 2 chosen characters of yours to your hand.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Madam Mim - Purple Dragon** (`EHY`)
+  - Object: `effect` / `or`
+  - Ability: `triggered` `12t-2` — I WIN, I WIN!
+  - Status: `unsupported_targeting`
+  - Raw: `{"optionLabels": ["banish her", "return another 2 chosen characters of yours to your hand"], "options": [{"target": "SELF", "type": "banish"}, {"target": {"cardTypes": ["character"], "count": 2, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}], "type": "or"}`
 
 ### `unsupported_trigger`
 
-Total detailed records: `65`
+Total detailed records: `50`
 
-- **Cheshire Cat - Not All There** (`qpX`)
-  - Object: `trigger` / `challenged-and-banished`
-  - Ability: `triggered` `qpX-1` — LOSE SOMETHING?
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "challenged-and-banished", "on": "SELF", "timing": "when"}`
-- **Cruella De Vil - Miserable as Usual** (`UCh`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `cw0-1` — YOU'LL BE SORRY!
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 0, "effect": {"chooser": "CONTROLLER", "effect": {"target": "CHOSEN_CHARACTER", "type": "return-to-hand"}, "type": "optional"}, "id": "cw0-1", "name": "YOU'LL BE SORRY!", "sourceZones": ["play", "discard"], "text": "YOU'LL BE SORRY! When this character is challenged and banished, you may return chosen character to their player's hand.", "trigger": {"event": "challenged-and-banished", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Cruella De Vil - Miserable as Usual** (`UCh`)
-  - Object: `trigger` / `challenged-and-banished`
-  - Ability: `triggered` `cw0-1` — YOU'LL BE SORRY!
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "challenged-and-banished", "on": "SELF", "timing": "when"}`
-- **Kuzco - Temperamental Emperor** (`H6u`)
-  - Object: `trigger` / `challenged-and-banished`
-  - Ability: `triggered` `1og-2` — NO TOUCHY!
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "challenged-and-banished", "on": "SELF", "timing": "when"}`
 - **Grand Pabbie - Oldest and Wisest** (`iZk`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `qlg-1` — ANCIENT INSIGHT
@@ -844,11 +824,6 @@ Total detailed records: `65`
   - Ability: `triggered` `n2g-2` — LET YOUR POWER SHINE
   - Status: `unsupported_trigger`
   - Raw: `{"event": "remove-damage", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "during-turn", "whose": "your"}], "timing": "whenever"}`
-- **Helga Sinclair - Vengeful Partner** (`1i7`)
-  - Object: `trigger` / `challenged-and-banished`
-  - Ability: `triggered` `1eg-1` — NOTHING PERSONAL
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "challenged-and-banished", "on": "SELF", "timing": "when"}`
 - **Ursula - Deceiver of All** (`vf1`)
   - Object: `trigger` / `sing`
   - Ability: `triggered` `vf1-1` — WHAT A DEAL
@@ -859,16 +834,6 @@ Total detailed records: `65`
   - Ability: `triggered` `vf1-1` — WHAT A DEAL
   - Status: `unsupported_trigger`
   - Raw: `{"event": "sing", "on": "SELF", "timing": "whenever"}`
-- **Kuzco's Palace - Home of the Emperor** (`wbE`)
-  - Object: `trigger` / `challenged-and-banished`
-  - Ability: `triggered` `aae-1` — CITY WALLS
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "challenged-and-banished", "on": "CHARACTERS_HERE", "timing": "whenever"}`
-- **Kuzco's Palace - Home of the Emperor** (`YPI`)
-  - Object: `trigger` / `challenged-and-banished`
-  - Ability: `triggered` `aae-1` — CITY WALLS
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "challenged-and-banished", "on": "CHARACTERS_HERE", "timing": "whenever"}`
 - **Cinderella - Melody Weaver** (`Qug`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `juj-2` — BEAUTIFUL VOICE
@@ -889,16 +854,6 @@ Total detailed records: `65`
   - Ability: `triggered` `juj-2` — BEAUTIFUL VOICE
   - Status: `unsupported_trigger`
   - Raw: `{"event": "sing", "on": "SELF", "timing": "when"}`
-- **Gunther - Interior Designer** (`2U5`)
-  - Object: `trigger` / `challenged-and-banished`
-  - Ability: `triggered` `2U5-1` — SAD-EYED PUPPY
-  - Status: `unsupported_trigger`
-  - Raw: `{"challengeContext": {"role": "defender"}, "event": "challenged-and-banished", "on": "SELF", "timing": "when"}`
-- **Gale - Wind Spirit** (`Ds5`)
-  - Object: `trigger` / `challenged-and-banished`
-  - Ability: `triggered` `1u4-1` — RECURRING GUST
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "challenged-and-banished", "on": "SELF", "timing": "when"}`
 - **Archimedes - Exceptional Owl** (`8Al`)
   - Object: `ability` / `triggered`
   - Ability: `triggered` `crp-1` — MORE TO LEARN
@@ -929,3 +884,48 @@ Total detailed records: `65`
   - Ability: `triggered` `cy2-2` — SWEET DREAMS
   - Status: `unsupported_trigger`
   - Raw: `{"event": "remove-damage", "on": "YOU", "timing": "whenever"}`
+- **Dolores Madrigal - Within Earshot** (`9wm`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `9wm-1` — I HEAR YOU
+  - Status: `unsupported_trigger`
+  - Raw: `{"_source_index": 0, "effect": {"target": "OPPONENT", "type": "reveal-hand"}, "id": "9wm-1", "name": "I HEAR YOU", "text": "I HEAR YOU Whenever one of your characters sings a song, chosen opponent reveals their hand.", "trigger": {"event": "sing", "on": "YOUR_CHARACTERS", "timing": "whenever"}, "type": "triggered"}`
+- **Dolores Madrigal - Within Earshot** (`9wm`)
+  - Object: `trigger` / `sing`
+  - Ability: `triggered` `9wm-1` — I HEAR YOU
+  - Status: `unsupported_trigger`
+  - Raw: `{"event": "sing", "on": "YOUR_CHARACTERS", "timing": "whenever"}`
+- **Fix-It Felix, Jr. - Pint-Sized Hero** (`zSu`)
+  - Object: `trigger` / `leave-discard`
+  - Ability: `triggered` `b28-1` — LET'S GET TO WORK
+  - Status: `unsupported_trigger`
+  - Raw: `{"event": "leave-discard", "on": {"cardType": "character", "classification": "Racer", "controller": "you"}, "restrictions": [{"type": "to-hand"}], "timing": "whenever"}`
+- **Isabela Madrigal - In the Moment** (`pWM`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `xh0-1` — I'M TIRED OF PERFECT
+  - Status: `unsupported_trigger`
+  - Raw: `{"_source_index": 0, "effect": {"restriction": "cant-be-challenged", "target": "SELF", "type": "restriction"}, "id": "xh0-1", "name": "I'M TIRED OF PERFECT", "text": "I'M TIRED OF PERFECT Whenever one of your characters sings a song, this character can't be challenged until the start of your next turn.", "trigger": {"event": "sing", "on": "YOUR_CHARACTERS", "timing": "whenever"}, "type": "triggered"}`
+- **Isabela Madrigal - In the Moment** (`pWM`)
+  - Object: `trigger` / `sing`
+  - Ability: `triggered` `xh0-1` — I'M TIRED OF PERFECT
+  - Status: `unsupported_trigger`
+  - Raw: `{"event": "sing", "on": "YOUR_CHARACTERS", "timing": "whenever"}`
+- **Pepa Madrigal - Sensitive Sister** (`gZm`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `1km-1` — CLEAR SKIES, CLEAR SKIES
+  - Status: `unsupported_trigger`
+  - Raw: `{"_source_index": 0, "effect": {"amount": 1, "target": "CONTROLLER", "type": "gain-lore"}, "id": "1km-1", "name": "CLEAR SKIES, CLEAR SKIES", "text": "CLEAR SKIES, CLEAR SKIES Whenever one or more of your characters sings a song, gain 1 lore.", "trigger": {"event": "sing", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "once-per-song"}], "timing": "whenever"}, "type": "triggered"}`
+- **Pepa Madrigal - Sensitive Sister** (`gZm`)
+  - Object: `trigger` / `sing`
+  - Ability: `triggered` `1km-1` — CLEAR SKIES, CLEAR SKIES
+  - Status: `unsupported_trigger`
+  - Raw: `{"event": "sing", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "once-per-song"}], "timing": "whenever"}`
+- **Alma Madrigal - Accepting Grandmother** (`s3D`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `1sw-1` — THE MIRACLE IS YOU Once
+  - Status: `unsupported_trigger`
+  - Raw: `{"_source_index": 0, "effect": {"chooser": "CONTROLLER", "effect": {"target": {"count": "all", "reference": "singers", "selector": "all"}, "type": "ready"}, "type": "optional"}, "id": "1sw-1", "name": "THE MIRACLE IS YOU Once", "text": "THE MIRACLE IS YOU Once during your turn, whenever one or more of your characters sings a song, you may ready those characters.", "trigger": {"event": "sing", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "once-per-turn"}], "timing": "whenever"}, "type": "triggered"}`
+- **Alma Madrigal - Accepting Grandmother** (`s3D`)
+  - Object: `trigger` / `sing`
+  - Ability: `triggered` `1sw-1` — THE MIRACLE IS YOU Once
+  - Status: `unsupported_trigger`
+  - Raw: `{"event": "sing", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "once-per-turn"}], "timing": "whenever"}`
