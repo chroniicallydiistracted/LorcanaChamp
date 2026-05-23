@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 
 from dataclasses import dataclass
 
-from lorcana_bot.constants import CARD_CHARACTER, EVENT_PUT_CARD_UNDER, ZONE_PLAY, ZONE_UNDER
+from lorcana_bot.constants import CARD_CHARACTER, EVENT_CARD_SUNG, EVENT_PUT_CARD_UNDER, ZONE_PLAY, ZONE_UNDER
 
 if TYPE_CHECKING:
     from lorcana_bot.state import GameState
@@ -290,6 +290,25 @@ def execute_sing_together_song(
 
     for singer_id in singer_ids:
         engine._exert_eventful(state, singer_id, actor=player, source_id=singer_id, emit_event=False)
+        engine.emit_event(
+            state,
+            EVENT_CARD_SUNG,
+            actor=player,
+            source=song_card_id,
+            target=singer_id,
+            payload={
+                "player_id": player,
+                "subject_card_id": singer_id,
+                "trigger_source_card_id": song_card_id,
+                "source_card_id": song_card_id,
+                "source_card_type": "action",
+                "song_card_id": song_card_id,
+                "singer_id": singer_id,
+                "singer_ids": list(singer_ids),
+                "sung": True,
+                "cost_type": "singTogether",
+            },
+        )
 
     from_zone = state.cards[song_card_id].zone
     engine._move_card_eventful(state, song_card_id, "discard", actor=player)
@@ -1014,6 +1033,26 @@ def execute_sing_song(
     # B11: Singer exerts — NO ink payment for singing
     # Use engine helper for exert to enable proper trigger buffering
     engine._exert_eventful(state, singer_id, actor=player, source_id=singer_id, emit_event=False)
+
+    engine.emit_event(
+        state,
+        EVENT_CARD_SUNG,
+        actor=player,
+        source=song_card_id,
+        target=singer_id,
+        payload={
+            "player_id": player,
+            "subject_card_id": singer_id,
+            "trigger_source_card_id": song_card_id,
+            "source_card_id": song_card_id,
+            "source_card_type": "action",
+            "song_card_id": song_card_id,
+            "singer_id": singer_id,
+            "singer_ids": [singer_id],
+            "sung": True,
+            "cost_type": "sing",
+        },
+    )
 
     # Store pre-move state for event
     from_zone = state.cards[song_card_id].zone

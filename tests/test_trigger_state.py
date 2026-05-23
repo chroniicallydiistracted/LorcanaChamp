@@ -161,6 +161,10 @@ def test_canonical_trigger_event():
         EVENT_DAMAGE_DEALT,
         EVENT_INKED,
         EVENT_PUT_CARD_UNDER,
+        EVENT_BE_CHOSEN,
+        EVENT_CARD_LEFT_DISCARD,
+        EVENT_CARD_SUNG,
+        EVENT_DAMAGE_REMOVED,
     )
     from lorcana_bot.state import GameEvent
 
@@ -168,6 +172,10 @@ def test_canonical_trigger_event():
     assert canonical_trigger_event("TURN_START") == "start-turn"
     assert canonical_trigger_event("play") == "play"
     assert canonical_trigger_event(EVENT_INKED) == "ink"
+    assert canonical_trigger_event(EVENT_CARD_SUNG) == "sing"
+    assert canonical_trigger_event(EVENT_DAMAGE_REMOVED) == "remove-damage"
+    assert canonical_trigger_event(EVENT_CARD_LEFT_DISCARD) == "leave-discard"
+    assert canonical_trigger_event(EVENT_BE_CHOSEN) == "be-chosen"
     assert canonical_trigger_event(EVENT_CARD_DRAWN) == "draw"
     assert canonical_trigger_event(EVENT_DAMAGE_DEALT) == "deal-damage"
     assert canonical_trigger_event(EVENT_CARD_DISCARDED) == "discard"
@@ -360,6 +368,87 @@ def test_buffer_trigger_event_hydrates_put_card_under_payload_fields(state_with_
     assert pending.player_id == 0
     assert pending.subject_card_id == moved_card_id
     assert pending.event_snapshot["target_id"] == top_card_id
+
+def test_buffer_trigger_event_hydrates_sing_payload_fields(state_with_cards):
+    from lorcana_bot.constants import EVENT_CARD_SUNG
+    from lorcana_bot.state import GameEvent
+
+    event = GameEvent(
+        event_type=EVENT_CARD_SUNG,
+        actor=0,
+        source=2,
+        target=1,
+        payload={
+            "player_id": 0,
+            "subject_card_id": 1,
+            "trigger_source_card_id": 2,
+            "source_card_type": "action",
+            "song_card_id": 2,
+            "singer_id": 1,
+            "sung": True,
+        },
+    )
+
+    pending = buffer_trigger_event(state_with_cards, event)
+
+    assert pending.event == "sing"
+    assert pending.player_id == 0
+    assert pending.subject_card_id == 1
+    assert pending.trigger_source_card_id == 2
+    assert pending.source_card_type == "action"
+    assert pending.event_snapshot["song_card_id"] == 2
+    assert pending.event_snapshot["singer_id"] == 1
+
+
+def test_buffer_trigger_event_hydrates_remove_damage_payload_fields(state_with_cards):
+    from lorcana_bot.constants import EVENT_DAMAGE_REMOVED
+    from lorcana_bot.state import GameEvent
+
+    event = GameEvent(
+        event_type=EVENT_DAMAGE_REMOVED,
+        actor=0,
+        source=2,
+        target=1,
+        payload={
+            "player_id": 0,
+            "subject_card_id": 1,
+            "trigger_source_card_id": 2,
+            "damage_removed": 3,
+        },
+    )
+
+    pending = buffer_trigger_event(state_with_cards, event)
+
+    assert pending.event == "remove-damage"
+    assert pending.subject_card_id == 1
+    assert pending.trigger_source_card_id == 2
+    assert pending.event_snapshot["damage_removed"] == 3
+    assert pending.event_snapshot["healedAmount"] == 3
+    assert pending.event_snapshot["triggerAmount"] == 3
+
+
+def test_buffer_trigger_event_hydrates_leave_discard_payload_fields(state_with_cards):
+    from lorcana_bot.constants import EVENT_CARD_LEFT_DISCARD
+    from lorcana_bot.state import GameEvent
+
+    event = GameEvent(
+        event_type=EVENT_CARD_LEFT_DISCARD,
+        actor=0,
+        source=1,
+        payload={
+            "player_id": 0,
+            "subject_card_id": 1,
+            "from_zone": "discard",
+            "to_zone": "hand",
+        },
+    )
+
+    pending = buffer_trigger_event(state_with_cards, event)
+
+    assert pending.event == "leave-discard"
+    assert pending.subject_card_id == 1
+    assert pending.from_zone == "discard"
+    assert pending.to_zone == "hand"
 
 
 def test_leave_play_trigger_matches_expanded_events(simple_engine, state_with_cards):

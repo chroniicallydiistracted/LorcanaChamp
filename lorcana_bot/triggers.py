@@ -31,9 +31,11 @@ from .constants import (
     LEGACY_EVENT_MAP,
     TRIGGER_EVENT_BANISH,
     TRIGGER_EVENT_BANISH_IN_CHALLENGE,
+    TRIGGER_EVENT_BE_CHOSEN,
     TRIGGER_EVENT_CHALLENGE,
     TRIGGER_EVENT_CHALLENGED_AND_BANISHED,
     TRIGGER_EVENT_DAMAGE_DEALT,
+    TRIGGER_EVENT_REMOVE_DAMAGE,
     TRIGGER_EVENT_DISCARD,
     TRIGGER_EVENT_DRAW,
     TRIGGER_EVENT_END_TURN,
@@ -41,6 +43,7 @@ from .constants import (
     TRIGGER_EVENT_GAIN_LORE,
     TRIGGER_EVENT_INK,
     TRIGGER_EVENT_LEAVE_PLAY,
+    TRIGGER_EVENT_LEAVE_DISCARD,
     TRIGGER_EVENT_LOSE_LORE,
     TRIGGER_EVENT_MOVE,
     TRIGGER_EVENT_PLAY,
@@ -69,8 +72,10 @@ SUPPORTED_TRIGGER_EVENTS = frozenset({
     TRIGGER_EVENT_START_TURN,
     TRIGGER_EVENT_END_TURN,
     TRIGGER_EVENT_INK,
+    TRIGGER_EVENT_SING,
     TRIGGER_EVENT_MOVE,
     TRIGGER_EVENT_DISCARD,
+    TRIGGER_EVENT_LEAVE_DISCARD,
     TRIGGER_EVENT_RETURN_TO_HAND,
     TRIGGER_EVENT_DRAW,
     TRIGGER_EVENT_EXERT,
@@ -79,6 +84,8 @@ SUPPORTED_TRIGGER_EVENTS = frozenset({
     TRIGGER_EVENT_LOSE_LORE,
     TRIGGER_EVENT_SUPPORT,
     TRIGGER_EVENT_DAMAGE_DEALT,
+    TRIGGER_EVENT_REMOVE_DAMAGE,
+    TRIGGER_EVENT_BE_CHOSEN,
     TRIGGER_EVENT_PUT_CARD_UNDER,
 })
 
@@ -278,6 +285,12 @@ def buffer_trigger_event(
         payload.get("attacker_damage_dealt"),
         payload.get("attackerDamageDealt"),
     )
+    resolved_damage_removed = first_present(
+        payload.get("damage_removed"),
+        payload.get("damageRemoved"),
+        payload.get("healedAmount"),
+        payload.get("healed_amount"),
+    )
     resolved_lore_gained = first_present(
         payload.get("lore_gained"),
         payload.get("loreGained"),
@@ -301,6 +314,9 @@ def buffer_trigger_event(
         "from_zone": resolved_from_zone,
         "to_zone": resolved_to_zone,
         "damage_dealt": resolved_damage_dealt,
+        "damage_removed": resolved_damage_removed,
+        "healedAmount": resolved_damage_removed,
+        "triggerAmount": resolved_damage_removed,
         "lore_gained": resolved_lore_gained,
     })
 

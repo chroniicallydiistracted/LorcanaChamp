@@ -149,6 +149,59 @@ def test_damage_remove_damage_banish_and_return_to_hand_effects():
     assert banish_event.payload["from_zone"] == ZONE_PLAY
     assert banish_event.payload["to_zone"] == "discard"
 
+def test_remove_damage_eventful_emits_triggerable_remove_damage_event(engine, state):
+    from lorcana_bot.constants import EVENT_DAMAGE_REMOVED, ZONE_PLAY
+    from tests.conftest import put_card
+
+    source = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+    target = put_card(state, engine, 0, "Amber Guard", ZONE_PLAY, exclude=frozenset({source}), damage=3)
+
+    removed = engine._remove_damage_eventful(
+        state,
+        target,
+        2,
+        actor=0,
+        source_id=source,
+    )
+
+    assert removed == 2
+
+    event = state.event_log[-1]
+    assert event.event_type == EVENT_DAMAGE_REMOVED
+    assert event.actor == 0
+    assert event.source == source
+    assert event.target == target
+    assert event.payload["subject_card_id"] == target
+    assert event.payload["trigger_source_card_id"] == source
+    assert event.payload["damage_removed"] == 2
+
+
+def test_move_from_discard_emits_leave_discard_event(engine, state):
+    from lorcana_bot.constants import EVENT_CARD_LEFT_DISCARD, ZONE_DISCARD, ZONE_HAND, ZONE_PLAY
+    from tests.conftest import put_card
+
+    source = put_card(state, engine, 0, "Amber Recruit", ZONE_PLAY)
+    discarded = put_card(state, engine, 0, "Amber Guard", ZONE_DISCARD, exclude=frozenset({source}))
+
+    engine._move_card_eventful(
+        state,
+        discarded,
+        ZONE_HAND,
+        actor=0,
+        source_id=source,
+        controller=0,
+    )
+
+    leave_events = [event for event in state.event_log if event.event_type == EVENT_CARD_LEFT_DISCARD]
+
+    assert len(leave_events) == 1
+    assert leave_events[0].actor == 0
+    assert leave_events[0].source == source
+    assert leave_events[0].target == discarded
+    assert leave_events[0].payload["subject_card_id"] == discarded
+    assert leave_events[0].payload["from_zone"] == ZONE_DISCARD
+    assert leave_events[0].payload["to_zone"] == ZONE_HAND
+
 
 def test_ready_exert_discard_and_for_each_effects():
     engine, state = setup_effect_game()

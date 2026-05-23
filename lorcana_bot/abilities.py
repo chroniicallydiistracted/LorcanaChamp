@@ -381,6 +381,38 @@ def execute_ability_effects(
         current_targets=selected_targets,
     )
 
+    if selected_targets:
+        from lorcana_bot.constants import CARD_ACTION, CARD_CHARACTER, CARD_ITEM, EVENT_BE_CHOSEN
+
+        source_card = engine.card_def(state, ability.source_instance_id)
+        if source_card.card_type in {CARD_ACTION, CARD_ITEM, CARD_CHARACTER}:
+            seen: set[int] = set()
+            for target_id in selected_targets:
+                if target_id in seen:
+                    continue
+                seen.add(target_id)
+
+                target_inst = state.cards.get(target_id)
+                if target_inst is None:
+                    continue
+
+                engine.emit_event(
+                    state,
+                    EVENT_BE_CHOSEN,
+                    actor=target_inst.owner,
+                    source=ability.source_instance_id,
+                    target=target_id,
+                    payload={
+                        "player_id": target_inst.owner,
+                        "subject_card_id": target_id,
+                        "trigger_source_card_id": ability.source_instance_id,
+                        "source_card_id": ability.source_instance_id,
+                        "source_card_type": source_card.card_type,
+                        "controller_id": target_inst.controller,
+                        "owner_id": target_inst.owner,
+                    },
+                )
+
     # Convert source effects to EffectDef if needed
     effect_defs = _convert_source_effects(ability.effects)
 

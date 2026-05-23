@@ -22,7 +22,7 @@ from lorcana_bot.play_modes import (
     sing_together_groups,
     SingerInfo,
 )
-from lorcana_bot.constants import ACTION_SING_SONG, PHASE_MAIN
+from lorcana_bot.constants import ACTION_SING_SONG, EVENT_CARD_SUNG, PHASE_MAIN
 
 
 def _make_test_card(
@@ -445,6 +445,22 @@ class TestExecuteSingSong:
         assert len(sung_events) == 1
         assert sung_events[0].payload.get("singer_id") == 1
 
+    def test_singing_emits_canonical_sing_trigger_event(self):
+        """Singing should emit CARD_SUNG with singer as subject and song as trigger source."""
+        engine, state = self._setup_full_game_state()
+
+        execute_sing_song(state, engine, 1, 2)
+
+        sing_events = [event for event in state.event_log if event.event_type == EVENT_CARD_SUNG]
+
+        assert len(sing_events) == 1
+        assert sing_events[0].actor == 0
+        assert sing_events[0].source == 2
+        assert sing_events[0].target == 1
+        assert sing_events[0].payload["subject_card_id"] == 1
+        assert sing_events[0].payload["trigger_source_card_id"] == 2
+        assert sing_events[0].payload["source_card_type"] == "action"
+
 
 class TestSingTogether:
     def _setup_sing_together_state(self) -> tuple[GameEngine, GameState]:
@@ -479,6 +495,19 @@ class TestSingTogether:
         event = next(event for event in reversed(state.event_log) if event.event_type == "CARD_PLAYED")
         assert event.payload["cost_type"] == "singTogether"
         assert event.payload["singer_ids"] == [2, 3]
+
+    def test_sing_together_emits_one_sing_event_per_singer(self):
+        engine, state = self._setup_sing_together_state()
+
+        execute_sing_together_song(state, engine, (2, 3), 1)
+
+        sing_events = [event for event in state.event_log if event.event_type == EVENT_CARD_SUNG]
+
+        assert len(sing_events) == 2
+        assert {event.target for event in sing_events} == {2, 3}
+        assert all(event.source == 1 for event in sing_events)
+        assert all(event.payload["trigger_source_card_id"] == 1 for event in sing_events)
+        assert all(event.payload["cost_type"] == "singTogether" for event in sing_events)
 
     def test_invalid_sing_together_group_rejected_before_exerting(self):
         engine, state = self._setup_sing_together_state()

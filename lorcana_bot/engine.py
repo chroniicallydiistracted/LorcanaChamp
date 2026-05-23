@@ -25,9 +25,11 @@ from .constants import (
     CARD_CHARACTER,
     CARD_LOCATION,
     EVENT_CARD_DISCARDED,
+    EVENT_CARD_LEFT_DISCARD,
     EVENT_CARD_DRAWN,
     EVENT_CARD_EXERTED,
     EVENT_CARD_PLAYED,
+    EVENT_CARD_SUNG,
     EVENT_CARD_READIED,
     EVENT_CARD_RETURNED_TO_HAND,
     EVENT_CHALLENGE_STARTED,
@@ -35,8 +37,10 @@ from .constants import (
     EVENT_CHALLENGED_AND_BANISHED,
     EVENT_CHARACTER_BANISHED,
     EVENT_BANISH_IN_CHALLENGE,
+    EVENT_BE_CHOSEN,
     EVENT_CONCEDED,
     EVENT_DAMAGE_DEALT,
+    EVENT_DAMAGE_REMOVED,
     EVENT_INKED,
     EVENT_KEPT_HAND,
     EVENT_LOCATION_LORE_GAINED,
@@ -1596,6 +1600,28 @@ class GameEngine:
                 queue_triggers=queue_triggers,
             )
 
+        if from_zone == ZONE_DISCARD and destination != ZONE_DISCARD:
+            self.emit_event(
+                state,
+                EVENT_CARD_LEFT_DISCARD,
+                actor=resolved_actor,
+                source=source_id if source_id is not None else card_id,
+                target=card_id if source_id is not None else None,
+                payload={
+                    "player_id": resolved_actor,
+                    "card_id": card_id,
+                    "subject_card_id": card_id,
+                    "source_card_id": source_id,
+                    "trigger_source_card_id": source_id if source_id is not None else card_id,
+                    "owner_id": owner,
+                    "from_controller": from_controller,
+                    "controller_id": to_controller,
+                    "from_zone": from_zone,
+                    "to_zone": destination,
+                },
+                queue_triggers=queue_triggers,
+            )
+
         return from_zone, destination
 
     def _discard_eventful(
@@ -1961,8 +1987,9 @@ class GameEngine:
         *,
         actor: int | None = None,
         source_id: int | None = None,
+        queue_triggers: bool = True,
     ) -> int:
-        """Remove damage from one card and record a non-triggering diagnostic event."""
+        """Remove damage from one card and emit a Lorcanito-aligned remove-damage event."""
         if card_id not in state.cards:
             raise IllegalActionError(f"Unknown card instance {card_id}")
         amount = int(amount)
@@ -1976,7 +2003,7 @@ class GameEngine:
         resolved_actor = actor if actor is not None else inst.controller
         self.emit_event(
             state,
-            "DAMAGE_REMOVED",
+            EVENT_DAMAGE_REMOVED,
             actor=resolved_actor,
             source=source_id,
             target=card_id,
@@ -1985,9 +2012,12 @@ class GameEngine:
                 "card_id": card_id,
                 "subject_card_id": card_id,
                 "source_card_id": source_id,
+                "trigger_source_card_id": source_id if source_id is not None else card_id,
                 "damage_removed": removed,
+                "healedAmount": removed,
+                "triggerAmount": removed,
             },
-            queue_triggers=False,
+            queue_triggers=queue_triggers,
         )
         return removed
 
@@ -2864,6 +2894,49 @@ class GameEngine:
         rec(0, candidate_ids, [])
         return tuple(choices)
 
+    def _emit_be_chosen_events(
+        self,
+        state: GameState,
+        *,
+        actor: int,
+        source: int,
+        selected_targets: tuple[int, ...],
+    ) -> None:
+        """Emit Lorcanito-aligned be-chosen events for explicit selected targets."""
+        if not selected_targets:
+            return
+
+        source_card = self.card_def(state, source)
+        if source_card.card_type not in {CARD_ACTION, "item", CARD_CHARACTER}:
+            return
+
+        seen: set[int] = set()
+        for target_id in selected_targets:
+            if target_id in seen:
+                continue
+            seen.add(target_id)
+
+            target_inst = state.cards.get(target_id)
+            if target_inst is None:
+                continue
+
+            self.emit_event(
+                state,
+                EVENT_BE_CHOSEN,
+                actor=target_inst.owner,
+                source=source,
+                target=target_id,
+                payload={
+                    "player_id": target_inst.owner,
+                    "subject_card_id": target_id,
+                    "trigger_source_card_id": source,
+                    "source_card_id": source,
+                    "source_card_type": source_card.card_type,
+                    "controller_id": target_inst.controller,
+                    "owner_id": target_inst.owner,
+                },
+            )
+
     def _resolve_effects(
         self,
         state: GameState,
@@ -2875,6 +2948,13 @@ class GameEngine:
         current_targets: tuple[int, ...] = (),
     ) -> None:
         card = self.card_def(state, source)
+        selected_targets = current_targets or ((target,) if target is not None else ())
+        self._emit_be_chosen_events(
+            state,
+            actor=player,
+            source=source,
+            selected_targets=tuple(int(target_id) for target_id in selected_targets),
+        )
         self.effect_resolver.resolve_many(
             state,
             card.effects,

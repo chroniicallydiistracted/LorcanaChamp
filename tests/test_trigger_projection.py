@@ -1003,6 +1003,73 @@ def test_challenged_and_banished_with_attacker_ref_projects():
     assert projected[0].effects[0].kind == "banish"
     assert projected[0].effects[0].target == {"ref": "attacker"}
 
+def test_microfix17_supported_trigger_events_project_except_boost():
+    from lorcana_bot.card_logic import ExecutionStatus
+    from lorcana_bot.importers.lorcanito_source_mapper import map_raw_ability
+
+    supported_events = (
+        "sing",
+        "remove-damage",
+        "be-chosen",
+        "leave-discard",
+    )
+
+    for event_name in supported_events:
+        ability = map_raw_ability({
+            "id": f"{event_name}-test",
+            "type": "triggered",
+            "trigger": {
+                "event": event_name,
+                "on": "SELF",
+                "timing": "when",
+            },
+            "effect": {
+                "type": "draw",
+                "amount": 1,
+                "target": "CONTROLLER",
+            },
+        })
+
+        assert ability.trigger is not None
+        assert ability.trigger.event == event_name
+        assert ability.trigger.execution_status == ExecutionStatus.EXECUTABLE
+
+        card = CardDef(
+            id=f"{event_name}_card",
+            full_name=f"{event_name} Card",
+            ink="amber",
+            cost=2,
+            inkable=True,
+            card_type="character",
+            strength=1,
+            willpower=2,
+            lore=1,
+            source_abilities=(ability,),
+        )
+
+        projected = project_triggers(card)
+
+        assert len(projected) == 1
+        assert projected[0].event == event_name
+
+    boost_ability = map_raw_ability({
+        "id": "boost-test",
+        "type": "triggered",
+        "trigger": {
+            "event": "boost",
+            "on": "SELF",
+            "timing": "whenever",
+        },
+        "effect": {
+            "type": "draw",
+            "amount": 1,
+            "target": "CONTROLLER",
+        },
+    })
+
+    assert boost_ability.trigger is not None
+    assert boost_ability.trigger.execution_status == ExecutionStatus.UNSUPPORTED_TRIGGER
+
 
 class TestMicrofix3CConditionProjection:
     """Tests for microfix 3C condition projection."""
