@@ -100,8 +100,6 @@ unsupported_choice,ability,triggered,unsupported_choice,E5w,Gaston - Intellectua
 unsupported_choice,effect,scry,unsupported_choice,E5w,Gaston - Intellectual Powerhouse,character,002,147,14c-2,triggered,DEVELOPED BRAIN,unsupported_choice
 mapped_not_executable,ability,static,mapped_not_executable,yh1,Gaston - Scheming Suitor,character,002,83,1xf-1,static,"YES, I'M INTIMIDATING",mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,4Ol,Grand Duke - Advisor to the King,character,002,9,126-1,static,"YES, YOUR MAJESTY",mapped_not_executable
-unsupported_trigger,ability,triggered,unsupported_trigger,iZk,Grand Pabbie - Oldest and Wisest,character,002,148,qlg-1,triggered,ANCIENT INSIGHT,unsupported_trigger
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,iZk,Grand Pabbie - Oldest and Wisest,character,002,148,qlg-1,triggered,ANCIENT INSIGHT,unsupported_trigger
 unsupported_targeting,ability,static,unsupported_targeting,Xv5,Grumpy - Bad-Tempered,character,002,10,Xv5-1,static,THERE'S TROUBLE A-BREWIN',unsupported_targeting
 unsupported_targeting,effect,modify-stat,unsupported_targeting,Xv5,Grumpy - Bad-Tempered,character,002,10,Xv5-1,static,THERE'S TROUBLE A-BREWIN',unsupported_targeting
 unsupported_targeting,target,alias,unsupported_targeting,Xv5,Grumpy - Bad-Tempered,character,002,10,Xv5-1,static,THERE'S TROUBLE A-BREWIN',unsupported_targeting
@@ -150,8 +148,6 @@ mapped_not_executable,ability,static,mapped_not_executable,qvr,Peter Pan's Shado
 unsupported_targeting,ability,triggered,unsupported_targeting,VtO,Queen of Hearts - Quick-Tempered,character,002,90,hry-1,triggered,ROYAL RAGE,unsupported_targeting
 unsupported_targeting,effect,deal-damage,unsupported_targeting,VtO,Queen of Hearts - Quick-Tempered,character,002,90,hry-1,triggered,ROYAL RAGE,unsupported_targeting
 unsupported_targeting,target,alias,unsupported_targeting,VtO,Queen of Hearts - Quick-Tempered,character,002,90,hry-1,triggered,ROYAL RAGE,unsupported_targeting
-unsupported_trigger,ability,triggered,unsupported_trigger,q6B,Rapunzel - Gifted Artist,character,002,19,n2g-2,triggered,LET YOUR POWER SHINE,unsupported_trigger
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,q6B,Rapunzel - Gifted Artist,character,002,19,n2g-2,triggered,LET YOUR POWER SHINE,unsupported_trigger
 unsupported_targeting,ability,triggered,unsupported_targeting,jfe,Ratigan - Very Large Mouse,character,002,121,1wj-1,triggered,THIS IS MY KINGDOM,unsupported_targeting
 unsupported_targeting,effect,sequence,unsupported_targeting,jfe,Ratigan - Very Large Mouse,character,002,121,1wj-1,triggered,THIS IS MY KINGDOM,unsupported_targeting
 unsupported_targeting,effect,exert,unsupported_targeting,jfe,Ratigan - Very Large Mouse,character,002,121,1wj-1,triggered,THIS IS MY KINGDOM,unsupported_targeting
@@ -309,13 +305,11 @@ unsupported_choice,effect,scry,unsupported_choice,NlL,Tinker Bell - Generous Fai
 mapped_not_executable,ability,static,mapped_not_executable,gsz,Treasure Guardian - Protector of the Cave,character,003,58,1bw-2,static,WHO DISTURBS MY SLUMBER?,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,7rS,Trigger - Not-So-Sharp Shooter,character,003,126,125-1,static,OLD BETSY,mapped_not_executable
 unsupported_condition,ability,triggered,unsupported_condition,vf1,Ursula - Deceiver of All,character,003,91,vf1-1,triggered,WHAT A DEAL,unsupported_condition
-unsupported_trigger,trigger,sing,unsupported_trigger,vf1,Ursula - Deceiver of All,character,003,91,vf1-1,triggered,WHAT A DEAL,unsupported_condition
 unsupported_condition,effect,optional,unsupported_condition,vf1,Ursula - Deceiver of All,character,003,91,vf1-1,triggered,WHAT A DEAL,unsupported_condition
 unsupported_condition,effect,sequence,unsupported_condition,vf1,Ursula - Deceiver of All,character,003,91,vf1-1,triggered,WHAT A DEAL,unsupported_condition
 unsupported_condition,effect,conditional,unsupported_condition,vf1,Ursula - Deceiver of All,character,003,91,vf1-1,triggered,WHAT A DEAL,unsupported_condition
 unsupported_condition,effect_condition,if-you-do,unsupported_condition,vf1,Ursula - Deceiver of All,character,003,91,vf1-1,triggered,WHAT A DEAL,unsupported_condition
 unsupported_condition,ability,triggered,unsupported_condition,mEx,Ursula - Deceiver of All,character,003,212,vf1-1,triggered,WHAT A DEAL,unsupported_condition
-unsupported_trigger,trigger,sing,unsupported_trigger,mEx,Ursula - Deceiver of All,character,003,212,vf1-1,triggered,WHAT A DEAL,unsupported_condition
 unsupported_condition,effect,optional,unsupported_condition,mEx,Ursula - Deceiver of All,character,003,212,vf1-1,triggered,WHAT A DEAL,unsupported_condition
 unsupported_condition,effect,sequence,unsupported_condition,mEx,Ursula - Deceiver of All,character,003,212,vf1-1,triggered,WHAT A DEAL,unsupported_condition
 unsupported_condition,effect,conditional,unsupported_condition,mEx,Ursula - Deceiver of All,character,003,212,vf1-1,triggered,WHAT A DEAL,unsupported_condition
@@ -407,10 +401,6 @@ unsupported_choice,ability,activated,unsupported_choice,Hx7,Bruno Madrigal - Und
 unsupported_choice,effect,sequence,unsupported_choice,Hx7,Bruno Madrigal - Undetected Uncle,character,004,39,13f-2,activated,YOU JUST HAVE TO SEE IT,unsupported_choice
 unsupported_choice,effect,name-a-card,unsupported_choice,Hx7,Bruno Madrigal - Undetected Uncle,character,004,39,13f-2,activated,YOU JUST HAVE TO SEE IT,unsupported_choice
 mapped_not_executable,ability,static,mapped_not_executable,XGm,Chi-Fu - Imperial Advisor,character,004,177,m5z-1,static,OVERLY CAUTIOUS,mapped_not_executable
-unsupported_trigger,ability,triggered,unsupported_trigger,Qug,Cinderella - Melody Weaver,character,004,4,juj-2,triggered,BEAUTIFUL VOICE,unsupported_trigger
-unsupported_trigger,trigger,sing,unsupported_trigger,Qug,Cinderella - Melody Weaver,character,004,4,juj-2,triggered,BEAUTIFUL VOICE,unsupported_trigger
-unsupported_trigger,ability,triggered,unsupported_trigger,V2A,Cinderella - Melody Weaver,character,004,205,juj-2,triggered,BEAUTIFUL VOICE,unsupported_trigger
-unsupported_trigger,trigger,sing,unsupported_trigger,V2A,Cinderella - Melody Weaver,character,004,205,juj-2,triggered,BEAUTIFUL VOICE,unsupported_trigger
 mapped_not_executable,ability,static,mapped_not_executable,52U,Dang Hu - Talon Chief,character,004,142,tq9-1,static,YOU BETTER TALK FAST,mapped_not_executable
 unsupported_cost,ability,keyword,unsupported_cost,Mnw,Diablo - Devoted Herald,character,004,70,mnw-1,keyword,,unsupported_cost
 unsupported_cost,cost,discardCardType,unsupported_cost,Mnw,Diablo - Devoted Herald,character,004,70,mnw-1,keyword,,unsupported_cost
@@ -916,12 +906,6 @@ mapped_not_executable,ability,static,mapped_not_executable,H1M,Aladdin - Researc
 unsupported_targeting,ability,triggered,unsupported_targeting,zB6,Anastasia - Bossy Stepsister,character,007,113,6rw-1,triggered,"OH, I HATE THIS!",unsupported_targeting
 unsupported_targeting,effect,discard,unsupported_targeting,zB6,Anastasia - Bossy Stepsister,character,007,113,6rw-1,triggered,"OH, I HATE THIS!",unsupported_targeting
 unsupported_targeting,target,alias,unsupported_targeting,zB6,Anastasia - Bossy Stepsister,character,007,113,6rw-1,triggered,"OH, I HATE THIS!",unsupported_targeting
-unsupported_trigger,ability,triggered,unsupported_trigger,8Al,Archimedes - Exceptional Owl,character,007,76,crp-1,triggered,MORE TO LEARN,unsupported_trigger
-unsupported_trigger,trigger,be-chosen,unsupported_trigger,8Al,Archimedes - Exceptional Owl,character,007,76,crp-1,triggered,MORE TO LEARN,unsupported_trigger
-unsupported_trigger,ability,triggered,unsupported_trigger,t37,Aurora - Waking Beauty,character,007,14,cy2-2,triggered,SWEET DREAMS,unsupported_trigger
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,t37,Aurora - Waking Beauty,character,007,14,cy2-2,triggered,SWEET DREAMS,unsupported_trigger
-unsupported_trigger,ability,triggered,unsupported_trigger,ALL,Aurora - Waking Beauty,character,007,205,cy2-2,triggered,SWEET DREAMS,unsupported_trigger
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,ALL,Aurora - Waking Beauty,character,007,205,cy2-2,triggered,SWEET DREAMS,unsupported_trigger
 mapped_not_executable,ability,static,mapped_not_executable,ye2,Baloo - Ol' Iron Paws,character,007,142,ye2-1,static,FIGHT LIKE A BEAR,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,7jV,Baymax - Low Battery,character,007,87,10p-1,static,SHHHHH,mapped_not_executable
 unsupported_choice,ability,triggered,unsupported_choice,ibv,Baymax - Upgraded Robot,character,007,175,10n-2,triggered,ADVANCED SCANNER,unsupported_choice
@@ -939,15 +923,12 @@ unsupported_choice,effect,choice,unsupported_choice,K6M,Daisy Duck - Multitalent
 unsupported_choice,ability,triggered,unsupported_choice,RK6,Dawson - Puzzling Sleuth,character,007,161,1t5-1,triggered,BE SENSIBLE,unsupported_choice
 unsupported_choice,effect,optional,unsupported_choice,RK6,Dawson - Puzzling Sleuth,character,007,161,1t5-1,triggered,BE SENSIBLE,unsupported_choice
 unsupported_choice,effect,scry,unsupported_choice,RK6,Dawson - Puzzling Sleuth,character,007,161,1t5-1,triggered,BE SENSIBLE,unsupported_choice
-unsupported_trigger,ability,triggered,unsupported_trigger,9wm,Dolores Madrigal - Within Earshot,character,007,78,9wm-1,triggered,I HEAR YOU,unsupported_trigger
-unsupported_trigger,trigger,sing,unsupported_trigger,9wm,Dolores Madrigal - Within Earshot,character,007,78,9wm-1,triggered,I HEAR YOU,unsupported_trigger
 unsupported_engine_mechanic,ability,static,unsupported_engine_mechanic,Vy6,Donald Duck - Flustered Sorcerer,character,007,73,ability,static,OBFUSCATE!,unsupported_engine_mechanic
 unsupported_engine_mechanic,effect,win-condition-modification,unsupported_engine_mechanic,Vy6,Donald Duck - Flustered Sorcerer,character,007,73,ability,static,OBFUSCATE!,unsupported_engine_mechanic
 unsupported_engine_mechanic,ability,static,unsupported_engine_mechanic,KYT,Donald Duck - Flustered Sorcerer,character,007,209,ability,static,OBFUSCATE!,unsupported_engine_mechanic
 unsupported_engine_mechanic,effect,win-condition-modification,unsupported_engine_mechanic,KYT,Donald Duck - Flustered Sorcerer,character,007,209,ability,static,OBFUSCATE!,unsupported_engine_mechanic
 mapped_not_executable,ability,static,mapped_not_executable,XeV,Dr. Calico - Green-Eyed Man,character,007,181,uk6-1,static,YOU'RE BEGINNING TO IRK ME,mapped_not_executable
 unsupported_targeting,ability,triggered,unsupported_targeting,zSu,"Fix-It Felix, Jr. - Pint-Sized Hero",character,007,22,b28-1,triggered,LET'S GET TO WORK,unsupported_targeting
-unsupported_trigger,trigger,leave-discard,unsupported_trigger,zSu,"Fix-It Felix, Jr. - Pint-Sized Hero",character,007,22,b28-1,triggered,LET'S GET TO WORK,unsupported_targeting
 unsupported_targeting,effect,optional,unsupported_targeting,zSu,"Fix-It Felix, Jr. - Pint-Sized Hero",character,007,22,b28-1,triggered,LET'S GET TO WORK,unsupported_targeting
 unsupported_targeting,effect,sequence,unsupported_targeting,zSu,"Fix-It Felix, Jr. - Pint-Sized Hero",character,007,22,b28-1,triggered,LET'S GET TO WORK,unsupported_targeting
 unsupported_targeting,effect,restriction,unsupported_targeting,zSu,"Fix-It Felix, Jr. - Pint-Sized Hero",character,007,22,b28-1,triggered,LET'S GET TO WORK,unsupported_targeting
@@ -982,8 +963,6 @@ unsupported_targeting,target,selector,unsupported_targeting,dNZ,Hiro Hamada - Ar
 unsupported_targeting,ability,static,unsupported_targeting,dNZ,Hiro Hamada - Armor Designer,character,007,214,zri-3,static,YOU CAN BE WAY MORE,unsupported_targeting
 unsupported_targeting,effect,gain-keyword,unsupported_targeting,dNZ,Hiro Hamada - Armor Designer,character,007,214,zri-3,static,YOU CAN BE WAY MORE,unsupported_targeting
 unsupported_targeting,target,selector,unsupported_targeting,dNZ,Hiro Hamada - Armor Designer,character,007,214,zri-3,static,YOU CAN BE WAY MORE,unsupported_targeting
-unsupported_trigger,ability,triggered,unsupported_trigger,pWM,Isabela Madrigal - In the Moment,character,007,25,xh0-1,triggered,I'M TIRED OF PERFECT,unsupported_trigger
-unsupported_trigger,trigger,sing,unsupported_trigger,pWM,Isabela Madrigal - In the Moment,character,007,25,xh0-1,triggered,I'M TIRED OF PERFECT,unsupported_trigger
 mapped_not_executable,ability,static,mapped_not_executable,haz,John Silver - Vengeful Pirate,character,007,109,1p4-1,static,DRAWN TO A FIGHT,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,TUI,Kakamora - Band of Pirates,character,007,192,ability,static,SHOWBOATING,mapped_not_executable
 unsupported_choice,ability,activated,unsupported_choice,F39,Kida - Creative Thinker,character,007,164,13v-2,activated,KEY TO THE PUZZLE,unsupported_choice
@@ -1025,8 +1004,6 @@ unsupported_condition,effect_condition,if-you-do,unsupported_condition,TnS,Monsi
 mapped_not_executable,ability,static,mapped_not_executable,DJD,Orville - Albatross Air,character,007,194,1jn-1,static,"WELCOME ABOARD, FOLKS",mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,ooN,Pacha - Trekmate,character,007,102,19c-1,static,FULL PACK,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,Dl9,Penny the Orphan - Clever Child,character,007,171,szl-1,static,OUR BOTTLE WORKED!,mapped_not_executable
-unsupported_trigger,ability,triggered,unsupported_trigger,gZm,Pepa Madrigal - Sensitive Sister,character,007,37,1km-1,triggered,"CLEAR SKIES, CLEAR SKIES",unsupported_trigger
-unsupported_trigger,trigger,sing,unsupported_trigger,gZm,Pepa Madrigal - Sensitive Sister,character,007,37,1km-1,triggered,"CLEAR SKIES, CLEAR SKIES",unsupported_trigger
 unsupported_targeting,ability,static,unsupported_targeting,uxF,Perdita - Playful Mother,character,007,2,ehi-2,static,DON'T BE AFRAID,unsupported_targeting
 unsupported_targeting,effect,gain-keyword,unsupported_targeting,uxF,Perdita - Playful Mother,character,007,2,ehi-2,static,DON'T BE AFRAID,unsupported_targeting
 unsupported_targeting,target,alias,unsupported_targeting,uxF,Perdita - Playful Mother,character,007,2,ehi-2,static,DON'T BE AFRAID,unsupported_targeting
@@ -1101,15 +1078,9 @@ unsupported_targeting,effect,ready,unsupported_targeting,x8u,Alice - Courageous 
 unsupported_targeting,target,selector,unsupported_targeting,x8u,Alice - Courageous Keyholder,character,008,127,65f-1,triggered,THIS WAY OUT,unsupported_targeting
 unsupported_targeting,effect,restriction,unsupported_targeting,x8u,Alice - Courageous Keyholder,character,008,127,65f-1,triggered,THIS WAY OUT,unsupported_targeting
 unsupported_targeting,target,selector,unsupported_targeting,x8u,Alice - Courageous Keyholder,character,008,127,65f-1,triggered,THIS WAY OUT,unsupported_targeting
-unsupported_trigger,ability,triggered,unsupported_trigger,s3D,Alma Madrigal - Accepting Grandmother,character,008,34,1sw-1,triggered,THE MIRACLE IS YOU Once,unsupported_trigger
-unsupported_trigger,trigger,sing,unsupported_trigger,s3D,Alma Madrigal - Accepting Grandmother,character,008,34,1sw-1,triggered,THE MIRACLE IS YOU Once,unsupported_trigger
-unsupported_trigger,ability,triggered,unsupported_trigger,07V,Antonio Madrigal - Friend to All,character,008,5,v9i-1,triggered,OF COURSE THEY CAN COME,unsupported_trigger
-unsupported_trigger,trigger,sing,unsupported_trigger,07V,Antonio Madrigal - Friend to All,character,008,5,v9i-1,triggered,OF COURSE THEY CAN COME,unsupported_trigger
 mapped_not_executable,ability,static,mapped_not_executable,LcR,Arthur - Determined Squire,character,008,168,LcR-1,static,NO MORE BOOKS,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,7bC,Bill the Lizard - Chimney Sweep,character,008,90,tc2-1,static,NOTHING TO IT,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,9Ny,Bolt - Down but Not Out,character,008,29,1q7-1,static,NONE OF YOUR POWERS ARE WORKING,mapped_not_executable
-unsupported_trigger,ability,triggered,unsupported_trigger,7WL,Bruno Madrigal - Singing Seer,character,008,20,1cp-2,triggered,BRIGHT FUTURE,unsupported_trigger
-unsupported_trigger,trigger,sing,unsupported_trigger,7WL,Bruno Madrigal - Singing Seer,character,008,20,1cp-2,triggered,BRIGHT FUTURE,unsupported_trigger
 unsupported_targeting,ability,triggered,unsupported_targeting,3AG,Captain Hook - The Pirate King,character,008,109,1na-2,triggered,GIVE ‘EM ALL YOU GOT!,unsupported_targeting
 unsupported_targeting,effect,sequence,unsupported_targeting,3AG,Captain Hook - The Pirate King,character,008,109,1na-2,triggered,GIVE ‘EM ALL YOU GOT!,unsupported_targeting
 unsupported_targeting,effect,modify-stat,unsupported_targeting,3AG,Captain Hook - The Pirate King,character,008,109,1na-2,triggered,GIVE ‘EM ALL YOU GOT!,unsupported_targeting
@@ -1326,8 +1297,6 @@ unsupported_engine_mechanic,ability,triggered,unsupported_engine_mechanic,Hjw,Go
 unsupported_engine_mechanic,effect,optional,unsupported_engine_mechanic,Hjw,Goofy - Set for Adventure,character,009,211,1yc-1,triggered,FAMILY VACATION Once,unsupported_engine_mechanic
 unsupported_engine_mechanic,effect,sequence,unsupported_engine_mechanic,Hjw,Goofy - Set for Adventure,character,009,211,1yc-1,triggered,FAMILY VACATION Once,unsupported_engine_mechanic
 unsupported_engine_mechanic,effect,move-to-location,unsupported_engine_mechanic,Hjw,Goofy - Set for Adventure,character,009,211,1yc-1,triggered,FAMILY VACATION Once,unsupported_engine_mechanic
-unsupported_trigger,ability,triggered,unsupported_trigger,0Js,Grand Pabbie - Oldest and Wisest,character,009,150,qlg-1,triggered,ANCIENT INSIGHT,unsupported_trigger
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,0Js,Grand Pabbie - Oldest and Wisest,character,009,150,qlg-1,triggered,ANCIENT INSIGHT,unsupported_trigger
 mapped_not_executable,ability,static,mapped_not_executable,j6N,Jafar - Keeper of Secrets,character,009,38,1u7-1,static,HIDDEN WONDERS,mapped_not_executable
 unsupported_choice,ability,triggered,unsupported_choice,LWg,Jafar - Lamp Thief,character,009,59,eye-1,triggered,I AM YOUR MASTER NOW,unsupported_choice
 unsupported_choice,effect,sequence,unsupported_choice,LWg,Jafar - Lamp Thief,character,009,59,eye-1,triggered,I AM YOUR MASTER NOW,unsupported_choice
@@ -1380,10 +1349,8 @@ unsupported_choice,effect,scry,unsupported_choice,0eJ,Pongo - Determined Father,
 mapped_not_executable,ability,static,mapped_not_executable,Xee,Powerline - Musical Superstar,character,009,117,yez-1,static,ELECTRIC MOVE,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,eva,Powerline - Musical Superstar,character,009,215,yez-1,static,ELECTRIC MOVE,mapped_not_executable
 unsupported_choice,ability,triggered,unsupported_choice,PmB,Powerline - World's Greatest Rock Star,character,009,110,k9i-3,triggered,MASH-UP,unsupported_choice
-unsupported_trigger,trigger,sing,unsupported_trigger,PmB,Powerline - World's Greatest Rock Star,character,009,110,k9i-3,triggered,MASH-UP,unsupported_choice
 unsupported_choice,effect,scry,unsupported_choice,PmB,Powerline - World's Greatest Rock Star,character,009,110,k9i-3,triggered,MASH-UP,unsupported_choice
 unsupported_choice,ability,triggered,unsupported_choice,3wE,Powerline - World's Greatest Rock Star,character,009,233,k9i-3,triggered,MASH-UP,unsupported_choice
-unsupported_trigger,trigger,sing,unsupported_trigger,3wE,Powerline - World's Greatest Rock Star,character,009,233,k9i-3,triggered,MASH-UP,unsupported_choice
 unsupported_choice,effect,scry,unsupported_choice,3wE,Powerline - World's Greatest Rock Star,character,009,233,k9i-3,triggered,MASH-UP,unsupported_choice
 unsupported_targeting,ability,triggered,unsupported_targeting,5fm,Prince Phillip - Vanquisher of Foes,character,009,73,1db-3,triggered,SWIFT AND SURE,unsupported_targeting
 unsupported_targeting,effect,banish,unsupported_targeting,5fm,Prince Phillip - Vanquisher of Foes,character,009,73,1db-3,triggered,SWIFT AND SURE,unsupported_targeting
@@ -1747,8 +1714,6 @@ unsupported_targeting,ability,triggered,unsupported_targeting,rkl,Kristoff - Icy
 unsupported_targeting,effect,optional,unsupported_targeting,rkl,Kristoff - Icy Explorer,character,011,51,ryn-1,triggered,HIDDEN DEPTHS,unsupported_targeting
 unsupported_targeting,effect,put-on-bottom,unsupported_targeting,rkl,Kristoff - Icy Explorer,character,011,51,ryn-1,triggered,HIDDEN DEPTHS,unsupported_targeting
 unsupported_targeting,target,selector,unsupported_targeting,rkl,Kristoff - Icy Explorer,character,011,51,ryn-1,triggered,HIDDEN DEPTHS,unsupported_targeting
-unsupported_trigger,ability,triggered,unsupported_trigger,rkl,Kristoff - Icy Explorer,character,011,51,ryn-2,triggered,STROKE OF LUCK,unsupported_trigger
-unsupported_trigger,trigger,leave-discard,unsupported_trigger,rkl,Kristoff - Icy Explorer,character,011,51,ryn-2,triggered,STROKE OF LUCK,unsupported_trigger
 mapped_not_executable,ability,static,mapped_not_executable,wIl,Launchpad - Hideout Defender,character,011,172,158-1,static,STAND GUARD,mapped_not_executable
 mapped_not_executable,ability,replacement,mapped_not_executable,Vf6,Lilo - Bundled Up,character,011,195,Vf6-1,replacement,EXTRA LAYERS,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,pzM,Lilo - Snow Artist,character,011,2,12l-1,static,CREATIVE INSPIRATION,mapped_not_executable
@@ -1824,10 +1789,6 @@ unsupported_targeting,effect,put-on-bottom,unsupported_targeting,8Qz,Taran - Mag
 unsupported_targeting,target,selector,unsupported_targeting,8Qz,Taran - Magically Armed,character,011,44,u75-2,triggered,WEAKEN THE CAULDRON,unsupported_targeting
 mapped_not_executable,ability,static,mapped_not_executable,AqR,Tinker Bell - Snowflake Collector,character,011,48,t9a-1,static,FLURRY OF DELIGHT,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,AqR,Tinker Bell - Snowflake Collector,character,011,48,t9a-2,static,SPECTACULAR FIND,mapped_not_executable
-unsupported_trigger,ability,triggered,unsupported_trigger,WP5,Tod - Knows All the Tricks,character,011,92,15s-3,triggered,IMPRESSIVE LEAPS,unsupported_trigger
-unsupported_trigger,trigger,be-chosen,unsupported_trigger,WP5,Tod - Knows All the Tricks,character,011,92,15s-3,triggered,IMPRESSIVE LEAPS,unsupported_trigger
-unsupported_trigger,ability,triggered,unsupported_trigger,D1D,Tod - Knows All the Tricks,character,011,230,15s-3,triggered,IMPRESSIVE LEAPS,unsupported_trigger
-unsupported_trigger,trigger,be-chosen,unsupported_trigger,D1D,Tod - Knows All the Tricks,character,011,230,15s-3,triggered,IMPRESSIVE LEAPS,unsupported_trigger
 unsupported_targeting,ability,triggered,unsupported_targeting,43t,Tod - Playful Kit,character,011,90,43t-1,triggered,LOOK AT THIS!,unsupported_targeting
 unsupported_targeting,effect,choice,unsupported_targeting,43t,Tod - Playful Kit,character,011,90,43t-1,triggered,LOOK AT THIS!,unsupported_targeting
 unsupported_targeting,effect,gain-keyword,unsupported_targeting,43t,Tod - Playful Kit,character,011,90,43t-1,triggered,LOOK AT THIS!,unsupported_targeting
@@ -1934,18 +1895,14 @@ mapped_not_executable,ability,static,mapped_not_executable,Qwc,Scrooge's Countin
 mapped_not_executable,ability,static,mapped_not_executable,Qwc,Scrooge's Counting House - Ebenezer's Office,location,011,134,v62-3,static,,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,m43,Alien - True Believer,character,012,83,m43-1,static,WE ARE ONE,mapped_not_executable
 mapped_not_executable,ability,static,mapped_not_executable,EVP,Alien - True Believer,character,012,229,m43-1,static,WE ARE ONE,mapped_not_executable
-unsupported_trigger,ability,triggered,unsupported_trigger,HdV,Alma Madrigal - Keeper of the Flame,character,012,58,HdV-2,triggered,THAT'S ENOUGH,unsupported_trigger
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,HdV,Alma Madrigal - Keeper of the Flame,character,012,58,HdV-2,triggered,THAT'S ENOUGH,unsupported_trigger
 unsupported_targeting,ability,static,unsupported_targeting,Jcm,Bo Peep - Caring Shepherd,character,012,13,Jcm-1,static,SOMEBODY DO SOMETHING!,unsupported_targeting
 unsupported_targeting,effect,gain-keyword,unsupported_targeting,Jcm,Bo Peep - Caring Shepherd,character,012,13,Jcm-1,static,SOMEBODY DO SOMETHING!,unsupported_targeting
 unsupported_targeting,target,selector,unsupported_targeting,Jcm,Bo Peep - Caring Shepherd,character,012,13,Jcm-1,static,SOMEBODY DO SOMETHING!,unsupported_targeting
 mapped_not_executable,ability,static,mapped_not_executable,52H,Bouncing Ducky - Sid's Toy,character,012,120,52H-1,static,REJECTED TOYS,mapped_not_executable
 unsupported_choice,ability,triggered,unsupported_choice,6Lw,Bruno Madrigal - Oasis Oracle,character,012,154,6Lw-1,triggered,FIND THAT VISION,unsupported_choice
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,6Lw,Bruno Madrigal - Oasis Oracle,character,012,154,6Lw-1,triggered,FIND THAT VISION,unsupported_choice
 unsupported_choice,effect,optional,unsupported_choice,6Lw,Bruno Madrigal - Oasis Oracle,character,012,154,6Lw-1,triggered,FIND THAT VISION,unsupported_choice
 unsupported_choice,effect,scry,unsupported_choice,6Lw,Bruno Madrigal - Oasis Oracle,character,012,154,6Lw-1,triggered,FIND THAT VISION,unsupported_choice
 unsupported_choice,ability,triggered,unsupported_choice,0w8,Bruno Madrigal - Oasis Oracle,character,012,218,6Lw-1,triggered,FIND THAT VISION,unsupported_choice
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,0w8,Bruno Madrigal - Oasis Oracle,character,012,218,6Lw-1,triggered,FIND THAT VISION,unsupported_choice
 unsupported_choice,effect,optional,unsupported_choice,0w8,Bruno Madrigal - Oasis Oracle,character,012,218,6Lw-1,triggered,FIND THAT VISION,unsupported_choice
 unsupported_choice,effect,scry,unsupported_choice,0w8,Bruno Madrigal - Oasis Oracle,character,012,218,6Lw-1,triggered,FIND THAT VISION,unsupported_choice
 unsupported_choice,ability,triggered,unsupported_choice,U5v,Bruno Madrigal - Seeing the Future,character,012,156,U5v-1,triggered,CHANGE THE OUTCOME,unsupported_choice
@@ -1999,10 +1956,6 @@ unsupported_engine_mechanic,ability,static,unsupported_engine_mechanic,mD0,Incre
 unsupported_engine_mechanic,effect,property-modification,unsupported_engine_mechanic,mD0,Incrediboy - Buddy Pine,character,012,177,mD0-2,static,SPOILER ALERT,unsupported_engine_mechanic
 unsupported_engine_mechanic,ability,static,unsupported_engine_mechanic,Uwr,Incrediboy - Buddy Pine,character,012,221,mD0-2,static,SPOILER ALERT,unsupported_engine_mechanic
 unsupported_engine_mechanic,effect,property-modification,unsupported_engine_mechanic,Uwr,Incrediboy - Buddy Pine,character,012,221,mD0-2,static,SPOILER ALERT,unsupported_engine_mechanic
-unsupported_trigger,ability,triggered,unsupported_trigger,MoR,Isabela Madrigal - Caring Cultivator,character,012,19,MoR-2,triggered,DO NO WRONG,unsupported_trigger
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,MoR,Isabela Madrigal - Caring Cultivator,character,012,19,MoR-2,triggered,DO NO WRONG,unsupported_trigger
-unsupported_trigger,ability,triggered,unsupported_trigger,fzU,Isabela Madrigal - Caring Cultivator,character,012,224,MoR-2,triggered,DO NO WRONG,unsupported_trigger
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,fzU,Isabela Madrigal - Caring Cultivator,character,012,224,MoR-2,triggered,DO NO WRONG,unsupported_trigger
 unsupported_choice,ability,triggered,unsupported_choice,21E,Kida - Crystal Scion,character,012,160,21E-2-opponent,triggered,FLOOD OF POWER,unsupported_choice
 unsupported_choice,effect,put-into-inkwell,unsupported_choice,21E,Kida - Crystal Scion,character,012,160,21E-2-opponent,triggered,FLOOD OF POWER,unsupported_choice
 unsupported_choice,ability,activated,unsupported_choice,21E,Kida - Crystal Scion,character,012,160,21E-3,activated,THE PATH REVEALED,unsupported_choice
@@ -2042,8 +1995,6 @@ mapped_not_executable,ability,static,mapped_not_executable,RJJ,Mrs. Incredible -
 mapped_not_executable,ability,static,mapped_not_executable,TLT,Omnidroid - V.10,character,012,190,TLT-2,static,ELECTRO-ARMOR,mapped_not_executable
 unsupported_engine_mechanic,ability,static,unsupported_engine_mechanic,XlE,Pedro Madrigal - Family Patriarch,character,012,5,XlE-1,static,DIFFICULT JOURNEY,unsupported_engine_mechanic
 unsupported_engine_mechanic,effect,enters-with-damage,unsupported_engine_mechanic,XlE,Pedro Madrigal - Family Patriarch,character,012,5,XlE-1,static,DIFFICULT JOURNEY,unsupported_engine_mechanic
-unsupported_trigger,ability,triggered,unsupported_trigger,LJg,Pepa Madrigal - Calm Before the Storm,character,012,56,LJg-2,triggered,SILVER LINING,unsupported_trigger
-unsupported_trigger,trigger,remove-damage,unsupported_trigger,LJg,Pepa Madrigal - Calm Before the Storm,character,012,56,LJg-2,triggered,SILVER LINING,unsupported_trigger
 unsupported_engine_mechanic,ability,triggered,unsupported_engine_mechanic,D1V,Preston Whitmore - Expedition Financier,character,012,110,D1V-1,triggered,PRICE OF PROGRESS,unsupported_engine_mechanic
 unsupported_engine_mechanic,effect,optional,unsupported_engine_mechanic,D1V,Preston Whitmore - Expedition Financier,character,012,110,D1V-1,triggered,PRICE OF PROGRESS,unsupported_engine_mechanic
 unsupported_engine_mechanic,effect,mill,unsupported_engine_mechanic,D1V,Preston Whitmore - Expedition Financier,character,012,110,D1V-1,triggered,PRICE OF PROGRESS,unsupported_engine_mechanic

@@ -16,27 +16,27 @@
     "unsupported_cost": 51,
     "unsupported_engine_mechanic": 240,
     "unsupported_targeting": 668,
-    "unsupported_trigger": 50
+    "unsupported_trigger": 1
   },
-  "detailed_record_count": 2167,
+  "detailed_record_count": 2118,
   "errors": [],
   "execution_status_counts": {
-    "executable": 10413,
+    "executable": 10462,
     "mapped_not_executable": 510,
     "unsupported_choice": 394,
     "unsupported_condition": 254,
     "unsupported_cost": 51,
     "unsupported_engine_mechanic": 240,
     "unsupported_targeting": 668,
-    "unsupported_trigger": 50
+    "unsupported_trigger": 1
   },
   "object_type_counts": {
-    "ability": 1030,
+    "ability": 1009,
     "cost": 28,
     "effect": 823,
     "effect_condition": 66,
     "target": 191,
-    "trigger": 29
+    "trigger": 1
   },
   "outputs": {
     "markdown": "unsupported_report.md",
@@ -59,8 +59,9 @@
     "Baymax - Personal Healthcare Companion": 8,
     "Be King Undisputed": 6,
     "Bounce": 6,
-    "Bruno Madrigal - Oasis Oracle": 8,
+    "Bruno Madrigal - Oasis Oracle": 6,
     "Bruno Madrigal - Undetected Uncle": 6,
+    "Camilo Madrigal - Family Copycat": 5,
     "Captain Amelia - Commander of the Legacy": 8,
     "Captain Hook - Master Swordsman": 12,
     "Captain Hook - The Pirate King": 12,
@@ -73,7 +74,6 @@
     "Edna Mode - Fashion Designer": 10,
     "Eeyore - In the Way": 6,
     "Escape Plan": 7,
-    "Fix-It Felix, Jr. - Pint-Sized Hero": 6,
     "Goofy - Set for Adventure": 8,
     "Graveyard of Christmas Future - Lonely Resting Place": 6,
     "Gustav the Giant - Terror of the Kingdom": 6,
@@ -85,7 +85,6 @@
     "Keep the Ancient Ways": 6,
     "Kida - Crystal Scion": 8,
     "King Candy - Sweet Abomination": 10,
-    "Kristoff - Icy Explorer": 6,
     "Kuzco - Impulsive Llama": 6,
     "Last-Ditch Effort": 8,
     "Let's Get Dangerous": 8,
@@ -105,7 +104,6 @@
     "Philoctetes - No-Nonsense Instructor": 6,
     "Pluto - Determined Defender": 6,
     "Pongo - Determined Father": 6,
-    "Powerline - World's Greatest Rock Star": 6,
     "Pride Lands - Jungle Oasis": 7,
     "Prince Phillip - Vanquisher of Foes": 6,
     "Prince Phillip - Warden of the Woods": 6,
@@ -120,6 +118,7 @@
     "Scar - Heartless Hunter": 6,
     "Scrooge McDuck - Reformed Ebenezer": 8,
     "Shere Khan - Fierce and Furious": 6,
+    "Sign the Scroll": 5,
     "Simba - King in the Making": 6,
     "Sleepy Hollow - The Bridge": 7,
     "Stegmutt - Clumsy Dinosaur": 8,
@@ -139,8 +138,9 @@
     "The Sorcerer's Hat": 6,
     "Touch the Sky": 6,
     "Tuk Tuk - Lively Partner": 14,
-    "Ursula - Deceiver of All": 12,
+    "Ursula - Deceiver of All": 10,
     "Ursula\u2019s Lair - Eye of the Storm": 7,
+    "Ursula\u2019s Trickery": 5,
     "What Else Can I Do?": 6,
     "Witches of Morva - Orddu, Orwen, and Orgoch": 6,
     "Wreck-It Ralph - Big Lug": 20,
@@ -153,7 +153,7 @@
     "ability:keyword": 6,
     "ability:replacement": 6,
     "ability:static": 580,
-    "ability:triggered": 275,
+    "ability:triggered": 254,
     "cost:banishCharacter": 4,
     "cost:banishCharacterTarget": 1,
     "cost:banishItem": 6,
@@ -213,11 +213,7 @@
     "target:alias": 83,
     "target:object": 8,
     "target:selector": 100,
-    "trigger:be-chosen": 3,
-    "trigger:boost": 1,
-    "trigger:leave-discard": 2,
-    "trigger:remove-damage": 11,
-    "trigger:sing": 12
+    "trigger:boost": 1
   },
   "top_unsupported_patterns": [
     {
@@ -307,8 +303,7 @@
     "unsupported_condition": 188,
     "unsupported_cost": 23,
     "unsupported_engine_mechanic": 240,
-    "unsupported_targeting": 477,
-    "unsupported_trigger": 21
+    "unsupported_targeting": 477
   },
   "warnings": []
 }

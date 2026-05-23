@@ -16,7 +16,6 @@
 | `unsupported_cost` | 23 |
 | `unsupported_engine_mechanic` | 240 |
 | `unsupported_targeting` | 477 |
-| `unsupported_trigger` | 21 |
 
 ## Examples
 
@@ -802,130 +801,10 @@ Total detailed records: `668`
 
 ### `unsupported_trigger`
 
-Total detailed records: `50`
+Total detailed records: `1`
 
-- **Grand Pabbie - Oldest and Wisest** (`iZk`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `qlg-1` — ANCIENT INSIGHT
+- **Donald Duck - Fred Honeywell** (`Yde`)
+  - Object: `trigger` / `boost`
+  - Ability: `triggered` `Yde-1` — SPIRIT OF GIVING
   - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 2, "type": "gain-lore"}, "id": "qlg-1", "name": "ANCIENT INSIGHT", "text": "ANCIENT INSIGHT Whenever you remove 1 or more damage from one of your characters, gain 2 lore.", "trigger": {"event": "remove-damage", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "during-turn", "whose": "your"}], "timing": "whenever"}, "type": "triggered"}`
-- **Grand Pabbie - Oldest and Wisest** (`iZk`)
-  - Object: `trigger` / `remove-damage`
-  - Ability: `triggered` `qlg-1` — ANCIENT INSIGHT
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "remove-damage", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "during-turn", "whose": "your"}], "timing": "whenever"}`
-- **Rapunzel - Gifted Artist** (`q6B`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `n2g-2` — LET YOUR POWER SHINE
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 1, "effect": {"chooser": "CONTROLLER", "effect": {"amount": 1, "target": "CONTROLLER", "type": "draw"}, "type": "optional"}, "id": "n2g-2", "name": "LET YOUR POWER SHINE", "text": "LET YOUR POWER SHINE Whenever you remove 1 or more damage from one of your characters, you may draw a card.", "trigger": {"event": "remove-damage", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "during-turn", "whose": "your"}], "timing": "whenever"}, "type": "triggered"}`
-- **Rapunzel - Gifted Artist** (`q6B`)
-  - Object: `trigger` / `remove-damage`
-  - Ability: `triggered` `n2g-2` — LET YOUR POWER SHINE
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "remove-damage", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "during-turn", "whose": "your"}], "timing": "whenever"}`
-- **Ursula - Deceiver of All** (`vf1`)
-  - Object: `trigger` / `sing`
-  - Ability: `triggered` `vf1-1` — WHAT A DEAL
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "sing", "on": "SELF", "timing": "whenever"}`
-- **Ursula - Deceiver of All** (`mEx`)
-  - Object: `trigger` / `sing`
-  - Ability: `triggered` `vf1-1` — WHAT A DEAL
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "sing", "on": "SELF", "timing": "whenever"}`
-- **Cinderella - Melody Weaver** (`Qug`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `juj-2` — BEAUTIFUL VOICE
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 1, "effect": {"duration": "this-turn", "modifier": 1, "stat": "lore", "target": {"cardTypes": ["character"], "count": "all", "excludeSelf": true, "filter": [{"classification": "Princess", "type": "has-classification"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "modify-stat"}, "id": "juj-2", "name": "BEAUTIFUL VOICE", "text": "BEAUTIFUL VOICE Whenever this character sings a song, your other Princess characters get +1 {L} this turn.", "trigger": {"event": "sing", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Cinderella - Melody Weaver** (`Qug`)
-  - Object: `trigger` / `sing`
-  - Ability: `triggered` `juj-2` — BEAUTIFUL VOICE
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "sing", "on": "SELF", "timing": "when"}`
-- **Cinderella - Melody Weaver** (`V2A`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `juj-2` — BEAUTIFUL VOICE
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 1, "effect": {"duration": "this-turn", "modifier": 1, "stat": "lore", "target": {"cardTypes": ["character"], "count": "all", "excludeSelf": true, "filter": [{"classification": "Princess", "type": "has-classification"}], "owner": "you", "selector": "all", "zones": ["play"]}, "type": "modify-stat"}, "id": "juj-2", "name": "BEAUTIFUL VOICE", "text": "BEAUTIFUL VOICE Whenever this character sings a song, your other Princess characters get +1 {L} this turn.", "trigger": {"event": "sing", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Cinderella - Melody Weaver** (`V2A`)
-  - Object: `trigger` / `sing`
-  - Ability: `triggered` `juj-2` — BEAUTIFUL VOICE
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "sing", "on": "SELF", "timing": "when"}`
-- **Archimedes - Exceptional Owl** (`8Al`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `crp-1` — MORE TO LEARN
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 0, "effect": {"chooser": "CONTROLLER", "effect": {"amount": 1, "target": "CONTROLLER", "type": "draw"}, "type": "optional"}, "id": "crp-1", "name": "MORE TO LEARN", "text": "MORE TO LEARN Whenever an opponent chooses this character for an action or ability, you may draw a card.", "trigger": {"event": "be-chosen", "on": "SELF", "sourceFilter": {"sourceController": "opponent"}, "timing": "whenever"}, "type": "triggered"}`
-- **Archimedes - Exceptional Owl** (`8Al`)
-  - Object: `trigger` / `be-chosen`
-  - Ability: `triggered` `crp-1` — MORE TO LEARN
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "be-chosen", "on": "SELF", "sourceFilter": {"sourceController": "opponent"}, "timing": "whenever"}`
-- **Aurora - Waking Beauty** (`t37`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `cy2-2` — SWEET DREAMS
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 1, "effect": {"steps": [{"target": "SELF", "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest-or-challenge", "target": "SELF", "type": "restriction"}], "type": "sequence"}, "id": "cy2-2", "name": "SWEET DREAMS", "text": "SWEET DREAMS Whenever you remove 1 or more damage from a character, ready this character. She can't quest or challenge for the rest of this turn.", "trigger": {"event": "remove-damage", "on": "YOU", "timing": "whenever"}, "type": "triggered"}`
-- **Aurora - Waking Beauty** (`t37`)
-  - Object: `trigger` / `remove-damage`
-  - Ability: `triggered` `cy2-2` — SWEET DREAMS
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "remove-damage", "on": "YOU", "timing": "whenever"}`
-- **Aurora - Waking Beauty** (`ALL`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `cy2-2` — SWEET DREAMS
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 1, "effect": {"steps": [{"target": "SELF", "type": "ready"}, {"duration": "this-turn", "restriction": "cant-quest-or-challenge", "target": "SELF", "type": "restriction"}], "type": "sequence"}, "id": "cy2-2", "name": "SWEET DREAMS", "text": "SWEET DREAMS Whenever you remove 1 or more damage from a character, ready this character. She can't quest or challenge for the rest of this turn.", "trigger": {"event": "remove-damage", "on": "YOU", "timing": "whenever"}, "type": "triggered"}`
-- **Aurora - Waking Beauty** (`ALL`)
-  - Object: `trigger` / `remove-damage`
-  - Ability: `triggered` `cy2-2` — SWEET DREAMS
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "remove-damage", "on": "YOU", "timing": "whenever"}`
-- **Dolores Madrigal - Within Earshot** (`9wm`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `9wm-1` — I HEAR YOU
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 0, "effect": {"target": "OPPONENT", "type": "reveal-hand"}, "id": "9wm-1", "name": "I HEAR YOU", "text": "I HEAR YOU Whenever one of your characters sings a song, chosen opponent reveals their hand.", "trigger": {"event": "sing", "on": "YOUR_CHARACTERS", "timing": "whenever"}, "type": "triggered"}`
-- **Dolores Madrigal - Within Earshot** (`9wm`)
-  - Object: `trigger` / `sing`
-  - Ability: `triggered` `9wm-1` — I HEAR YOU
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "sing", "on": "YOUR_CHARACTERS", "timing": "whenever"}`
-- **Fix-It Felix, Jr. - Pint-Sized Hero** (`zSu`)
-  - Object: `trigger` / `leave-discard`
-  - Ability: `triggered` `b28-1` — LET'S GET TO WORK
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "leave-discard", "on": {"cardType": "character", "classification": "Racer", "controller": "you"}, "restrictions": [{"type": "to-hand"}], "timing": "whenever"}`
-- **Isabela Madrigal - In the Moment** (`pWM`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `xh0-1` — I'M TIRED OF PERFECT
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 0, "effect": {"restriction": "cant-be-challenged", "target": "SELF", "type": "restriction"}, "id": "xh0-1", "name": "I'M TIRED OF PERFECT", "text": "I'M TIRED OF PERFECT Whenever one of your characters sings a song, this character can't be challenged until the start of your next turn.", "trigger": {"event": "sing", "on": "YOUR_CHARACTERS", "timing": "whenever"}, "type": "triggered"}`
-- **Isabela Madrigal - In the Moment** (`pWM`)
-  - Object: `trigger` / `sing`
-  - Ability: `triggered` `xh0-1` — I'M TIRED OF PERFECT
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "sing", "on": "YOUR_CHARACTERS", "timing": "whenever"}`
-- **Pepa Madrigal - Sensitive Sister** (`gZm`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `1km-1` — CLEAR SKIES, CLEAR SKIES
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 0, "effect": {"amount": 1, "target": "CONTROLLER", "type": "gain-lore"}, "id": "1km-1", "name": "CLEAR SKIES, CLEAR SKIES", "text": "CLEAR SKIES, CLEAR SKIES Whenever one or more of your characters sings a song, gain 1 lore.", "trigger": {"event": "sing", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "once-per-song"}], "timing": "whenever"}, "type": "triggered"}`
-- **Pepa Madrigal - Sensitive Sister** (`gZm`)
-  - Object: `trigger` / `sing`
-  - Ability: `triggered` `1km-1` — CLEAR SKIES, CLEAR SKIES
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "sing", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "once-per-song"}], "timing": "whenever"}`
-- **Alma Madrigal - Accepting Grandmother** (`s3D`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `1sw-1` — THE MIRACLE IS YOU Once
-  - Status: `unsupported_trigger`
-  - Raw: `{"_source_index": 0, "effect": {"chooser": "CONTROLLER", "effect": {"target": {"count": "all", "reference": "singers", "selector": "all"}, "type": "ready"}, "type": "optional"}, "id": "1sw-1", "name": "THE MIRACLE IS YOU Once", "text": "THE MIRACLE IS YOU Once during your turn, whenever one or more of your characters sings a song, you may ready those characters.", "trigger": {"event": "sing", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "once-per-turn"}], "timing": "whenever"}, "type": "triggered"}`
-- **Alma Madrigal - Accepting Grandmother** (`s3D`)
-  - Object: `trigger` / `sing`
-  - Ability: `triggered` `1sw-1` — THE MIRACLE IS YOU Once
-  - Status: `unsupported_trigger`
-  - Raw: `{"event": "sing", "on": "YOUR_CHARACTERS", "restrictions": [{"type": "once-per-turn"}], "timing": "whenever"}`
+  - Raw: `{"event": "boost", "on": "YOUR_CHARACTERS", "timing": "whenever"}`
