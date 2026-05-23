@@ -195,15 +195,20 @@ class EffectResolver:
     ) -> EffectResolutionContext:
         """Resolve a sequence of effects while carrying Lorcanito selection state.
 
-        Each child may update current_targets, context_targets, chooser,
-        named_card, destinations, or last_effect_performed. The updated context
-        must be passed to the next effect.
+        Lorcanito sequence resolution continues when a child targeted step has
+        no valid targets. That child simply records lastEffectPerformed=false,
+        allowing a downstream if-you-do condition to fail naturally while later
+        independent sequence steps can still resolve.
         """
         current_context = context
+        original_allow_missing = context.allow_missing_targets
+
         for effect in effects:
-            current_context = self.resolve(state, effect, current_context)
+            step_context = self._ctx(current_context, allow_missing_targets=True)
+            current_context = self.resolve(state, effect, step_context)
             current_context = self._promote_current_targets_to_context(current_context)
-        return current_context
+
+        return self._ctx(current_context, allow_missing_targets=original_allow_missing)
 
     def resolve(
         self,
@@ -669,15 +674,22 @@ class EffectResolver:
 
     def _condition_matches(self, state: GameState, effect: EffectDef, context: EffectResolutionContext) -> bool:
         condition = effect.condition or {}
-        kind = condition.get("kind", "always")
+        kind = str(condition.get("type") or condition.get("kind") or "always")
+
         if kind == "always":
             return True
+
+        if kind == "if-you-do":
+            return context.last_effect_performed is True
+
         if kind == "target_damaged":
             target = context.target
             return target is not None and state.cards[target].damage > 0
+
         if kind == "has_lore_at_least":
             player = context.actor if condition.get("player", "actor") == "actor" else state.opponent(context.actor)
             return state.players[player].lore >= int(condition.get("amount", 0))
+
         raise EffectResolutionError(f"Unsupported condition kind {kind}")
     
     def _resolve_optional(
@@ -732,7 +744,9 @@ class EffectResolver:
         optional_context = self._ctx(
             context,
             chooser=chooser_id,
-            resolve_optional=True,
+            # Lorcanito clears resolveOptional before nested resolution so an
+            # accepted parent optional does not auto-accept child optionals.
+            resolve_optional=None,
         )
         return self.resolve_many(state, tuple(child_effects), optional_context)
     
@@ -744,13 +758,16 @@ class EffectResolver:
     ) -> EffectResolutionContext:
         condition = effect.condition or {}
         kind = str(condition.get("type") or condition.get("kind") or "always")
+        is_if_you_do = kind == "if-you-do"
 
-        if kind == "if-you-do":
-            condition_met = context.last_effect_performed is True
-        else:
-            condition_met = self._condition_matches(state, effect, context)
+        condition_met = (
+            context.last_effect_performed is True
+            if is_if_you_do
+            else self._condition_matches(state, effect, context)
+        )
 
         raw = self._source_raw(effect)
+
         if condition_met:
             child_effects = effect.effects
             if not child_effects:
@@ -779,6 +796,25 @@ class EffectResolver:
                             duration=mapped.duration,
                             raw=mapped.raw,
                         ),)
+
+            if not child_effects:
+                # Lorcanito returns resolved without marking the conditional
+                # itself as a newly performed or failed effect.
+                return context
+
+            if is_if_you_do:
+                # Lorcanito restores lastEffectPerformed after resolving an
+                # if-you-do branch because nested effects can overwrite the
+                # snapshot. Preserve the Python target count companion as well.
+                prior_last_effect_performed = context.last_effect_performed
+                prior_last_effect_target_count = context.last_effect_target_count
+                result = self.resolve_many(state, tuple(child_effects), context)
+                return self._ctx(
+                    result,
+                    last_effect_performed=prior_last_effect_performed,
+                    last_effect_target_count=prior_last_effect_target_count,
+                )
+
             return self.resolve_many(state, tuple(child_effects), context)
 
         else_branch = raw.get("else") or raw.get("ifFalse")
@@ -795,7 +831,9 @@ class EffectResolver:
                     raw=mapped.raw,
                 ), context)
 
-        return self._mark_result(context, performed=False)
+        # Lorcanito returns resolved without mutating lastEffectPerformed when
+        # no branch resolves.
+        return context
     
     def _resolve_select_target(
         self,
@@ -942,13 +980,13 @@ class EffectResolver:
         if self._uses_selected_card_context(descriptor.selector):
             selected = self._selected_card_targets_from_context(context)
             if not selected:
-                if require_target:
+                if require_target and not context.allow_missing_targets:
                     raise EffectResolutionError(f"Effect {effect.kind} requires a target")
                 return []
             return self._resolve_selected_card_targets(state, descriptor, context, selected)
 
         targets = self._resolve_descriptor_card_targets(state, descriptor, context)
-        if not targets and require_target:
+        if not targets and require_target and not context.allow_missing_targets:
             raise EffectResolutionError(f"Effect {effect.kind} found no valid targets for {descriptor.selector!r}")
         return targets
 

@@ -2,6 +2,7 @@ from lorcana_bot.card_logic import (
     ExecutionStatus,
     MappingStatus,
     SourceAbilityDef,
+    SourceConditionDef,
     SourceCostDef,
     SourceEffectDef,
     SourceStaticEffectDef,
@@ -430,6 +431,38 @@ def test_actual_opponent_choice_requirement_is_supported_but_unrelated_choices_a
     assert "unsupported_resolution_requirement:opponent_choice" not in supported.blockers
     assert "pending:opponent_choice" in supported.runtime_paths_verified
     assert "unsupported_resolution_requirement:opponent_choice" not in normal.blockers
+
+
+def test_if_you_do_condition_is_supported_by_runtime_executability():
+    effect = SourceEffectDef(
+        kind="conditional",
+        condition=SourceConditionDef(
+            kind="if-you-do",
+            raw={"type": "if-you-do"},
+            mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
+            execution_status=ExecutionStatus.EXECUTABLE,
+        ),
+        raw={
+            "type": "conditional",
+            "condition": {"type": "if-you-do"},
+            "ifTrue": {"type": "draw", "amount": 1, "target": "CONTROLLER"},
+        },
+        mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
+        execution_status=ExecutionStatus.EXECUTABLE,
+    )
+
+    result = classify_card_runtime_support(
+        _card(
+            "if-you-do",
+            card_type="action",
+            strength=None,
+            willpower=None,
+            lore=None,
+            source_effects=(effect,),
+        )
+    )
+
+    assert "unsupported_condition:if-you-do" not in result.blockers
 
 
 def test_suite_report_uses_fresh_blockers_and_keeps_stale_fields_separate():

@@ -12,7 +12,7 @@
 |---|---:|
 | `mapped_not_executable` | 516 |
 | `unsupported_choice` | 113 |
-| `unsupported_condition` | 209 |
+| `unsupported_condition` | 21 |
 | `unsupported_cost` | 24 |
 | `unsupported_engine_mechanic` | 197 |
 | `unsupported_targeting` | 253 |
@@ -281,133 +281,133 @@ Total detailed records: `113`
 
 ### `unsupported_condition`
 
-Total detailed records: `275`
+Total detailed records: `28`
 
-- **Stitch - Rock Star** (`kSG`)
+- **Wreck-It Ralph - Admiral Underpants** (`rui`)
   - Object: `ability` / `triggered`
-  - Ability: `triggered` `y9k-2` — ADORING FANS
+  - Ability: `triggered` `rui-1` — I'VE GOT THE COOLEST FRIEND
   - Status: `unsupported_condition`
-  - Raw: `{"_source_index": 1, "effect": {"chooser": "CONTROLLER", "effect": {"effects": [{"target": {"ref": "trigger-subject"}, "type": "exert"}, {"condition": {"type": "if-you-do"}, "ifTrue": {"amount": 1, "target": "CONTROLLER", "type": "draw"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}, "id": "y9k-2", "name": "ADORING FANS", "text": "ADORING FANS Whenever you play a character with cost 2 or less, you may exert them to draw a card.", "trigger": {"event": "play", "on": {"cardType": "character", "controller": "you", "filters": [{"comparison": "less-or-equal", "type": "cost-comparison", "value": 2}]}, "timing": "whenever"}, "type": "triggered"}`
-- **Stitch - Rock Star** (`kSG`)
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"cardType": "character", "target": "CONTROLLER", "type": "return-from-discard"}, {"condition": {"type": "returned-card-is-princess"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}, "id": "rui-1", "name": "I'VE GOT THE COOLEST FRIEND", "text": "I'VE GOT THE COOLEST FRIEND When you play this character, return a character card from your discard to your hand. If that card is a Princess character card, gain 2 lore.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Wreck-It Ralph - Admiral Underpants** (`rui`)
+  - Object: `effect` / `sequence`
+  - Ability: `triggered` `rui-1` — I'VE GOT THE COOLEST FRIEND
+  - Status: `unsupported_condition`
+  - Raw: `{"steps": [{"cardType": "character", "target": "CONTROLLER", "type": "return-from-discard"}, {"condition": {"type": "returned-card-is-princess"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}`
+- **Wreck-It Ralph - Admiral Underpants** (`rui`)
+  - Object: `effect` / `conditional`
+  - Ability: `triggered` `rui-1` — I'VE GOT THE COOLEST FRIEND
+  - Status: `unsupported_condition`
+  - Raw: `{"condition": {"type": "returned-card-is-princess"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}`
+- **Wreck-It Ralph - Admiral Underpants** (`rui`)
+  - Object: `effect_condition` / `returned-card-is-princess`
+  - Ability: `triggered` `rui-1` — I'VE GOT THE COOLEST FRIEND
+  - Status: `unsupported_condition`
+  - Raw: `{"type": "returned-card-is-princess"}`
+- **Kakamora - Pirate Chief** (`2pj`)
+  - Object: `ability` / `triggered`
+  - Ability: `triggered` `2pj-1` — COCONUT LEADER
+  - Status: `unsupported_condition`
+  - Raw: `{"_source_index": 0, "effect": {"chooser": "CONTROLLER", "effect": {"steps": [{"amount": 1, "target": "CONTROLLER", "type": "draw"}, {"amount": 1, "chosen": true, "from": "hand", "target": "CONTROLLER", "type": "discard"}, {"condition": {"cardType": "character", "classification": "Pirate", "type": "discarded-card-has-classification"}, "else": {"amount": 1, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "then": {"amount": 3, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}, "id": "2pj-1", "name": "COCONUT LEADER", "text": "COCONUT LEADER Whenever this character quests, you may draw a card. Th...`
+- **Kakamora - Pirate Chief** (`2pj`)
   - Object: `effect` / `optional`
-  - Ability: `triggered` `y9k-2` — ADORING FANS
+  - Ability: `triggered` `2pj-1` — COCONUT LEADER
   - Status: `unsupported_condition`
-  - Raw: `{"chooser": "CONTROLLER", "effect": {"effects": [{"target": {"ref": "trigger-subject"}, "type": "exert"}, {"condition": {"type": "if-you-do"}, "ifTrue": {"amount": 1, "target": "CONTROLLER", "type": "draw"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}`
-- **Stitch - Rock Star** (`kSG`)
+  - Raw: `{"chooser": "CONTROLLER", "effect": {"steps": [{"amount": 1, "target": "CONTROLLER", "type": "draw"}, {"amount": 1, "chosen": true, "from": "hand", "target": "CONTROLLER", "type": "discard"}, {"condition": {"cardType": "character", "classification": "Pirate", "type": "discarded-card-has-classification"}, "else": {"amount": 1, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "then": {"amount": 3, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}`
+- **Kakamora - Pirate Chief** (`2pj`)
   - Object: `effect` / `sequence`
-  - Ability: `triggered` `y9k-2` — ADORING FANS
+  - Ability: `triggered` `2pj-1` — COCONUT LEADER
   - Status: `unsupported_condition`
-  - Raw: `{"effects": [{"target": {"ref": "trigger-subject"}, "type": "exert"}, {"condition": {"type": "if-you-do"}, "ifTrue": {"amount": 1, "target": "CONTROLLER", "type": "draw"}, "type": "conditional"}], "type": "sequence"}`
-- **Stitch - Rock Star** (`kSG`)
+  - Raw: `{"steps": [{"amount": 1, "target": "CONTROLLER", "type": "draw"}, {"amount": 1, "chosen": true, "from": "hand", "target": "CONTROLLER", "type": "discard"}, {"condition": {"cardType": "character", "classification": "Pirate", "type": "discarded-card-has-classification"}, "else": {"amount": 1, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "then": {"amount": 3, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "type": "conditional"}], "type": "sequence"}`
+- **Kakamora - Pirate Chief** (`2pj`)
   - Object: `effect` / `conditional`
-  - Ability: `triggered` `y9k-2` — ADORING FANS
+  - Ability: `triggered` `2pj-1` — COCONUT LEADER
   - Status: `unsupported_condition`
-  - Raw: `{"condition": {"type": "if-you-do"}, "ifTrue": {"amount": 1, "target": "CONTROLLER", "type": "draw"}, "type": "conditional"}`
-- **Stitch - Rock Star** (`kSG`)
-  - Object: `effect_condition` / `if-you-do`
-  - Ability: `triggered` `y9k-2` — ADORING FANS
+  - Raw: `{"condition": {"cardType": "character", "classification": "Pirate", "type": "discarded-card-has-classification"}, "else": {"amount": 1, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "then": {"amount": 3, "target": "CHOSEN_CHARACTER_OR_LOCATION", "type": "deal-damage"}, "type": "conditional"}`
+- **Kakamora - Pirate Chief** (`2pj`)
+  - Object: `effect_condition` / `discarded-card-has-classification`
+  - Ability: `triggered` `2pj-1` — COCONUT LEADER
   - Status: `unsupported_condition`
-  - Raw: `{"type": "if-you-do"}`
-- **Arthur - Wizard's Apprentice** (`W0X`)
+  - Raw: `{"cardType": "character", "classification": "Pirate", "type": "discarded-card-has-classification"}`
+- **The Queen - Jealous Beauty** (`J3O`)
+  - Object: `effect` / `conditional`
+  - Ability: `activated` `ce7-1` — NO ORDINARY APPLE
+  - Status: `unsupported_condition`
+  - Raw: `{"condition": {"type": "returned-card-is-princess"}, "else": {"amount": 3, "target": "CONTROLLER", "type": "gain-lore"}, "then": {"amount": 4, "target": "CONTROLLER", "type": "gain-lore"}, "type": "conditional"}`
+- **The Queen - Jealous Beauty** (`J3O`)
+  - Object: `effect_condition` / `returned-card-is-princess`
+  - Ability: `activated` `ce7-1` — NO ORDINARY APPLE
+  - Status: `unsupported_condition`
+  - Raw: `{"type": "returned-card-is-princess"}`
+- **Jafar - High Sultan of Lorcana** (`i56`)
   - Object: `ability` / `triggered`
-  - Ability: `triggered` `W0X-1` — STUDENT
+  - Ability: `triggered` `mfw-1` — DARK POWER
   - Status: `unsupported_condition`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "CONTROLLER", "effect": {"steps": [{"target": {"cardTypes": ["character"], "count": 1, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}], "type": "sequence"}, "id": "W0X-1", "name": "STUDENT", "text": "STUDENT Whenever this character quests, you may return another chosen character of yours to your hand to gain 2 lore.", "trigger": {"event": "quest", "on": "SELF", "timing": "whenever"}, "type": "triggered"}`
-- **Arthur - Wizard's Apprentice** (`W0X`)
-  - Object: `effect` / `sequence`
-  - Ability: `triggered` `W0X-1` — STUDENT
-  - Status: `unsupported_condition`
-  - Raw: `{"steps": [{"chooser": "CONTROLLER", "effect": {"steps": [{"target": {"cardTypes": ["character"], "count": 1, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}], "type": "sequence"}`
-- **Arthur - Wizard's Apprentice** (`W0X`)
+  - Raw: `{"_source_index": 0, "effect": {"chooser": "CONTROLLER", "effect": {"steps": [{"amount": 1, "target": "CONTROLLER", "type": "draw"}, {"amount": 1, "chosen": true, "from": "hand", "target": "CONTROLLER", "type": "discard"}, {"condition": {"cardType": "character", "classification": "Illusion", "type": "discarded-card-has-classification"}, "then": {"chooser": "CONTROLLER", "effect": {"cost": "free", "from": "discard", "type": "play-card"}, "type": "optional"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}, "id": "mfw-1", "name": "DARK POWER", "text": "DARK POWER Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card...`
+- **Jafar - High Sultan of Lorcana** (`i56`)
   - Object: `effect` / `optional`
-  - Ability: `triggered` `W0X-1` — STUDENT
+  - Ability: `triggered` `mfw-1` — DARK POWER
   - Status: `unsupported_condition`
-  - Raw: `{"chooser": "CONTROLLER", "effect": {"steps": [{"target": {"cardTypes": ["character"], "count": 1, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}`
-- **Arthur - Wizard's Apprentice** (`W0X`)
+  - Raw: `{"chooser": "CONTROLLER", "effect": {"steps": [{"amount": 1, "target": "CONTROLLER", "type": "draw"}, {"amount": 1, "chosen": true, "from": "hand", "target": "CONTROLLER", "type": "discard"}, {"condition": {"cardType": "character", "classification": "Illusion", "type": "discarded-card-has-classification"}, "then": {"chooser": "CONTROLLER", "effect": {"cost": "free", "from": "discard", "type": "play-card"}, "type": "optional"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}`
+- **Jafar - High Sultan of Lorcana** (`i56`)
   - Object: `effect` / `sequence`
-  - Ability: `triggered` `W0X-1` — STUDENT
+  - Ability: `triggered` `mfw-1` — DARK POWER
   - Status: `unsupported_condition`
-  - Raw: `{"steps": [{"target": {"cardTypes": ["character"], "count": 1, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}`
-- **Arthur - Wizard's Apprentice** (`W0X`)
+  - Raw: `{"steps": [{"amount": 1, "target": "CONTROLLER", "type": "draw"}, {"amount": 1, "chosen": true, "from": "hand", "target": "CONTROLLER", "type": "discard"}, {"condition": {"cardType": "character", "classification": "Illusion", "type": "discarded-card-has-classification"}, "then": {"chooser": "CONTROLLER", "effect": {"cost": "free", "from": "discard", "type": "play-card"}, "type": "optional"}, "type": "conditional"}], "type": "sequence"}`
+- **Jafar - High Sultan of Lorcana** (`i56`)
   - Object: `effect` / `conditional`
-  - Ability: `triggered` `W0X-1` — STUDENT
+  - Ability: `triggered` `mfw-1` — DARK POWER
   - Status: `unsupported_condition`
-  - Raw: `{"condition": {"type": "if-you-do"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}`
-- **Arthur - Wizard's Apprentice** (`W0X`)
-  - Object: `effect_condition` / `if-you-do`
-  - Ability: `triggered` `W0X-1` — STUDENT
+  - Raw: `{"condition": {"cardType": "character", "classification": "Illusion", "type": "discarded-card-has-classification"}, "then": {"chooser": "CONTROLLER", "effect": {"cost": "free", "from": "discard", "type": "play-card"}, "type": "optional"}, "type": "conditional"}`
+- **Jafar - High Sultan of Lorcana** (`i56`)
+  - Object: `effect_condition` / `discarded-card-has-classification`
+  - Ability: `triggered` `mfw-1` — DARK POWER
   - Status: `unsupported_condition`
-  - Raw: `{"type": "if-you-do"}`
-- **Arthur - Wizard's Apprentice** (`6Rx`)
+  - Raw: `{"cardType": "character", "classification": "Illusion", "type": "discarded-card-has-classification"}`
+- **Widow Tweed - Kindly Soul** (`EI1`)
   - Object: `ability` / `triggered`
-  - Ability: `triggered` `W0X-1` — STUDENT
+  - Ability: `triggered` `i8u-1` — I'VE GOT YOU
   - Status: `unsupported_condition`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "CONTROLLER", "effect": {"steps": [{"target": {"cardTypes": ["character"], "count": 1, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}], "type": "sequence"}, "id": "W0X-1", "name": "STUDENT", "text": "STUDENT Whenever this character quests, you may return another chosen character of yours to your hand to gain 2 lore.", "trigger": {"event": "quest", "on": "SELF", "timing": "whenever"}, "type": "triggered"}`
-- **Arthur - Wizard's Apprentice** (`6Rx`)
+  - Raw: `{"_source_index": 0, "effect": {"steps": [{"cardType": "character", "target": "CONTROLLER", "type": "return-from-discard"}, {"condition": {"name": "Tod", "type": "returned-card-is-named"}, "then": {"chooser": "CONTROLLER", "effect": {"cost": "free", "filter": {"cardType": "character", "name": "Tod"}, "from": "hand", "type": "play-card"}, "type": "optional"}, "type": "conditional"}], "type": "sequence"}, "id": "i8u-1", "name": "I'VE GOT YOU", "text": "I'VE GOT YOU When you play this character, return a character card from your discard to your hand. If that character is named Tod, you may play him for free.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
+- **Widow Tweed - Kindly Soul** (`EI1`)
   - Object: `effect` / `sequence`
-  - Ability: `triggered` `W0X-1` — STUDENT
+  - Ability: `triggered` `i8u-1` — I'VE GOT YOU
   - Status: `unsupported_condition`
-  - Raw: `{"steps": [{"chooser": "CONTROLLER", "effect": {"steps": [{"target": {"cardTypes": ["character"], "count": 1, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}], "type": "sequence"}`
-- **Arthur - Wizard's Apprentice** (`6Rx`)
-  - Object: `effect` / `optional`
-  - Ability: `triggered` `W0X-1` — STUDENT
-  - Status: `unsupported_condition`
-  - Raw: `{"chooser": "CONTROLLER", "effect": {"steps": [{"target": {"cardTypes": ["character"], "count": 1, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}, "type": "optional"}`
-- **Arthur - Wizard's Apprentice** (`6Rx`)
-  - Object: `effect` / `sequence`
-  - Ability: `triggered` `W0X-1` — STUDENT
-  - Status: `unsupported_condition`
-  - Raw: `{"steps": [{"target": {"cardTypes": ["character"], "count": 1, "excludeSelf": true, "owner": "you", "selector": "chosen", "zones": ["play"]}, "type": "return-to-hand"}, {"condition": {"type": "if-you-do"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}], "type": "sequence"}`
-- **Arthur - Wizard's Apprentice** (`6Rx`)
+  - Raw: `{"steps": [{"cardType": "character", "target": "CONTROLLER", "type": "return-from-discard"}, {"condition": {"name": "Tod", "type": "returned-card-is-named"}, "then": {"chooser": "CONTROLLER", "effect": {"cost": "free", "filter": {"cardType": "character", "name": "Tod"}, "from": "hand", "type": "play-card"}, "type": "optional"}, "type": "conditional"}], "type": "sequence"}`
+- **Widow Tweed - Kindly Soul** (`EI1`)
   - Object: `effect` / `conditional`
-  - Ability: `triggered` `W0X-1` — STUDENT
+  - Ability: `triggered` `i8u-1` — I'VE GOT YOU
   - Status: `unsupported_condition`
-  - Raw: `{"condition": {"type": "if-you-do"}, "then": {"amount": 2, "type": "gain-lore"}, "type": "conditional"}`
-- **Arthur - Wizard's Apprentice** (`6Rx`)
-  - Object: `effect_condition` / `if-you-do`
-  - Ability: `triggered` `W0X-1` — STUDENT
+  - Raw: `{"condition": {"name": "Tod", "type": "returned-card-is-named"}, "then": {"chooser": "CONTROLLER", "effect": {"cost": "free", "filter": {"cardType": "character", "name": "Tod"}, "from": "hand", "type": "play-card"}, "type": "optional"}, "type": "conditional"}`
+- **Widow Tweed - Kindly Soul** (`EI1`)
+  - Object: `effect_condition` / `returned-card-is-named`
+  - Ability: `triggered` `i8u-1` — I'VE GOT YOU
   - Status: `unsupported_condition`
-  - Raw: `{"type": "if-you-do"}`
-- **Judy Hopps - Optimistic Officer** (`mSk`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `142-1` — DON'T CALL ME CUTE
+  - Raw: `{"name": "Tod", "type": "returned-card-is-named"}`
+- **Luisa Madrigal - Confident Climber** (`tct`)
+  - Object: `ability` / `activated`
+  - Ability: `activated` `tct-2` — I CAN TAKE IT
   - Status: `unsupported_condition`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["item"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "then": {"amount": 1, "target": "CARD_OWNER", "type": "draw"}, "type": "conditional"}], "type": "sequence"}, "id": "142-1", "name": "DON'T CALL ME CUTE", "text": "DON'T CALL ME CUTE When you play this character, you may banish chosen item. If you do, its player draws a card.", "trigger": {"event": "play", "on": "SELF", "timing": "when"}, "type": "triggered"}`
-- **Judy Hopps - Optimistic Officer** (`mSk`)
+  - Raw: `{"_source_index": 1, "cost": {"ink": 1}, "effect": {"steps": [{"amount": {"type": "up-to", "value": 1}, "from": "CHOSEN_CHARACTER_OF_YOURS", "to": "SELF", "type": "move-damage"}, {"condition": {"comparison": "greater-or-equal", "type": "damage-comparison", "value": 3}, "effect": {"amount": "all", "from": "SELF", "to": "CHOSEN_OPPOSING_CHARACTER", "type": "move-damage"}, "type": "conditional"}], "type": "sequence"}, "id": "tct-2", "name": "I CAN TAKE IT", "text": "I CAN TAKE IT 1 {I} — Move up to 1 damage from chosen character of yours to this character. Then, if this character has 3 or more damage, move all damage from this character to chosen opposing character.", "type": "activated"}`
+- **Luisa Madrigal - Confident Climber** (`tct`)
   - Object: `effect` / `sequence`
-  - Ability: `triggered` `142-1` — DON'T CALL ME CUTE
+  - Ability: `activated` `tct-2` — I CAN TAKE IT
   - Status: `unsupported_condition`
-  - Raw: `{"steps": [{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["item"], "count": 1, "owner": "any", "selector": "chosen", "zones": ["play"]}, "type": "banish"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "then": {"amount": 1, "target": "CARD_OWNER", "type": "draw"}, "type": "conditional"}], "type": "sequence"}`
-- **Judy Hopps - Optimistic Officer** (`mSk`)
+  - Raw: `{"steps": [{"amount": {"type": "up-to", "value": 1}, "from": "CHOSEN_CHARACTER_OF_YOURS", "to": "SELF", "type": "move-damage"}, {"condition": {"comparison": "greater-or-equal", "type": "damage-comparison", "value": 3}, "effect": {"amount": "all", "from": "SELF", "to": "CHOSEN_OPPOSING_CHARACTER", "type": "move-damage"}, "type": "conditional"}], "type": "sequence"}`
+- **Luisa Madrigal - Confident Climber** (`tct`)
   - Object: `effect` / `conditional`
-  - Ability: `triggered` `142-1` — DON'T CALL ME CUTE
+  - Ability: `activated` `tct-2` — I CAN TAKE IT
   - Status: `unsupported_condition`
-  - Raw: `{"condition": {"type": "if-you-do"}, "then": {"amount": 1, "target": "CARD_OWNER", "type": "draw"}, "type": "conditional"}`
-- **Judy Hopps - Optimistic Officer** (`mSk`)
-  - Object: `effect_condition` / `if-you-do`
-  - Ability: `triggered` `142-1` — DON'T CALL ME CUTE
+  - Raw: `{"condition": {"comparison": "greater-or-equal", "type": "damage-comparison", "value": 3}, "effect": {"amount": "all", "from": "SELF", "to": "CHOSEN_OPPOSING_CHARACTER", "type": "move-damage"}, "type": "conditional"}`
+- **Luisa Madrigal - Confident Climber** (`tct`)
+  - Object: `effect_condition` / `damage-comparison`
+  - Ability: `activated` `tct-2` — I CAN TAKE IT
   - Status: `unsupported_condition`
-  - Raw: `{"type": "if-you-do"}`
-- **Raya - Headstrong** (`8Xm`)
-  - Object: `ability` / `triggered`
-  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
+  - Raw: `{"comparison": "greater-or-equal", "type": "damage-comparison", "value": 3}`
+- **Luisa Madrigal - Confident Climber** (`tQG`)
+  - Object: `ability` / `activated`
+  - Ability: `activated` `tct-2` — I CAN TAKE IT
   - Status: `unsupported_condition`
-  - Raw: `{"_source_index": 0, "effect": {"steps": [{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "then": {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}, "type": "conditional"}], "type": "sequence"}, "id": "1jb-1", "name": "NOTE TO SELF, DON'T DIE", "text": "NOTE TO SELF, DON'T DIE During your turn, whenever this character banishes another character in a challenge, you may ready this character. She can't quest for the rest of this turn.", "trigger": {"event": "banish-in-challenge", ...`
-- **Raya - Headstrong** (`8Xm`)
-  - Object: `effect` / `sequence`
-  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
-  - Status: `unsupported_condition`
-  - Raw: `{"steps": [{"chooser": "CONTROLLER", "effect": {"target": {"cardTypes": ["character"], "count": 1, "owner": "any", "selector": "self", "zones": ["play"]}, "type": "ready"}, "type": "optional"}, {"condition": {"type": "if-you-do"}, "then": {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}, "type": "conditional"}], "type": "sequence"}`
-- **Raya - Headstrong** (`8Xm`)
-  - Object: `effect` / `conditional`
-  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
-  - Status: `unsupported_condition`
-  - Raw: `{"condition": {"type": "if-you-do"}, "then": {"duration": "this-turn", "restriction": "cant-quest", "target": "SELF", "type": "restriction"}, "type": "conditional"}`
-- **Raya - Headstrong** (`8Xm`)
-  - Object: `effect_condition` / `if-you-do`
-  - Ability: `triggered` `1jb-1` — NOTE TO SELF, DON'T DIE
-  - Status: `unsupported_condition`
-  - Raw: `{"type": "if-you-do"}`
+  - Raw: `{"_source_index": 1, "cost": {"ink": 1}, "effect": {"steps": [{"amount": {"type": "up-to", "value": 1}, "from": "CHOSEN_CHARACTER_OF_YOURS", "to": "SELF", "type": "move-damage"}, {"condition": {"comparison": "greater-or-equal", "type": "damage-comparison", "value": 3}, "effect": {"amount": "all", "from": "SELF", "to": "CHOSEN_OPPOSING_CHARACTER", "type": "move-damage"}, "type": "conditional"}], "type": "sequence"}, "id": "tct-2", "name": "I CAN TAKE IT", "text": "I CAN TAKE IT 1 {I} — Move up to 1 damage from chosen character of yours to this character. Then, if this character has 3 or more damage, move all damage from this character to chosen opposing character.", "type": "activated"}`
 
 ### `unsupported_cost`
 

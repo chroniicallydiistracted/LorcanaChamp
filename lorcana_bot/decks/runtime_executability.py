@@ -115,6 +115,7 @@ SUPPORTED_EFFECT_CONDITIONS = frozenset(
         "put-card-under-any-this-turn",
         "put-card-under-self-this-turn",
         "turn-metric",
+        "if-you-do",
         "and",
         "or",
         "not",

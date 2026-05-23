@@ -25,3 +25,17 @@ def test_unsupported_effect_type_is_preserved():
     assert effect.execution_status == ExecutionStatus.UNSUPPORTED_ENGINE_MECHANIC
     assert effect.raw["payload"] == 1
 
+
+def test_if_you_do_condition_maps_as_executable_source_condition():
+    effect = map_raw_effect(
+        {
+            "type": "conditional",
+            "condition": {"type": "if-you-do"},
+            "ifTrue": {"type": "draw", "amount": 1, "target": "CONTROLLER"},
+        }
+    )
+
+    assert effect.condition is not None
+    assert effect.condition.kind == "if-you-do"
+    assert effect.condition.execution_status == ExecutionStatus.EXECUTABLE
+    assert effect.execution_status != ExecutionStatus.UNSUPPORTED_CONDITION

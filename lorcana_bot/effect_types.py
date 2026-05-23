@@ -66,6 +66,12 @@ class EffectResolutionContext:
     enter_play_exerted: bool | None = None
     target_selection_resolved: bool = False
 
+    # Lorcanito sequence resolution allows a targeted child step to find no
+    # valid targets, mark lastEffectPerformed=false, and continue resolving
+    # later sequence steps. Direct non-sequence leaf resolution should still
+    # raise when a required target is missing.
+    allow_missing_targets: bool = False
+
     # Result state used by if-you-do / downstream dynamic effects.
     last_effect_performed: bool = False
     last_effect_target_count: int = 0

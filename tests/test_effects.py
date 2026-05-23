@@ -611,6 +611,123 @@ class TestEventContextTargets:
         assert state.cards[target].damage == 2
 
 
+    def test_if_you_do_true_branch_restores_prior_performed_after_nested_failure(self):
+        from lorcana_bot.cards import EffectDef
+        from lorcana_bot.effect_types import EffectResolutionContext
+
+        engine, state = setup_effect_game()
+        source = put_card(state, engine, 0, "Ally", ZONE_PLAY)
+        target = put_card(state, engine, 0, "Target", ZONE_PLAY)
+
+        effect = EffectDef(
+            "sequence",
+            effects=(
+                EffectDef("deal_damage", amount=1, target="chosen_character"),
+                EffectDef(
+                    "conditional",
+                    condition={"type": "if-you-do"},
+                    effects=(
+                        EffectDef(
+                            "deal_damage",
+                            amount=1,
+                            target={
+                                "selector": "chosen",
+                                "owner": "opponent",
+                                "zones": ["play"],
+                                "cardTypes": ["character"],
+                            },
+                        ),
+                    ),
+                ),
+                EffectDef(
+                    "conditional",
+                    condition={"type": "if-you-do"},
+                    effects=(EffectDef("gain_lore", amount=2),),
+                ),
+            ),
+        )
+
+        result = engine.effect_resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=source, current_targets=(target,)),
+        )
+
+        assert state.cards[target].damage == 1
+        assert state.players[0].lore == 2
+        assert result.last_effect_performed is True
+
+    def test_if_you_do_false_when_previous_sequence_step_has_no_valid_targets(self):
+        from lorcana_bot.cards import EffectDef
+        from lorcana_bot.effect_types import EffectResolutionContext
+
+        engine, state = setup_effect_game()
+        source = put_card(state, engine, 0, "Ally", ZONE_PLAY)
+
+        effect = EffectDef(
+            "sequence",
+            effects=(
+                EffectDef(
+                    "deal_damage",
+                    amount=1,
+                    target={
+                        "selector": "chosen",
+                        "owner": "opponent",
+                        "zones": ["play"],
+                        "cardTypes": ["character"],
+                    },
+                ),
+                EffectDef(
+                    "conditional",
+                    condition={"type": "if-you-do"},
+                    effects=(EffectDef("gain_lore", amount=2),),
+                ),
+            ),
+        )
+
+        result = engine.effect_resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=source),
+        )
+
+        assert state.players[0].lore == 0
+        assert result.last_effect_performed is False
+
+    def test_conditional_without_branch_preserves_prior_last_effect_performed(self):
+        from lorcana_bot.cards import EffectDef
+        from lorcana_bot.effect_types import EffectResolutionContext
+
+        engine, state = setup_effect_game()
+        source = put_card(state, engine, 0, "Ally", ZONE_PLAY)
+
+        effect = EffectDef(
+            "sequence",
+            effects=(
+                EffectDef("gain_lore", amount=1),
+                EffectDef(
+                    "conditional",
+                    condition={"kind": "has_lore_at_least", "player": "actor", "amount": 99},
+                    effects=(EffectDef("draw", amount=1),),
+                ),
+                EffectDef(
+                    "conditional",
+                    condition={"type": "if-you-do"},
+                    effects=(EffectDef("gain_lore", amount=2),),
+                ),
+            ),
+        )
+
+        result = engine.effect_resolver.resolve(
+            state,
+            effect,
+            EffectResolutionContext(actor=0, source=source),
+        )
+
+        assert state.players[0].lore == 3
+        assert result.last_effect_performed is True
+
+
 class TestEventPayloadTargets:
     """Tests for event_payload-based targets."""
 

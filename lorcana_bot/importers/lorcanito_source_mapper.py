@@ -341,6 +341,7 @@ SUPPORTED_CONDITION_KINDS = frozenset({
     "put-card-under-any-this-turn",
     "put-card-under-self-this-turn",
     "turn-metric",
+    "if-you-do",
     "and",
     "or",
     "not",
@@ -1320,6 +1321,8 @@ def _project_condition(condition: SourceConditionDef | None) -> dict[str, Any] |
         return None
     if condition.kind == "always":
         return {"kind": "always"}
+    if condition.kind == "if-you-do":
+        return {"kind": "if-you-do", "type": "if-you-do"}
     if condition.kind in {"target_damaged", "target-damaged"}:
         return {"kind": "target_damaged"}
     return None
