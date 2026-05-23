@@ -39,3 +39,28 @@ def test_if_you_do_condition_maps_as_executable_source_condition():
     assert effect.condition.kind == "if-you-do"
     assert effect.condition.execution_status == ExecutionStatus.EXECUTABLE
     assert effect.execution_status != ExecutionStatus.UNSUPPORTED_CONDITION
+
+
+def test_phase1_static_ability_maps_executable_when_static_registry_supports_shape():
+    from lorcana_bot.importers.lorcanito_source_mapper import map_raw_ability
+
+    ability = map_raw_ability(
+        {
+            "id": "protective-embrace",
+            "type": "static",
+            "effect": {
+                "type": "gain-keyword",
+                "keyword": "Ward",
+                "target": {
+                    "selector": "all",
+                    "owner": "you",
+                    "zones": ["play"],
+                    "cardTypes": ["character"],
+                    "excludeSelf": True,
+                },
+            },
+        }
+    )
+
+    assert ability.kind == "static"
+    assert ability.execution_status == ExecutionStatus.EXECUTABLE

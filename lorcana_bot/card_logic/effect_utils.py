@@ -470,6 +470,8 @@ STATIC_EFFECT_KIND_MAP: dict[str, str] = {
     "gain_keyword": "gain_keyword",
     "cost-reduction": "cost_reduction",
     "cost_reduction": "cost_reduction",
+    "additional-inkwell": "additional_inkwell",
+    "additional_inkwell": "additional_inkwell",
     "grant-abilities-while-here": "grant_abilities_while_here",
     "grant_abilities_while_here": "grant_abilities_while_here",
     "grant-discard-inkability": "grant_discard_inkability",

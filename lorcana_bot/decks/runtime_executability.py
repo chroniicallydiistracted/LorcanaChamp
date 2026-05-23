@@ -63,6 +63,7 @@ SUPPORTED_STATIC_EFFECT_KINDS = frozenset({
     "modify_stat",
     "gain_keyword",
     "cost_reduction",
+    "additional_inkwell",
     "restriction",
     "grant_abilities_while_here",
     "grant_discard_inkability",
@@ -369,6 +370,32 @@ def _classify_source_static_effect(static_effect: Any) -> tuple[RuntimeSupportSt
 
 def _classify_static_effect_kind(effect: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...]]:
     raw_kind = str(getattr(effect, "kind", "unknown"))
+    raw = getattr(effect, "raw", {}) or {}
+
+    if raw_kind == "conditional":
+        condition = getattr(effect, "condition", None)
+        raw_condition = raw.get("condition") if isinstance(raw, dict) else None
+        if condition is not None and not _source_static_condition_shape_supported(effect, condition):
+            return ("scaffold_only", (f"unsupported_static_condition:{_condition_kind(condition)}",))
+        if condition is None and raw_condition is not None and not _source_static_condition_shape_supported(effect, raw_condition):
+            return ("scaffold_only", (f"unsupported_static_condition:{_condition_kind(raw_condition)}",))
+        branch = raw.get("then") or raw.get("effect") or raw.get("ifTrue") if isinstance(raw, dict) else None
+        else_branch = raw.get("else") or raw.get("ifFalse") if isinstance(raw, dict) else None
+        branch_statuses = []
+        branch_blockers = []
+        from lorcana_bot.importers.lorcanito_source_mapper import map_raw_effect
+        for raw_branch in (branch, else_branch):
+            if not isinstance(raw_branch, dict):
+                continue
+            status, blockers = _classify_static_effect_kind(map_raw_effect(raw_branch))
+            branch_statuses.append(status)
+            branch_blockers.extend(blockers)
+        if not branch_statuses:
+            return ("scaffold_only", ("unsupported_static_effect:conditional",))
+        if any(status != "executable" for status in branch_statuses):
+            return ("scaffold_only", tuple(sorted(set(branch_blockers))))
+        return ("executable", ())
+
     kind = to_engine_static_kind(raw_kind)
     condition = getattr(effect, "condition", None)
     if condition is not None and not _source_static_condition_shape_supported(effect, condition):
@@ -379,18 +406,8 @@ def _classify_static_effect_kind(effect: Any) -> tuple[RuntimeSupportStatus, tup
 
 
 def _source_static_condition_shape_supported(effect: Any, condition: Any) -> bool:
-    """Exact current static condition shapes with implemented runtime paths."""
-    kind = to_engine_static_kind(str(getattr(effect, "kind", "unknown")))
-    if kind != "restriction":
-        return False
-    raw = getattr(effect, "raw", {}) or {}
-    raw_condition = getattr(condition, "raw", None) or condition
-    if not isinstance(raw_condition, dict):
-        return False
-    restriction = str(raw.get("restriction") or raw.get("restriction_type") or raw.get("restrictionType") or "")
-    if restriction != "cant-be-dealt-damage":
-        return False
-    return raw_condition.get("type") == "not" and str(raw_condition.get("condition", {})).find("being-challenged") >= 0
+    """Static conditions are supported when the runtime condition evaluator supports their kind."""
+    return _condition_kind(condition) in SUPPORTED_EFFECT_CONDITIONS
 
 
 def _classify_replacement_ability(ability: Any) -> tuple[RuntimeSupportStatus, tuple[str, ...], tuple[str, ...], tuple[str, ...], tuple[str, ...]]:

@@ -525,11 +525,13 @@ def map_raw_ability(raw: dict[str, Any]) -> SourceAbilityDef:
         AbilityKind.ACTIVATED,
     }:
         execution = ExecutionStatus.EXECUTABLE
-    elif kind in {AbilityKind.STATIC, AbilityKind.REPLACEMENT}:
-        # Static and replacement abilities are structurally preserved, but they
-        # are not projected as one-shot action/trigger effects. They remain
-        # reported as unsupported/mapped-not-executable at the source ability
-        # layer unless handled by a dedicated registry path.
+    elif kind == AbilityKind.STATIC:
+        execution = (
+            ExecutionStatus.EXECUTABLE
+            if _phase1_static_ability_supported(raw, effects, condition)
+            else ExecutionStatus.MAPPED_NOT_EXECUTABLE
+        )
+    elif kind == AbilityKind.REPLACEMENT:
         execution = ExecutionStatus.MAPPED_NOT_EXECUTABLE
 
     return SourceAbilityDef(
@@ -608,6 +610,104 @@ def map_raw_effect(raw: dict[str, Any]) -> SourceEffectDef:
         object.__setattr__(effect, "execution_status", ExecutionStatus.UNSUPPORTED_CHOICE)
 
     return effect
+
+
+def _phase1_static_ability_supported(
+    raw: dict[str, Any],
+    effects: tuple[SourceEffectDef, ...],
+    condition: SourceConditionDef | None,
+) -> bool:
+    if condition is not None and condition.execution_status != ExecutionStatus.EXECUTABLE:
+        return False
+    source_zones = tuple(raw.get("sourceZones", raw.get("source_zones", ("play",))) or ("play",))
+    if any(zone not in {"play", "hand"} for zone in source_zones):
+        return False
+    if not effects:
+        return False
+    return all(_phase1_static_effect_supported(effect) for effect in effects)
+
+
+def _phase1_static_condition_supported(raw: Any) -> bool:
+    if raw is None:
+        return True
+    if not isinstance(raw, dict):
+        return False
+    kind = str(raw.get("type") or raw.get("kind") or "unknown")
+    return kind in SUPPORTED_CONDITION_KINDS
+
+
+def _phase1_static_target_supported(raw: Any) -> bool:
+    if raw is None:
+        return True
+    if isinstance(raw, str):
+        return raw in EXECUTABLE_TARGET_ALIASES or raw in SUPPORTED_TARGET_ALIASES
+    if isinstance(raw, dict):
+        return _source_target_shape_supported(raw)
+    return False
+
+
+def _phase1_static_amount_supported(raw: Any) -> bool:
+    if raw is None:
+        return True
+    if isinstance(raw, bool):
+        return False
+    if isinstance(raw, int):
+        return True
+    if isinstance(raw, str):
+        return raw.lstrip("+-").isdigit() or raw == "full"
+    if isinstance(raw, dict):
+        return raw.get("type") in {
+            "static",
+            "cards-in-hand",
+            "classification-character-count",
+            "filtered-count",
+            "characters-in-play",
+        }
+    return False
+
+
+def _phase1_static_effect_supported(effect: SourceEffectDef) -> bool:
+    raw = effect.raw or {}
+    kind = effect.kind
+
+    if kind == "conditional":
+        if not _phase1_static_condition_supported(raw.get("condition")):
+            return False
+        branch = raw.get("then") or raw.get("effect") or raw.get("ifTrue")
+        else_branch = raw.get("else") or raw.get("ifFalse")
+        branches = [item for item in (branch, else_branch) if isinstance(item, dict)]
+        if not branches:
+            return False
+        return all(_phase1_static_effect_supported(map_raw_effect(branch_raw)) for branch_raw in branches)
+
+    if kind not in {
+        "modify-stat",
+        "gain-keyword",
+        "gain-keywords",
+        "restriction",
+        "cost-reduction",
+        "additional-inkwell",
+    }:
+        return False
+
+    if kind in {"modify-stat", "gain-keyword", "gain-keywords", "restriction"}:
+        raw_target = raw.get("target")
+        if effect.target is not None and effect.target.execution_status != ExecutionStatus.EXECUTABLE:
+            return False
+        if not _phase1_static_target_supported(raw_target):
+            return False
+
+    if kind in {"modify-stat", "cost-reduction", "additional-inkwell"}:
+        amount = raw.get("modifier") if raw.get("modifier") is not None else raw.get("amount")
+        if amount is None and isinstance(raw.get("reduction"), dict):
+            amount = raw["reduction"].get("ink")
+        if not _phase1_static_amount_supported(amount):
+            return False
+
+    if kind == "restriction" and not raw.get("restriction"):
+        return False
+
+    return True
 
 
 def _child_effects(raw: dict[str, Any], key: str) -> tuple[SourceEffectDef, ...]:

@@ -465,6 +465,55 @@ def test_if_you_do_condition_is_supported_by_runtime_executability():
     assert "unsupported_condition:if-you-do" not in result.blockers
 
 
+def test_phase1_static_runtime_executability_accepts_supported_static_shapes():
+    static = SourceAbilityDef(
+        id="static-ward",
+        kind="static",
+        effects=(
+            SourceEffectDef(
+                kind="gain-keyword",
+                raw={
+                    "type": "gain-keyword",
+                    "keyword": "Ward",
+                    "target": {
+                        "selector": "all",
+                        "owner": "you",
+                        "zones": ["play"],
+                        "cardTypes": ["character"],
+                        "excludeSelf": True,
+                    },
+                },
+                mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
+                execution_status=ExecutionStatus.EXECUTABLE,
+            ),
+        ),
+        mapping_status=MappingStatus.STRUCTURALLY_MAPPED,
+        execution_status=ExecutionStatus.EXECUTABLE,
+        raw={
+            "id": "static-ward",
+            "type": "static",
+            "effect": {
+                "type": "gain-keyword",
+                "keyword": "Ward",
+                "target": {
+                    "selector": "all",
+                    "owner": "you",
+                    "zones": ["play"],
+                    "cardTypes": ["character"],
+                    "excludeSelf": True,
+                },
+            },
+        },
+    )
+
+    result = classify_card_runtime_support(
+        _card("static-ward", source_abilities=(static,))
+    )
+
+    assert result.status == "executable"
+    assert not any(blocker.startswith("unsupported_static_effect") for blocker in result.blockers)
+
+
 def test_suite_report_uses_fresh_blockers_and_keeps_stale_fields_separate():
     static = SourceStaticEffectDef(
         kind="cost-reduction",

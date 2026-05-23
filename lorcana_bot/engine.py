@@ -121,14 +121,19 @@ from .abilities import (
 from .static_effects import (
     effective_strength as static_effective_strength,
     effective_willpower as static_effective_willpower,
+    effective_lore as static_effective_lore,
     keywords_for_instance as static_keywords_for_instance,
     static_cost_reductions,
+    static_additional_inkwell_allowance,
     register_static_effects_for_card,
     deregister_static_effects_for_card,
     StaticEffectType,
     create_modify_stat_effect,
     create_keyword_grant_effect,
     create_cost_reduction_effect,
+    can_quest as static_can_quest,
+    can_challenge as static_can_challenge,
+    can_be_challenged as static_can_be_challenged,
 )
 from .replacement_effects import (
     ReplacementEffectEntry,
@@ -704,7 +709,11 @@ class GameEngine:
         ps = state.players[player]
 
         extra_ink_key = f"additional_inkwell:{player}"
-        extra_inks = int(state.turn_metadata.get(extra_ink_key, 0) or 0)
+        static_extra_ink_key = f"static_additional_inkwell_used:{player}"
+        stored_extra_inks = int(state.turn_metadata.get(extra_ink_key, 0) or 0)
+        static_allowance = static_additional_inkwell_allowance(state, player, self)
+        static_used = int(state.turn_metadata.get(static_extra_ink_key, 0) or 0)
+        extra_inks = stored_extra_inks + max(0, static_allowance - static_used)
         if not state.turn_player_has_inked or extra_inks > 0:
             for cid in ps.hand:
                 if self.card_def(state, cid).inkable:
@@ -1215,9 +1224,7 @@ class GameEngine:
             return False
         if self.has_keyword(state, source, KEYWORD_RECKLESS):
             return False
-        # B7.1: Check static quest restrictions
-        from .static_effects import can_quest as static_can_quest
-        if not static_can_quest(state, source):
+        if not static_can_quest(state, source, self):
             return False
         return True
 
@@ -1233,9 +1240,7 @@ class GameEngine:
             return []
         if inst.drying and not self.has_keyword(state, source, KEYWORD_RUSH):
             return []
-        # B7.1: Check static challenge restriction - if source cannot challenge, return empty
-        from .static_effects import can_challenge as static_can_challenge
-        if not static_can_challenge(state, source):
+        if not static_can_challenge(state, source, self):
             return []
 
         opponent = state.opponent(player)
@@ -1250,8 +1255,9 @@ class GameEngine:
                     continue
                 if self.has_keyword(state, target, KEYWORD_EVASIVE) and not self.has_keyword(state, source, KEYWORD_EVASIVE):
                     continue
-                # B8: Check cannot-be-challenged restriction
                 if check_cannot_be_challenged(state, target, source):
+                    continue
+                if not static_can_be_challenged(state, target, source, self):
                     continue
                 if self.has_keyword(state, target, KEYWORD_BODYGUARD):
                     bodyguards.append(target)
@@ -1259,8 +1265,6 @@ class GameEngine:
             elif target_def.card_type == CARD_LOCATION:
                 location_candidates.append(target)
 
-        # Bodyguard only redirects challenge options when an opposing bodyguard
-        # character is itself a legal challenge target.
         if bodyguards:
             return bodyguards
         return character_candidates + location_candidates
@@ -1312,76 +1316,32 @@ class GameEngine:
         return self._damage_after_resist(target_card, amount)
 
     def keywords_for_instance(self, state: GameState, instance_id: int) -> tuple[str, ...]:
-        """Get all keywords including static grants and printed keywords."""
-        card = self.card_def(state, instance_id)
-        keywords = set(card.keywords)
-        keywords.update(state.cards[instance_id].temporary_keywords)
-        # Add static keyword grants
-        for effect in state.static_effect_registry.get_effects_for_instance(state, instance_id):
-            if effect.effect_type == StaticEffectType.GRANT_KEYWORD and effect.keyword:
-                keywords.add(effect.keyword)
-        return tuple(sorted(keywords))
+        """Get printed, temporary, and static-granted keywords."""
+        return static_keywords_for_instance(state, instance_id, self)
 
     def has_keyword(self, state: GameState, instance_id: int, keyword: str) -> bool:
         return keyword in self.keywords_for_instance(state, instance_id)
 
     def effective_strength(self, state: GameState, instance_id: int) -> int:
-        """Calculate effective strength including static modifiers."""
         card = self.card_def(state, instance_id)
-        base = int(card.strength or 0)
-        temp_modifier = state.cards[instance_id].temporary_modifiers.get("strength", 0)
-        # Get static modifiers from registry
-        static_modifier = 0
-        for effect in state.static_effect_registry.get_effects_for_instance(state, instance_id):
-            if effect.effect_type == StaticEffectType.MODIFY_STRENGTH:
-                static_modifier += effect.amount
-        return max(0, base + static_modifier + temp_modifier)
+        return static_effective_strength(state, instance_id, card, self)
 
     def effective_willpower(self, state: GameState, instance_id: int) -> int:
-        """Calculate effective willpower including static modifiers."""
         card = self.card_def(state, instance_id)
-        base = int(card.willpower or 0)
-        temp_modifier = state.cards[instance_id].temporary_modifiers.get("willpower", 0)
-        # Get static modifiers from registry
-        static_modifier = 0
-        for effect in state.static_effect_registry.get_effects_for_instance(state, instance_id):
-            if effect.effect_type == StaticEffectType.MODIFY_WILLPOWER:
-                static_modifier += effect.amount
-        return max(0, base + static_modifier + temp_modifier)
+        return static_effective_willpower(state, instance_id, card, self)
 
     def effective_lore(self, state: GameState, instance_id: int) -> int:
-        """Calculate effective lore including static and temporary modifiers."""
         card = self.card_def(state, instance_id)
-        base = int(card.lore or 0)
-        temp_modifier = state.cards[instance_id].temporary_modifiers.get("lore", 0)
-        static_modifier = 0
-        for effect in state.static_effect_registry.get_effects_for_instance(state, instance_id):
-            if effect.effect_type == StaticEffectType.MODIFY_LORE:
-                static_modifier += effect.amount
-        return max(0, base + static_modifier + temp_modifier)
+        return static_effective_lore(state, instance_id, card, self)
 
     def play_cost(self, state: GameState, player: int, instance_id: int) -> int:
-        """Calculate play cost including static cost reductions."""
+        """Calculate play cost including Lorcanito-style static cost reductions."""
         card = self.card_def(state, instance_id)
         reductions = self._applicable_cost_reductions(state, player, card.card_type)
         hand_source_reduction = self._hand_source_cost_reduction(state, player, instance_id)
         if hand_source_reduction:
             reductions.append({"amount": hand_source_reduction, "card_type": card.card_type, "source_id": instance_id})
-        # Add static cost reductions
-        for effect in state.static_effect_registry.effects:
-            source_inst = state.cards.get(effect.source_id)
-            if source_inst is None or source_inst.controller != player:
-                continue
-            if source_inst.zone != ZONE_PLAY:
-                continue
-            if effect.effect_type == StaticEffectType.COST_REDUCTION:
-                card_type = effect.cost_reduction_card_type
-                if card_type is None or card_type == card.card_type:
-                    reductions.append({
-                        "amount": effect.cost_reduction_amount,
-                        "card_type": card_type,
-                        "source_id": effect.source_id,
-                    })
+        reductions.extend(static_cost_reductions(state, player, self, card=card, candidate_id=instance_id))
         return max(0, int(card.cost) - sum(int(reduction.get("amount", 0)) for reduction in reductions))
 
     def _hand_source_cost_reduction(self, state: GameState, player: int, instance_id: int) -> int:
@@ -2374,15 +2334,27 @@ class GameEngine:
                 pass
 
     def _apply_ink(self, state: GameState, action: Action) -> None:
-        """Apply ink action with rich event payload."""
+        """Apply ink action with static additional-inkwell allowance."""
         assert action.card is not None
         if state.cards[action.card].zone == ZONE_DISCARD and not self._can_ink_from_discard(state, action.actor):
             raise IllegalActionError("Cannot ink from discard")
-        self._put_into_inkwell_eventful(state, action.card, actor=action.actor)
+
         extra_ink_key = f"additional_inkwell:{action.actor}"
-        extra_inks = int(state.turn_metadata.get(extra_ink_key, 0) or 0)
-        if state.turn_player_has_inked and extra_inks > 0:
-            state.turn_metadata[extra_ink_key] = extra_inks - 1
+        static_extra_ink_key = f"static_additional_inkwell_used:{action.actor}"
+        stored_extra_inks = int(state.turn_metadata.get(extra_ink_key, 0) or 0)
+        static_allowance = static_additional_inkwell_allowance(state, action.actor, self)
+        static_used = int(state.turn_metadata.get(static_extra_ink_key, 0) or 0)
+        static_remaining = max(0, static_allowance - static_used)
+
+        self._put_into_inkwell_eventful(state, action.card, actor=action.actor)
+
+        if state.turn_player_has_inked:
+            if stored_extra_inks > 0:
+                state.turn_metadata[extra_ink_key] = stored_extra_inks - 1
+            elif static_remaining > 0:
+                state.turn_metadata[static_extra_ink_key] = static_used + 1
+            else:
+                raise IllegalActionError("No remaining ink action available")
         else:
             state.turn_player_has_inked = True
             state.players[action.actor].turn_flags.played_ink = True
@@ -2403,19 +2375,11 @@ class GameEngine:
         state: GameState,
         card_id: int,
     ) -> None:
-        """Register static and replacement effects for a card entering public play.
+        """Register non-derived lifecycle effects for a public permanent.
 
-        This helper centralizes lifecycle registration for permanents entering the
-        play zone. It must be called after a card becomes a public permanent (in play
-        with no stack_parent_id), and only for non-action permanents.
-
-        The helper refuses:
-        - Cards not in ZONE_PLAY
-        - Cards with stack_parent_id (not publicly visible)
-        - Action cards (actions go to discard, not play)
-
-        Lorcanito parity: Lorcanito registers live continuous/replacement state
-        only after a card becomes an active public permanent.
+        Lorcanito static effects are derived/materialized from active public
+        sources when queried. Do not register static effects here, or they will
+        double-apply against the derived static registry.
         """
         inst = state.cards.get(card_id)
         if inst is None or inst.zone != ZONE_PLAY or inst.stack_parent_id is not None:
@@ -2426,7 +2390,7 @@ class GameEngine:
             return
 
         source_abilities = getattr(card, "source_abilities", None) or getattr(card, "abilities", ())
-        register_static_effects_for_card(state, card_id, source_abilities)
+        deregister_static_effects_for_card(state, card_id)
         register_replacement_effects_for_card(state, card_id, source_abilities)
 
     def _apply_play(self, state: GameState, action: Action) -> None:
@@ -2493,21 +2457,14 @@ class GameEngine:
         )
 
     def _apply_quest(self, state: GameState, action: Action) -> None:
-        """Apply quest action with rich event payload."""
+        """Apply quest action with derived static lore."""
         assert action.source is not None
         source = action.source
-        cdef = self.card_def(state, source)
-        # B7.1: Calculate effective lore including static modifiers
-        base_lore = int(cdef.lore or 0)
-        from .static_effects import get_static_modifier
-        lore_modifier = get_static_modifier(state, source, "lore")
-        lore = base_lore + lore_modifier
-        # Use eventful helpers - exert and gain lore without emitting their individual events
+        lore = self.effective_lore(state, source)
         self._exert_eventful(state, source, actor=action.actor, source_id=source, emit_event=False)
         state.cards[source].has_quested_this_turn = True
         self._gain_lore_eventful(state, action.actor, lore, source_id=source, emit_event=False)
 
-        # Emit quest event with rich Lorcanito-aligned payload
         self.emit_event(
             state,
             EVENT_QUESTED,
