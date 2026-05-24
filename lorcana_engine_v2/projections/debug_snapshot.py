@@ -1,0 +1,2 @@
+class DebugSnapshotProjector:
+    pass

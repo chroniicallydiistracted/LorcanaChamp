@@ -1,0 +1,2 @@
+class PolicyAdapter:
+    pass

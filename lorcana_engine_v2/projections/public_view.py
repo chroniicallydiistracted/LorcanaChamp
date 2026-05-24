@@ -1,0 +1,2 @@
+class PublicViewProjector:
+    pass

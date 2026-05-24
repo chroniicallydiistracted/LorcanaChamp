@@ -1,0 +1,1 @@
+"""Effect handler registry namespace."""

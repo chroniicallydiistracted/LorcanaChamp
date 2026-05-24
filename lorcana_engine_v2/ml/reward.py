@@ -1,0 +1,2 @@
+class RewardModel:
+    pass
