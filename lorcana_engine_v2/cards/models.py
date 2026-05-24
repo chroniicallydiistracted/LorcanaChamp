@@ -1,11 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Mapping
 
 
 @dataclass(frozen=True, slots=True)
 class SourceEffect:
+    """Preserved Lorcanito source effect shape.
+
+    v2 intentionally keeps the raw Lorcanito-derived object available.  Runtime
+    support will be added by mapping these source shapes into typed executable
+    specs, not by mutating the card definition or losing source fidelity.
+    """
     kind: str
     raw: dict[str, Any]
 
@@ -26,6 +32,7 @@ class SourceEffect:
 
 @dataclass(frozen=True, slots=True)
 class SourceAbility:
+    """Preserved Lorcanito source ability shape."""
     kind: str
     raw: dict[str, Any]
     id: str | None = None
@@ -37,6 +44,12 @@ class SourceAbility:
 
 @dataclass(frozen=True, slots=True)
 class CardDefinition:
+    """Immutable card definition loaded from Lorcanito-derived card data.
+
+    This is v2's equivalent of Lorcanito's BaseCardDefinition / typed card
+    object.  It must remain immutable and must not contain per-match mutable
+    state such as zone, damage, exertion, controller, or cards-under data.
+    """
     id: str
     name: str
     version: str | None
@@ -44,6 +57,8 @@ class CardDefinition:
     card_type: str
     cost: int
     inkable: bool
+    canonical_id: str | None = None
+    reprints: tuple[str, ...] = ()
     colors: tuple[str, ...] = ()
     classifications: tuple[str, ...] = ()
     strength: int = 0
@@ -51,7 +66,8 @@ class CardDefinition:
     lore: int = 0
     move_cost: int | None = None
     abilities: tuple[SourceAbility, ...] = ()
-    raw: dict[str, Any] = field(default_factory=dict)
+    raw: Mapping[str, Any] = field(default_factory=dict)
 
     def static_abilities(self) -> tuple[SourceAbility, ...]:
         return tuple(ability for ability in self.abilities if ability.kind == "static")
+

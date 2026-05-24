@@ -6,23 +6,23 @@ from .commands import Command
 from .context import RulesContext, build_rules_context
 from .results import TransitionResult
 from .state import MatchState
-from lorcana_engine_v2.cards.catalog import CardCatalog
+from .static_resources import MatchStaticResources
 
 
 @dataclass(slots=True)
 class MatchRuntime:
     """Central deterministic runtime shell for v2.
 
-    The scaffold intentionally keeps action application small.  Future move
-    modules will register move handlers here without adding card-specific logic
-    to this class.
+    Runtime is created from immutable MatchStaticResources, not directly from a
+    mutable card dictionary.  Future move modules will continue to receive a
+    RulesContext rather than importing card catalogs or legacy v1 runtime code.
     """
-    catalog: CardCatalog
+    resources: MatchStaticResources
 
     def context(self) -> RulesContext:
-        return build_rules_context(self.catalog)
+        return build_rules_context(self.resources)
 
-    def legal_moves(self, state: MatchState, player: int):
+    def legal_moves(self, state: MatchState, player: str):
         from lorcana_engine_v2.moves.available_moves import AvailableMoveService
         return AvailableMoveService().legal_moves(state, player, self.context())
 

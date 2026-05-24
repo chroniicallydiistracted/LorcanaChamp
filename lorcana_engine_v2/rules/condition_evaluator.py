@@ -3,12 +3,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from lorcana_engine_v2.core.ids import InstanceId, PlayerId
+
 
 @dataclass(frozen=True, slots=True)
 class ConditionContext:
-    actor: int
-    source_id: int | None = None
-    target_id: int | None = None
+    actor: PlayerId | str
+    source_id: InstanceId | str | None = None
+    target_id: InstanceId | str | None = None
     event_payload: dict[str, Any] | None = None
 
 
@@ -23,7 +25,7 @@ class ConditionEvaluator:
             return True
         if kind in {"no-damage", "has-no-damage"}:
             target = context.target_id if context.target_id is not None else context.source_id
-            return target is not None and state.cards[target].damage <= 0
+            return target is not None and ctx.query.get_meta(state, InstanceId(str(target))).damage <= 0
         if kind == "not":
             return not self.evaluate(state, ctx, raw_condition.get("condition"), context)
         if kind == "and":

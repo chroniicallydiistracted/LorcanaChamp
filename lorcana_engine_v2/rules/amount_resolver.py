@@ -3,12 +3,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from lorcana_engine_v2.core.ids import InstanceId, PlayerId
+
 
 @dataclass(frozen=True, slots=True)
 class AmountContext:
-    actor: int
-    source_id: int
-    target_id: int | None = None
+    actor: PlayerId | str
+    source_id: InstanceId | str
+    target_id: InstanceId | str | None = None
+
+    @property
+    def source_instance_id(self) -> InstanceId:
+        return InstanceId(str(self.source_id))
 
 
 class AmountResolver:
@@ -27,22 +33,22 @@ class AmountResolver:
         if kind == "static":
             return int(raw_amount.get("amount") or raw_amount.get("value") or 0)
         if kind == "items-in-play":
-            player = self._controller_from_raw(state, raw_amount, context)
+            player = self._controller_from_raw(state, ctx, raw_amount, context)
             return len(ctx.query.items_in_play(state, player))
         if kind == "characters-in-play":
-            player = self._controller_from_raw(state, raw_amount, context)
+            player = self._controller_from_raw(state, ctx, raw_amount, context)
             return len(ctx.query.characters_in_play(state, player))
         if kind == "damage-on-self":
-            return int(state.cards[context.source_id].damage)
+            return int(ctx.query.get_meta(state, context.source_instance_id).damage)
         if kind == "filtered-count":
             return self._filtered_count(state, ctx, raw_amount, context)
         return 0
 
-    def _controller_from_raw(self, state, raw: dict[str, Any], context: AmountContext) -> int:
-        source_controller = int(state.cards[context.source_id].controller)
+    def _controller_from_raw(self, state, ctx, raw: dict[str, Any], context: AmountContext) -> PlayerId:
+        source_controller = ctx.query.controller(state, context.source_instance_id)
         controller = raw.get("controller") or raw.get("owner")
         if controller == "opponent":
-            return int(state.opponent(source_controller))
+            return state.opponent(source_controller)
         return source_controller
 
     def _filtered_count(self, state, ctx, raw: dict[str, Any], context: AmountContext) -> int:
@@ -57,6 +63,7 @@ class AmountResolver:
             "excludeSelf": raw.get("excludeSelf") or raw.get("exclude_self"),
             "count": "all",
         }
-        q = TargetQueryContext(actor=int(state.cards[context.source_id].controller), source_id=context.source_id)
+        source_controller = ctx.query.controller(state, context.source_instance_id)
+        q = TargetQueryContext(actor=source_controller, source_id=context.source_instance_id)
         count = len(ctx.targets.resolve(state, ctx, target, q))
         return count * int(raw.get("multiplier") or 1)

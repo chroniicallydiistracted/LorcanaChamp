@@ -3,14 +3,20 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import json
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 from .models import CardDefinition, SourceAbility, SourceEffect
 
 
 @dataclass(frozen=True, slots=True)
 class CardCatalog:
-    cards: dict[str, CardDefinition]
+    """Immutable card catalog, equivalent to Lorcanito's CardCatalog.
+
+    The catalog stores static card definitions only.  Runtime instance identity
+    lives in MatchStaticResources.instances, not inside MatchState.
+    """
+    cards: Mapping[str, CardDefinition]
+    ref: str = "lorcana:cards"
 
     def get(self, card_id: str) -> CardDefinition:
         try:
@@ -18,11 +24,19 @@ class CardCatalog:
         except KeyError as exc:
             raise KeyError(f"Unknown card id: {card_id}") from exc
 
+    def has(self, card_id: str) -> bool:
+        return card_id in self.cards
+
     def all_cards(self) -> tuple[CardDefinition, ...]:
         return tuple(self.cards.values())
 
     @classmethod
-    def from_lorcanito_normalized_json(cls, path: str | Path) -> "CardCatalog":
+    def from_lorcanito_normalized_json(
+        cls,
+        path: str | Path,
+        *,
+        ref: str = "lorcana:cards",
+    ) -> "CardCatalog":
         payload = json.loads(Path(path).read_text(encoding="utf-8"))
         records = payload.get("cards", payload if isinstance(payload, list) else [])
         cards: dict[str, CardDefinition] = {}
@@ -31,19 +45,24 @@ class CardCatalog:
                 continue
             card = _parse_card(record)
             cards[card.id] = card
-        return cls(cards=cards)
+        return cls(cards=cards, ref=ref)
 
 
 def _parse_card(raw: dict[str, Any]) -> CardDefinition:
     abilities = tuple(_parse_ability(item) for item in raw.get("abilities", ()) if isinstance(item, dict))
     name = str(raw.get("name") or "")
     version = raw.get("version")
-    full_name = f"{name} - {version}" if version else name
+    full_name = str(raw.get("fullName") or raw.get("full_name") or (f"{name} - {version}" if version else name))
     colors = raw.get("inkType") or raw.get("colors") or raw.get("ink") or ()
     if isinstance(colors, str):
         colors = (colors,)
+    reprints = raw.get("reprints") or ()
+    if isinstance(reprints, str):
+        reprints = (reprints,)
     return CardDefinition(
         id=str(raw["id"]),
+        canonical_id=str(raw.get("canonicalId") or raw.get("canonical_id")) if raw.get("canonicalId") or raw.get("canonical_id") else None,
+        reprints=tuple(str(item) for item in reprints),
         name=name,
         version=str(version) if version is not None else None,
         full_name=full_name,
@@ -85,3 +104,4 @@ def _parse_effects(value: Any) -> Iterable[SourceEffect]:
     if isinstance(value, dict):
         kind = str(value.get("type") or value.get("kind") or "unknown")
         yield SourceEffect(kind=kind, raw=dict(value))
+
