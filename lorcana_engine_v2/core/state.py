@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any, Mapping
 
-from .ids import PlayerId
+from .ids import InstanceId, PlayerId
 from .zones import ZoneRuntimeState, build_zone_registry, initialize_zone_state_from_registry, LORCANA_RUNTIME_ZONES
 
 
@@ -17,11 +17,31 @@ class PlayerState:
 
 
 @dataclass(frozen=True, slots=True)
+class TurnMetadata:
+    """Serializable turn metadata owned by the Lorcana game layer.
+
+    Lorcanito records cards inked this turn in `G.turnMetadata.inkedThisTurn`.
+    v2 keeps the same concept explicit so moves can enforce once-per-turn rules
+    without storing transient rule state in card definitions or zone records.
+    """
+    inked_this_turn: tuple[InstanceId, ...] = ()
+
+    def record_ink(self, card_id: InstanceId | str) -> "TurnMetadata":
+        cid = InstanceId(str(card_id))
+        if cid in self.inked_this_turn:
+            return self
+        return replace(self, inked_this_turn=self.inked_this_turn + (cid,))
+
+    def reset_for_new_turn(self) -> "TurnMetadata":
+        return TurnMetadata()
+
+
+@dataclass(frozen=True, slots=True)
 class FrameworkState:
     """Serializable framework-owned match state.
 
-    Mirrors Lorcanito's TCGCtx split at v2 scale: zones and runtime indexing live
-    here, not in static card definitions.
+    Mirrors Lorcanito's framework/game split at v2 scale: zones, priority-like
+    active player, state ID, and phase live here, not in static card definitions.
     """
     player_ids: tuple[PlayerId, PlayerId]
     zones: ZoneRuntimeState
@@ -40,10 +60,11 @@ class FrameworkState:
 class GameState:
     """Game-owned serializable state.
 
-    This intentionally stays small in Phase 1.  Future phases will add bag,
-    pending effects, turn metrics, replacements, and floating triggers here.
+    Phase 2 adds explicit turn metadata for the first real move. Future phases
+    will add bag, pending effects, replacement effects, and floating triggers.
     """
     players: Mapping[PlayerId, PlayerState]
+    turn_metadata: TurnMetadata = field(default_factory=TurnMetadata)
     event_log: tuple[Any, ...] = ()
     turn_metrics: Mapping[str, Any] = field(default_factory=dict)
 
@@ -58,7 +79,7 @@ class GameState:
 class MatchState:
     """Authoritative v2 match state envelope.
 
-    Static card identity is deliberately not stored here.  Resolve instance IDs
+    Static card identity is deliberately not stored here. Resolve instance IDs
     through MatchStaticResources.instances, then CardCatalog.
     """
     framework: FrameworkState
