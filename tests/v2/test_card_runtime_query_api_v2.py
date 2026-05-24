@@ -1,4 +1,4 @@
-from lorcana_engine_v2.core.zones import CardMeta, put_cards_in_zone, scoped_zone
+from lorcana_engine_v2.core.zones import CardMeta, ZoneRuntimePrivateState, put_cards_in_zone, scoped_zone
 
 from .helpers import context_for, resources_for
 from lorcana_engine_v2.core.bootstrap import initialize_match_state_from_static_resources
@@ -25,25 +25,28 @@ def test_runtime_card_api_reads_zone_and_meta_state_without_card_definition_in_s
     ctx = context_for(resources)
     state = initialize_match_state_from_static_resources(resources)
     zones = put_cards_in_zone(
-        state.framework.zones,
+        state.ctx.zones,
         zone_key=scoped_zone("play", "p0"),
         card_ids=(InstanceId("c1"),),
         owner_id=PlayerId("p0"),
         controller_id=PlayerId("p0"),
     )
-    meta = dict(zones.card_meta)
-    meta[InstanceId("c1")] = CardMeta(damage=2, exerted=True)
+    meta = dict(zones.private.cardMeta)
+    meta[InstanceId("c1")] = CardMeta(damage=2, state="exerted")
     zones = type(zones)(
-        zone_cards=zones.zone_cards,
-        card_index=zones.card_index,
-        card_meta=meta,
-        zone_summaries=zones.zone_summaries,
+        public=zones.public,
+        reveals=zones.reveals,
+        private=ZoneRuntimePrivateState(
+            zoneCards=zones.private.zoneCards,
+            cardIndex=zones.private.cardIndex,
+            cardMeta=meta,
+        ),
     )
-    state = type(state)(framework=state.framework.with_updates(zones=zones), game=state.game)
+    state = type(state)(G=state.G, ctx=state.ctx.with_updates(zones=zones))
 
     runtime_card = ctx.query.runtime_card(state, "c1")
     assert runtime_card.zone_id == scoped_zone("play", "p0")
     assert runtime_card.meta.damage == 2
-    assert runtime_card.meta.exerted is True
+    assert runtime_card.meta.state == "exerted"
     assert ctx.query.public_in_play_ids(state) == ("c1",)
     assert ctx.query.characters_in_play(state, "p0") == ("c1",)

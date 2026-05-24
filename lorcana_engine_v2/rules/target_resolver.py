@@ -42,7 +42,7 @@ class TargetResolver:
             return False
         if spec.zones and base_zone_from_key(runtime_card.zone_id) not in {ZoneId(str(zone)) for zone in spec.zones}:
             return False
-        if runtime_card.meta.stack_parent_id is not None:
+        if runtime_card.meta.stackParentId is not None:
             return False
         if spec.exclude_self and query.source_instance_id is not None and instance_id == query.source_instance_id:
             return False
@@ -72,10 +72,10 @@ class TargetResolver:
             expected = str(filter_def.get("name") or filter_def.get("value") or "")
             return runtime_card.definition.name == expected or runtime_card.definition.full_name == expected
         if kind == "damaged":
-            return runtime_card.meta.damage > 0
+            return (runtime_card.meta.damage or 0) > 0
         if kind == "ready":
-            return not runtime_card.meta.exerted
+            return runtime_card.meta.state != "exerted"
         if kind == "exerted":
-            return runtime_card.meta.exerted
+            return runtime_card.meta.state == "exerted"
         # Unknown filters are intentionally false so report integration can stay honest.
         return False

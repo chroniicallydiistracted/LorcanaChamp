@@ -34,14 +34,14 @@ class PutCardIntoInkwellMove:
 
     def enumerate(self, state: MatchState, player: PlayerId, ctx) -> tuple[MoveSpec, ...]:
         actor = PlayerId(str(player))
-        if actor != state.framework.active_player:
+        if actor != state.ctx.priority.holder:
             return ()
-        if state.game.turn_metadata.inked_this_turn:
+        if state.G.turnMetadata.inkedThisTurn:
             return ()
 
         hand_zone = scoped_zone("hand", actor)
         moves: list[MoveSpec] = []
-        for card_id in state.framework.zones.zone_cards.get(hand_zone, ()):
+        for card_id in state.ctx.zones.private.zoneCards.get(hand_zone, ()):
             try:
                 runtime_card = ctx.query.runtime_card(state, card_id)
             except KeyError:
@@ -53,13 +53,13 @@ class PutCardIntoInkwellMove:
 
     def validate(self, state: MatchState, command: Command, ctx) -> MoveValidationResult:
         actor = PlayerId(str(command.actor))
-        if actor != state.framework.active_player:
+        if actor != state.ctx.priority.holder:
             return MoveValidationResult.fail(
                 f"Player '{actor}' does not currently have priority",
                 "NOT_PRIORITY_HOLDER",
             )
 
-        if state.game.turn_metadata.inked_this_turn:
+        if state.G.turnMetadata.inkedThisTurn:
             return MoveValidationResult.fail("Already inked this turn", "ALREADY_INKED")
 
         raw_card_id = command_card_id(command)
@@ -68,7 +68,7 @@ class PutCardIntoInkwellMove:
         card_id = InstanceId(raw_card_id)
 
         hand_zone = scoped_zone("hand", actor)
-        if not card_is_in_zone(state.framework.zones, card_id=card_id, zone_key=hand_zone):
+        if not card_is_in_zone(state.ctx.zones, card_id=card_id, zone_key=hand_zone):
             return MoveValidationResult.fail("Card not in hand", "CARD_NOT_IN_HAND")
 
         try:
@@ -88,26 +88,22 @@ class PutCardIntoInkwellMove:
 
         actor = PlayerId(str(command.actor))
         card_id = InstanceId(command_card_id(command) or "")
-        source_zone = state.framework.zones.card_index[card_id].zone_key
+        source_zone = state.ctx.zones.private.cardIndex[card_id].zoneKey
         destination_zone = scoped_zone("inkwell", actor)
 
         zones = move_card_to_zone(
-            state.framework.zones,
+            state.ctx.zones,
             card_id=card_id,
             destination_zone_key=destination_zone,
             owner_id=ctx.query.owner(state, card_id),
             controller_id=actor,
         )
 
-        current_meta = zones.card_meta.get(card_id, CardMeta())
-        flags = dict(current_meta.flags)
-        flags["state"] = "ready"
-        flags["publicFaceState"] = "faceDown"
-        flags["lastMovedBy"] = self.kind
+        current_meta = zones.private.cardMeta.get(card_id, CardMeta())
         zones = patch_card_meta(
             zones,
             card_id,
-            current_meta.with_updates(exerted=False, drying=False, flags=flags),
+            current_meta.with_updates(state="ready", publicFaceState="faceDown"),
         )
 
         event = GameEvent(
@@ -121,13 +117,12 @@ class PutCardIntoInkwellMove:
             },
         )
 
-        next_framework = state.framework.with_updates(
+        next_ctx = state.ctx.with_updates(
             zones=zones,
-            state_id=state.framework.state_id + 1,
+            _stateID=state.ctx._stateID + 1,
         )
-        next_game = state.game.with_updates(
-            turn_metadata=state.game.turn_metadata.record_ink(card_id),
-            event_log=state.game.event_log + (event,),
+        next_G = state.G.with_updates(
+            turnMetadata=state.G.turnMetadata.record_ink(card_id),
         )
-        next_state = MatchState(framework=next_framework, game=next_game)
+        next_state = MatchState(G=next_G, ctx=next_ctx)
         return TransitionResult(state=next_state, events=(event,), accepted=True)

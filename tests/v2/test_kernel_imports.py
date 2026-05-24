@@ -37,6 +37,7 @@ def test_v2_kernel_imports_without_legacy_runtime():
 
         print(json.dumps({
             "match_runtime_exported": getattr(lorcana_engine_v2, "MatchRuntime", None) is not None,
+            "view_filter_exported": getattr(lorcana_engine_v2, "filter_match_view", None) is not None,
             "imported_forbidden_modules": imported,
         }))
         """
@@ -51,4 +52,5 @@ def test_v2_kernel_imports_without_legacy_runtime():
 
     payload = json.loads(result.stdout)
     assert payload["match_runtime_exported"] is True
+    assert payload["view_filter_exported"] is True
     assert payload["imported_forbidden_modules"] == []

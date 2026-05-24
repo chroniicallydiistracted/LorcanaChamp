@@ -33,11 +33,11 @@ class CardsMaps:
             InstanceId(str(instance_id)): CardId(str(definition_id))
             for instance_id, definition_id in card_instances_raw.items()
         }
-        owners = {
-            PlayerId(str(owner_id)): tuple(InstanceId(str(instance_id)) for instance_id in instance_ids)
-            for owner_id, instance_ids in owners_raw.items()
-            if isinstance(instance_ids, (list, tuple))
-        }
+        owners: dict[PlayerId, tuple[InstanceId, ...]] = {}
+        for owner_id, instance_ids in owners_raw.items():
+            if not isinstance(instance_ids, (list, tuple)):
+                raise TypeError("CardsMaps.owners values must be lists of instance IDs")
+            owners[PlayerId(str(owner_id))] = tuple(InstanceId(str(instance_id)) for instance_id in instance_ids)
         return cls(card_instances=card_instances, owners=owners)
 
     def to_raw(self) -> dict[str, object]:
@@ -111,7 +111,21 @@ def _hash_string(input_value: str) -> str:
 
 
 def _cards_maps_ref(cards_maps: CardsMaps) -> str:
-    signature = json.dumps(cards_maps.to_raw(), sort_keys=True, separators=(",", ":"))
+    # Lorcanito hashes sorted entries, not the raw object shape.  Keep this
+    # byte-for-byte aligned with createCardsMapsRef in static-resources.ts.
+    signature = json.dumps(
+        {
+            "cardInstances": sorted(
+                (str(instance_id), str(definition_id))
+                for instance_id, definition_id in cards_maps.card_instances.items()
+            ),
+            "owners": [
+                (str(owner_id), [str(instance_id) for instance_id in instance_ids])
+                for owner_id, instance_ids in sorted(cards_maps.owners.items(), key=lambda item: str(item[0]))
+            ],
+        },
+        separators=(",", ":"),
+    )
     return f"cards-maps:{len(cards_maps.card_instances)}:{_hash_string(signature)}"
 
 

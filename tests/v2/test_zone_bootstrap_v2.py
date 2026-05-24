@@ -12,25 +12,24 @@ def test_zone_bootstrap_creates_owner_scoped_deck_zones_from_static_resources():
     )
     state = initialize_match_state_from_static_resources(resources)
 
-    assert state.framework.player_ids == (PlayerId("p0"), PlayerId("p1"))
-    assert state.framework.zones.zone_cards[scoped_zone("deck", "p0")] == ("p0a", "p0b")
-    assert state.framework.zones.zone_cards[scoped_zone("deck", "p1")] == ("p1a",)
+    assert state.ctx.playerIds == (PlayerId("p0"), PlayerId("p1"))
+    assert state.ctx.zones.private.zoneCards[scoped_zone("deck", "p0")] == ("p0a", "p0b")
+    assert state.ctx.zones.private.zoneCards[scoped_zone("deck", "p1")] == ("p1a",)
 
-    p0a = state.framework.zones.card_index["p0a"]
-    assert p0a.zone_key == scoped_zone("deck", "p0")
+    p0a = state.ctx.zones.private.cardIndex["p0a"]
+    assert p0a.zoneKey == scoped_zone("deck", "p0")
     assert p0a.index == 0
-    assert p0a.owner_id == "p0"
-    assert p0a.controller_id == "p0"
+    assert p0a.ownerID == "p0"
+    assert p0a.controllerID == "p0"
 
-    assert state.framework.zones.zone_summaries[scoped_zone("deck", "p0")].count == 2
-    assert state.framework.zones.zone_summaries[scoped_zone("deck", "p1")].count == 1
+    assert state.ctx.zones.public.zoneSummaries[scoped_zone("deck", "p0")].count == 2
+    assert state.ctx.zones.public.zoneSummaries[scoped_zone("deck", "p1")].count == 1
 
 
-def test_zone_bootstrap_rejects_owner_not_in_match():
+def test_zone_bootstrap_ignores_static_resource_owner_not_in_match_like_lorcanito_board_setup():
     resources = resources_for({"x1": "XGm"}, owners={"stranger": ("x1",)})
-    try:
-        initialize_match_state_from_static_resources(resources)
-    except ValueError as exc:
-        assert "not a match player" in str(exc)
-    else:
-        raise AssertionError("expected owner outside match to fail")
+    state = initialize_match_state_from_static_resources(resources)
+
+    assert state.ctx.zones.private.zoneCards[scoped_zone("deck", "p0")] == ()
+    assert state.ctx.zones.private.zoneCards[scoped_zone("deck", "p1")] == ()
+    assert "x1" not in state.ctx.zones.private.cardIndex
