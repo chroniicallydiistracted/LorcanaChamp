@@ -84,7 +84,10 @@ def test_v2_put_card_into_inkwell_moves_real_card_and_records_turn_metadata():
     assert result.gameEvents[0].event.commandId == "cmd-ink"
     assert result.gameEvents[0].event.move == PUT_CARD_INTO_INKWELL
     assert result.moveLogs[0].defaultMessage.key == "lorcana.card.inked"
-    assert any(event.event.kind == "card.inked" for event in result.gameEvents)
+    card_inked_events = [event.event for event in result.gameEvents if event.event.kind == "cardInked"]
+    assert len(card_inked_events) == 1
+    assert card_inked_events[0].payload["from"] == "hand:p0"
+    assert card_inked_events[0].payload["to"] == "inkwell:p0"
 
     next_state = result.state
     assert InstanceId("c1") not in next_state.ctx.zones.private.zoneCards[scoped_zone("hand", "p0")]

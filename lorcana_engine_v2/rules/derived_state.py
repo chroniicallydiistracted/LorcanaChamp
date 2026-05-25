@@ -200,6 +200,47 @@ def _active_static_inkability_grant(
     return False
 
 
+def _static_additional_inkwell_allowance(
+    *,
+    state: MatchState,
+    static_resources: MatchStaticResources,
+    actor_player_id: PlayerId,
+) -> int:
+    from lorcana_engine_v2.rules.condition_evaluator import ConditionContext, ConditionEvaluator
+    from lorcana_engine_v2.rules.queries import QueryService
+
+    query = QueryService(static_resources, actorPlayerId=actor_player_id, cacheViews=False)
+    evaluator = ConditionEvaluator()
+    allowance = 0
+    for card_id, entry in state.ctx.zones.private.cardIndex.items():
+        if base_zone_from_key(entry.zoneKey) != ZoneId("play"):
+            continue
+        if entry.controllerID != actor_player_id:
+            continue
+        definition = static_resources.cards.get(str(static_resources.instances.require(card_id).definition_id))
+        for ability in definition.static_abilities():
+            effect = ability.raw.get("effect")
+            if not isinstance(effect, Mapping) or effect.get("type") != "additional-inkwell":
+                continue
+            source_zones = ability.source_zones or tuple(ability.raw.get("sourceZones") or ("play",))
+            if "play" not in source_zones:
+                continue
+            condition = ability.raw.get("condition")
+            if not evaluator.evaluate(
+                state,
+                type(
+                    "StaticAdditionalInkwellContext",
+                    (),
+                    {"query": query},
+                )(),
+                condition,
+                ConditionContext(actor=actor_player_id, source_id=card_id, target_id=card_id),
+            ):
+                continue
+            allowance += max(0, _number(effect.get("amount", 1), 1))
+    return allowance
+
+
 def derive_can_be_put_in_inkwell(
     *,
     state: MatchState,
@@ -214,7 +255,15 @@ def derive_can_be_put_in_inkwell(
     if owner_id != actor_player_id:
         return False
     inked_this_turn = state.G.turnMetadata.inkedThisTurn
-    ink_limit = 1 + state.G.turnMetadata.additionalInkwellActions
+    ink_limit = (
+        1
+        + state.G.turnMetadata.additionalInkwellActions
+        + _static_additional_inkwell_allowance(
+            state=state,
+            static_resources=static_resources,
+            actor_player_id=actor_player_id,
+        )
+    )
     if len(inked_this_turn) >= ink_limit:
         return False
 

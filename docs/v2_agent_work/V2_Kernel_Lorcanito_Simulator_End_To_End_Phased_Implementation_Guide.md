@@ -1,6 +1,6 @@
 # LorcanaChamp v2 Kernel Lorcanito Parity End-to-End Implementation Guide
 
-Status: updated after Phase 8 completion. Remaining work starts at Phase 9.
+Status: updated after Phase 9 completion. Remaining work starts at Phase 10.
 
 This guide is the active source-mapped roadmap for rebuilding the LorcanaChamp v2 kernel as a headless Python engine that matches Lorcanito's simulator/game-state/rules logic. Lorcanito remains the source of truth for game model, resolution flow, move validation, and card behavior. LorcanaChamp v2 must not preserve an old runtime shape when that shape conflicts with Lorcanito.
 
@@ -37,8 +37,9 @@ This guide is the active source-mapped roadmap for rebuilding the LorcanaChamp v
 | Phase 6: flow transitions, legal move gates, setup moves | Complete | `lorcana_engine_v2/flow/runtime_flow.py`, `lorcana_engine_v2/flow/runtime_flow_config.py`, `lorcana_engine_v2/moves/setup.py`, registered setup moves, `tests/v2/test_lorcanito_setup_flow_phase6_v2.py`. |
 | Phase 7: runtime card derivation, static effect registry, conditions, targeting | Complete | `lorcana_engine_v2/rules/queries.py`, `lorcana_engine_v2/rules/derived_state.py`, `lorcana_engine_v2/registries/static_registry.py`, `lorcana_engine_v2/rules/condition_evaluator.py`, `lorcana_engine_v2/rules/target_resolver.py`, Phase 7 parity tests. |
 | Phase 8: resolution foundation, triggers, bag, replacements, temporary effects | Complete | `lorcana_engine_v2/resolution/pending.py`, `lorcana_engine_v2/resolution/bag.py`, `lorcana_engine_v2/resolution/action_effects.py`, `lorcana_engine_v2/effects/triggered_abilities.py`, `lorcana_engine_v2/effects/replacement_effects.py`, `lorcana_engine_v2/effects/temporary_effects.py`, `lorcana_engine_v2/effects/continuous_effects.py`, Phase 8 parity tests. |
+| Phase 9: authoritative resource turn action - put card into inkwell | Complete | `lorcana_engine_v2/moves/ink.py`, `lorcana_engine_v2/rules/derived_state.py`, `lorcana_engine_v2/resolution/pending.py`, `lorcana_engine_v2/effects/triggered_abilities.py`, `tests/v2/test_put_card_into_inkwell_lorcanito_v2.py`, `docs/v2_agent_work/V2_Kernel_Phase_9_Authoritative_Inkwell_Implementation.md`. |
 
-Latest observed v2 suite result after Phase 8:
+Latest observed v2 suite result after Phase 9:
 
 ```bash
 pytest -q tests/v2
@@ -47,7 +48,7 @@ pytest -q tests/v2
 Expected and observed:
 
 ```text
-109 passed
+114 passed
 ```
 
 ## Current v2 State
@@ -71,14 +72,14 @@ Expected and observed:
 | `lorcana_engine_v2/core/validation.py` | Implements Lorcanito validation gates for missing input, stale state, game ended, unknown move, server-only, flow-disallowed, priority, and move-specific validation. |
 | `lorcana_engine_v2/moves/available_moves.py` | Isolated compatibility adapter over Lorcanito move definitions, now including setup moves. Authoritative code should use `MatchRuntime.enumerate_moves_for_player` and `MatchRuntime.process_command`. |
 | `lorcana_engine_v2/moves/setup.py` | Implements Lorcanito `chooseWhoGoesFirst`, `alterHand`, and runtime player ID resolution. |
-| `lorcana_engine_v2/moves/ink.py` | Uses Lorcanito command contexts and `MoveInput.args.cardId`; still not fully authoritative until runtime card derivation, pending effects, static-granted discard inking, triggers, and bag handoff are ported. |
+| `lorcana_engine_v2/moves/ink.py` | Implements Lorcanito's authoritative `putCardIntoInkwell`: pending-effect guard, turn ink allowance, static additional-inkwell allowance, hand/discard candidates, derived `canBePutInInkwell`, inkwell zone/meta/reveal/log side effects, turn metadata, `cardInked` event, and trigger flush to bag. |
 | `lorcana_engine_v2/rules/queries.py` | Provides Lorcanito-shaped runtime card query views: `instanceId`, `definitionId`, `ownerID`, `controllerID`, `zoneID`, `zoneIndex`, meta, definition, derived stats, cost, damage, drying/exerted state, inkability, keywords, classifications, and query helpers. |
-| `lorcana_engine_v2/rules/derived_state.py` | Derives effective strength, willpower, lore, play cost, move cost, inkability, keywords, classifications, and metadata-backed status from static resources, zones, meta, and static registry effects. |
+| `lorcana_engine_v2/rules/derived_state.py` | Derives effective strength, willpower, lore, play cost, move cost, inkability, keywords, classifications, and metadata-backed status from static resources, zones, meta, and static registry effects, including static additional-inkwell allowance for `canBePutInInkwell`. |
 | `lorcana_engine_v2/registries/static_registry.py` | Builds Lorcanito-shaped static effect indexes: `byTarget`, `byPlayer`, `globalEffects`, and `bySource`, with accessor helpers and compatibility materialization. |
 | `lorcana_engine_v2/rules/condition_evaluator.py` | Evaluates the foundational Lorcanito condition variants needed by static registry and target gates, including logical conditions, damage/status, turn, resource counts, card counts, named cards, target queries, and stat thresholds. |
 | `lorcana_engine_v2/rules/target_resolver.py` | Resolves foundational Lorcanito target descriptors across owner-scoped zones, owner/controller gates, card types, filters, self/source, exclude-self, and real-card classifications/status filters. |
-| `lorcana_engine_v2/resolution/*` | Provides Lorcanito-shaped pending action effects, pending-choice validation/resolution, foundational action-effect execution, triggered bag resolution, and event pipeline flushing. Full effect variant coverage remains later card/move phases. |
-| `lorcana_engine_v2/effects/triggered_abilities.py` | Buffers Lorcanito triggered events, scans real printed triggered abilities from normalized card data, flushes matches to bag items, tracks occurrence/resolution ledgers, and resolves next bag controller priority. |
+| `lorcana_engine_v2/resolution/*` | Provides Lorcanito-shaped pending action effects, pending-choice validation/resolution, validation/enumeration pending guards, foundational action-effect execution, triggered bag resolution, and event pipeline flushing. Full effect variant coverage remains later card/move phases. |
+| `lorcana_engine_v2/effects/triggered_abilities.py` | Buffers Lorcanito triggered events, scans real printed triggered abilities from normalized card data, flushes matches to bag items from runtime contexts, tracks occurrence/resolution ledgers, and resolves next bag controller priority. |
 | `lorcana_engine_v2/effects/replacement_effects.py` | Applies printed replacement abilities and registered replacement effects for foundational damage, discard/lore prevention, damage redirection, and zone-destination replacement. |
 | `lorcana_engine_v2/effects/temporary_effects.py` | Adds, checks, prunes, and cleans up temporary keywords, lost keywords, classifications, abilities, restrictions, and player restrictions by Lorcanito effect windows. |
 | `lorcana_engine_v2/effects/continuous_effects.py` | Adds and expires turn-scoped stat modifiers and feeds derived runtime card stats through continuous effect totals. |
@@ -162,16 +163,15 @@ Expected and observed:
 
 The remaining phases must run in this order unless direct Lorcanito inspection proves a different dependency:
 
-1. Phase 9: authoritative inkwell action.
-2. Phase 10: play card, cost payment, shift, songs, and enter-play flow.
-3. Phase 11: broaden action effect resolver and `resolveEffect` coverage.
-4. Phase 12: pass turn and beginning/end turn pipeline.
-5. Phase 13: quest.
-6. Phase 14: challenge and lethal damage cleanup.
-7. Phase 15: locations, activated abilities, and remaining move families.
-8. Phase 16: headless observations, legal move adapter, replay/debug projection, ML action/observation surfaces.
-9. Phase 17: card support gates and unsupported report movement.
-10. Phase 18: Lorcanito simulator corpus parity, self-play determinism, performance, and long-run ML readiness.
+1. Phase 10: play card, cost payment, shift, songs, and enter-play flow.
+2. Phase 11: broaden action effect resolver and `resolveEffect` coverage.
+3. Phase 12: pass turn and beginning/end turn pipeline.
+4. Phase 13: quest.
+5. Phase 14: challenge and lethal damage cleanup.
+6. Phase 15: locations, activated abilities, and remaining move families.
+7. Phase 16: headless observations, legal move adapter, replay/debug projection, ML action/observation surfaces.
+8. Phase 17: card support gates and unsupported report movement.
+9. Phase 18: Lorcanito simulator corpus parity, self-play determinism, performance, and long-run ML readiness.
 
 ## Phase 4: Runtime Config, Initialization, Seeded Random, Board Setup
 
@@ -385,7 +385,7 @@ Parity proof:
 Remaining risks moved to later phases:
 
 - Flow transitions and setup moves were closed in Phase 6. Clocks, patch capture, registry warm-up, full move log projection, and packet animations are still deferred. Packet animations remain non-essential for the headless ML kernel and should not become a UI implementation task.
-- `putCardIntoInkwell` still needs later derived-card inkability, pending-effect guard, static-granted discard inking, triggers, and bag integration before it is final Lorcanito gameplay parity.
+- `putCardIntoInkwell` gaps from Phase 5 were closed in Phase 9. Later move phases must follow the same command/context/resolution pattern.
 
 ## Phase 6: Flow Transitions, Legal Move Gates, Setup Moves
 
@@ -574,7 +574,7 @@ Parity proof:
 Risks:
 
 - Do not classify real cards as supported after this phase. Derived state proves classification/query foundations, not full gameplay effects.
-- Condition and target variant coverage is foundational, not exhaustive. Phase 9 and later effect/move phases must extend variants only from Lorcanito source and real-card parity tests.
+- Condition and target variant coverage is foundational, not exhaustive. Phase 10 and later effect/move phases must extend variants only from Lorcanito source and real-card parity tests.
 
 ## Phase 8: Resolution Foundation, Triggers, Bag, Replacements, Temporary Effects
 
@@ -690,6 +690,10 @@ Risks:
 
 ## Phase 9: Authoritative Resource Turn Action - Put Card Into Inkwell
 
+Status: Complete.
+
+Implementation proof: `docs/v2_agent_work/V2_Kernel_Phase_9_Authoritative_Inkwell_Implementation.md`
+
 Objective: Replace the interim inkwell move with Lorcanito's authoritative `putCardIntoInkwell` behavior.
 
 Lorcanito source:
@@ -699,37 +703,52 @@ Lorcanito source:
 - `runtime-moves/state/turn-metrics.ts`
 - `rules/derived-state.ts`
 - `runtime-moves/state/runtime-card-derived.ts`
+- `runtime-moves/effects/triggered-abilities.ts`
+- `runtime-moves/resolution/action-effects/pending-action-effects.ts`
 
-Current v2 gap:
+Closed v2 gaps:
 
-- Existing inkwell move is an interim direct mutation.
-- It does not enter through `CommandEnvelope`.
-- It lacks flow/priority validation, pending-effect guard, discard inkability grants, additional inkwell actions, derived card inkability, trigger flush, and Lorcanito result codes.
+- Interim hand-only inking was replaced with the Lorcanito command-context move.
+- Pending effects now block validation and enumeration before card-specific validation.
+- Candidate cards now come from hand and discard, with actual discard inking requiring derived Lorcanito permission.
+- Runtime validation uses derived `runtimeCard.canBePutInInkwell`, not raw `definition.inkable`.
+- The turn-action ink limit now includes base one-per-turn, temporary additional allowance, and static `additional-inkwell` allowance.
+- Execution now writes Lorcanito zone/meta/reveal/log/turn-metadata/event/trigger side effects.
+- Trigger flushing now works from runtime execution contexts, so real printed ink triggers can enter the bag.
 
-Files to replace:
+Files replaced or updated:
 
 - Replace `lorcana_engine_v2/moves/ink.py`.
-- Update `lorcana_engine_v2/moves/registry.py`.
-- Update `lorcana_engine_v2/moves/available_moves.py` only through the Phase 5/6 legal move path.
-- Update tests that still call the interim function directly.
+- Update `lorcana_engine_v2/resolution/pending.py`.
+- Update `lorcana_engine_v2/rules/derived_state.py`.
+- Update `lorcana_engine_v2/effects/triggered_abilities.py`.
+- Update `tests/v2/test_put_card_into_inkwell_move_v2.py`.
+- Add `tests/v2/test_put_card_into_inkwell_lorcanito_v2.py`.
 
-Exact functions/classes required:
+Exact functions/classes completed:
 
-- `put_card_into_inkwell`
+- `PutCardIntoInkwellMove`
+- `PUT_CARD_INTO_INKWELL`
+- `INKWELL_CANDIDATE_QUERY_DSL`
 - `can_ink_this_turn`
 - `get_turn_action_ink_limit`
 - `get_additional_turn_action_ink_allowance`
+- `get_static_additional_turn_action_ink_allowance`
+- `get_temporary_additional_turn_action_ink_allowance`
 - `build_turn_action_ink_state`
 - `record_card_put_into_inkwell_this_turn`
+- `validate_no_pending_effects` now supports validation/enumeration contexts.
+- `derive_can_be_put_in_inkwell` now accounts for static additional-inkwell allowance.
+- `finalize_resolution_boundary` now preserves runtime context for printed trigger scanning.
 
-Required behavior:
+Observed behavior:
 
 - Reject if pending effects exist.
-- Reject if actor is not the priority holder/turn action player.
-- Allow hand cards by default.
-- Allow discard cards only through Lorcanito static discard inkability grants.
-- Reject non-inkable cards using derived `canBePutInInkwell`.
-- Enforce one ink action plus additional Lorcanito allowances.
+- Reject if actor is not the priority holder through the existing command validation gate.
+- Allow hand cards by default when derived `canBePutInInkwell` is true.
+- Allow discard cards only when Lorcanito-derived state grants discard inkwell permission and the card is otherwise inkable.
+- Reject non-inkable cards unless a Lorcanito static grant makes `canBePutInInkwell` true.
+- Enforce one ink action plus temporary and static Lorcanito additional allowances.
 - Move card to `inkwell:<player>`.
 - Patch card meta `{ state: "ready", publicFaceState: "faceDown" }`.
 - Reveal card to all until `stateID + 3`.
@@ -740,24 +759,45 @@ Required behavior:
 Tests:
 
 - Add `tests/v2/test_put_card_into_inkwell_lorcanito_v2.py`.
-- Include real cards from normalized Lorcanito data.
-- Include a non-inkable real card.
-- Include discard-inkability only when a real static grant exists or use a documented synthetic unit test for the grant helper only.
+- Updated `tests/v2/test_put_card_into_inkwell_move_v2.py`.
+- Real Belle - Strange but Special (`6qy`) proves static `additional-inkwell` allows a second ink action this turn.
+- Real Hidden Inkcaster (`RqX`) proves hand inkability can be granted to a real non-inkable card.
+- Real Moana - Curious Explorer (`wRv`) proves discard inking for a normally inkable real card.
+- Real Gramma Tala - Spirit of the Ocean (`0Rd`) proves an ink trigger flushes to the Lorcanito bag.
+- Real non-inkable card (`5XS`) remains rejected without a static grant.
 
 Commands:
 
 ```bash
-pytest -q tests/v2/test_put_card_into_inkwell_lorcanito_v2.py
+pytest -q tests/v2/test_put_card_into_inkwell_move_v2.py tests/v2/test_put_card_into_inkwell_lorcanito_v2.py
+pytest -q tests/v2/test_triggered_abilities_lorcanito_v2.py tests/v2/test_resolve_bag_lorcanito_v2.py tests/v2/test_put_card_into_inkwell_move_v2.py tests/v2/test_put_card_into_inkwell_lorcanito_v2.py
 pytest -q tests/v2
+pytest --collect-only tests/v2 | tail -n 5
+python -m compileall -q lorcana_engine_v2 tests/v2
+```
+
+Expected and observed:
+
+```text
+Phase 9 inkwell suite: 12 passed
+Trigger/bag/inkwell regression suite: 15 passed
+Full v2 suite: 114 passed
+Collection: 114 tests collected
+Compileall: passed
 ```
 
 Parity proof:
 
 - Inkwell is executed as a Lorcanito command in `mainGame/main`, mutates state through runtime contexts, and produces the same state/log/event side effects Lorcanito requires.
+- Move validation calls the same pending-effect guard shape Lorcanito uses before ink-specific checks.
+- Candidate cards match Lorcanito's hand/discard `INKWELL_CANDIDATE_QUERY_DSL`.
+- Turn metadata records both `inkedThisTurn` and `cardsPutIntoInkwellThisTurn`.
+- Trigger proof uses real normalized Lorcanito card data, not a synthetic trigger.
 
 Risks:
 
 - Do not use this phase to claim broad card ability support. It proves one turn action.
+- The inkwell action is authoritative, but later play/quest/challenge/pass-turn phases still need broader action-effect, trigger-filter, replacement, and turn-pipeline coverage before unsupported card reports move.
 
 ## Phase 10: Play Card, Costs, Shift, Songs, Entering Play
 
@@ -1403,7 +1443,7 @@ pytest -q tests/v2/test_lorcanito_command_envelope_v2.py tests/v2/test_lorcanito
 pytest -q tests/v2/test_lorcanito_flow_gates_v2.py tests/v2/test_setup_choose_who_goes_first_v2.py tests/v2/test_setup_alter_hand_v2.py tests/v2/test_lorcanito_legal_moves_setup_v2.py
 pytest -q tests/v2/test_runtime_card_derived_lorcanito_v2.py tests/v2/test_static_effect_registry_lorcanito_v2.py tests/v2/test_condition_evaluator_lorcanito_v2.py tests/v2/test_targeting_lorcanito_contract_v2.py
 pytest -q tests/v2/test_pending_action_effects_lorcanito_v2.py tests/v2/test_resolve_effect_lorcanito_v2.py tests/v2/test_triggered_abilities_lorcanito_v2.py tests/v2/test_resolve_bag_lorcanito_v2.py tests/v2/test_replacement_effects_lorcanito_v2.py tests/v2/test_temporary_effects_lorcanito_v2.py
-pytest -q tests/v2/test_put_card_into_inkwell_lorcanito_v2.py
+pytest -q tests/v2/test_put_card_into_inkwell_move_v2.py tests/v2/test_put_card_into_inkwell_lorcanito_v2.py
 pytest -q tests/v2/test_play_card_lorcanito_v2.py tests/v2/test_play_card_costs_lorcanito_v2.py tests/v2/test_shift_lorcanito_v2.py tests/v2/test_songs_lorcanito_v2.py
 pytest -q tests/v2/resolution/action_effects
 pytest -q tests/v2/test_pass_turn_lorcanito_v2.py tests/v2/test_beginning_phase_lorcanito_v2.py tests/v2/test_turn_cleanup_lorcanito_v2.py tests/v2/test_game_end_lorcanito_v2.py
@@ -1431,8 +1471,6 @@ A phase is complete only when all of these are true:
 
 ## Immediate Next Implementation
 
-The next development task is Phase 6.
+The next development task is Phase 10: play card, cost payment, Shift, songs, and entering-play flow.
 
-Do not continue the old inkwell-first path. Phase 5 is complete, so the next foundation is Lorcanito flow transition resolution plus setup moves.
-
-After Phase 6 setup flow, implement runtime card derivation and static/targeting foundations. Only then should gameplay moves such as inkwell become authoritative.
+Do not implement play as a small legacy patch. Lorcanito `playCard` depends on the already-completed command envelope, flow gates, runtime card derivation, target resolution, pending effects, trigger bag, replacement effects, and inkwell resource state. Phase 10 must compare Lorcanito `play-card.ts`, play-card rules, cost payment, Shift, song, and action-resolution source files against the current v2 state before replacing the remaining legacy play/shift/sing/cost code.

@@ -157,16 +157,35 @@ def remove_pending_action_effect(
 
 
 def has_pending_action_effect_resolution(state_or_context: MatchState | object) -> bool:
-    state = _state_of(state_or_context)
-    pending_choice = state.ctx.priority.pendingChoice
-    return bool(state.G.pendingEffects) or (
+    if isinstance(state_or_context, MatchState):
+        pending_effects = state_or_context.G.pendingEffects
+        pending_choice = state_or_context.ctx.priority.pendingChoice
+    elif hasattr(state_or_context, "G") and hasattr(state_or_context, "framework"):
+        pending_effects = getattr(state_or_context.G, "pendingEffects", ())
+        pending_choice = getattr(state_or_context.framework.state.priority, "pendingChoice", None)
+    else:
+        state = _state_of(state_or_context)
+        pending_effects = state.G.pendingEffects
+        pending_choice = state.ctx.priority.pendingChoice
+    return bool(pending_effects) or (
         pending_choice is not None and pending_choice.type == "action-effect"
     )
 
 
 def has_any_pending_effects(state_or_context: MatchState | object) -> bool:
-    state = _state_of(state_or_context)
-    return bool(state.G.pendingEffects) or bool(state.G.triggeredAbilities.bag.items)
+    if isinstance(state_or_context, MatchState):
+        pending_effects = state_or_context.G.pendingEffects
+        bag_items = state_or_context.G.triggeredAbilities.bag.items
+    elif hasattr(state_or_context, "G"):
+        pending_effects = getattr(state_or_context.G, "pendingEffects", ())
+        triggered = getattr(state_or_context.G, "triggeredAbilities", None)
+        bag = getattr(triggered, "bag", None)
+        bag_items = getattr(bag, "items", ())
+    else:
+        state = _state_of(state_or_context)
+        pending_effects = state.G.pendingEffects
+        bag_items = state.G.triggeredAbilities.bag.items
+    return bool(pending_effects) or bool(bag_items)
 
 
 def validate_no_pending_effects(
@@ -174,16 +193,19 @@ def validate_no_pending_effects(
     *,
     action_label: str = "act",
 ) -> RuntimeValidationResult:
-    state = _state_of(state_or_context)
-    if state.G.pendingEffects or (
-        state.ctx.priority.pendingChoice is not None
-        and state.ctx.priority.pendingChoice.type == "action-effect"
-    ):
+    if has_pending_action_effect_resolution(state_or_context):
         return RuntimeValidationResult.fail(
             f"Cannot {action_label} while an action effect is pending",
             EFFECT_PENDING_ERROR_CODE,
         )
-    if state.G.triggeredAbilities.bag.items:
+    if isinstance(state_or_context, MatchState):
+        bag_items = state_or_context.G.triggeredAbilities.bag.items
+    elif hasattr(state_or_context, "G"):
+        triggered = getattr(state_or_context.G, "triggeredAbilities", None)
+        bag_items = getattr(getattr(triggered, "bag", None), "items", ())
+    else:
+        bag_items = _state_of(state_or_context).G.triggeredAbilities.bag.items
+    if bag_items:
         return RuntimeValidationResult.fail(
             f"Cannot {action_label} while bag effects are pending",
             "BAG_PENDING",

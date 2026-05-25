@@ -470,7 +470,8 @@ def finalize_resolution_boundary(
     events = tuple(state.G.triggeredAbilities.pendingEvents)
     triggered = replace(state.G.triggeredAbilities, pendingEvents=())
     state = MatchState(G=state.G.with_updates(triggeredAbilities=triggered), ctx=state.ctx)
-    board_candidates = collect_printed_trigger_candidates(state, resources=resources)
+    _write_state(target, state)
+    board_candidates = collect_printed_trigger_candidates(target, resources=resources)
 
     for raw_event in events:
         if not isinstance(raw_event, Mapping):
