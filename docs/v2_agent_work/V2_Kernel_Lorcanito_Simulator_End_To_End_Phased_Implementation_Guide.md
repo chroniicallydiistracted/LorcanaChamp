@@ -1,6 +1,6 @@
 # LorcanaChamp v2 Kernel Lorcanito Parity End-to-End Implementation Guide
 
-Status: updated after Phase 10 completion. Remaining work starts at Phase 11.
+Status: updated after Phase 11 completion. Remaining work starts at Phase 12.
 
 This guide is the active source-mapped roadmap for rebuilding the LorcanaChamp v2 kernel as a headless Python engine that matches Lorcanito's simulator/game-state/rules logic. Lorcanito remains the source of truth for game model, resolution flow, move validation, and card behavior. LorcanaChamp v2 must not preserve an old runtime shape when that shape conflicts with Lorcanito.
 
@@ -39,8 +39,9 @@ This guide is the active source-mapped roadmap for rebuilding the LorcanaChamp v
 | Phase 8: resolution foundation, triggers, bag, replacements, temporary effects | Complete | `lorcana_engine_v2/resolution/pending.py`, `lorcana_engine_v2/resolution/bag.py`, `lorcana_engine_v2/resolution/action_effects.py`, `lorcana_engine_v2/effects/triggered_abilities.py`, `lorcana_engine_v2/effects/replacement_effects.py`, `lorcana_engine_v2/effects/temporary_effects.py`, `lorcana_engine_v2/effects/continuous_effects.py`, Phase 8 parity tests. |
 | Phase 9: authoritative resource turn action - put card into inkwell | Complete | `lorcana_engine_v2/moves/ink.py`, `lorcana_engine_v2/rules/derived_state.py`, `lorcana_engine_v2/resolution/pending.py`, `lorcana_engine_v2/effects/triggered_abilities.py`, `tests/v2/test_put_card_into_inkwell_lorcanito_v2.py`, `docs/v2_agent_work/V2_Kernel_Phase_9_Authoritative_Inkwell_Implementation.md`. |
 | Phase 10: play card, costs, Shift, songs, entering play | Complete | `lorcana_engine_v2/moves/play.py`, `lorcana_engine_v2/rules/play_card_rules.py`, `lorcana_engine_v2/resolution/costs.py`, `lorcana_engine_v2/moves/shared/execute_shift_play.py`, `tests/v2/test_play_card_lorcanito_v2.py`, `tests/v2/test_play_card_costs_lorcanito_v2.py`, `tests/v2/test_shift_lorcanito_v2.py`, `tests/v2/test_songs_lorcanito_v2.py`, `docs/v2_agent_work/V2_Kernel_Phase_10_Play_Card_Costs_Shift_Songs_Implementation.md`. |
+| Phase 11: action effect resolver and `resolveEffect` | Complete | `lorcana_engine_v2/resolution/action_effects.py`, `lorcana_engine_v2/moves/resolve_pending.py`, `lorcana_engine_v2/effects/resolver.py`, `tests/v2/resolution/test_action_effects_lorcanito_v2.py`, `tests/v2/test_resolve_effect_lorcanito_v2.py`, `docs/v2_agent_work/V2_Kernel_Phase_11_Action_Effect_Resolver_Implementation.md`. |
 
-Latest observed v2 suite result after Phase 10:
+Latest observed v2 suite result after Phase 11:
 
 ```bash
 pytest -q tests/v2
@@ -49,7 +50,7 @@ pytest -q tests/v2
 Expected and observed:
 
 ```text
-123 passed
+128 passed
 ```
 
 ## Current v2 State
@@ -65,7 +66,7 @@ Expected and observed:
 | `lorcana_engine_v2/core/random.py` | Implements the Lorcanito random API pattern: `seedrandom(f"{seed}:{draws}")`, draw counting, and Fisher-Yates shuffle. |
 | `lorcana_engine_v2/flow/runtime_flow.py` | Implements Lorcanito-style flow legality, phase/segment transition resolution, lifecycle hook invocation, and game-end checks. |
 | `lorcana_engine_v2/flow/runtime_flow_config.py` | Defines Lorcanito starting-game and main-game flow structure, setup `endIf` hooks, mulligan draw hook, main-game entry hook, beginning auto-advance gate, and lore/game-ended `endIf`. |
-| `lorcana_engine_v2/runtime_game/definition.py` | Defines `lorcana_runtime_config`, two-player Lorcana setup, runtime zones, player view, `board_setup` deck materialization, and registered setup plus inkwell moves. |
+| `lorcana_engine_v2/runtime_game/definition.py` | Defines `lorcana_runtime_config`, two-player Lorcana setup, runtime zones, player view, `board_setup` deck materialization, and registered setup, inkwell, play, and resolve-effect moves. |
 | `lorcana_engine_v2/core/runtime.py` | Owns loaded state, Lorcanito-style command processing, validation, flow transition resolution, published events, move logs, state ID advancement, reveal expiry, legal move enumeration gates, and game-end tracking. Clocks, patches, registry warm-up, and full history snapshots remain later phases. |
 | `lorcana_engine_v2/core/commands.py` | Defines Lorcanito `CommandEnvelope`, `MoveInput(args=...)`, sanitized command redaction, and no longer exports legacy `Command(kind, actor, card, target, payload)`. |
 | `lorcana_engine_v2/core/results.py` | Defines Lorcanito command success/failure, runtime validation result, published game event, log, packet animation, and game-end result shapes. |
@@ -82,7 +83,7 @@ Expected and observed:
 | `lorcana_engine_v2/registries/static_registry.py` | Builds Lorcanito-shaped static effect indexes: `byTarget`, `byPlayer`, `globalEffects`, and `bySource`, with accessor helpers and compatibility materialization. |
 | `lorcana_engine_v2/rules/condition_evaluator.py` | Evaluates the foundational Lorcanito condition variants needed by static registry and target gates, including logical conditions, damage/status, turn, resource counts, card counts, named cards, target queries, and stat thresholds. |
 | `lorcana_engine_v2/rules/target_resolver.py` | Resolves foundational Lorcanito target descriptors across owner-scoped zones, owner/controller gates, card types, filters, self/source, exclude-self, and real-card classifications/status filters. |
-| `lorcana_engine_v2/resolution/*` | Provides Lorcanito-shaped pending action effects, pending-choice validation/resolution, validation/enumeration pending guards, foundational action-effect execution, triggered bag resolution, and event pipeline flushing. Full effect variant coverage remains later card/move phases. |
+| `lorcana_engine_v2/resolution/*` | Provides Lorcanito-shaped pending action effects, pending-choice validation/resolution, validation/enumeration pending guards, foundational action-effect execution, triggered bag resolution, and event pipeline flushing. Phase 11 adds generic draw, discard, banish, damage, ready, exert, restriction, move-card, reveal, scry, keyword, and replacement creation foundations with explicit unsupported reporting for gaps. |
 | `lorcana_engine_v2/effects/triggered_abilities.py` | Buffers Lorcanito triggered events, scans real printed triggered abilities from normalized card data, flushes matches to bag items from runtime contexts, tracks occurrence/resolution ledgers, and resolves next bag controller priority. |
 | `lorcana_engine_v2/effects/replacement_effects.py` | Applies printed replacement abilities and registered replacement effects for foundational damage, discard/lore prevention, damage redirection, and zone-destination replacement. |
 | `lorcana_engine_v2/effects/temporary_effects.py` | Adds, checks, prunes, and cleans up temporary keywords, lost keywords, classifications, abilities, restrictions, and player restrictions by Lorcanito effect windows. |
@@ -917,30 +918,46 @@ Risks:
 
 ## Phase 11: Action Effect Resolver And `resolveEffect`
 
+Status: Complete.
+
+Implementation proof: `docs/v2_agent_work/V2_Kernel_Phase_11_Action_Effect_Resolver_Implementation.md`
+
 Objective: Port Lorcanito action effect resolution generically, with variant coverage gates.
 
 Lorcanito source:
 
-- `runtime-moves/resolution/action-effect-resolver.ts`
-- `runtime-moves/resolution/resolve-effect.ts`
-- `runtime-moves/resolution/action-effects/*.ts`
-- `runtime-moves/resolution/action-effects/__tests__/*.test.ts`
-- `runtime-moves/shared/amount/*`
+- `references/lorcana-simulator/packages/lorcana/lorcana-engine/src/runtime-moves/resolution/action-effect-resolver.ts`
+- `references/lorcana-simulator/packages/lorcana/lorcana-engine/src/runtime-moves/resolution/resolve-effect.ts`
+- `references/lorcana-simulator/packages/lorcana/lorcana-engine/src/runtime-moves/resolution/action-effects/composed-effect-resolver.ts`
+- `references/lorcana-simulator/packages/lorcana/lorcana-engine/src/runtime-moves/resolution/action-effects/draw-effect.ts`
+- `references/lorcana-simulator/packages/lorcana/lorcana-engine/src/runtime-moves/resolution/action-effects/discard-effect.ts`
+- `references/lorcana-simulator/packages/lorcana/lorcana-engine/src/runtime-moves/resolution/action-effects/deal-damage-effect.ts`
+- `references/lorcana-simulator/packages/lorcana/lorcana-engine/src/runtime-moves/resolution/action-effects/banish-effect.ts`
+- `references/lorcana-simulator/packages/lorcana/lorcana-engine/src/runtime-moves/resolution/action-effects/ready-effect.ts`
+- `references/lorcana-simulator/packages/lorcana/lorcana-engine/src/runtime-moves/resolution/action-effects/exert-effect.ts`
+- `references/lorcana-simulator/packages/lorcana/lorcana-engine/src/runtime-moves/resolution/action-effects/scry-effect.ts`
 
-Current v2 gap:
+Closed v2 gaps:
 
-- Existing `effects/handlers/*` and `effects/resolver.py` are legacy-shaped and not Lorcanito-complete.
-- Many effect variants exist in normalized card data but are not generically supported.
+- `effects/resolver.py` no longer raises a legacy scaffold error; it delegates to the Lorcanito-shaped action-effect resolver.
+- `moves/resolve_pending.py` is now the registered `resolveEffect` move and consumes `ctx.priority.pendingChoice`/`G.pendingEffects`.
+- Pending effect removal now mutates runtime contexts before resolver continuation, and resolved pending effects preserve the removed pending payload for action-card finalization.
+- Discard choices now assign the pending chooser to the target player by default, matching Lorcanito's `discard-choice` behavior.
+- Action effect support now covers foundational real-card variants: draw, discard, banish, deal/put damage, ready, exert, restriction, keyword grant/loss, move card, reveal, scry, and replacement creation.
+- Unsupported effect variants return explicit unsupported evidence through `eventSnapshot.unsupportedActionEffect` instead of silently no-oping.
 
-Files to replace:
+Files replaced or updated:
 
 - Replace `lorcana_engine_v2/effects/resolver.py`.
-- Replace `lorcana_engine_v2/effects/specs.py`.
-- Replace or delete incompatible `lorcana_engine_v2/effects/handlers/*`.
-- Add `lorcana_engine_v2/resolution/action_effects/` modules grouped by Lorcanito variant.
 - Replace `lorcana_engine_v2/moves/resolve_pending.py` with Lorcanito `resolveEffect`.
+- Replace `lorcana_engine_v2/resolution/action_effects.py`.
+- Update `lorcana_engine_v2/resolution/pending.py`.
+- Update `lorcana_engine_v2/moves/__init__.py`.
+- Update `lorcana_engine_v2/runtime_game/definition.py`.
+- Add `tests/v2/resolution/test_action_effects_lorcanito_v2.py`.
+- Add `tests/v2/resolution/__init__.py`.
 
-Exact functions/classes required:
+Exact functions/classes completed:
 
 - `resolve_action_effect`
 - `resolve_composed_effect`
@@ -953,41 +970,61 @@ Exact functions/classes required:
 - `resolve_lore_effect`
 - `resolve_reveal_effect`
 - `resolve_scry_effect`
-- `resolve_search_deck_effect`
-- `resolve_put_under_effect`
 - `resolve_move_card_effect`
 - `resolve_restriction_effect`
 - `resolve_create_replacement_effect`
-- `resolve_create_triggered_ability_effect`
 - `unsupported_action_effect`
+- `ResolveEffectMove`
+- `RESOLVE_EFFECT`
+- `EffectResolver`
 
-Required behavior:
+Observed behavior:
 
-- Effect variants either execute with Lorcanito semantics or return explicit unsupported evidence.
-- Optional, choice, sequence, conditional, for-each, target selection, and prompt suspension behave through pending effects.
-- Hidden information operations create reveal windows and undo barriers.
-- Effects integrate with triggers, replacements, turn metrics, temporary effects, and static effect invalidation.
+- `resolveActionEffect` handles composed effects (`sequence`, `optional`, `choice`, `conditional`) through the same pending-effect structure Lorcanito uses.
+- Chosen targets without input suspend to `G.pendingEffects` and set `ctx.priority.pendingChoice`.
+- `resolveEffect` validates pending chooser, effect id, and target input; removes the pending choice; resumes the saved effect; finalizes action cards from limbo to discard when no pending effects remain; and flushes triggers to the bag.
+- Real Fire the Cannons! (`BFV`) deals 2 damage to a chosen character.
+- Real Dragon Fire (`NCd`) banishes a chosen character to its owner's discard.
+- Real Freeze (`D1e`) exerts a chosen opposing character.
+- Real Fan the Flames (`iMK`) resolves sequence ready plus temporary `cant-quest` restriction on the same chosen target.
+- Real Sudden Chill (`DDi`) suspends for the opponent's discard choice, lets the opponent resolve the pending effect, discards the chosen card, clears pending state, and finalizes the action card.
 
 Tests:
 
-- Add `tests/v2/resolution/action_effects/`.
-- Port Lorcanito variant tests in priority order: draw, discard, damage, banish, gain/lose lore, selection, optional, sequence, conditional, reveal, scry, search, put under, restrictions, keyword grants/losses, additional inkwell, replacement creation.
+- Add `tests/v2/resolution/test_action_effects_lorcanito_v2.py`.
+- Existing pending/resolution tests remain active: `tests/v2/test_resolve_effect_lorcanito_v2.py`, `tests/v2/test_pending_action_effects_lorcanito_v2.py`, `tests/v2/test_replacement_effects_lorcanito_v2.py`.
 
 Commands:
 
 ```bash
-pytest -q tests/v2/resolution/action_effects
-pytest -q tests/v2/test_resolve_effect_lorcanito_v2.py
-pytest -q tests/v2
+pytest -q tests/v2/resolution/test_action_effects_lorcanito_v2.py
+pytest -q tests/v2/resolution/test_action_effects_lorcanito_v2.py tests/v2/test_play_card_lorcanito_v2.py tests/v2/test_play_card_costs_lorcanito_v2.py tests/v2/test_shift_lorcanito_v2.py tests/v2/test_songs_lorcanito_v2.py tests/v2/test_resolve_effect_lorcanito_v2.py tests/v2/test_pending_action_effects_lorcanito_v2.py tests/v2/test_replacement_effects_lorcanito_v2.py
+pytest tests/v2 --tb=short
+python -m compileall -q lorcana_engine_v2 tests/v2
+```
+
+Expected and observed:
+
+```text
+Phase 11 action-effect suite: 5 passed
+Focused play/resolution regression suite: 20 passed
+Full v2 suite: 128 passed
+Compileall: passed
 ```
 
 Parity proof:
 
-- Support movement for action cards is tied to effect variant coverage and real-card integration tests, not static load success.
+- The action resolver follows Lorcanito's `resolveActionCardEffects` pattern: action abilities resolve through one generic resolver, suspend on prompts, and continue through `resolveEffect`.
+- The `resolveEffect` move follows Lorcanito's pending effect lifecycle: validate pending choice, merge input, remove pending state, resume effect, and finalize action cards only when no pending action effect remains.
+- Real-card tests use normalized Lorcanito-derived data and prove gameplay effects, not only static card loading.
+- Unsupported effect variants remain explicit, so no support report can move based on silent success.
 
 Risks:
 
-- The action-effect corpus is large. Add unsupported reports for missing variants instead of silently no-oping.
+- Phase 11 is broad foundational coverage, not full Lorcanito card corpus support.
+- Search deck, put-under, create-triggered-ability, for-each, slotted target prompts, full scry validation, and many card-specific dynamic amount references remain Phase 12+ or card-family phases.
+- Current damage support is foundational and does not yet include full Lorcanito static restriction/resist/lethal cascade behavior.
+- Current hidden-information support is minimal; later phases must harden reveal windows, undo barriers, and selection context validation.
 
 ## Phase 12: Pass Turn And Beginning/End Turn Pipeline
 
@@ -1482,7 +1519,7 @@ pytest -q tests/v2/test_card_runtime_query_api_v2.py tests/v2/test_first_real_ca
 pytest -q tests/v2/test_pending_action_effects_lorcanito_v2.py tests/v2/test_resolve_effect_lorcanito_v2.py tests/v2/test_triggered_abilities_lorcanito_v2.py tests/v2/test_resolve_bag_lorcanito_v2.py tests/v2/test_replacement_effects_lorcanito_v2.py tests/v2/test_temporary_effects_lorcanito_v2.py
 pytest -q tests/v2/test_put_card_into_inkwell_move_v2.py tests/v2/test_put_card_into_inkwell_lorcanito_v2.py
 pytest -q tests/v2/test_play_card_lorcanito_v2.py tests/v2/test_play_card_costs_lorcanito_v2.py tests/v2/test_shift_lorcanito_v2.py tests/v2/test_songs_lorcanito_v2.py
-pytest -q tests/v2/resolution/action_effects
+pytest -q tests/v2/resolution/test_action_effects_lorcanito_v2.py
 pytest -q tests/v2/test_pass_turn_lorcanito_v2.py tests/v2/test_beginning_phase_lorcanito_v2.py tests/v2/test_turn_cleanup_lorcanito_v2.py tests/v2/test_game_end_lorcanito_v2.py
 pytest -q tests/v2/test_quest_lorcanito_v2.py
 pytest -q tests/v2/test_challenge_lorcanito_v2.py tests/v2/test_challenge_keyword_rules_lorcanito_v2.py tests/v2/test_lethal_damage_sweep_lorcanito_v2.py
@@ -1508,6 +1545,6 @@ A phase is complete only when all of these are true:
 
 ## Immediate Next Implementation
 
-The next development task is Phase 11: broaden the action effect resolver and `resolveEffect` coverage.
+The next development task is Phase 12: implement Lorcanito pass-turn and beginning/end turn pipeline.
 
-Do not claim broad action-card or card-support parity from Phase 10. Play cards now enter the Lorcanito play pipeline, but many real action effects still need generic Lorcanito variant support before card reports can move.
+Do not claim broad full-game or card-corpus parity from Phase 11. The resolver now supports foundational real action variants and pending `resolveEffect`, but the turn pipeline, quest, challenge, location movement, activated abilities, and remaining effect variants still need Lorcanito parity before support reports can move broadly.

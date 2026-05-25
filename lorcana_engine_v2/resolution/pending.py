@@ -277,7 +277,7 @@ def resolve_pending_action_effect(
             )
 
     resolution_input = pending.resolutionInput.merge(params)
-    state_without_pending, removed = remove_pending_action_effect(state, effect_id)
+    state_without_pending, removed = remove_pending_action_effect(target, effect_id)
     if removed is None:
         return PendingResolutionResult(status="not-found", state=state_without_pending)
 
@@ -292,7 +292,11 @@ def resolve_pending_action_effect(
     resolved = resolver(state_without_pending, removed, resolution_input)
     if isinstance(resolved, PendingResolutionResult):
         next_state = _write_state(target, resolved.state) if isinstance(resolved.state, MatchState) else state_without_pending
-        return replace(resolved, state=next_state)
+        return replace(
+            resolved,
+            state=next_state,
+            pendingEffect=resolved.pendingEffect if resolved.pendingEffect is not None else removed,
+        )
     if isinstance(resolved, MatchState):
         return PendingResolutionResult(
             status="resolved",
