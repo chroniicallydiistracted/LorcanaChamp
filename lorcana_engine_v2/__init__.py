@@ -14,6 +14,20 @@ identity belongs in ``CardInstanceRecord`` / ``CardInstanceRegistry`` under
 """
 
 from .cards.catalog import CardCatalog
+from .core.commands import CommandEnvelope, MoveInput, SanitizedCommandEnvelope, sanitize_command
+from .core.context import (
+    EventAPI,
+    FrameworkReadAPI,
+    FrameworkStateSnapshot,
+    FrameworkWriteAPI,
+    MoveDefinition,
+    MoveEnumerationContext,
+    MoveExecutionContext,
+    MoveValidationContext,
+    RuntimeActorRole,
+    RuntimeLifecycleContext,
+)
+from .core.results import CommandFailure, CommandSuccess, RuntimeValidationResult
 from .core.runtime import MatchRuntime
 from .core.random import RandomAPI, create_random_api_for_ctx, create_random_api_for_state, seedrandom
 from .core.runtime_config import (
@@ -63,6 +77,9 @@ from .core.zones import ZoneOperations, ZoneRef, create_zone_operations
 
 __all__ = [
     "CardCatalog",
+    "CommandEnvelope",
+    "CommandFailure",
+    "CommandSuccess",
     "CardsMaps",
     "CardInstanceRecord",
     "CardInstanceRegistry",
@@ -74,10 +91,16 @@ __all__ = [
     "FilteredTCGCtx",
     "FilteredZoneRuntimeRevealState",
     "FilteredZoneRuntimeState",
+    "EventAPI",
     "LorcanaG",
     "MatchRuntime",
     "MatchState",
     "MatchStaticResources",
+    "MoveDefinition",
+    "MoveEnumerationContext",
+    "MoveExecutionContext",
+    "MoveInput",
+    "MoveValidationContext",
     "PublicZoneViewSummary",
     "RandomAPI",
     "BoardSetupContext",
@@ -90,6 +113,10 @@ __all__ = [
     "RuntimeGameSegment",
     "RuntimePhaseDefinition",
     "RuntimeTurnDefinition",
+    "RuntimeActorRole",
+    "RuntimeLifecycleContext",
+    "RuntimeValidationResult",
+    "SanitizedCommandEnvelope",
     "SetupArgs",
     "SecretLeakageCheck",
     "TCGCtx",
@@ -97,6 +124,9 @@ __all__ = [
     "ViewRoleContext",
     "ZoneOperations",
     "ZoneRef",
+    "FrameworkReadAPI",
+    "FrameworkStateSnapshot",
+    "FrameworkWriteAPI",
     "StaticResourceRefs",
     "compute_ruleset_hash",
     "create_cards_maps_from_static_resources",
@@ -112,6 +142,7 @@ __all__ = [
     "get_static_resource_refs",
     "initialize_match_state",
     "seedrandom",
+    "sanitize_command",
     "verify_no_secret_leakage",
     "validate_match_static_resources",
 ]

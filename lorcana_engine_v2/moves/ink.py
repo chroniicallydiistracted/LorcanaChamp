@@ -2,127 +2,108 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from lorcana_engine_v2.core.commands import Command
 from lorcana_engine_v2.core.events import GameEvent
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId, ZoneId
-from lorcana_engine_v2.core.results import TransitionResult
+from lorcana_engine_v2.core.results import LogMessage, LogVisibility, ProjectedLogEntry, RuntimeValidationResult
 from lorcana_engine_v2.core.state import MatchState
-from lorcana_engine_v2.core.zones import (
-    CardMeta,
-    card_is_in_zone,
-    move_card_to_zone,
-    patch_card_meta,
-    scoped_zone,
-)
-from .registry import MoveValidationResult, command_card_id
-from .specs import MoveSpec
+from lorcana_engine_v2.core.zones import ZoneRef, scoped_zone
+
+from .registry import MoveEnumerationContext, MoveExecutionContext, MoveValidationContext, input_card_id
 
 
 PUT_CARD_INTO_INKWELL = "putCardIntoInkwell"
 
 
+def _ink_actions_remaining(context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext) -> int:
+    turn_metadata = context.G.turnMetadata
+    base_action = 1
+    extra_actions = turn_metadata.additionalInkwellActions
+    return base_action + extra_actions - len(turn_metadata.inkedThisTurn)
+
+
 @dataclass(frozen=True, slots=True)
 class PutCardIntoInkwellMove:
-    """Lorcanito-aligned implementation of the core inking move.
+    """Core inking move using Lorcanito command contexts."""
 
-    This mirrors the early behavior of Lorcanito's `putCardIntoInkwell` move:
-    validate priority/turn/card-zone/inkability, then move the selected card to
-    the player's inkwell and record that the player inked this turn.
-    """
+    serverOnly: bool = False
+    ignorePriority: bool = False
+    ignoreStaleStateID: bool = False
 
-    kind: str = PUT_CARD_INTO_INKWELL
-
-    def enumerate(self, state: MatchState, player: PlayerId, ctx) -> tuple[MoveSpec, ...]:
-        actor = PlayerId(str(player))
-        if actor != state.ctx.priority.holder:
-            return ()
-        if state.G.turnMetadata.inkedThisTurn:
-            return ()
-
-        hand_zone = scoped_zone("hand", actor)
-        moves: list[MoveSpec] = []
-        for card_id in state.ctx.zones.private.zoneCards.get(hand_zone, ()):
+    def available(self, context: MoveEnumerationContext) -> bool:
+        if _ink_actions_remaining(context) <= 0:
+            return False
+        current_player = context.framework.state.priority.holder or context.playerId
+        hand_cards = context.framework.zones.getCards({"zone": "hand", "playerId": current_player})
+        for card_id in hand_cards:
             try:
-                runtime_card = ctx.query.runtime_card(state, card_id)
+                runtime_card = context.cards.require(card_id)
             except KeyError:
                 continue
-            if not runtime_card.definition.inkable:
-                continue
-            moves.append(MoveSpec(kind=self.kind, actor=actor, card=card_id))
-        return tuple(moves)
+            if runtime_card.definition.inkable:
+                return True
+        return False
 
-    def validate(self, state: MatchState, command: Command, ctx) -> MoveValidationResult:
-        actor = PlayerId(str(command.actor))
-        if actor != state.ctx.priority.holder:
-            return MoveValidationResult.fail(
-                f"Player '{actor}' does not currently have priority",
-                "NOT_PRIORITY_HOLDER",
-            )
+    def validate(self, context: MoveValidationContext) -> RuntimeValidationResult:
+        current_player = context.framework.state.priority.holder or context.playerId
 
-        if state.G.turnMetadata.inkedThisTurn:
-            return MoveValidationResult.fail("Already inked this turn", "ALREADY_INKED")
+        if _ink_actions_remaining(context) <= 0:
+            return RuntimeValidationResult.fail("Already inked this turn", "ALREADY_INKED")
 
-        raw_card_id = command_card_id(command)
+        raw_card_id = input_card_id(context)
+        if context.validationMode == "preflight" and raw_card_id is None:
+            return RuntimeValidationResult.ok()
         if raw_card_id is None:
-            return MoveValidationResult.fail("Card input was not provided", "MISSING_CARD")
-        card_id = InstanceId(raw_card_id)
+            return RuntimeValidationResult.fail("Card input was not provided", "MISSING_CARD")
 
-        hand_zone = scoped_zone("hand", actor)
-        if not card_is_in_zone(state.ctx.zones, card_id=card_id, zone_key=hand_zone):
-            return MoveValidationResult.fail("Card not in hand", "CARD_NOT_IN_HAND")
+        card_id = InstanceId(raw_card_id)
+        hand_cards = context.framework.zones.getCards({"zone": "hand", "playerId": current_player})
+        if card_id not in hand_cards:
+            return RuntimeValidationResult.fail("Card not in hand", "CARD_NOT_IN_HAND")
 
         try:
-            runtime_card = ctx.query.runtime_card(state, card_id)
+            runtime_card = context.cards.require(card_id)
         except KeyError:
-            return MoveValidationResult.fail("Card definition not found", "CARD_DEFINITION_NOT_FOUND")
+            return RuntimeValidationResult.fail("Card definition not found", "CARD_DEFINITION_NOT_FOUND")
 
         if not runtime_card.definition.inkable:
-            return MoveValidationResult.fail("Card is not inkable", "NOT_INKABLE")
+            return RuntimeValidationResult.fail("Card is not inkable", "NOT_INKABLE")
 
-        return MoveValidationResult.ok()
+        return RuntimeValidationResult.ok()
 
-    def execute(self, state: MatchState, command: Command, ctx) -> TransitionResult:
-        validation = self.validate(state, command, ctx)
-        if not validation.valid:
-            return TransitionResult(state=state, accepted=False, reason=validation.reason)
+    def execute(self, context: MoveExecutionContext) -> MatchState:
+        card_id = InstanceId(input_card_id(context) or "")
+        owner_id = PlayerId(str(context.framework.state.priority.holder or context.playerId))
+        source_zone = context.framework.zones.getCardZone(card_id) or scoped_zone("hand", owner_id)
+        reveal_until_state_id = context.framework.state.stateID + 3
 
-        actor = PlayerId(str(command.actor))
-        card_id = InstanceId(command_card_id(command) or "")
-        source_zone = state.ctx.zones.private.cardIndex[card_id].zoneKey
-        destination_zone = scoped_zone("inkwell", actor)
-
-        zones = move_card_to_zone(
-            state.ctx.zones,
-            card_id=card_id,
-            destination_zone_key=destination_zone,
-            owner_id=ctx.query.owner(state, card_id),
-            controller_id=actor,
+        context.framework.zones.moveCard(card_id, ZoneRef(zone=ZoneId("inkwell"), playerId=owner_id))
+        context.cards.patchMeta(card_id, {"state": "ready", "publicFaceState": "faceDown"})
+        context.framework.zones.reveal([card_id], "all", stateID=reveal_until_state_id)
+        context.framework.log(
+            ProjectedLogEntry(
+                category="action",
+                visibility=LogVisibility(mode="PUBLIC"),
+                defaultMessage=LogMessage(
+                    key="lorcana.card.inked",
+                    values={"playerId": str(owner_id), "cardId": str(card_id)},
+                ),
+            )
         )
-
-        current_meta = zones.private.cardMeta.get(card_id, CardMeta())
-        zones = patch_card_meta(
-            zones,
-            card_id,
-            current_meta.with_updates(state="ready", publicFaceState="faceDown"),
+        context.framework.events.emit(
+            GameEvent(
+                kind="card.inked",
+                actor=owner_id,
+                source=card_id,
+                payload={
+                    "cardId": str(card_id),
+                    "fromZone": str(source_zone),
+                    "toZone": str(scoped_zone("inkwell", owner_id)),
+                },
+            )
         )
-
-        event = GameEvent(
-            kind="card.inked",
-            actor=actor,
-            source=card_id,
-            payload={
-                "cardId": str(card_id),
-                "fromZone": str(source_zone),
-                "toZone": str(destination_zone),
-            },
+        context.set_G(
+            context.state.G.with_updates(
+                turnMetadata=context.state.G.turnMetadata.record_ink(card_id),
+            )
         )
-
-        next_ctx = state.ctx.with_updates(
-            zones=zones,
-            _stateID=state.ctx._stateID + 1,
-        )
-        next_G = state.G.with_updates(
-            turnMetadata=state.G.turnMetadata.record_ink(card_id),
-        )
-        next_state = MatchState(G=next_G, ctx=next_ctx)
-        return TransitionResult(state=next_state, events=(event,), accepted=True)
+        return context.state

@@ -1022,6 +1022,26 @@ class ZoneOperations:
         return self.zone_registry[self._resolve(zone)].visibility
 
 
+ZoneOperations.moveCard = ZoneOperations.move_card
+ZoneOperations.moveCards = ZoneOperations.move_cards
+ZoneOperations.drawCards = ZoneOperations.draw_cards
+ZoneOperations.drawSpecificCard = ZoneOperations.draw_specific_card
+ZoneOperations.shuffleBottom = ZoneOperations.shuffle_bottom
+ZoneOperations.revealTop = ZoneOperations.reveal_top
+ZoneOperations.clearReveal = ZoneOperations.clear_reveal
+ZoneOperations.clearRevealsByZone = ZoneOperations.clear_reveals_by_zone
+ZoneOperations.getCards = ZoneOperations.get_cards
+ZoneOperations.getCardCount = ZoneOperations.get_card_count
+ZoneOperations.getTopCard = ZoneOperations.get_top_card
+ZoneOperations.getBottomCard = ZoneOperations.get_bottom_card
+ZoneOperations.getCardZone = ZoneOperations.get_card_zone
+ZoneOperations.getCardOwner = ZoneOperations.get_card_owner
+ZoneOperations.getCardController = ZoneOperations.get_card_controller
+ZoneOperations.isOrdered = ZoneOperations.is_ordered
+ZoneOperations.isOwnerScoped = ZoneOperations.is_owner_scoped
+ZoneOperations.getVisibility = ZoneOperations.get_visibility
+
+
 def create_zone_operations(
     zone_state: ZoneRuntimeState,
     zone_registry: Mapping[ZoneId, ZoneConfig],

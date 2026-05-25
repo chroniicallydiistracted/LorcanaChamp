@@ -1,6 +1,6 @@
 # LorcanaChamp v2 Kernel Lorcanito Parity End-to-End Implementation Guide
 
-Status: updated after Phase 4 completion. Remaining work starts at Phase 5.
+Status: updated after Phase 6 completion. Remaining work starts at Phase 7.
 
 This guide is the active source-mapped roadmap for rebuilding the LorcanaChamp v2 kernel as a headless Python engine that matches Lorcanito's simulator/game-state/rules logic. Lorcanito remains the source of truth for game model, resolution flow, move validation, and card behavior. LorcanaChamp v2 must not preserve an old runtime shape when that shape conflicts with Lorcanito.
 
@@ -33,8 +33,10 @@ This guide is the active source-mapped roadmap for rebuilding the LorcanaChamp v
 | Phase 2: `MatchState = { G, ctx }` state envelope | Complete | `lorcana_engine_v2/core/state.py`, migrated state/bootstrap/query/ink tests, `tests/v2/test_lorcanito_state_envelope_v2.py`. |
 | Phase 3: zone runtime operations and hidden-information views | Complete | `lorcana_engine_v2/core/zones.py`, `lorcana_engine_v2/core/view_filter.py`, `tests/v2/test_lorcanito_zone_operations_v2.py`, `tests/v2/test_lorcanito_view_filter_v2.py`. |
 | Phase 4: runtime config, initialization, seeded random, board setup | Complete | `lorcana_engine_v2/core/runtime_config.py`, `lorcana_engine_v2/core/random.py`, `lorcana_engine_v2/flow/runtime_flow_config.py`, `lorcana_engine_v2/runtime_game/definition.py`, `tests/v2/test_lorcanito_match_initialization_v2.py`, `tests/v2/test_lorcanito_random_api_v2.py`. |
+| Phase 5: command envelope, runtime contexts, results, logs, events | Complete | `lorcana_engine_v2/core/commands.py`, `lorcana_engine_v2/core/results.py`, `lorcana_engine_v2/core/context.py`, `lorcana_engine_v2/core/runtime.py`, `lorcana_engine_v2/core/validation.py`, `tests/v2/test_lorcanito_command_envelope_v2.py`, `tests/v2/test_lorcanito_runtime_contexts_v2.py`, `tests/v2/test_lorcanito_command_events_logs_v2.py`. |
+| Phase 6: flow transitions, legal move gates, setup moves | Complete | `lorcana_engine_v2/flow/runtime_flow.py`, `lorcana_engine_v2/flow/runtime_flow_config.py`, `lorcana_engine_v2/moves/setup.py`, registered setup moves, `tests/v2/test_lorcanito_setup_flow_phase6_v2.py`. |
 
-Latest observed v2 suite result after Phase 4:
+Latest observed v2 suite result after Phase 6:
 
 ```bash
 pytest -q tests/v2
@@ -43,7 +45,7 @@ pytest -q tests/v2
 Expected and observed:
 
 ```text
-69 passed
+91 passed
 ```
 
 ## Current v2 State
@@ -57,14 +59,17 @@ Expected and observed:
 | `lorcana_engine_v2/core/bootstrap.py` | Delegates to Lorcanito-style runtime config initialization and board setup. No longer starts directly in main phase. |
 | `lorcana_engine_v2/core/runtime_config.py` | Defines v2 `MatchRuntimeConfig`, `MatchInitContext`, flow dataclasses, runtime ID/hash helpers, and `initialize_match_state`. |
 | `lorcana_engine_v2/core/random.py` | Implements the Lorcanito random API pattern: `seedrandom(f"{seed}:{draws}")`, draw counting, and Fisher-Yates shuffle. |
-| `lorcana_engine_v2/flow/runtime_flow_config.py` | Defines Lorcanito starting-game and main-game flow structure. |
-| `lorcana_engine_v2/runtime_game/definition.py` | Defines `lorcana_runtime_config`, two-player Lorcana setup, runtime zones, player view, and `board_setup` deck materialization. |
-| `lorcana_engine_v2/core/runtime.py` | Thin shell around current available move service. It does not yet own Lorcanito config, command processing, state history, logs, published events, flow, or priority. |
-| `lorcana_engine_v2/core/commands.py` | Legacy `Command(kind, actor, card, target, payload)` shape. Must be replaced by Lorcanito `CommandEnvelope`. |
-| `lorcana_engine_v2/core/results.py` | Simplified transition result. Must be replaced by Lorcanito command success/failure result shape. |
-| `lorcana_engine_v2/core/context.py` | Legacy rules context. Must be replaced by Lorcanito validation, execution, lifecycle, and read context builders. |
-| `lorcana_engine_v2/moves/available_moves.py` | Enumerates registered moves without Lorcanito flow/priority/server-only/availability gates. |
-| `lorcana_engine_v2/moves/ink.py` | Interim inkwell move on Lorcanito-shaped state. It is not authoritative until command envelopes, flow, derived cards, pending guards, and trigger/bag handoff are ported. |
+| `lorcana_engine_v2/flow/runtime_flow.py` | Implements Lorcanito-style flow legality, phase/segment transition resolution, lifecycle hook invocation, and game-end checks. |
+| `lorcana_engine_v2/flow/runtime_flow_config.py` | Defines Lorcanito starting-game and main-game flow structure, setup `endIf` hooks, mulligan draw hook, main-game entry hook, beginning auto-advance gate, and lore/game-ended `endIf`. |
+| `lorcana_engine_v2/runtime_game/definition.py` | Defines `lorcana_runtime_config`, two-player Lorcana setup, runtime zones, player view, `board_setup` deck materialization, and registered setup plus inkwell moves. |
+| `lorcana_engine_v2/core/runtime.py` | Owns loaded state, Lorcanito-style command processing, validation, flow transition resolution, published events, move logs, state ID advancement, reveal expiry, legal move enumeration gates, and game-end tracking. Clocks, patches, registry warm-up, and full history snapshots remain later phases. |
+| `lorcana_engine_v2/core/commands.py` | Defines Lorcanito `CommandEnvelope`, `MoveInput(args=...)`, sanitized command redaction, and no longer exports legacy `Command(kind, actor, card, target, payload)`. |
+| `lorcana_engine_v2/core/results.py` | Defines Lorcanito command success/failure, runtime validation result, published game event, log, packet animation, and game-end result shapes. |
+| `lorcana_engine_v2/core/context.py` | Provides Lorcanito-shaped validation, execution, lifecycle, enumeration, framework, card, zone, random, event, log, undo, status, and priority APIs. Static `RulesContext` remains isolated for non-mutating helper tests. |
+| `lorcana_engine_v2/core/validation.py` | Implements Lorcanito validation gates for missing input, stale state, game ended, unknown move, server-only, flow-disallowed, priority, and move-specific validation. |
+| `lorcana_engine_v2/moves/available_moves.py` | Isolated compatibility adapter over Lorcanito move definitions, now including setup moves. Authoritative code should use `MatchRuntime.enumerate_moves_for_player` and `MatchRuntime.process_command`. |
+| `lorcana_engine_v2/moves/setup.py` | Implements Lorcanito `chooseWhoGoesFirst`, `alterHand`, and runtime player ID resolution. |
+| `lorcana_engine_v2/moves/ink.py` | Uses Lorcanito command contexts and `MoveInput.args.cardId`; still not fully authoritative until runtime card derivation, pending effects, static-granted discard inking, triggers, and bag handoff are ported. |
 | `lorcana_engine_v2/rules/queries.py` | Reads card definitions and zone/meta state. Full Lorcanito runtime card derivation remains unimplemented. |
 | `lorcana_engine_v2/registries/static_registry.py` | Minimal legacy static-effect materialization. Must be replaced by Lorcanito static effect registry passes. |
 | `lorcana_engine_v2/resolution/*` | Scaffolds and partial legacy helpers. Must be replaced around Lorcanito pending effects, bag, triggers, replacements, and action effect resolution. |
@@ -148,20 +153,18 @@ Expected and observed:
 
 The remaining phases must run in this order unless direct Lorcanito inspection proves a different dependency:
 
-1. Phase 5: command envelope, runtime contexts, move results, logs, events, history.
-2. Phase 6: flow transitions, legal move gates, setup moves.
-3. Phase 7: runtime card derivation, static effect registry, condition and targeting foundation.
-4. Phase 8: resolution foundation for pending effects, triggers, bag, replacements, temporary effects.
-5. Phase 9: authoritative inkwell action.
-6. Phase 10: play card, cost payment, shift, songs, and enter-play flow.
-7. Phase 11: action effect resolver and `resolveEffect` coverage.
-8. Phase 12: pass turn and beginning/end turn pipeline.
-9. Phase 13: quest.
-10. Phase 14: challenge and lethal damage cleanup.
-11. Phase 15: locations, activated abilities, and remaining move families.
-12. Phase 16: headless observations, legal move adapter, replay/debug projection, ML action/observation surfaces.
-13. Phase 17: card support gates and unsupported report movement.
-14. Phase 18: Lorcanito simulator corpus parity, self-play determinism, performance, and long-run ML readiness.
+1. Phase 7: runtime card derivation, static effect registry, condition and targeting foundation.
+2. Phase 8: resolution foundation for pending effects, triggers, bag, replacements, temporary effects.
+3. Phase 9: authoritative inkwell action.
+4. Phase 10: play card, cost payment, shift, songs, and enter-play flow.
+5. Phase 11: action effect resolver and `resolveEffect` coverage.
+6. Phase 12: pass turn and beginning/end turn pipeline.
+7. Phase 13: quest.
+8. Phase 14: challenge and lethal damage cleanup.
+9. Phase 15: locations, activated abilities, and remaining move families.
+10. Phase 16: headless observations, legal move adapter, replay/debug projection, ML action/observation surfaces.
+11. Phase 17: card support gates and unsupported report movement.
+12. Phase 18: Lorcanito simulator corpus parity, self-play determinism, performance, and long-run ML readiness.
 
 ## Phase 4: Runtime Config, Initialization, Seeded Random, Board Setup
 
@@ -254,9 +257,13 @@ Parity proof:
 Risks:
 
 - `compute_ruleset_hash`, `generate_match_id`, and `generate_game_id` intentionally mirror Lorcanito's current timestamp-based runtime helper shape. Deterministic replay should pass explicit IDs and static resource refs.
-- Phase 4 does not implement command envelopes or setup moves. The match now starts in `startingAGame/chooseFirstPlayer`, but Phase 5 and Phase 6 must make command processing and setup progression authoritative.
+- Phase 4 did not implement setup moves. The match starts in `startingAGame/chooseFirstPlayer`, and Phase 6 must make setup progression authoritative through the Phase 5 command envelope path.
 
 ## Phase 5: Command Envelope, Runtime Context APIs, Results, Logs, Events, History
+
+Status: Complete.
+
+Implementation proof: `docs/v2_agent_work/V2_Kernel_Phase_5_Command_Runtime_Implementation.md`
 
 Objective: Replace legacy commands/results/runtime shell with Lorcanito command processing.
 
@@ -271,26 +278,33 @@ Lorcanito source:
 - `core/runtime/match-runtime.logs.ts`
 - `core/runtime/network-state.ts`
 
-Current v2 gap:
+Completed v2 behavior:
 
-- Commands are legacy `kind/actor/card/target/payload`.
-- Results do not expose Lorcanito success/failure codes, patches, logs, events, state IDs, or undoability.
-- Runtime contexts do not provide Lorcanito framework/cards/zones/random/time/events/log APIs.
-- Move execution does not atomically validate, mutate, increment `_stateID`, expire reveals, emit events, and check game end.
+- Commands now enter through `CommandEnvelope(commandID, move, input=MoveInput(args=...))`.
+- Legacy `Command(kind, actor, card, target, payload)` was removed from runtime tests and public core exports.
+- Results now expose Lorcanito-style `CommandSuccess` / `CommandFailure`, error codes, state IDs, published game events, move logs, processed command, animations placeholder, and undoability.
+- Runtime contexts now provide validation, execution, lifecycle, enumeration, framework state, cards, zones, random, events, log, undo, status, and priority APIs.
+- Move execution validates first, leaves old state untouched on validation failure, applies reducer output atomically, increments `_stateID`, expires reveals, emits `MOVE_EXECUTED`, publishes buffered events, buffers logs, and tracks game-end state.
+- `PutCardIntoInkwellMove` now reads `ctx.args.cardId` and uses Lorcanito-shaped move contexts.
 
-Files to add or replace:
+Files added or replaced:
 
-- Replace `lorcana_engine_v2/core/commands.py`.
-- Replace `lorcana_engine_v2/core/results.py`.
-- Replace `lorcana_engine_v2/core/context.py`.
-- Replace `lorcana_engine_v2/core/runtime.py`.
-- Replace or add `lorcana_engine_v2/core/events.py`.
-- Add `lorcana_engine_v2/core/logs.py`.
-- Add `lorcana_engine_v2/core/mutator.py`.
-- Add `lorcana_engine_v2/core/validation.py`.
-- Update `lorcana_engine_v2/moves/specs.py` and `lorcana_engine_v2/moves/registry.py` for Lorcanito move definitions.
+- Replaced `lorcana_engine_v2/core/commands.py`.
+- Replaced `lorcana_engine_v2/core/results.py`.
+- Replaced `lorcana_engine_v2/core/context.py`.
+- Replaced `lorcana_engine_v2/core/runtime.py`.
+- Replaced `lorcana_engine_v2/core/events.py`.
+- Added `lorcana_engine_v2/core/logs.py`.
+- Added `lorcana_engine_v2/core/mutator.py`.
+- Added `lorcana_engine_v2/core/validation.py`.
+- Updated `lorcana_engine_v2/core/replay.py`.
+- Updated `lorcana_engine_v2/core/zones.py` with Lorcanito camelCase API aliases.
+- Replaced `lorcana_engine_v2/moves/registry.py`.
+- Replaced `lorcana_engine_v2/moves/available_moves.py` as an isolated compatibility adapter.
+- Replaced `lorcana_engine_v2/moves/ink.py` to use Lorcanito contexts.
+- Updated `lorcana_engine_v2/runtime_game/definition.py` to register `putCardIntoInkwell`.
 
-Exact functions/classes required:
+Exact functions/classes completed:
 
 - `CommandEnvelope`
 - `MoveInput`
@@ -318,9 +332,9 @@ Exact functions/classes required:
 - `build_lifecycle_context`
 - `create_framework_state_snapshot`
 - `append_log`
-- `publish_event`
+- `publish_game_events`
 
-Required behavior:
+Observed behavior:
 
 - Missing input returns `MISSING_INPUT`.
 - Stale state returns `STALE_STATE`.
@@ -329,20 +343,28 @@ Required behavior:
 - Flow-disallowed moves return `FLOW_DISALLOWED`.
 - Non-priority actors fail unless the move ignores priority.
 - Successful commands increment `_stateID`, expire reveals, emit `MOVE_EXECUTED`, buffer move logs, and leave old state unchanged on validation failure.
-- Runtime contexts expose state through Lorcanito-shaped APIs, not legacy state shortcuts.
+- Runtime contexts expose state through Lorcanito-shaped APIs, not legacy command shortcuts.
 
-Tests:
+Tests added or rewritten:
 
 - Add `tests/v2/test_lorcanito_command_envelope_v2.py`.
 - Add `tests/v2/test_lorcanito_runtime_contexts_v2.py`.
 - Add `tests/v2/test_lorcanito_command_events_logs_v2.py`.
-- Rewrite any test still constructing legacy `Command`.
+- Rewrote `tests/v2/test_put_card_into_inkwell_move_v2.py` to submit `CommandEnvelope` and assert Lorcanito error codes.
 
 Commands:
 
 ```bash
 pytest -q tests/v2/test_lorcanito_command_envelope_v2.py tests/v2/test_lorcanito_runtime_contexts_v2.py tests/v2/test_lorcanito_command_events_logs_v2.py
+pytest -q tests/v2/test_lorcanito_command_envelope_v2.py tests/v2/test_lorcanito_runtime_contexts_v2.py tests/v2/test_lorcanito_command_events_logs_v2.py tests/v2/test_put_card_into_inkwell_move_v2.py
 pytest -q tests/v2
+```
+
+Expected and observed:
+
+```text
+21 passed
+83 passed
 ```
 
 Parity proof:
@@ -350,12 +372,19 @@ Parity proof:
 - Every mutating move enters through `CommandEnvelope`.
 - Move reducers receive Lorcanito-style validation/execution contexts.
 - State changes are atomic and state IDs advance only on successful execution.
+- Missing input, stale state, unknown move, server-only player command, flow-disallowed command, not-priority command, and move-specific validation return Lorcanito-style error codes.
+- Inkwell integration now uses real Lorcanito-normalized card data and the command envelope boundary.
 
-Risks:
+Remaining risks moved to later phases:
 
-- This is a larger refactor. Preserving the old `Command` shape would lock v2 into the wrong runtime model.
+- Flow transitions and setup moves were closed in Phase 6. Clocks, patch capture, registry warm-up, full move log projection, and packet animations are still deferred. Packet animations remain non-essential for the headless ML kernel and should not become a UI implementation task.
+- `putCardIntoInkwell` still needs later derived-card inkability, pending-effect guard, static-granted discard inking, triggers, and bag integration before it is final Lorcanito gameplay parity.
 
 ## Phase 6: Flow Transitions, Legal Move Gates, Setup Moves
+
+Status: Complete.
+
+Implementation proof: `docs/v2_agent_work/V2_Kernel_Phase_6_Flow_Setup_Implementation.md`
 
 Objective: Implement Lorcanito's start-game segment and legal move filtering before main-game actions are authoritative.
 
@@ -369,33 +398,41 @@ Lorcanito source:
 - `runtime-moves/moves/setup/resolve-player-ids.ts`
 - `runtime-moves/moves/setup/*.test.ts`
 
-Current v2 gap:
+Completed v2 behavior:
 
-- The engine starts in a main phase.
-- Legal moves are not filtered by segment, phase, game end, priority, server-only flags, or move `available`.
-- No `chooseWhoGoesFirst` or `alterHand` command path exists.
+- `chooseWhoGoesFirst` and `alterHand` are registered in `lorcana_runtime_config`.
+- Command execution runs Lorcanito-style flow transition resolution after the move reducer and before state ID advancement.
+- Initial legal move enumeration exposes only `chooseWhoGoesFirst` for the choosing player.
+- `chooseWhoGoesFirst` validates runtime player IDs, sets `otp`, `turnOwnerId`, `pendingMulligan`, opens priority for OTP, shuffles pending players' decks, logs setup, and transitions into mulligan.
+- Mulligan phase `onEnter` shuffles each player's deck and draws seven cards through zone APIs.
+- `alterHand` validates pending mulligan player and selected hand cards, moves selected cards to deck bottom with index `0`, draws equal replacements, advances pending mulligan priority, logs public/private mulligan details, and logs setup completion.
+- Once all pending mulligans are complete, flow transitions to `mainGame`, increments turn to 1, opens priority for OTP, auto-advances beginning to main when no bag/effects/choices are pending, and exposes main-phase legal moves.
+- Flow game-end check now respects `ctx.status.gameEnded` and lore threshold via `G.loreToWin` fallback to 20.
 
-Files to add or replace:
+Files added or replaced:
 
 - Add `lorcana_engine_v2/flow/runtime_flow.py`.
-- Replace `lorcana_engine_v2/moves/available_moves.py`.
 - Add `lorcana_engine_v2/moves/setup.py`.
 - Update `lorcana_engine_v2/moves/__init__.py`.
-- Add setup move registration in `lorcana_engine_v2/moves/registry.py`.
+- Add setup move registration in `lorcana_engine_v2/runtime_game/definition.py`.
+- Update `lorcana_engine_v2/core/runtime.py`.
+- Update `lorcana_engine_v2/core/validation.py`.
+- Update `lorcana_engine_v2/flow/runtime_flow_config.py`.
+- Update `lorcana_engine_v2/moves/available_moves.py`.
 
-Exact functions/classes required:
+Exact functions/classes completed:
 
 - `is_move_allowed_by_flow`
 - `get_flow_disallow_reason`
 - `resolve_flow_transitions`
 - `check_game_end_condition`
-- `get_legal_moves`
-- `enumerate_available_moves`
-- `choose_who_goes_first`
-- `alter_hand`
+- `apply_game_end`
+- `ChooseWhoGoesFirstMove`
+- `AlterHandMove`
 - `resolve_runtime_player_ids`
+- `can_auto_advance_beginning_phase`
 
-Required behavior:
+Observed behavior:
 
 - Initial legal player move is `chooseWhoGoesFirst`.
 - `chooseWhoGoesFirst` validates selected player, sets `otp`, `turnOwnerId`, `pendingMulligan`, opens priority, shuffles decks, and logs.
@@ -406,25 +443,34 @@ Required behavior:
 
 Tests:
 
-- Add `tests/v2/test_lorcanito_flow_gates_v2.py`.
-- Add `tests/v2/test_setup_choose_who_goes_first_v2.py`.
-- Add `tests/v2/test_setup_alter_hand_v2.py`.
-- Add `tests/v2/test_lorcanito_legal_moves_setup_v2.py`.
+- Added `tests/v2/test_lorcanito_setup_flow_phase6_v2.py`.
+- Tests use real normalized Lorcanito-derived card data through `resources_for`, not synthetic card definitions, to prove deck materialization, setup draw, mulligan zone movement, command validation, legal move gates, and flow transition behavior.
 
 Commands:
 
 ```bash
-pytest -q tests/v2/test_lorcanito_flow_gates_v2.py tests/v2/test_setup_choose_who_goes_first_v2.py tests/v2/test_setup_alter_hand_v2.py tests/v2/test_lorcanito_legal_moves_setup_v2.py
+pytest -q tests/v2/test_lorcanito_setup_flow_phase6_v2.py
 pytest -q tests/v2
+```
+
+Expected and observed:
+
+```text
+8 passed
+91 passed
 ```
 
 Parity proof:
 
-- A match can progress from `startingAGame/chooseFirstPlayer` through mulligan into `mainGame/beginning` using command envelopes only.
+- A match now progresses from `startingAGame/chooseFirstPlayer` through mulligan into `mainGame/main` using command envelopes only.
+- Setup state changes are made through Lorcanito-shaped validation/execution contexts and zone APIs.
+- Flow transition resolution follows Lorcanito's phase `endIf`, `nextPhase`, segment transition, lifecycle hook order, and game-end check structure.
+- The beginning phase auto-advances to main only when there are no pending turn transitions, bag items, pending choices, or pending effects.
 
 Risks:
 
-- Do not skip setup to get to inkwell tests faster. The ML bot needs legal move timelines from game start.
+- Beginning phase ready/drying logic from Lorcanito `runtime-flow-config.ts` remains Phase 12 because turn pipeline and static restriction support are not present yet. Phase 6 only proves setup-time transition where no board cards need beginning-phase ready/drying.
+- Board setup currently shuffles decks before setup moves also shuffle, matching the current v2 Phase 4 board materialization plus Lorcanito setup move behavior. Determinism is preserved through the seeded random API.
 
 ## Phase 7: Runtime Card Derivation, Static Effect Registry, Conditions, Targeting
 
@@ -1344,8 +1390,8 @@ A phase is complete only when all of these are true:
 
 ## Immediate Next Implementation
 
-The next development task is Phase 5.
+The next development task is Phase 6.
 
-Do not continue the old inkwell-first path. Phase 4 is complete, so the next foundation is Lorcanito command envelopes, runtime context APIs, results, logs, events, and history.
+Do not continue the old inkwell-first path. Phase 5 is complete, so the next foundation is Lorcanito flow transition resolution plus setup moves.
 
-After Phase 5, implement Phase 6 setup flow. Only then should gameplay moves such as inkwell become authoritative.
+After Phase 6 setup flow, implement runtime card derivation and static/targeting foundations. Only then should gameplay moves such as inkwell become authoritative.

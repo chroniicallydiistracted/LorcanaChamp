@@ -1,9 +1,40 @@
 from .ids import CardId, InstanceId, PlayerId, ZoneId
 from .state import CtxPriority, CtxRandom, CtxStatus, LorcanaG, MatchState, TCGCtx, TurnMetadata
-from .runtime import MatchRuntime
-from .context import RulesContext, build_rules_context
-from .commands import Command
-from .results import TransitionResult
+from .runtime import MatchRuntime, execute_command
+from .context import (
+    CardRuntimeAPI,
+    CardRuntimeReadAPI,
+    EventAPI,
+    FrameworkReadAPI,
+    FrameworkStateSnapshot,
+    FrameworkWriteAPI,
+    MoveDefinition,
+    MoveEnumerationContext,
+    MoveExecutionContext,
+    MoveInputView,
+    MoveValidationContext,
+    RulesContext,
+    RuntimeActorRole,
+    RuntimeLifecycleContext,
+    UndoAPI,
+    build_execution_context,
+    build_lifecycle_context,
+    build_rules_context,
+    build_validation_context,
+    create_framework_state_snapshot,
+)
+from .commands import CommandEnvelope, MoveInput, SanitizedCommandEnvelope, sanitize_command
+from .results import (
+    CommandFailure,
+    CommandSuccess,
+    GameEndResult,
+    LogMessage,
+    LogVisibility,
+    ProjectedLogEntry,
+    PublishedGameEvent,
+    RuntimeValidationResult,
+)
+from .validation import validate_command
 from .random import RandomAPI, create_random_api_for_ctx, create_random_api_for_state, seedrandom
 from .runtime_config import (
     BoardSetupContext,
@@ -67,10 +98,40 @@ __all__ = [
     "TCGCtx",
     "TurnMetadata",
     "MatchRuntime",
+    "execute_command",
     "RulesContext",
     "build_rules_context",
-    "Command",
-    "TransitionResult",
+    "CardRuntimeAPI",
+    "CardRuntimeReadAPI",
+    "EventAPI",
+    "FrameworkReadAPI",
+    "FrameworkStateSnapshot",
+    "FrameworkWriteAPI",
+    "MoveDefinition",
+    "MoveEnumerationContext",
+    "MoveExecutionContext",
+    "MoveInputView",
+    "MoveValidationContext",
+    "RuntimeActorRole",
+    "RuntimeLifecycleContext",
+    "UndoAPI",
+    "build_execution_context",
+    "build_lifecycle_context",
+    "build_validation_context",
+    "create_framework_state_snapshot",
+    "CommandEnvelope",
+    "MoveInput",
+    "SanitizedCommandEnvelope",
+    "sanitize_command",
+    "CommandFailure",
+    "CommandSuccess",
+    "GameEndResult",
+    "LogMessage",
+    "LogVisibility",
+    "ProjectedLogEntry",
+    "PublishedGameEvent",
+    "RuntimeValidationResult",
+    "validate_command",
     "RandomAPI",
     "create_random_api_for_ctx",
     "create_random_api_for_state",

@@ -14,6 +14,8 @@ from lorcana_engine_v2.core.zones import (
     scoped_zone,
 )
 from lorcana_engine_v2.flow.runtime_flow_config import lorcana_runtime_flow
+from lorcana_engine_v2.moves.ink import PUT_CARD_INTO_INKWELL, PutCardIntoInkwellMove
+from lorcana_engine_v2.moves.setup import ALTER_HAND, CHOOSE_WHO_GOES_FIRST, AlterHandMove, ChooseWhoGoesFirstMove
 
 
 lorcana_runtime_zones = LORCANA_RUNTIME_ZONES
@@ -77,7 +79,11 @@ def lorcana_player_view(state: MatchState, role_ctx: ViewRoleContext):
 
 lorcana_runtime_config = MatchRuntimeConfig(
     name="Disney Lorcana TCG",
-    moves={},
+    moves={
+        CHOOSE_WHO_GOES_FIRST: ChooseWhoGoesFirstMove(),
+        ALTER_HAND: AlterHandMove(),
+        PUT_CARD_INTO_INKWELL: PutCardIntoInkwellMove(),
+    },
     flow=lorcana_runtime_flow,
     zones=lorcana_runtime_zones,
     setup=setup_lorcana_g,

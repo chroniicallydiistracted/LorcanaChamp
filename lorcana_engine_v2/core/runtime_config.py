@@ -25,13 +25,20 @@ class RuntimePhaseDefinition:
     name: str
     order: int
     validMoves: tuple[str, ...] = ()
-    nextPhase: str | None = None
+    nextPhase: str | Callable[[MatchState], str | None] | None = None
+    onEnter: Callable[..., object] | None = None
+    onExit: Callable[..., object] | None = None
+    endIf: Callable[[MatchState], bool | str | None] | None = None
 
 
 @dataclass(frozen=True, slots=True)
 class RuntimeTurnDefinition:
     initialPhase: str
     phases: Mapping[str, RuntimePhaseDefinition]
+    validMoves: tuple[str, ...] = ()
+    onBegin: Callable[..., object] | None = None
+    onEnd: Callable[..., object] | None = None
+    endIf: Callable[[MatchState], bool] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,6 +49,9 @@ class RuntimeGameSegment:
     next: str | None = None
     validMoves: tuple[str, ...] = ()
     turn: RuntimeTurnDefinition | None = None
+    onEnter: Callable[..., object] | None = None
+    onExit: Callable[..., object] | None = None
+    endIf: Callable[[MatchState], object | None] | None = None
 
 
 @dataclass(frozen=True, slots=True)
