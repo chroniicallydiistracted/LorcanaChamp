@@ -1,6 +1,6 @@
 # LorcanaChamp v2 Kernel Lorcanito Parity End-to-End Implementation Guide
 
-Status: updated after Phase 9 completion. Remaining work starts at Phase 10.
+Status: updated after Phase 10 completion. Remaining work starts at Phase 11.
 
 This guide is the active source-mapped roadmap for rebuilding the LorcanaChamp v2 kernel as a headless Python engine that matches Lorcanito's simulator/game-state/rules logic. Lorcanito remains the source of truth for game model, resolution flow, move validation, and card behavior. LorcanaChamp v2 must not preserve an old runtime shape when that shape conflicts with Lorcanito.
 
@@ -38,8 +38,9 @@ This guide is the active source-mapped roadmap for rebuilding the LorcanaChamp v
 | Phase 7: runtime card derivation, static effect registry, conditions, targeting | Complete | `lorcana_engine_v2/rules/queries.py`, `lorcana_engine_v2/rules/derived_state.py`, `lorcana_engine_v2/registries/static_registry.py`, `lorcana_engine_v2/rules/condition_evaluator.py`, `lorcana_engine_v2/rules/target_resolver.py`, Phase 7 parity tests. |
 | Phase 8: resolution foundation, triggers, bag, replacements, temporary effects | Complete | `lorcana_engine_v2/resolution/pending.py`, `lorcana_engine_v2/resolution/bag.py`, `lorcana_engine_v2/resolution/action_effects.py`, `lorcana_engine_v2/effects/triggered_abilities.py`, `lorcana_engine_v2/effects/replacement_effects.py`, `lorcana_engine_v2/effects/temporary_effects.py`, `lorcana_engine_v2/effects/continuous_effects.py`, Phase 8 parity tests. |
 | Phase 9: authoritative resource turn action - put card into inkwell | Complete | `lorcana_engine_v2/moves/ink.py`, `lorcana_engine_v2/rules/derived_state.py`, `lorcana_engine_v2/resolution/pending.py`, `lorcana_engine_v2/effects/triggered_abilities.py`, `tests/v2/test_put_card_into_inkwell_lorcanito_v2.py`, `docs/v2_agent_work/V2_Kernel_Phase_9_Authoritative_Inkwell_Implementation.md`. |
+| Phase 10: play card, costs, Shift, songs, entering play | Complete | `lorcana_engine_v2/moves/play.py`, `lorcana_engine_v2/rules/play_card_rules.py`, `lorcana_engine_v2/resolution/costs.py`, `lorcana_engine_v2/moves/shared/execute_shift_play.py`, `tests/v2/test_play_card_lorcanito_v2.py`, `tests/v2/test_play_card_costs_lorcanito_v2.py`, `tests/v2/test_shift_lorcanito_v2.py`, `tests/v2/test_songs_lorcanito_v2.py`, `docs/v2_agent_work/V2_Kernel_Phase_10_Play_Card_Costs_Shift_Songs_Implementation.md`. |
 
-Latest observed v2 suite result after Phase 9:
+Latest observed v2 suite result after Phase 10:
 
 ```bash
 pytest -q tests/v2
@@ -48,7 +49,7 @@ pytest -q tests/v2
 Expected and observed:
 
 ```text
-114 passed
+123 passed
 ```
 
 ## Current v2 State
@@ -73,6 +74,9 @@ Expected and observed:
 | `lorcana_engine_v2/moves/available_moves.py` | Isolated compatibility adapter over Lorcanito move definitions, now including setup moves. Authoritative code should use `MatchRuntime.enumerate_moves_for_player` and `MatchRuntime.process_command`. |
 | `lorcana_engine_v2/moves/setup.py` | Implements Lorcanito `chooseWhoGoesFirst`, `alterHand`, and runtime player ID resolution. |
 | `lorcana_engine_v2/moves/ink.py` | Implements Lorcanito's authoritative `putCardIntoInkwell`: pending-effect guard, turn ink allowance, static additional-inkwell allowance, hand/discard candidates, derived `canBePutInInkwell`, inkwell zone/meta/reveal/log side effects, turn metadata, `cardInked` event, and trigger flush to bag. |
+| `lorcana_engine_v2/moves/play.py` | Implements Lorcanito `playCard` foundations: pending-effect/bag guard, standard ink cost, Shift ink cost and stack attachment, song singing and Sing Together exert costs, enter-play meta, action-card resolution through pending/action-effect helpers, turn metadata, play logs, `cardPlayed`/sing/exert trigger events, and bag flush. |
+| `lorcana_engine_v2/rules/play_card_rules.py` | Implements Lorcanito play-card cost helpers: available ink, spend ink, basic cost validation/payment, exert cost validation, Shift parsing and target candidates, song detection, Singer threshold, and Sing Together threshold. |
+| `lorcana_engine_v2/resolution/costs.py` | Re-exports the Lorcanito-shaped cost helpers through an isolated service wrapper. |
 | `lorcana_engine_v2/rules/queries.py` | Provides Lorcanito-shaped runtime card query views: `instanceId`, `definitionId`, `ownerID`, `controllerID`, `zoneID`, `zoneIndex`, meta, definition, derived stats, cost, damage, drying/exerted state, inkability, keywords, classifications, and query helpers. |
 | `lorcana_engine_v2/rules/derived_state.py` | Derives effective strength, willpower, lore, play cost, move cost, inkability, keywords, classifications, and metadata-backed status from static resources, zones, meta, and static registry effects, including static additional-inkwell allowance for `canBePutInInkwell`. |
 | `lorcana_engine_v2/registries/static_registry.py` | Builds Lorcanito-shaped static effect indexes: `byTarget`, `byPlayer`, `globalEffects`, and `bySource`, with accessor helpers and compatibility materialization. |
@@ -163,15 +167,14 @@ Expected and observed:
 
 The remaining phases must run in this order unless direct Lorcanito inspection proves a different dependency:
 
-1. Phase 10: play card, cost payment, shift, songs, and enter-play flow.
-2. Phase 11: broaden action effect resolver and `resolveEffect` coverage.
-3. Phase 12: pass turn and beginning/end turn pipeline.
-4. Phase 13: quest.
-5. Phase 14: challenge and lethal damage cleanup.
-6. Phase 15: locations, activated abilities, and remaining move families.
-7. Phase 16: headless observations, legal move adapter, replay/debug projection, ML action/observation surfaces.
-8. Phase 17: card support gates and unsupported report movement.
-9. Phase 18: Lorcanito simulator corpus parity, self-play determinism, performance, and long-run ML readiness.
+1. Phase 11: broaden action effect resolver and `resolveEffect` coverage.
+2. Phase 12: pass turn and beginning/end turn pipeline.
+3. Phase 13: quest.
+4. Phase 14: challenge and lethal damage cleanup.
+5. Phase 15: locations, activated abilities, and remaining move families.
+6. Phase 16: headless observations, legal move adapter, replay/debug projection, ML action/observation surfaces.
+7. Phase 17: card support gates and unsupported report movement.
+8. Phase 18: Lorcanito simulator corpus parity, self-play determinism, performance, and long-run ML readiness.
 
 ## Phase 4: Runtime Config, Initialization, Seeded Random, Board Setup
 
@@ -801,6 +804,10 @@ Risks:
 
 ## Phase 10: Play Card, Costs, Shift, Songs, Entering Play
 
+Status: Complete.
+
+Implementation proof: `docs/v2_agent_work/V2_Kernel_Phase_10_Play_Card_Costs_Shift_Songs_Implementation.md`
+
 Objective: Implement Lorcanito play-card validation and execution around cost/payment and entry semantics.
 
 Lorcanito source:
@@ -810,27 +817,34 @@ Lorcanito source:
 - `runtime-moves/shared/execute-shift-play.ts`
 - `runtime-moves/state/shift-stack.ts`
 - `runtime-moves/resolution/action-effects/play-card-effect.ts`
-- `runtime-moves/resolution/action-effects/pay-cost-effect.ts`
 - `runtime-moves/moves/core/play-card.test.ts`
 - `runtime-moves/rules/play-card-rules.test.ts`
 
-Current v2 gap:
+Closed v2 gaps:
 
-- `moves/play.py`, `moves/shift.py`, and `moves/sing.py` are placeholders or legacy fragments.
-- Cost payment, ink availability, exert costs, Shift stacks, Singer/Sing Together, alternative costs, and play restrictions are missing or incomplete.
+- `moves/play.py`, `moves/shift.py`, `moves/sing.py`, and `resolution/costs.py` are no longer inert scaffolds.
+- Standard ink cost, ready-ink payment, exert costs, Shift ink costs, Shift target selection, Shift stack attachment, song singing, and Sing Together threshold/exertion foundations exist.
+- Character/item/location enter-play metadata is set through runtime card meta, and action cards route through the pending/action-effect helpers.
+- `playCard` is registered in the Lorcana runtime config and exposed by main-phase flow legal move enumeration.
+- Real-card play triggers and foundational action effects use the Phase 8 event/bag/effect foundation.
 
-Files to replace:
+Files replaced or added:
 
 - Replace `lorcana_engine_v2/moves/play.py`.
 - Replace `lorcana_engine_v2/moves/shift.py`.
 - Replace `lorcana_engine_v2/moves/sing.py`.
 - Replace `lorcana_engine_v2/resolution/costs.py`.
 - Add `lorcana_engine_v2/rules/play_card_rules.py`.
-- Add `lorcana_engine_v2/moves/shared/execute_shift_play.py` or equivalent module.
+- Add `lorcana_engine_v2/moves/shared/execute_shift_play.py`.
+- Add `lorcana_engine_v2/moves/shared/__init__.py`.
+- Update `lorcana_engine_v2/runtime_game/definition.py`.
+- Update `lorcana_engine_v2/moves/__init__.py`.
+- Update `lorcana_engine_v2/resolution/action_effects.py` with foundational draw support for action/song play.
 
-Exact functions/classes required:
+Exact functions/classes completed:
 
-- `play_card`
+- `PLAY_CARD`
+- `PlayCardMove`
 - `validate_basic_cost`
 - `pay_basic_cost`
 - `get_available_ink`
@@ -839,44 +853,67 @@ Exact functions/classes required:
 - `get_shift_rules`
 - `resolve_shift_target_candidates`
 - `execute_shift_play`
+- `attach_shift_stack`
 - `get_singer_threshold`
 - `get_singer_threshold_for_instance`
 - `get_sing_together_threshold`
 - `move_suspended_action_card_to_limbo`
 - `finalize_resolved_action_card`
 
-Required behavior:
+Observed behavior:
 
 - Validate source zones and play permissions.
 - Validate main-phase flow and pending-effect gates.
-- Support character, item, location, and action play destinations.
-- Support normal cost, Shift cost, Singer cost, Sing Together, and Lorcanito-modeled alternative costs.
+- Support character, item, location, and action play destinations for hand plays.
+- Support normal cost, ink-only Shift cost, Singer cost, and Sing Together exert costs.
 - Exert and mark ink payment correctly.
 - Set entering-play meta including drying and ready/exerted state.
 - Handle action cards through pending/resolution path instead of immediately discarding when unresolved.
 - Emit card-played events, update turn metadata, invalidate static effects, and flush triggers.
+- Explicitly reject unsupported/non-implemented cost modes instead of silently no-oping.
 
 Tests:
 
-- Add `tests/v2/test_play_card_lorcanito_v2.py`.
-- Add `tests/v2/test_play_card_costs_lorcanito_v2.py`.
-- Add `tests/v2/test_shift_lorcanito_v2.py`.
-- Add `tests/v2/test_songs_lorcanito_v2.py`.
+- Added `tests/v2/test_play_card_lorcanito_v2.py`.
+- Added `tests/v2/test_play_card_costs_lorcanito_v2.py`.
+- Added `tests/v2/test_shift_lorcanito_v2.py`.
+- Added `tests/v2/test_songs_lorcanito_v2.py`.
+- Real Chi-Fu (`XGm`) proves standard character play, ink payment, enter-play meta, logs, and `cardPlayed`.
+- Real Tangle (`X1Y`) proves an action resolves through the shared action-effect path and moves to discard.
+- Real Aladdin (`ZTM`) proves a printed play trigger flushes to the bag after play.
+- Real Gramma Tala (`0Rd`) and Gramma Tala (`ROE`) prove Shift rules and stack attachment.
+- Real Friends on the Other Side (`3E2`) and Mr. Incredible (`Y1z`) prove song singing and singer exertion.
 
 Commands:
 
 ```bash
 pytest -q tests/v2/test_play_card_lorcanito_v2.py tests/v2/test_play_card_costs_lorcanito_v2.py tests/v2/test_shift_lorcanito_v2.py tests/v2/test_songs_lorcanito_v2.py
 pytest -q tests/v2
+pytest --collect-only tests/v2 | tail -n 5
+python -m compileall -q lorcana_engine_v2 tests/v2
+```
+
+Expected and observed:
+
+```text
+Phase 10 play-card suite: 9 passed
+Full v2 suite: 123 passed
+Collection: 123 tests collected
+Compileall: passed
 ```
 
 Parity proof:
 
 - Real cards can be played only when Lorcanito would allow them, with cost payment and zone/meta side effects matching runtime state.
+- Costs are paid before the played card changes zones.
+- Action cards enter play, emit `cardPlayed`, resolve through the action-effect foundation, then move to discard or limbo if suspended.
+- Non-action cards emit `cardPlayed` after enter-play meta is established and then flush triggers to the bag.
 
 Risks:
 
 - Do not shortcut action cards into bespoke effects. Action cards must use the pending/effect resolver path.
+- Phase 10 does not claim full action-effect variant support. Broader effect resolution remains Phase 11.
+- Alternative play costs and play-from-under permissions are not broad support claims until real-card parity tests prove them.
 
 ## Phase 11: Action Effect Resolver And `resolveEffect`
 
@@ -1440,8 +1477,8 @@ pytest -q tests/v2/test_lorcanito_state_envelope_v2.py
 pytest -q tests/v2/test_lorcanito_zone_operations_v2.py tests/v2/test_lorcanito_view_filter_v2.py
 pytest -q tests/v2/test_lorcanito_match_initialization_v2.py tests/v2/test_lorcanito_random_api_v2.py
 pytest -q tests/v2/test_lorcanito_command_envelope_v2.py tests/v2/test_lorcanito_runtime_contexts_v2.py tests/v2/test_lorcanito_command_events_logs_v2.py
-pytest -q tests/v2/test_lorcanito_flow_gates_v2.py tests/v2/test_setup_choose_who_goes_first_v2.py tests/v2/test_setup_alter_hand_v2.py tests/v2/test_lorcanito_legal_moves_setup_v2.py
-pytest -q tests/v2/test_runtime_card_derived_lorcanito_v2.py tests/v2/test_static_effect_registry_lorcanito_v2.py tests/v2/test_condition_evaluator_lorcanito_v2.py tests/v2/test_targeting_lorcanito_contract_v2.py
+pytest -q tests/v2/test_lorcanito_setup_flow_phase6_v2.py
+pytest -q tests/v2/test_card_runtime_query_api_v2.py tests/v2/test_first_real_card_parity_v2.py tests/v2/test_runtime_card_derived_lorcanito_phase7_v2.py tests/v2/test_static_effect_registry_lorcanito_phase7_v2.py tests/v2/test_conditions_and_targeting_lorcanito_phase7_v2.py
 pytest -q tests/v2/test_pending_action_effects_lorcanito_v2.py tests/v2/test_resolve_effect_lorcanito_v2.py tests/v2/test_triggered_abilities_lorcanito_v2.py tests/v2/test_resolve_bag_lorcanito_v2.py tests/v2/test_replacement_effects_lorcanito_v2.py tests/v2/test_temporary_effects_lorcanito_v2.py
 pytest -q tests/v2/test_put_card_into_inkwell_move_v2.py tests/v2/test_put_card_into_inkwell_lorcanito_v2.py
 pytest -q tests/v2/test_play_card_lorcanito_v2.py tests/v2/test_play_card_costs_lorcanito_v2.py tests/v2/test_shift_lorcanito_v2.py tests/v2/test_songs_lorcanito_v2.py
@@ -1471,6 +1508,6 @@ A phase is complete only when all of these are true:
 
 ## Immediate Next Implementation
 
-The next development task is Phase 10: play card, cost payment, Shift, songs, and entering-play flow.
+The next development task is Phase 11: broaden the action effect resolver and `resolveEffect` coverage.
 
-Do not implement play as a small legacy patch. Lorcanito `playCard` depends on the already-completed command envelope, flow gates, runtime card derivation, target resolution, pending effects, trigger bag, replacement effects, and inkwell resource state. Phase 10 must compare Lorcanito `play-card.ts`, play-card rules, cost payment, Shift, song, and action-resolution source files against the current v2 state before replacing the remaining legacy play/shift/sing/cost code.
+Do not claim broad action-card or card-support parity from Phase 10. Play cards now enter the Lorcanito play pipeline, but many real action effects still need generic Lorcanito variant support before card reports can move.

@@ -4,6 +4,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId
+from lorcana_engine_v2.core.zones import ZoneRef
 from lorcana_engine_v2.core.state import MatchState
 from lorcana_engine_v2.resolution.action_effect_types import (
     ActionResolutionInput,
@@ -249,6 +250,19 @@ def resolve_action_effect(
             -amount_value,
         )
         return PendingResolutionResult(status="resolved", state=_write_state(target, next_state), resolutionInput=resolved_input)
+
+    if effect_type == "draw" and hasattr(target, "framework"):
+        for player_id in _player_targets(state, controller_id, effect_mapping.get("target")):
+            target.framework.zones.drawCards(
+                from_zone=ZoneRef(zone="deck", playerId=player_id),
+                to_zone=ZoneRef(zone="hand", playerId=player_id),
+                count=amount_value,
+            )
+        return PendingResolutionResult(
+            status="resolved",
+            state=_write_state(target, _state_of(target)),
+            resolutionInput=resolved_input,
+        )
 
     return PendingResolutionResult(status="resolved", state=state, resolutionInput=resolved_input)
 
