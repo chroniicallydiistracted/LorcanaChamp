@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from collections.abc import Mapping
 from typing import Iterable
 
 from lorcana_engine_v2.cards.models import CardDefinition
@@ -48,7 +49,14 @@ class ShiftRules:
     inkCost: int | None
     rawLabel: str | None
     targetMode: ShiftTargetMode
+    discardCost: "ShiftDiscardCost | None" = None
     unsupportedReason: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ShiftDiscardCost:
+    discardCards: int
+    discardCardType: str | None = None
 
 
 def _raw_card_type(card_def: CardDefinition | None) -> str | None:
@@ -166,6 +174,21 @@ def get_shift_rules(card_def: CardDefinition | None) -> ShiftRules | None:
         return None
     raw_cost = keyword.raw.get("cost") if keyword is not None else None
     if isinstance(raw_cost, dict):
+        discard_cards = raw_cost.get("discardCards") or raw_cost.get("discard_cards")
+        if isinstance(discard_cards, int) and discard_cards > 0:
+            return ShiftRules(
+                inkCost=None,
+                rawLabel=label,
+                targetMode=_shift_target_mode(card_def, label),
+                discardCost=ShiftDiscardCost(
+                    discardCards=discard_cards,
+                    discardCardType=(
+                        str(raw_cost.get("discardCardType") or raw_cost.get("discard_card_type"))
+                        if raw_cost.get("discardCardType") or raw_cost.get("discard_card_type")
+                        else None
+                    ),
+                ),
+            )
         non_ink_keys = [key for key, value in raw_cost.items() if key != "ink" and value is not None]
         if non_ink_keys:
             return ShiftRules(
@@ -224,6 +247,73 @@ def get_singer_threshold(card_def: CardDefinition | None) -> int | None:
     return int(value) if isinstance(value, int) else int(card_def.cost)
 
 
+def _payload(effect: object) -> Mapping[str, object]:
+    value = getattr(effect, "payload", {})
+    return value if isinstance(value, Mapping) else {}
+
+
+def _effects_for_card(registry: object | None, card_id: InstanceId | str, kind: str | None = None) -> tuple[object, ...]:
+    if registry is None:
+        return ()
+    getter = getattr(registry, "get_effects_for_card", None)
+    if callable(getter):
+        return tuple(getter(InstanceId(str(card_id)), kind=kind))
+    by_target = getattr(registry, "byTarget", {})
+    effects = tuple(by_target.get(InstanceId(str(card_id)), ()))
+    if kind is None:
+        return effects
+    return tuple(effect for effect in effects if getattr(effect, "kind", None) == kind)
+
+
+def _active_temporary_keyword_value(meta: object, keyword: str, current_turn: int) -> int:
+    keywords = getattr(meta, "temporaryKeywords", None) or {}
+    starts = getattr(meta, "temporaryKeywordStarts", None) or {}
+    values = getattr(meta, "temporaryKeywordValues", None) or {}
+    expires = keywords.get(keyword) if isinstance(keywords, Mapping) else None
+    start = starts.get(keyword, 1) if isinstance(starts, Mapping) else 1
+    if isinstance(expires, int) and int(start) <= current_turn <= expires:
+        raw_value = values.get(keyword, 0) if isinstance(values, Mapping) else 0
+        return int(raw_value) if isinstance(raw_value, int) else 0
+    return 0
+
+
+def _static_granted_singer_value(registry: object | None, singer_id: InstanceId | str) -> int:
+    value = 0
+    for effect in _effects_for_card(registry, singer_id, "gain-keyword"):
+        payload = _payload(effect)
+        if payload.get("keyword") != "Singer":
+            continue
+        raw_value = payload.get("value")
+        if isinstance(raw_value, int):
+            value = max(value, raw_value)
+    return value
+
+
+def _static_singer_threshold_modifier(registry: object | None, singer_id: InstanceId | str) -> int:
+    total = 0
+    for effect in _effects_for_card(registry, singer_id, "property-modification"):
+        payload = _payload(effect)
+        if payload.get("property") != "singer-threshold":
+            continue
+        raw_value = payload.get("value", payload.get("modifier", 0))
+        if isinstance(raw_value, int):
+            total += raw_value
+    return total
+
+
+def _continuous_singer_threshold_modifier(G: object | None, singer_id: InstanceId | str) -> int:
+    continuous = getattr(G, "continuousEffects", None)
+    by_target = getattr(continuous, "byTarget", {}) if continuous is not None else {}
+    total = 0
+    for effect in by_target.get(InstanceId(str(singer_id)), ()):
+        if getattr(effect, "kind", None) != "stat-modifier":
+            continue
+        if getattr(effect, "stat", None) != "singer-threshold":
+            continue
+        total += int(getattr(effect, "modifier", 0) or 0)
+    return total
+
+
 def get_singer_threshold_for_instance(
     *,
     framework,
@@ -233,8 +323,34 @@ def get_singer_threshold_for_instance(
     G=None,
     registry=None,
 ) -> int | None:
-    _ = framework, singerId, getDefinitionByInstanceId, G, registry
-    return get_singer_threshold(singerDef)
+    _ = getDefinitionByInstanceId
+    base_threshold = get_singer_threshold(singerDef)
+    if base_threshold is None:
+        return None
+    printed_singer = 0
+    keyword = _raw_keyword_ability(singerDef, "Singer")
+    raw_keyword_value = keyword.raw.get("value") if keyword is not None else None
+    if isinstance(raw_keyword_value, int):
+        printed_singer = raw_keyword_value
+
+    current_turn = 1
+    state_snapshot = getattr(framework, "state", None)
+    status = getattr(state_snapshot, "status", None)
+    raw_turn = getattr(status, "turn", None)
+    if isinstance(raw_turn, int) and raw_turn > 0:
+        current_turn = raw_turn
+
+    try:
+        meta = framework.cards.require(singerId).meta if framework is not None else None
+    except Exception:
+        meta = None
+
+    temporary_singer = _active_temporary_keyword_value(meta, "Singer", current_turn)
+    static_singer = _static_granted_singer_value(registry, singerId)
+    threshold_modifier = _static_singer_threshold_modifier(registry, singerId) + _continuous_singer_threshold_modifier(G, singerId)
+    printed_cost_to_sing = int(singerDef.cost) + threshold_modifier if singerDef is not None else threshold_modifier
+    singer_value = max(printed_singer, static_singer, temporary_singer)
+    return max(base_threshold, singer_value, printed_cost_to_sing)
 
 
 def get_sing_together_threshold(card_def: CardDefinition | None) -> int | None:
@@ -328,6 +444,7 @@ __all__ = [
     "BasicCost",
     "ExertCostCard",
     "PayBasicCostResult",
+    "ShiftDiscardCost",
     "ShiftRules",
     "get_available_ink",
     "get_shift_rules",

@@ -11,6 +11,7 @@ from lorcana_engine_v2.core.zones import (
     CardMeta,
     ZoneRuntimePrivateState,
     ZoneRuntimeState,
+    base_zone_from_key,
     move_card_to_zone,
     patch_card_meta,
     scoped_zone,
@@ -356,16 +357,42 @@ def finalize_resolved_action_card(
     if not (str(current.zoneKey).startswith("play") or str(current.zoneKey).startswith("limbo")):
         return state
 
-    destination = scoped_zone("discard", player_id)
+    from_zone = str(base_zone_from_key(current.zoneKey))
+    destination_zone = "discard"
+    destination_index: int | None = None
     meta = state.ctx.zones.private.cardMeta.get(card_id, CardMeta())
     if meta.afterPlayDestination == "bottom-of-deck":
-        destination = scoped_zone("deck", player_id)
+        destination_zone = "deck"
+        destination_index = 0
+
+    from lorcana_engine_v2.effects.replacement_effects import apply_replacement_effects
+
+    replacement = apply_replacement_effects(
+        target,
+        {
+            "kind": "zone-change",
+            "eventId": f"finalize-action:{card_id}",
+            "cardId": card_id,
+            "sourceId": card_id,
+            "controllerId": player_id,
+            "fromZone": from_zone,
+            "toZone": destination_zone,
+        },
+    )
+    destination_zone = str(replacement.get("toZone") or destination_zone)
+    replacement_position = replacement.get("position")
+    if replacement_position in {"bottom", "deck-bottom"}:
+        destination_index = 0
+    elif replacement_position in {"top", "deck-top"}:
+        destination_index = None
+
+    destination = scoped_zone(destination_zone, player_id)
 
     zones = move_card_to_zone(
         state.ctx.zones,
         card_id=card_id,
         destination_zone_key=destination,
-        index=0 if str(destination).startswith("deck") else None,
+        index=destination_index,
     )
     card_meta = dict(zones.private.cardMeta)
     card_meta.pop(card_id, None)

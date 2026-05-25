@@ -301,6 +301,32 @@ class StaticRegistry:
                 ),
             )
 
+        if effect_type == "property-modification" and raw_effect.get("property") == "singer-threshold":
+            target_ids = self._resolve_card_targets(state, ctx, raw_effect.get("target", "SELF"), source_controller, source_id)
+            raw_value = raw_effect.get("value", raw_effect.get("modifier", raw_effect.get("amount", 0)))
+            return tuple(
+                self._effect(
+                    source_id,
+                    source_controller,
+                    source_definition_id,
+                    ability_index,
+                    ability_name,
+                    "property-modification",
+                    {
+                        "targetIds": (target_id,),
+                        "property": "singer-threshold",
+                        "value": ctx.amounts.resolve(
+                            state,
+                            ctx,
+                            raw_value,
+                            AmountContext(actor=source_controller, source_id=source_id, target_id=target_id),
+                        ),
+                    },
+                    raw_effect,
+                )
+                for target_id in target_ids
+            )
+
         if (
             effect_type == "property-modification"
             and raw_effect.get("property") == "classification"
@@ -343,6 +369,27 @@ class StaticRegistry:
                         },
                         raw_effect,
                     ),
+                )
+            if target in {"OPPONENT", "OPPONENTS", "EACH_OPPONENT"}:
+                return tuple(
+                    self._effect(
+                        source_id,
+                        source_controller,
+                        source_definition_id,
+                        ability_index,
+                        ability_name,
+                        "restriction",
+                        {
+                            "playerId": player_id,
+                            "playerTarget": "OPPONENTS",
+                            "restriction": restriction,
+                            "minCost": raw_effect.get("minCost"),
+                            "cardType": raw_effect.get("cardType"),
+                        },
+                        raw_effect,
+                    )
+                    for player_id in state.ctx.playerIds
+                    if player_id != source_controller
                 )
             target_ids = self._resolve_card_targets(state, ctx, target, source_controller, source_id)
             return tuple(

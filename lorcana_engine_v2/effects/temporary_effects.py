@@ -437,9 +437,11 @@ def cleanup_expired_effects(
     )
 
     from lorcana_engine_v2.effects.continuous_effects import cleanup_expired_continuous_effects
+    from lorcana_engine_v2.effects.play_from_under_permissions import prune_expired_play_from_under_permissions
     from lorcana_engine_v2.effects.replacement_effects import prune_expired_replacement_effects
 
     next_state = cleanup_expired_continuous_effects(next_state, turn)
+    next_state = prune_expired_play_from_under_permissions(next_state, turn)
     next_state = prune_expired_replacement_effects(next_state, turn)
     return _write_state(target, next_state)
 

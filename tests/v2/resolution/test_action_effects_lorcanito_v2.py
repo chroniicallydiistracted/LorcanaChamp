@@ -4,8 +4,11 @@ from lorcana_engine_v2.core.ids import InstanceId, PlayerId
 from lorcana_engine_v2.core.runtime import MatchRuntime
 from lorcana_engine_v2.core.state import MatchState
 from lorcana_engine_v2.core.zones import CardMeta, move_card_to_zone, patch_card_meta, scoped_zone
+from lorcana_engine_v2.effects.replacement_effects import register_replacement_effect
 from lorcana_engine_v2.moves.play import PLAY_CARD
 from lorcana_engine_v2.moves.resolve_pending import RESOLVE_EFFECT
+from lorcana_engine_v2.resolution.action_effects import resolve_action_effect
+from lorcana_engine_v2.resolution.pending import finalize_resolved_action_card
 
 from tests.v2.helpers import resources_for
 
@@ -58,7 +61,7 @@ def _resolve(effect_id, **args):
     return CommandEnvelope(
         commandID=f"resolve-{effect_id}",
         move=RESOLVE_EFFECT,
-        input=MoveInput(args={"effectId": effect_id, **args}),
+        input=MoveInput(args={"effectId": effect_id, "params": dict(args)}),
     )
 
 
@@ -150,3 +153,109 @@ def test_sudden_chill_suspends_for_opponent_discard_choice_and_resolve_effect_fi
     assert resolve_result.state.ctx.priority.pendingChoice is None
     assert InstanceId("opp_card") in resolve_result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p1")]
     assert InstanceId("action") in resolve_result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p0")]
+
+
+def test_conditional_false_branch_does_not_execute_then_branch():
+    resources = resources_for({"source": "ZTM"})
+    state = _state(resources, p0_play=("source",))
+    state = MatchState(G=state.G.with_updates(lore={PlayerId("p0"): 0, PlayerId("p1"): 3}), ctx=state.ctx)
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {
+            "type": "conditional",
+            "condition": {"type": "during-turn", "whose": "opponent"},
+            "then": {"type": "lose-lore", "target": "OPPONENT", "amount": 1},
+        },
+    )
+
+    assert result.status == "resolved"
+    assert result.state.G.lore[PlayerId("p1")] == 3
+
+
+def test_conditional_false_branch_executes_else_branch_when_present():
+    resources = resources_for({"source": "ZTM"})
+    state = _state(resources, p0_play=("source",))
+    state = MatchState(G=state.G.with_updates(lore={PlayerId("p0"): 0, PlayerId("p1"): 3}), ctx=state.ctx)
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {
+            "type": "conditional",
+            "condition": {"type": "during-turn", "whose": "opponent"},
+            "then": {"type": "lose-lore", "target": "OPPONENT", "amount": 1},
+            "else": {"type": "gain-lore", "target": "CONTROLLER", "amount": 1},
+        },
+    )
+
+    assert result.status == "resolved"
+    assert result.state.G.lore[PlayerId("p0")] == 1
+    assert result.state.G.lore[PlayerId("p1")] == 3
+
+
+def test_sequence_continuation_preserves_remaining_effects_after_optional_suspension():
+    resources = resources_for({"source": "ZTM"})
+    state = _state(resources, p0_play=("source",))
+    runtime = _runtime(resources, MatchState(G=state.G.with_updates(lore={PlayerId("p0"): 0, PlayerId("p1"): 3}), ctx=state.ctx))
+
+    first = resolve_action_effect(
+        runtime.get_state(),
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {
+            "type": "sequence",
+            "effects": [
+                {"type": "optional", "effect": {"type": "gain-lore", "target": "CONTROLLER", "amount": 1}},
+                {"type": "lose-lore", "target": "OPPONENT", "amount": 1},
+            ],
+        },
+    )
+    runtime.load_state(first.state)
+    pending = first.state.G.pendingEffects[0]
+
+    result = runtime.process_command(_resolve(pending.id, resolveOptional=False), "p0", actor_role="player")
+
+    assert result.success is True
+    assert result.state.G.lore[PlayerId("p0")] == 0
+    assert result.state.G.lore[PlayerId("p1")] == 2
+
+
+def test_action_finalization_applies_zone_change_replacement():
+    resources = resources_for({"action": "X1Y"})
+    state = _state(resources)
+    zones = move_card_to_zone(state.ctx.zones, card_id="action", destination_zone_key=scoped_zone("limbo", "p0"))
+    state = MatchState(G=state.G, ctx=state.ctx.with_updates(zones=zones))
+    state = register_replacement_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "action", "cardType": "action", "costType": "standard"},
+        {
+            "type": "zone-destination",
+            "targetRef": "source",
+            "toZone": "discard",
+            "replacementZone": "deck",
+            "replacementPosition": "bottom",
+        },
+        "this-turn",
+    )
+
+    state = finalize_resolved_action_card(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "action", "cardType": "action", "costType": "standard"},
+    )
+
+    assert InstanceId("action") in state.ctx.zones.private.zoneCards[scoped_zone("deck", "p0")]
+
+
+def test_explicit_unsupported_action_effect_records_evidence():
+    resources = resources_for({"source": "ZTM"})
+    state = _state(resources, p0_play=("source",))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "not-yet-real"},
+    )
+
+    assert result.status == "unsupported"
+    assert result.resolutionInput.eventSnapshot["unsupportedActionEffect"] == "not-yet-real"

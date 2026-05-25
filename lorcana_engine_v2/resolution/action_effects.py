@@ -16,6 +16,8 @@ from lorcana_engine_v2.core.zones import (
     scoped_zone,
 )
 from lorcana_engine_v2.effects.replacement_effects import apply_replacement_effects, register_replacement_effect
+from lorcana_engine_v2.effects.continuous_effects import add_stat_modifier_effect
+from lorcana_engine_v2.effects.play_from_under_permissions import add_play_from_under_permission
 from lorcana_engine_v2.effects.temporary_effects import (
     add_temporary_keyword,
     add_temporary_lost_keyword,
@@ -311,6 +313,7 @@ def _suspend_effect(
     effect: Mapping[str, object],
     resolution_input: ActionResolutionInput,
     ability_index: int | None = None,
+    continuation: object | None = None,
 ) -> PendingResolutionResult:
     state = _state_of(target)
     controller_id = _card_played_player_id(card_played)
@@ -325,6 +328,7 @@ def _suspend_effect(
         effect=dict(effect),
         resolutionInput=resolution_input,
         abilityIndex=ability_index,
+        continuation=continuation,
     )
     next_state = enqueue_pending_action_effect(target, pending)
     return PendingResolutionResult(status="suspended", state=next_state, pendingEffect=pending, resolutionInput=resolution_input)
@@ -344,14 +348,25 @@ def resolve_composed_effect(
         steps = effect.get("effects", effect.get("steps", ()))
         if not isinstance(steps, Sequence) or isinstance(steps, (str, bytes, bytearray)):
             return PendingResolutionResult(status="resolved", state=state, resolutionInput=resolution_input)
-        for step in steps:
-            result = resolve_action_effect(target, card_played, step, resolution_input, options)
+        for index, step in enumerate(steps):
+            step_options = dict(options or {})
+            remaining = tuple(steps[index + 1 :])
+            if remaining:
+                existing = step_options.get("continuation")
+                continuation = dict(existing) if isinstance(existing, Mapping) else {}
+                continuation["remainingEffects"] = remaining + tuple(continuation.get("remainingEffects", ()))
+                step_options["continuation"] = continuation
+            result = resolve_action_effect(target, card_played, step, resolution_input, step_options)
             if result.status == "suspended":
                 return result
         return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
 
     if effect_type == "conditional":
         branch = effect.get("then", effect.get("effect"))
+        if not _evaluate_action_condition(target, card_played, effect.get("condition"), resolution_input):
+            branch = effect.get("else", effect.get("ifFalse"))
+            if branch is None:
+                return PendingResolutionResult(status="resolved", state=state, resolutionInput=resolution_input)
         return resolve_action_effect(target, card_played, branch, resolution_input, options)
 
     if effect_type in {"optional", "may"}:
@@ -365,6 +380,7 @@ def resolve_composed_effect(
                 effect=effect,
                 resolution_input=resolution_input,
                 ability_index=_ability_index(options),
+                continuation=(options or {}).get("continuation") if isinstance(options, Mapping) else None,
             )
         return resolve_action_effect(target, card_played, effect.get("effect"), resolution_input, options)
 
@@ -380,12 +396,130 @@ def resolve_composed_effect(
                 effect=effect,
                 resolution_input=resolution_input,
                 ability_index=_ability_index(options),
+                continuation=(options or {}).get("continuation") if isinstance(options, Mapping) else None,
             )
         if resolution_input.choiceIndex < 0 or resolution_input.choiceIndex >= len(options_value):
             return PendingResolutionResult(status="invalid", state=state, resolutionInput=resolution_input)
         return resolve_action_effect(target, card_played, options_value[resolution_input.choiceIndex], resolution_input, options)
 
+    if effect_type in {"for-each", "for-each-opponent"}:
+        nested = effect.get("effect")
+        if effect_type == "for-each-opponent":
+            state = _state_of(target)
+            controller_id = _card_played_player_id(card_played)
+            for player_id in (candidate for candidate in state.ctx.playerIds if candidate != controller_id):
+                result = resolve_action_effect(
+                    target,
+                    card_played,
+                    nested,
+                    resolution_input.merge({"currentTargets": (str(player_id),)}),
+                    options,
+                )
+                if result.status == "suspended":
+                    return result
+            return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+        controller_id = _card_played_player_id(card_played)
+        targets = _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input)
+        for card_id in targets:
+            result = resolve_action_effect(
+                target,
+                card_played,
+                nested,
+                resolution_input.merge({"currentTargets": (str(card_id),)}),
+                options,
+            )
+            if result.status == "suspended":
+                return result
+        resolution_input.eventSnapshot["triggerAmount"] = len(targets)
+        return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+
+    if effect_type == "count":
+        controller_id = _card_played_player_id(card_played)
+        targets = _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input)
+        resolution_input.eventSnapshot["count"] = len(targets)
+        resolution_input.eventSnapshot["triggerAmount"] = len(targets)
+        nested = effect.get("effect")
+        if isinstance(nested, Mapping):
+            return resolve_action_effect(target, card_played, nested, resolution_input, options)
+        return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+
+    if effect_type == "select-target":
+        return _suspend_effect(
+            target,
+            kind="target-selection",
+            card_played=card_played,
+            effect=effect,
+            resolution_input=resolution_input,
+            ability_index=_ability_index(options),
+            continuation=(options or {}).get("continuation") if isinstance(options, Mapping) else None,
+        )
+
+    if effect_type == "pay-cost":
+        return PendingResolutionResult(status="resolved", state=state, resolutionInput=resolution_input)
+
     return PendingResolutionResult(status="resolved", state=state, resolutionInput=resolution_input)
+
+
+def _evaluate_action_condition(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    condition: object,
+    resolution_input: ActionResolutionInput,
+) -> bool:
+    if condition is None:
+        return True
+    state = _state_of(target)
+    if not isinstance(condition, Mapping):
+        return False
+    try:
+        from lorcana_engine_v2.core.context import build_rules_context
+        from lorcana_engine_v2.rules.condition_evaluator import ConditionContext, ConditionEvaluator
+
+        query = getattr(getattr(target, "cards", None), "_query", None)
+        resources = getattr(query, "resources", None)
+        if resources is not None:
+            ctx = build_rules_context(resources)
+            return ConditionEvaluator().evaluate(
+                state,
+                ctx,
+                condition,
+                ConditionContext(
+                    actor=_card_played_player_id(card_played),
+                    source_id=_card_played_card_id(card_played),
+                    event_payload={
+                        "eventSnapshot": dict(resolution_input.eventSnapshot),
+                        "triggerContext": dict(resolution_input.triggerContext),
+                    },
+                ),
+            )
+    except Exception:
+        pass
+
+    kind = condition.get("type") or condition.get("kind")
+    if kind in {"always", "if-you-do"}:
+        return True
+    if kind == "not":
+        return not _evaluate_action_condition(target, card_played, condition.get("condition"), resolution_input)
+    if kind == "and":
+        values = condition.get("conditions")
+        return isinstance(values, Sequence) and all(
+            _evaluate_action_condition(target, card_played, entry, resolution_input)
+            for entry in values
+        )
+    if kind == "or":
+        values = condition.get("conditions")
+        return isinstance(values, Sequence) and any(
+            _evaluate_action_condition(target, card_played, entry, resolution_input)
+            for entry in values
+        )
+    if kind in {"during-turn", "turn", "your-turn"}:
+        turn_owner = state.ctx.status.turnOwnerId or state.ctx.priority.holder
+        whose = condition.get("whose")
+        controller = _card_played_player_id(card_played)
+        if whose == "opponent":
+            return turn_owner is not None and turn_owner != controller
+        return turn_owner == controller
+    return False
 
 
 def _ability_index(options: Mapping[str, object] | None) -> int | None:
@@ -712,16 +846,22 @@ def resolve_keyword_effect(
 ) -> PendingResolutionResult:
     state = _state_of(target)
     controller_id = _card_played_player_id(card_played)
-    keyword = str(effect.get("keyword") or effect.get("ability") or effect.get("classification") or "")
+    raw_keywords = effect.get("keywords") if "keywords" in effect else effect.get("keyword", effect.get("ability", effect.get("classification")))
+    keywords = tuple(str(item) for item in raw_keywords) if isinstance(raw_keywords, Sequence) and not isinstance(raw_keywords, (str, bytes, bytearray)) else (str(raw_keywords or ""),)
     changed = False
     for card_id in _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input):
         current = _state_of(target)
         meta = current.ctx.zones.private.cardMeta.get(card_id, CardMeta())
         window = _duration_window(current, controller_id, card_id, effect.get("duration"))
-        if lose:
-            meta = add_temporary_lost_keyword(meta, keyword, window.expiresAtTurn, starts_at_turn=window.startsAtTurn)
-        else:
-            meta = add_temporary_keyword(meta, keyword, window.expiresAtTurn, starts_at_turn=window.startsAtTurn)
+        for keyword in keywords:
+            if not keyword:
+                continue
+            raw_value = effect.get("value")
+            value = int(raw_value) if isinstance(raw_value, int) else None
+            if lose:
+                meta = add_temporary_lost_keyword(meta, keyword, window.expiresAtTurn, starts_at_turn=window.startsAtTurn)
+            else:
+                meta = add_temporary_keyword(meta, keyword, window.expiresAtTurn, value=value, starts_at_turn=window.startsAtTurn, payload=effect)
         _patch_card_meta(target, current, card_id, meta)
         changed = True
     resolution_input.eventSnapshot["lastEffectPerformed"] = changed
@@ -738,6 +878,8 @@ def resolve_move_card_effect(
     controller_id = _card_played_player_id(card_played)
     effect_type = str(effect.get("type") or "")
     to_zone = str(effect.get("to") or effect.get("toZone") or ("hand" if effect_type == "return-to-hand" else "discard"))
+    raw_index = effect.get("index")
+    move_index = 0 if raw_index in {"bottom", "deck-bottom"} or effect_type == "put-on-bottom" else None
     moved = False
     zones = state.ctx.zones
     for card_id in _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input):
@@ -745,11 +887,123 @@ def resolve_move_card_effect(
         if entry is None:
             continue
         destination_owner = entry.ownerID if to_zone in {"hand", "deck", "discard", "inkwell", "limbo"} else entry.controllerID
-        zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=scoped_zone(to_zone, destination_owner))
+        zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=scoped_zone(to_zone, destination_owner), index=move_index)
         moved = True
     _write_zones(target, state, zones)
     resolution_input.eventSnapshot["lastEffectPerformed"] = moved
     return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+
+
+def resolve_put_under_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    state = _state_of(target)
+    controller_id = _card_played_player_id(card_played)
+    under_target_ids = _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("under", "SELF"), resolution_input)
+    destination_id = under_target_ids[0] if under_target_ids else _card_played_card_id(card_played)
+    source_zone = str(effect.get("source") or effect.get("from") or "chosen")
+    if source_zone == "top-of-deck":
+        amount = resolve_variable_amount(effect.get("amount"), 1)
+        selected = tuple(reversed(state.ctx.zones.private.zoneCards.get(scoped_zone("deck", controller_id), ())))[:amount]
+    else:
+        selected = _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input)
+    zones = state.ctx.zones
+    moved: list[InstanceId] = []
+    for card_id in selected:
+        entry = zones.private.cardIndex.get(card_id)
+        if entry is None or card_id == destination_id:
+            continue
+        zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=scoped_zone("limbo", entry.ownerID))
+        moved.append(card_id)
+    card_meta = dict(zones.private.cardMeta)
+    destination_meta = card_meta.get(destination_id, CardMeta())
+    cards_under = tuple(destination_meta.cardsUnder or ()) + tuple(moved)
+    card_meta[destination_id] = destination_meta.with_updates(cardsUnder=cards_under or None)
+    for card_id in moved:
+        card_meta[card_id] = card_meta.get(card_id, CardMeta()).with_updates(stackParentId=destination_id)
+    zones = ZoneRuntimeState(
+        public=zones.public,
+        reveals=zones.reveals,
+        private=ZoneRuntimePrivateState(
+            zoneCards=zones.private.zoneCards,
+            cardIndex=zones.private.cardIndex,
+            cardMeta=card_meta,
+        ),
+    )
+    _write_zones(target, state, zones)
+    if moved:
+        cards_under_turn = dict(_state_of(target).G.turnMetadata.cardsUnderThisTurn or {})
+        cards_under_turn[destination_id] = tuple(cards_under_turn.get(destination_id, ())) + tuple(moved)
+        _write_state(
+            target,
+            MatchState(
+                G=_state_of(target).G.with_updates(
+                    turnMetadata=replace(_state_of(target).G.turnMetadata, cardsUnderThisTurn=cards_under_turn)
+                ),
+                ctx=_state_of(target).ctx,
+            ),
+        )
+    resolution_input.eventSnapshot["cardsUnder"] = tuple(str(card_id) for card_id in moved)
+    resolution_input.eventSnapshot["lastEffectPerformed"] = bool(moved)
+    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+
+
+def resolve_remove_damage_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    state = _state_of(target)
+    controller_id = _card_played_player_id(card_played)
+    amount = resolve_variable_amount(resolution_input.amount if resolution_input.amount is not None else effect.get("amount"), 0)
+    changed = False
+    for card_id in _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input):
+        current = _state_of(target)
+        meta = current.ctx.zones.private.cardMeta.get(card_id, CardMeta())
+        current_damage = int(meta.damage or 0)
+        remove_amount = current_damage if effect.get("amount") == "all" else min(amount, current_damage)
+        event = apply_replacement_effects(
+            target,
+            {
+                "kind": "remove-damage",
+                "eventId": f"remove-damage:{card_id}:{_card_played_card_id(card_played)}",
+                "sourceId": _card_played_card_id(card_played),
+                "controllerId": controller_id,
+                "targetId": card_id,
+                "amount": remove_amount,
+            },
+        )
+        effective = resolve_variable_amount(event.get("amount"), 0)
+        if effective <= 0:
+            continue
+        _patch_card_meta(target, current, card_id, meta.with_updates(damage=max(0, current_damage - effective)))
+        changed = True
+    resolution_input.eventSnapshot["lastEffectPerformed"] = changed
+    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+
+
+def resolve_move_damage_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    selected = _selected_card_ids(resolution_input)
+    if len(selected) < 2:
+        return _suspend_effect(target, kind="target-selection", card_played=card_played, effect=effect, resolution_input=resolution_input)
+    amount = resolve_variable_amount(effect.get("amount"), 1)
+    source_id, destination_id = selected[0], selected[1]
+    state = _state_of(target)
+    source_meta = state.ctx.zones.private.cardMeta.get(source_id, CardMeta())
+    moved = min(amount, int(source_meta.damage or 0))
+    if moved <= 0:
+        return PendingResolutionResult(status="resolved", state=state, resolutionInput=resolution_input)
+    _patch_card_meta(target, state, source_id, source_meta.with_updates(damage=max(0, int(source_meta.damage or 0) - moved)))
+    return resolve_damage_effect(target, card_played, {"type": "put-damage", "target": "CHOSEN_CARD", "amount": moved}, ActionResolutionInput(targets=(str(destination_id),), eventSnapshot=resolution_input.eventSnapshot))
 
 
 def resolve_create_replacement_effect(
@@ -831,6 +1085,170 @@ def resolve_scry_effect(
     return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
 
 
+def resolve_additional_inkwell_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    state = _state_of(target)
+    amount = resolve_variable_amount(effect.get("amount"), 1)
+    turn_metadata = replace(
+        state.G.turnMetadata,
+        additionalInkwellActions=state.G.turnMetadata.additionalInkwellActions + amount,
+    )
+    next_state = _write_state(target, MatchState(G=state.G.with_updates(turnMetadata=turn_metadata), ctx=state.ctx))
+    resolution_input.eventSnapshot["lastEffectPerformed"] = amount > 0
+    return PendingResolutionResult(status="resolved", state=next_state, resolutionInput=resolution_input)
+
+
+def resolve_cost_reduction_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    state = _state_of(target)
+    controller_id = _card_played_player_id(card_played)
+    window = _duration_window(state, controller_id, None, effect.get("duration"))
+    amount = resolve_variable_amount(effect.get("amount", effect.get("reduction")), 0)
+    entry = {
+        "amount": amount,
+        "expiresAtTurn": window.expiresAtTurn,
+        "startsAtTurn": window.startsAtTurn,
+        "consumeOnUse": effect.get("consumeOnUse", True),
+        "cardType": effect.get("cardType"),
+        "classification": effect.get("classification"),
+        "playMethod": effect.get("playMethod", effect.get("method")),
+    }
+    pending = dict(state.G.turnMetadata.pendingCostReductionsByPlayer)
+    pending[controller_id] = tuple(pending.get(controller_id, ())) + (entry,)
+    next_state = _write_state(
+        target,
+        MatchState(
+            G=state.G.with_updates(
+                turnMetadata=replace(state.G.turnMetadata, pendingCostReductionsByPlayer=pending)
+            ),
+            ctx=state.ctx,
+        ),
+    )
+    resolution_input.eventSnapshot["lastEffectPerformed"] = amount > 0
+    return PendingResolutionResult(status="resolved", state=next_state, resolutionInput=resolution_input)
+
+
+def resolve_modify_stat_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    state = _state_of(target)
+    controller_id = _card_played_player_id(card_played)
+    amount = resolve_variable_amount(effect.get("modifier", effect.get("amount")), 0)
+    stat = str(effect.get("stat") or effect.get("attribute") or "strength")
+    changed = False
+    for card_id in _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input):
+        add_stat_modifier_effect(
+            target,
+            source_id=_card_played_card_id(card_played),
+            target_id=card_id,
+            stat=stat,
+            modifier=amount,
+            duration=str(effect.get("duration") or "this-turn"),
+            controller_id=controller_id,
+        )
+        changed = True
+    resolution_input.eventSnapshot["lastEffectPerformed"] = changed
+    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+
+
+def resolve_mill_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    state = _state_of(target)
+    controller_id = _card_played_player_id(card_played)
+    amount = resolve_variable_amount(effect.get("amount"), 1)
+    moved = 0
+    zones = state.ctx.zones
+    for player_id in _player_targets(state, controller_id, effect.get("target")):
+        cards = tuple(reversed(zones.private.zoneCards.get(scoped_zone("deck", player_id), ())))[:amount]
+        for card_id in cards:
+            zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=scoped_zone("discard", player_id))
+            moved += 1
+    next_state = _write_zones(target, state, zones)
+    resolution_input.eventSnapshot["triggerAmount"] = moved
+    resolution_input.eventSnapshot["lastEffectPerformed"] = moved > 0
+    return PendingResolutionResult(status="resolved", state=next_state, resolutionInput=resolution_input)
+
+
+def resolve_shuffle_into_deck_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    state = _state_of(target)
+    controller_id = _card_played_player_id(card_played)
+    zones = state.ctx.zones
+    moved = False
+    for card_id in _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input, default_zone=str(effect.get("from") or "discard")):
+        entry = zones.private.cardIndex.get(card_id)
+        if entry is None:
+            continue
+        zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=scoped_zone("deck", entry.ownerID))
+        moved = True
+    next_state = _write_zones(target, state, zones)
+    resolution_input.eventSnapshot["lastEffectPerformed"] = moved
+    return PendingResolutionResult(status="resolved", state=next_state, resolutionInput=resolution_input)
+
+
+def resolve_draw_until_hand_size_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    state = _state_of(target)
+    controller_id = _card_played_player_id(card_played)
+    hand_size = resolve_variable_amount(effect.get("handSize", effect.get("amount")), 0)
+    total = 0
+    for player_id in _player_targets(state, controller_id, effect.get("target")):
+        current_hand = len(_state_of(target).ctx.zones.private.zoneCards.get(scoped_zone("hand", player_id), ()))
+        draw_amount = max(0, hand_size - current_hand)
+        if draw_amount:
+            result = resolve_draw_effect(target, card_played, {"type": "draw", "target": player_id, "amount": draw_amount}, resolution_input)
+            total += int(result.resolutionInput.eventSnapshot.get("drawnCount", 0))
+    resolution_input.eventSnapshot["lastEffectPerformed"] = total > 0
+    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+
+
+def resolve_enable_play_from_under_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    state = _state_of(target)
+    controller_id = _card_played_player_id(card_played)
+    window = _duration_window(state, controller_id, _card_played_card_id(card_played), effect.get("duration") or "this-turn")
+    next_state = add_play_from_under_permission(
+        target,
+        controller_id,
+        {
+            "sourceItemId": str(_card_played_card_id(card_played)),
+            "expiresAtTurn": window.expiresAtTurn,
+            "startsAtTurn": window.startsAtTurn,
+            "cardType": effect.get("cardType"),
+            "controllerId": controller_id,
+        },
+    )
+    resolution_input.eventSnapshot["lastEffectPerformed"] = True
+    return PendingResolutionResult(status="resolved", state=next_state, resolutionInput=resolution_input)
+
+
 def unsupported_action_effect(
     target: MatchState | object,
     effect: Mapping[str, object],
@@ -854,7 +1272,7 @@ def resolve_action_effect(
         return PendingResolutionResult(status="resolved", state=state, resolutionInput=resolved_input)
 
     effect_type = str(effect_mapping.get("type") or "")
-    if effect_type in {"sequence", "conditional", "optional", "may", "or", "choice"}:
+    if effect_type in {"sequence", "conditional", "optional", "may", "or", "choice", "for-each", "for-each-opponent", "count", "select-target", "pay-cost"}:
         return resolve_composed_effect(target, card_played, effect_mapping, resolved_input, options)
 
     if _effect_requires_target_selection(effect_mapping) and not _targets_from_input(resolved_input):
@@ -890,15 +1308,45 @@ def resolve_action_effect(
         return resolve_exert_effect(target, card_played, effect_mapping, resolved_input)
     if effect_type == "restriction":
         return resolve_restriction_effect(target, card_played, effect_mapping, resolved_input)
-    if effect_type in {"gain-keyword", "grant-keyword"}:
+    if effect_type in {"gain-keyword", "gain-keywords", "grant-keyword"}:
         return resolve_keyword_effect(target, card_played, effect_mapping, resolved_input)
     if effect_type in {"lose-keyword", "remove-keyword"}:
         return resolve_keyword_effect(target, card_played, effect_mapping, resolved_input, lose=True)
-    if effect_type in {"return-to-hand", "move-card", "put-into-discard", "put-into-inkwell"}:
+    if effect_type in {"return-to-hand", "move-card", "put-into-discard", "put-into-inkwell", "put-on-top", "put-on-bottom", "return-from-discard", "move-to-location"}:
+        if effect_type == "put-on-top":
+            effect_mapping = {**effect_mapping, "to": "deck", "index": "top"}
+        elif effect_type == "put-on-bottom":
+            effect_mapping = {**effect_mapping, "to": "deck", "index": "bottom"}
+        elif effect_type == "return-from-discard":
+            effect_mapping = {**effect_mapping, "to": "hand", "target": effect_mapping.get("target", {"zones": ("discard",), "owner": "you"})}
         return resolve_move_card_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type == "put-under":
+        return resolve_put_under_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type == "remove-damage":
+        return resolve_remove_damage_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type == "move-damage":
+        return resolve_move_damage_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type == "additional-inkwell":
+        return resolve_additional_inkwell_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type == "cost-reduction":
+        return resolve_cost_reduction_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type in {"modify-stat", "property-modification", "support"}:
+        if effect_type == "property-modification" and effect_mapping.get("property") != "singer-threshold":
+            return unsupported_action_effect(target, effect_mapping, resolved_input)
+        if effect_type == "support":
+            effect_mapping = {**effect_mapping, "type": "modify-stat", "stat": "strength"}
+        return resolve_modify_stat_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type == "mill":
+        return resolve_mill_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type == "shuffle-into-deck":
+        return resolve_shuffle_into_deck_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type == "draw-until-hand-size":
+        return resolve_draw_until_hand_size_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type == "enable-play-from-under":
+        return resolve_enable_play_from_under_effect(target, card_played, effect_mapping, resolved_input)
     if effect_type in {"create-replacement-effect", "replacement"}:
         return resolve_create_replacement_effect(target, card_played, effect_mapping, resolved_input)
-    if effect_type == "reveal":
+    if effect_type in {"reveal", "reveal-hand", "reveal-inkwell", "reveal-top-card", "reveal-until-match", "reveal-and-route"}:
         return resolve_reveal_effect(target, card_played, effect_mapping, resolved_input)
     if effect_type == "scry":
         return resolve_scry_effect(target, card_played, effect_mapping, resolved_input, options)

@@ -4,6 +4,7 @@ from lorcana_engine_v2.core.ids import InstanceId, PlayerId
 from lorcana_engine_v2.core.runtime import MatchRuntime
 from lorcana_engine_v2.core.state import MatchState
 from lorcana_engine_v2.core.zones import move_card_to_zone, patch_card_meta, scoped_zone
+from lorcana_engine_v2.effects.play_from_under_permissions import add_play_from_under_permission
 from lorcana_engine_v2.moves.play import PLAY_CARD
 
 from .helpers import resources_for
@@ -119,3 +120,55 @@ def test_real_play_trigger_flushes_to_bag_after_character_enters_play():
     assert len(bag_items) == 1
     assert bag_items[0].sourceId == InstanceId("aladdin")
     assert bag_items[0].trigger["event"] == "play"
+
+
+def test_play_from_under_permission_allows_limbo_card_under_source_item_to_be_played():
+    resources = resources_for({"parent": "2w7", "card": "qmH", "i1": "Y1z"})
+    state = _main_state(resources, play=("parent",), inkwell=("i1",))
+    zones = move_card_to_zone(state.ctx.zones, card_id="card", destination_zone_key=scoped_zone("limbo", "p0"))
+    zones = patch_card_meta(
+        zones,
+        "parent",
+        zones.private.cardMeta[InstanceId("parent")].with_updates(cardsUnder=(InstanceId("card"),)),
+    )
+    zones = patch_card_meta(
+        zones,
+        "card",
+        zones.private.cardMeta[InstanceId("card")].with_updates(stackParentId=InstanceId("parent")),
+    )
+    state = MatchState(G=state.G, ctx=state.ctx.with_updates(zones=zones))
+    state = add_play_from_under_permission(
+        state,
+        "p0",
+        {
+            "sourceItemId": "parent",
+            "expiresAtTurn": 1,
+            "cardType": "character",
+            "controllerId": "p0",
+        },
+    )
+    runtime = _runtime(resources, state)
+
+    result = runtime.process_command(_play_command("card"), "p0", actor_role="player")
+
+    assert result.success is True
+    assert InstanceId("card") in result.state.ctx.zones.private.zoneCards[scoped_zone("play", "p0")]
+    assert result.state.ctx.zones.private.cardMeta[InstanceId("parent")].cardsUnder is None
+
+
+def test_play_from_under_without_permission_rejects_limbo_card():
+    resources = resources_for({"parent": "2w7", "card": "qmH", "i1": "Y1z"})
+    state = _main_state(resources, play=("parent",), inkwell=("i1",))
+    zones = move_card_to_zone(state.ctx.zones, card_id="card", destination_zone_key=scoped_zone("limbo", "p0"))
+    zones = patch_card_meta(
+        zones,
+        "card",
+        zones.private.cardMeta[InstanceId("card")].with_updates(stackParentId=InstanceId("parent")),
+    )
+    state = MatchState(G=state.G, ctx=state.ctx.with_updates(zones=zones))
+    runtime = _runtime(resources, state)
+
+    result = runtime.process_command(_play_command("card"), "p0", actor_role="player")
+
+    assert result.success is False
+    assert result.errorCode == "CARD_NOT_IN_HAND"

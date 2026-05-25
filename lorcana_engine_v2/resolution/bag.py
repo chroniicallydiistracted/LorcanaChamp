@@ -20,6 +20,19 @@ from lorcana_engine_v2.resolution.action_effects import resolve_action_effect
 from lorcana_engine_v2.resolution.pending import _state_of, _write_state
 
 
+def _read_state(target: MatchState | object) -> MatchState:
+    try:
+        return _state_of(target)
+    except TypeError:
+        cards = getattr(target, "cards", None)
+        getter = getattr(cards, "_state_getter", None)
+        if callable(getter):
+            state = getter()
+            if isinstance(state, MatchState):
+                return state
+        raise
+
+
 def _find_bag_item(state: MatchState, bag_id: str) -> BagItem | None:
     return next(
         (item for item in state.G.triggeredAbilities.bag.items if isinstance(item, BagItem) and item.id == bag_id),
@@ -33,7 +46,7 @@ def validate_resolve_bag(
     bag_id: str,
     player_id: PlayerId | str,
 ) -> RuntimeValidationResult:
-    state = _state_of(state_or_context)
+    state = _read_state(state_or_context)
     if not bag_id:
         return RuntimeValidationResult.fail("resolveBag requires a valid bag id", "RESOLVE_BAG_ID_REQUIRED")
     bag_item = _find_bag_item(state, bag_id)
