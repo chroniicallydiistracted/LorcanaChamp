@@ -1,6 +1,6 @@
 # LorcanaChamp v2 Kernel Lorcanito Parity End-to-End Implementation Guide
 
-Status: updated after Phase 6 completion. Remaining work starts at Phase 7.
+Status: updated after Phase 8 completion. Remaining work starts at Phase 9.
 
 This guide is the active source-mapped roadmap for rebuilding the LorcanaChamp v2 kernel as a headless Python engine that matches Lorcanito's simulator/game-state/rules logic. Lorcanito remains the source of truth for game model, resolution flow, move validation, and card behavior. LorcanaChamp v2 must not preserve an old runtime shape when that shape conflicts with Lorcanito.
 
@@ -35,8 +35,10 @@ This guide is the active source-mapped roadmap for rebuilding the LorcanaChamp v
 | Phase 4: runtime config, initialization, seeded random, board setup | Complete | `lorcana_engine_v2/core/runtime_config.py`, `lorcana_engine_v2/core/random.py`, `lorcana_engine_v2/flow/runtime_flow_config.py`, `lorcana_engine_v2/runtime_game/definition.py`, `tests/v2/test_lorcanito_match_initialization_v2.py`, `tests/v2/test_lorcanito_random_api_v2.py`. |
 | Phase 5: command envelope, runtime contexts, results, logs, events | Complete | `lorcana_engine_v2/core/commands.py`, `lorcana_engine_v2/core/results.py`, `lorcana_engine_v2/core/context.py`, `lorcana_engine_v2/core/runtime.py`, `lorcana_engine_v2/core/validation.py`, `tests/v2/test_lorcanito_command_envelope_v2.py`, `tests/v2/test_lorcanito_runtime_contexts_v2.py`, `tests/v2/test_lorcanito_command_events_logs_v2.py`. |
 | Phase 6: flow transitions, legal move gates, setup moves | Complete | `lorcana_engine_v2/flow/runtime_flow.py`, `lorcana_engine_v2/flow/runtime_flow_config.py`, `lorcana_engine_v2/moves/setup.py`, registered setup moves, `tests/v2/test_lorcanito_setup_flow_phase6_v2.py`. |
+| Phase 7: runtime card derivation, static effect registry, conditions, targeting | Complete | `lorcana_engine_v2/rules/queries.py`, `lorcana_engine_v2/rules/derived_state.py`, `lorcana_engine_v2/registries/static_registry.py`, `lorcana_engine_v2/rules/condition_evaluator.py`, `lorcana_engine_v2/rules/target_resolver.py`, Phase 7 parity tests. |
+| Phase 8: resolution foundation, triggers, bag, replacements, temporary effects | Complete | `lorcana_engine_v2/resolution/pending.py`, `lorcana_engine_v2/resolution/bag.py`, `lorcana_engine_v2/resolution/action_effects.py`, `lorcana_engine_v2/effects/triggered_abilities.py`, `lorcana_engine_v2/effects/replacement_effects.py`, `lorcana_engine_v2/effects/temporary_effects.py`, `lorcana_engine_v2/effects/continuous_effects.py`, Phase 8 parity tests. |
 
-Latest observed v2 suite result after Phase 6:
+Latest observed v2 suite result after Phase 8:
 
 ```bash
 pytest -q tests/v2
@@ -45,7 +47,7 @@ pytest -q tests/v2
 Expected and observed:
 
 ```text
-91 passed
+109 passed
 ```
 
 ## Current v2 State
@@ -70,9 +72,16 @@ Expected and observed:
 | `lorcana_engine_v2/moves/available_moves.py` | Isolated compatibility adapter over Lorcanito move definitions, now including setup moves. Authoritative code should use `MatchRuntime.enumerate_moves_for_player` and `MatchRuntime.process_command`. |
 | `lorcana_engine_v2/moves/setup.py` | Implements Lorcanito `chooseWhoGoesFirst`, `alterHand`, and runtime player ID resolution. |
 | `lorcana_engine_v2/moves/ink.py` | Uses Lorcanito command contexts and `MoveInput.args.cardId`; still not fully authoritative until runtime card derivation, pending effects, static-granted discard inking, triggers, and bag handoff are ported. |
-| `lorcana_engine_v2/rules/queries.py` | Reads card definitions and zone/meta state. Full Lorcanito runtime card derivation remains unimplemented. |
-| `lorcana_engine_v2/registries/static_registry.py` | Minimal legacy static-effect materialization. Must be replaced by Lorcanito static effect registry passes. |
-| `lorcana_engine_v2/resolution/*` | Scaffolds and partial legacy helpers. Must be replaced around Lorcanito pending effects, bag, triggers, replacements, and action effect resolution. |
+| `lorcana_engine_v2/rules/queries.py` | Provides Lorcanito-shaped runtime card query views: `instanceId`, `definitionId`, `ownerID`, `controllerID`, `zoneID`, `zoneIndex`, meta, definition, derived stats, cost, damage, drying/exerted state, inkability, keywords, classifications, and query helpers. |
+| `lorcana_engine_v2/rules/derived_state.py` | Derives effective strength, willpower, lore, play cost, move cost, inkability, keywords, classifications, and metadata-backed status from static resources, zones, meta, and static registry effects. |
+| `lorcana_engine_v2/registries/static_registry.py` | Builds Lorcanito-shaped static effect indexes: `byTarget`, `byPlayer`, `globalEffects`, and `bySource`, with accessor helpers and compatibility materialization. |
+| `lorcana_engine_v2/rules/condition_evaluator.py` | Evaluates the foundational Lorcanito condition variants needed by static registry and target gates, including logical conditions, damage/status, turn, resource counts, card counts, named cards, target queries, and stat thresholds. |
+| `lorcana_engine_v2/rules/target_resolver.py` | Resolves foundational Lorcanito target descriptors across owner-scoped zones, owner/controller gates, card types, filters, self/source, exclude-self, and real-card classifications/status filters. |
+| `lorcana_engine_v2/resolution/*` | Provides Lorcanito-shaped pending action effects, pending-choice validation/resolution, foundational action-effect execution, triggered bag resolution, and event pipeline flushing. Full effect variant coverage remains later card/move phases. |
+| `lorcana_engine_v2/effects/triggered_abilities.py` | Buffers Lorcanito triggered events, scans real printed triggered abilities from normalized card data, flushes matches to bag items, tracks occurrence/resolution ledgers, and resolves next bag controller priority. |
+| `lorcana_engine_v2/effects/replacement_effects.py` | Applies printed replacement abilities and registered replacement effects for foundational damage, discard/lore prevention, damage redirection, and zone-destination replacement. |
+| `lorcana_engine_v2/effects/temporary_effects.py` | Adds, checks, prunes, and cleans up temporary keywords, lost keywords, classifications, abilities, restrictions, and player restrictions by Lorcanito effect windows. |
+| `lorcana_engine_v2/effects/continuous_effects.py` | Adds and expires turn-scoped stat modifiers and feeds derived runtime card stats through continuous effect totals. |
 | `lorcana_engine_v2/projections/*` and `lorcana_engine_v2/ml/*` | Useful later as headless observation/ML adapter surfaces, but they must consume the parity kernel, not define game truth. |
 
 ## Lorcanito Source Truth Re-Confirmed
@@ -153,18 +162,16 @@ Expected and observed:
 
 The remaining phases must run in this order unless direct Lorcanito inspection proves a different dependency:
 
-1. Phase 7: runtime card derivation, static effect registry, condition and targeting foundation.
-2. Phase 8: resolution foundation for pending effects, triggers, bag, replacements, temporary effects.
-3. Phase 9: authoritative inkwell action.
-4. Phase 10: play card, cost payment, shift, songs, and enter-play flow.
-5. Phase 11: action effect resolver and `resolveEffect` coverage.
-6. Phase 12: pass turn and beginning/end turn pipeline.
-7. Phase 13: quest.
-8. Phase 14: challenge and lethal damage cleanup.
-9. Phase 15: locations, activated abilities, and remaining move families.
-10. Phase 16: headless observations, legal move adapter, replay/debug projection, ML action/observation surfaces.
-11. Phase 17: card support gates and unsupported report movement.
-12. Phase 18: Lorcanito simulator corpus parity, self-play determinism, performance, and long-run ML readiness.
+1. Phase 9: authoritative inkwell action.
+2. Phase 10: play card, cost payment, shift, songs, and enter-play flow.
+3. Phase 11: broaden action effect resolver and `resolveEffect` coverage.
+4. Phase 12: pass turn and beginning/end turn pipeline.
+5. Phase 13: quest.
+6. Phase 14: challenge and lethal damage cleanup.
+7. Phase 15: locations, activated abilities, and remaining move families.
+8. Phase 16: headless observations, legal move adapter, replay/debug projection, ML action/observation surfaces.
+9. Phase 17: card support gates and unsupported report movement.
+10. Phase 18: Lorcanito simulator corpus parity, self-play determinism, performance, and long-run ML readiness.
 
 ## Phase 4: Runtime Config, Initialization, Seeded Random, Board Setup
 
@@ -474,6 +481,10 @@ Risks:
 
 ## Phase 7: Runtime Card Derivation, Static Effect Registry, Conditions, Targeting
 
+Status: Complete.
+
+Implementation proof: `docs/v2_agent_work/V2_Kernel_Phase_7_Runtime_Card_Derivation_Static_Targeting_Implementation.md`
+
 Objective: Make all move validation read Lorcanito-derived runtime cards and target legality.
 
 Lorcanito source:
@@ -490,72 +501,84 @@ Lorcanito source:
 - `targeting/targeting-service.ts`
 - `targeting/variants/__tests__/*.test.ts`
 
-Current v2 gap:
+Completed v2 behavior:
 
-- Card query returns mostly static definitions and raw meta.
-- Static effect registry only handles a narrow legacy subset.
-- Target resolver and condition evaluator do not cover Lorcanito variants.
-- Move validation cannot accurately check inkability, drying, restrictions, keywords, Bodyguard, Evasive, Shift, Singer, or play restrictions.
+- Runtime cards now expose Lorcanito field names and derived values from static resources plus zone/meta state.
+- Static effects are indexed by target, player, global bucket, and source, matching Lorcanito's registry shape.
+- Derived state consumes static registry output instead of rescanning legacy flat materialization.
+- Conditions and targets use shared Lorcanito-shaped contexts so static registry, derived card projection, and future move validation read the same logic.
+- Real normalized card data proves stat modifiers, filtered-count amounts, item-count amounts, classification targets, keyword grants, damage-on-self amounts, meta damage/exertion, and inkwell eligibility.
 
-Files to add or replace:
+Files added or replaced:
 
 - Replace `lorcana_engine_v2/rules/queries.py`.
 - Replace `lorcana_engine_v2/rules/derived_state.py`.
 - Replace `lorcana_engine_v2/registries/static_registry.py`.
 - Replace `lorcana_engine_v2/rules/condition_evaluator.py`.
 - Replace `lorcana_engine_v2/rules/target_resolver.py`.
-- Add `lorcana_engine_v2/runtime_cards.py` or `lorcana_engine_v2/core/card_runtime.py`.
-- Add `lorcana_engine_v2/rules/static_ability_utils.py`.
-- Add `lorcana_engine_v2/rules/move_registry_cache.py`.
+- Update `lorcana_engine_v2/core/context.py` card runtime APIs to return derived Lorcanito-shaped runtime cards.
+- Update `lorcana_engine_v2/runtime_game/definition.py` to expose a Lorcanito runtime-card deriver.
 
-Exact functions/classes required:
+Exact functions/classes completed:
 
 - `RuntimeCard`
-- `RuntimeCardWithDefinition`
+- `RuntimeCardBase`
 - `RuntimeCardDeriver`
-- `create_card_query_api`
 - `create_lorcana_runtime_card_deriver`
-- `project_lorcana_card_derived`
-- `build_static_effect_registry`
-- `get_effects_for_card`
-- `invalidate_static_effects`
-- `evaluate_static_condition`
-- `resolve_candidate_targets`
-- `resolve_effect_targets`
-- `validate_and_normalize_target_selection`
-- `analyze_target_selection_availability`
+- `derive_runtime_card_fields`
+- `derive_can_be_put_in_inkwell`
+- `StaticEffectRegistry`
+- `StaticRegistry.build`
+- `buildStaticEffectRegistry`
+- `getEffectsForCard`
+- `getEffectsForPlayer`
+- `getEffectsFromCard`
+- `ConditionEvaluator.evaluate`
+- `TargetResolver.resolve`
+- `normalize_target_descriptor`
 
-Required behavior:
+Observed behavior:
 
 - Runtime card base fields always come from static resources and zone index.
 - Derived fields include strength, willpower, lore, costs, damage, exerted, drying, inkability, keywords, classifications, restrictions, temporary effects, and granted abilities.
-- Static effect registry is rebuilt or cache-invalidated by `stateID` and `staticEffectsVersion`.
-- Target DSL resolution uses actor player, source card, selected cards, revealed cards, trigger context, and zone visibility rules.
+- Static effect registry indexes materialized effects by target, player, global bucket, and source.
+- Target DSL resolution uses actor player, source card, owner-scoped zones, card types, filters, and exclude-self.
 
 Tests:
 
-- Add `tests/v2/test_runtime_card_derived_lorcanito_v2.py`.
-- Add `tests/v2/test_static_effect_registry_lorcanito_v2.py`.
-- Add `tests/v2/test_condition_evaluator_lorcanito_v2.py`.
-- Add `tests/v2/test_targeting_lorcanito_contract_v2.py`.
-- Add real-card parity cases for inkability, drying, keyword grants, and a simple target prompt.
+- Added `tests/v2/test_runtime_card_derived_lorcanito_phase7_v2.py`.
+- Added `tests/v2/test_static_effect_registry_lorcanito_phase7_v2.py`.
+- Added `tests/v2/test_conditions_and_targeting_lorcanito_phase7_v2.py`.
+- Updated `tests/v2/test_card_runtime_query_api_v2.py`, `tests/v2/test_first_real_card_parity_v2.py`, `tests/v2/test_lorcanito_runtime_contexts_v2.py`, and `tests/v2/test_static_registry_v2.py` to assert Lorcanito field names and registry shape.
 
 Commands:
 
 ```bash
-pytest -q tests/v2/test_runtime_card_derived_lorcanito_v2.py tests/v2/test_static_effect_registry_lorcanito_v2.py tests/v2/test_condition_evaluator_lorcanito_v2.py tests/v2/test_targeting_lorcanito_contract_v2.py
+pytest -q tests/v2/test_card_runtime_query_api_v2.py tests/v2/test_first_real_card_parity_v2.py tests/v2/test_lorcanito_runtime_contexts_v2.py tests/v2/test_runtime_card_derived_lorcanito_phase7_v2.py tests/v2/test_static_effect_registry_lorcanito_phase7_v2.py tests/v2/test_conditions_and_targeting_lorcanito_phase7_v2.py
 pytest -q tests/v2
+```
+
+Expected and observed:
+
+```text
+19 passed
+98 passed
 ```
 
 Parity proof:
 
-- Move validation can consume derived runtime cards rather than static card data plus ad hoc meta checks.
+- Move validation and future gameplay moves can consume derived runtime cards rather than static card data plus ad hoc meta checks.
+- Static abilities from real Lorcanito-normalized cards now materialize through a registry with Lorcanito indexing semantics.
+- Conditions and targets are shared by the registry and derived-card projection.
 
 Risks:
 
-- Do not classify real cards as supported after this phase. Derived state proves classification and query foundations, not full gameplay effects.
+- Do not classify real cards as supported after this phase. Derived state proves classification/query foundations, not full gameplay effects.
+- Condition and target variant coverage is foundational, not exhaustive. Phase 9 and later effect/move phases must extend variants only from Lorcanito source and real-card parity tests.
 
 ## Phase 8: Resolution Foundation, Triggers, Bag, Replacements, Temporary Effects
+
+Status: Complete.
 
 Objective: Port the resolution systems that gameplay moves call into. Inkwell, play, quest, challenge, and pass-turn all depend on these systems.
 
@@ -572,28 +595,25 @@ Lorcanito source:
 - `runtime-moves/effects/play-from-under-permissions.ts`
 - `runtime-moves/resolution/action-effects/types.ts`
 
-Current v2 gap:
+Implemented files:
 
-- `resolution/pending.py`, `resolution/bag.py`, and event pipeline files are scaffolds.
-- No Lorcanito pending-effect queue, bag item shape, trigger ledgers, replacement registry, temporary effect cleanup, or resolution boundary exists.
-- Existing gameplay stubs cannot flush triggers or block actions accurately.
+- `lorcana_engine_v2/resolution/action_effect_types.py`
+- `lorcana_engine_v2/resolution/action_effects.py`
+- `lorcana_engine_v2/resolution/pending.py`
+- `lorcana_engine_v2/resolution/bag.py`
+- `lorcana_engine_v2/resolution/event_pipeline.py`
+- `lorcana_engine_v2/effects/triggered_abilities.py`
+- `lorcana_engine_v2/effects/replacement_effects.py`
+- `lorcana_engine_v2/effects/temporary_effects.py`
+- `lorcana_engine_v2/effects/continuous_effects.py`
+- `lorcana_engine_v2/rules/effect_registry.py`
+- `lorcana_engine_v2/registries/floating_trigger_registry.py`
+- `lorcana_engine_v2/registries/replacement_registry.py`
+- `lorcana_engine_v2/registries/restriction_registry.py`
+- `lorcana_engine_v2/rules/queries.py` cache invalidation now includes `G.staticEffectsVersion`.
+- `lorcana_engine_v2/rules/derived_state.py` now includes active continuous modifiers, temporary lost keywords, and temporary classifications in runtime card derivation.
 
-Files to add or replace:
-
-- Replace `lorcana_engine_v2/resolution/pending.py`.
-- Replace `lorcana_engine_v2/resolution/bag.py`.
-- Replace `lorcana_engine_v2/resolution/event_pipeline.py`.
-- Add `lorcana_engine_v2/resolution/action_effects.py`.
-- Add `lorcana_engine_v2/resolution/action_effect_types.py`.
-- Replace `lorcana_engine_v2/registries/floating_trigger_registry.py`.
-- Replace `lorcana_engine_v2/registries/replacement_registry.py`.
-- Replace `lorcana_engine_v2/registries/restriction_registry.py`.
-- Add `lorcana_engine_v2/effects/triggered_abilities.py`.
-- Add `lorcana_engine_v2/effects/replacement_effects.py`.
-- Add `lorcana_engine_v2/effects/temporary_effects.py`.
-- Add `lorcana_engine_v2/effects/continuous_effects.py`.
-
-Exact functions/classes required:
+Implemented functions/classes:
 
 - `PendingActionEffect`
 - `enqueue_pending_action_effect`
@@ -614,38 +634,59 @@ Exact functions/classes required:
 - `prune_expired_temporary_effects`
 - `cleanup_expired_effects`
 
-Required behavior:
+Completed behavior:
 
 - Pending effects set `G.pendingEffects` and `ctx.priority.pendingChoice`.
-- `resolveEffect` consumes the next expected input and resumes suspended continuations.
+- Pending resolution validates chooser/request ID, consumes the pending entry, clears `pendingChoice`, and can resume through the shared action-effect resolver.
+- Action cards suspended by pending effects move from play to Lorcanito limbo and are exposed face-up.
 - Triggered events buffer and flush to bag at Lorcanito resolution boundaries.
-- Bag resolution updates usage ledgers and priority.
-- Replacement effects can modify damage, lore, stat, and zone-change events before final application.
-- Temporary effects and restrictions expire by turn/state rules.
+- Real printed triggered abilities from normalized card data can materialize into `BagItem` entries with source/controller/ability metadata and occurrence ledgers.
+- Bag resolution validates the active resolver, executes foundational action effects, removes resolved/suspended bag rows, and flushes follow-up trigger events.
+- Printed replacement abilities and registered replacements can redirect/prevent damage, prevent discard/lore loss, and rewrite zone destinations.
+- Temporary card/player effects and continuous stat modifiers expire by Lorcanito-style effect windows.
+- Continuous stat modifiers affect runtime card derivation through `G.staticEffectsVersion` cache invalidation.
 
-Tests:
+Tests added:
 
-- Add `tests/v2/test_pending_action_effects_lorcanito_v2.py`.
-- Add `tests/v2/test_resolve_effect_lorcanito_v2.py`.
-- Add `tests/v2/test_triggered_abilities_lorcanito_v2.py`.
-- Add `tests/v2/test_resolve_bag_lorcanito_v2.py`.
-- Add `tests/v2/test_replacement_effects_lorcanito_v2.py`.
-- Add `tests/v2/test_temporary_effects_lorcanito_v2.py`.
+- `tests/v2/test_pending_action_effects_lorcanito_v2.py`
+- `tests/v2/test_resolve_effect_lorcanito_v2.py`
+- `tests/v2/test_triggered_abilities_lorcanito_v2.py`
+- `tests/v2/test_resolve_bag_lorcanito_v2.py`
+- `tests/v2/test_replacement_effects_lorcanito_v2.py`
+- `tests/v2/test_temporary_effects_lorcanito_v2.py`
 
-Commands:
+Observed commands:
 
 ```bash
 pytest -q tests/v2/test_pending_action_effects_lorcanito_v2.py tests/v2/test_resolve_effect_lorcanito_v2.py tests/v2/test_triggered_abilities_lorcanito_v2.py tests/v2/test_resolve_bag_lorcanito_v2.py tests/v2/test_replacement_effects_lorcanito_v2.py tests/v2/test_temporary_effects_lorcanito_v2.py
 pytest -q tests/v2
+pytest --collect-only tests/v2 | tail -n 5
+python -m compileall -q lorcana_engine_v2 tests/v2
+```
+
+Expected and observed:
+
+```text
+Phase 8 targeted suite: 11 passed
+Full v2 suite: 109 passed
+Collection: 109 tests collected
+Compileall: passed
 ```
 
 Parity proof:
 
-- Moves can now block on pending effects, create prompts, emit/flush triggers, resolve bag items, and apply replacements through shared systems.
+- Lorcanito pending effect source queues `G.pendingEffects` and sets `ctx.priority.pendingChoice`; v2 now does the same through `PendingActionEffect` and `enqueue_pending_action_effect`.
+- Lorcanito triggered abilities buffer domain events, scan printed/floating candidates, enqueue `BagEffectEntry`, and choose a next bag resolver; v2 now buffers events, scans real normalized printed triggers, creates `BagItem`, tracks occurrence/resolution ledgers, and sets bag resolver priority.
+- Real Aladdin - Street Rat (`ZTM`) proves a normalized Lorcanito `play` trigger loads, flushes to a bag item, resolves through the shared bag path, and changes opponent lore.
+- Real Beast - Selfless Protector (`sLs`) proves a printed Lorcanito replacement ability loads and redirects damage from another friendly character to Beast.
+- Continuous and temporary effects now influence derived runtime cards instead of being inert metadata.
 
 Risks:
 
-- Per-card hacks are not acceptable substitutes. Effects must be generic before support reports move.
+- This phase is a resolution foundation, not full action effect coverage. Do not mark broad card gameplay support complete from these tests.
+- The action-effect resolver intentionally supports only foundational `sequence`, `optional`, `choice`, target suspension, and lore effects needed to prove the pipeline. Phase 10 and Phase 11 must expand effect variants from Lorcanito source and real-card parity tests.
+- Trigger matching is foundational. Later phases must add the remaining Lorcanito subject filters, delayed/floating trigger windows, auto-resolution heuristics, and target-analysis variants before moving unsupported card reports.
+- Per-card hacks are not acceptable substitutes. Effects must remain generic before support reports move.
 
 ## Phase 9: Authoritative Resource Turn Action - Put Card Into Inkwell
 

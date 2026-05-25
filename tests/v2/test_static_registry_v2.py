@@ -9,7 +9,8 @@ def test_static_registry_materializes_real_chi_fu_static_using_static_resources(
     effects = ctx.static.materialize(state, ctx)
     assert len(effects) == 1
     assert effects[0].kind == "modify-stat"
-    assert effects[0].source_id == "chi"
-    assert effects[0].source_controller == "p0"
-    assert effects[0].target_ids == ("chi",)
-    assert effects[0].payload == {"stat": "lore", "amount": 2}
+    assert effects[0].sourceId == "chi"
+    assert effects[0].sourceControllerId == "p0"
+    assert effects[0].payload["targetIds"] == ("chi",)
+    assert effects[0].payload["stat"] == "lore"
+    assert effects[0].payload["modifier"] == 2

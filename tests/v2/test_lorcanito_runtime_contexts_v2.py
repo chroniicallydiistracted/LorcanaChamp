@@ -73,7 +73,7 @@ def test_validation_context_exposes_input_args_params_and_read_apis():
     assert context.playerId == PlayerId("p0")
     assert context.validationMode == "final"
     assert context.framework.zones.getCards({"zone": "hand", "playerId": "p0"}) == (InstanceId("c1"),)
-    assert context.cards.require("c1").definition_id == "XGm"
+    assert context.cards.require("c1").definitionId == "XGm"
 
 
 def test_enumeration_context_omits_move_input_and_uses_read_framework_api():

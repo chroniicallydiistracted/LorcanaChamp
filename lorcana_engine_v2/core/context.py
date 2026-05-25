@@ -154,12 +154,28 @@ class StateDraft:
 
 
 class CardRuntimeReadAPI:
-    def __init__(self, state_getter: Callable[[], MatchState], resources: MatchStaticResources) -> None:
+    def __init__(
+        self,
+        state_getter: Callable[[], MatchState],
+        resources: MatchStaticResources,
+        actor_player_id: PlayerId | str | None = None,
+    ) -> None:
+        from lorcana_engine_v2.rules.queries import QueryService
+
         self._state_getter = state_getter
-        self._rules = build_rules_context(resources)
+        self._query = QueryService(
+            resources,
+            actorPlayerId=PlayerId(str(actor_player_id)) if actor_player_id is not None else None,
+        )
 
     def require(self, card_id: InstanceId | str) -> "RuntimeCard":
-        return self._rules.query.runtime_card(self._state_getter(), card_id)
+        return self._query.runtime_card(self._state_getter(), card_id)
+
+    def get(self, card_id: InstanceId | str) -> "RuntimeCard | None":
+        try:
+            return self.require(card_id)
+        except KeyError:
+            return None
 
     def runtime_card(self, card_id: InstanceId | str) -> "RuntimeCard":
         return self.require(card_id)
@@ -170,6 +186,11 @@ class CardRuntimeReadAPI:
     def get_definition(self, card_id: InstanceId | str):
         return self.getDefinition(card_id)
 
+    def getDefinitionById(self, definition_id: str):
+        return self._query.getDefinitionById(definition_id)
+
+    get_definition_by_id = getDefinitionById
+
     def getMeta(self, card_id: InstanceId | str) -> CardMeta:
         return self.require(card_id).meta
 
@@ -177,18 +198,23 @@ class CardRuntimeReadAPI:
         return self.getMeta(card_id)
 
     def owner(self, card_id: InstanceId | str) -> PlayerId:
-        return self.require(card_id).owner_id
+        return self.require(card_id).ownerID
 
     def controller(self, card_id: InstanceId | str) -> PlayerId:
-        return self.require(card_id).controller_id
+        return self.require(card_id).controllerID
 
     def zone(self, card_id: InstanceId | str) -> ZoneId | None:
-        return self.require(card_id).zone_id
+        return self.require(card_id).zoneID
 
 
 class CardRuntimeAPI(CardRuntimeReadAPI):
-    def __init__(self, draft: StateDraft, resources: MatchStaticResources) -> None:
-        super().__init__(lambda: draft.state, resources)
+    def __init__(
+        self,
+        draft: StateDraft,
+        resources: MatchStaticResources,
+        actor_player_id: PlayerId | str | None = None,
+    ) -> None:
+        super().__init__(lambda: draft.state, resources, actor_player_id=actor_player_id)
         self._draft = draft
 
     def setMeta(self, card_id: InstanceId | str, meta: CardMeta) -> CardMeta:
@@ -635,9 +661,10 @@ def _create_read_framework(
     resources: MatchStaticResources,
     game_ended: bool,
     events: list[GameEvent] | None = None,
+    actor_player_id: PlayerId | str | None = None,
 ) -> FrameworkReadAPI:
     emit = events.append if events is not None else None
-    cards = CardRuntimeReadAPI(lambda: state, resources)
+    cards = CardRuntimeReadAPI(lambda: state, resources, actor_player_id=actor_player_id)
     zones = create_zone_operations(
         state.ctx.zones,
         _zone_registry_for(config, state),
@@ -662,7 +689,7 @@ def build_validation_context(
     game_ended: bool = False,
     validation_mode: Literal["preflight", "final"] = "final",
 ) -> MoveValidationContext:
-    framework = _create_read_framework(state, config, static_resources, game_ended)
+    framework = _create_read_framework(state, config, static_resources, game_ended, actor_player_id=player_id)
     input_view = create_move_input_view(input)
     return MoveValidationContext(
         input=input_view.input,
@@ -685,7 +712,7 @@ def build_enumeration_context(
     static_resources: MatchStaticResources,
     game_ended: bool = False,
 ) -> MoveEnumerationContext:
-    framework = _create_read_framework(state, config, static_resources, game_ended)
+    framework = _create_read_framework(state, config, static_resources, game_ended, actor_player_id=player_id)
     return MoveEnumerationContext(
         G=state.G,
         playerId=PlayerId(str(player_id)),
@@ -708,7 +735,7 @@ def build_lifecycle_context(
 ) -> RuntimeLifecycleContext:
     draft = StateDraft(state)
     random_api = create_random_api_for_ctx(state.ctx.random)
-    cards = CardRuntimeAPI(draft, static_resources)
+    cards = CardRuntimeAPI(draft, static_resources, actor_player_id=player_id)
     raw_zones = create_zone_operations(
         draft.state.ctx.zones,
         _zone_registry_for(config, draft.state),

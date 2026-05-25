@@ -47,8 +47,8 @@ def test_aurora_real_ward_grant_excludes_self():
     state = state_with_play(resources, p0=("aurora", "ally"))
 
     assert resources.cards.get("Au0").full_name == "Aurora - Dreaming Guardian"
-    assert "WARD" not in ctx.derived.keywords(state, ctx, "aurora")
-    assert "WARD" in ctx.derived.keywords(state, ctx, "ally")
+    assert "Ward" not in ctx.derived.keywords(state, ctx, "aurora")
+    assert "Ward" in ctx.derived.keywords(state, ctx, "ally")
 
 
 def test_donald_damage_on_self_static_lore_reads_card_meta():

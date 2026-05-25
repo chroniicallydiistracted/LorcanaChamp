@@ -11,13 +11,17 @@ def test_runtime_card_api_resolves_instance_to_definition_through_static_resourc
     state = initialize_match_state_from_static_resources(resources)
 
     runtime_card = ctx.query.runtime_card(state, "c1")
-    assert runtime_card.instance_id == "c1"
-    assert runtime_card.definition_id == "XGm"
-    assert runtime_card.owner_id == "p0"
-    assert runtime_card.controller_id == "p0"
+    assert runtime_card.instanceId == "c1"
+    assert runtime_card.definitionId == "XGm"
+    assert runtime_card.ownerID == "p0"
+    assert runtime_card.controllerID == "p0"
     assert runtime_card.definition.full_name == "Chi-Fu - Imperial Advisor"
-    assert runtime_card.zone_id == scoped_zone("deck", "p0")
-    assert runtime_card.zone_index == 0
+    assert runtime_card.zoneID == scoped_zone("deck", "p0")
+    assert runtime_card.zoneIndex == 0
+    assert runtime_card.fullName == "Chi-Fu - Imperial Advisor"
+    assert runtime_card.strength == 0
+    assert runtime_card.willpower == 5
+    assert runtime_card.lore == 1
 
 
 def test_runtime_card_api_reads_zone_and_meta_state_without_card_definition_in_state():
@@ -45,8 +49,10 @@ def test_runtime_card_api_reads_zone_and_meta_state_without_card_definition_in_s
     state = type(state)(G=state.G, ctx=state.ctx.with_updates(zones=zones))
 
     runtime_card = ctx.query.runtime_card(state, "c1")
-    assert runtime_card.zone_id == scoped_zone("play", "p0")
+    assert runtime_card.zoneID == scoped_zone("play", "p0")
     assert runtime_card.meta.damage == 2
     assert runtime_card.meta.state == "exerted"
+    assert runtime_card.damage == 2
+    assert runtime_card.exerted is True
     assert ctx.query.public_in_play_ids(state) == ("c1",)
     assert ctx.query.characters_in_play(state, "p0") == ("c1",)

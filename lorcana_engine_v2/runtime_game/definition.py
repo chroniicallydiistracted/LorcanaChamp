@@ -16,6 +16,7 @@ from lorcana_engine_v2.core.zones import (
 from lorcana_engine_v2.flow.runtime_flow_config import lorcana_runtime_flow
 from lorcana_engine_v2.moves.ink import PUT_CARD_INTO_INKWELL, PutCardIntoInkwellMove
 from lorcana_engine_v2.moves.setup import ALTER_HAND, CHOOSE_WHO_GOES_FIRST, AlterHandMove, ChooseWhoGoesFirstMove
+from lorcana_engine_v2.rules.queries import create_lorcana_runtime_card_deriver
 
 
 lorcana_runtime_zones = LORCANA_RUNTIME_ZONES
@@ -90,6 +91,6 @@ lorcana_runtime_config = MatchRuntimeConfig(
     boardSetup=board_setup,
     playerView=lorcana_player_view,
     projectBoard=None,
-    deriveRuntimeCard=None,
+    deriveRuntimeCard=create_lorcana_runtime_card_deriver(),
     derivePacketAnimations=None,
 )
