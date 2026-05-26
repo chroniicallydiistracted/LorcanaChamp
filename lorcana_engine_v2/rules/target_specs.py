@@ -26,6 +26,34 @@ def normalize_target_spec(raw: Any) -> TargetSpec:
         upper = raw.upper().replace("-", "_")
         if upper in {"SELF", "SOURCE", "THIS_CHARACTER", "THIS_ITEM", "THIS_LOCATION"}:
             return TargetSpec("self")
+        if upper in {"CHOSEN_CHARACTER", "CHOSEN_CARD", "CHOSEN"}:
+            return TargetSpec("chosen", card_types=("character",) if upper == "CHOSEN_CHARACTER" else (), min_count=1, max_count=1)
+        if upper in {"CHOSEN_OPPOSING_CHARACTER", "CHOSEN_OPPONENT_CHARACTER"}:
+            return TargetSpec("chosen", card_types=("character",), controller="opponent", min_count=1, max_count=1)
+        if upper in {"CHOSEN_YOUR_CHARACTER", "CHOSEN_CHARACTER_OF_YOURS", "CHOSEN_FRIENDLY_CHARACTER"}:
+            return TargetSpec("chosen", card_types=("character",), controller="you", min_count=1, max_count=1)
+        if upper in {"CHOSEN_DAMAGED_CHARACTER", "DAMAGED_CHOSEN_CHARACTER"}:
+            return TargetSpec("chosen", card_types=("character",), filters=({"type": "damaged"},), min_count=1, max_count=1)
+        if upper in {"CHOSEN_READY_CHARACTER", "READY_CHOSEN_CHARACTER"}:
+            return TargetSpec("chosen", card_types=("character",), filters=({"type": "ready"},), min_count=1, max_count=1)
+        if upper in {"CHOSEN_EXERTED_CHARACTER", "EXERTED_CHOSEN_CHARACTER"}:
+            return TargetSpec("chosen", card_types=("character",), filters=({"type": "exerted"},), min_count=1, max_count=1)
+        if upper in {"CHOSEN_ITEM", "CHOSEN_OPPOSING_ITEM"}:
+            return TargetSpec(
+                "chosen",
+                card_types=("item",),
+                controller="opponent" if "OPPOSING" in upper else None,
+                min_count=1,
+                max_count=1,
+            )
+        if upper in {"CHOSEN_LOCATION", "CHOSEN_OPPOSING_LOCATION"}:
+            return TargetSpec(
+                "chosen",
+                card_types=("location",),
+                controller="opponent" if "OPPOSING" in upper else None,
+                min_count=1,
+                max_count=1,
+            )
         if upper == "YOUR_HERO_CHARACTERS":
             return TargetSpec(
                 selector="all",

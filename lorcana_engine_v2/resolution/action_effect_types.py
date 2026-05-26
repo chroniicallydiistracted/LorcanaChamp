@@ -1,10 +1,20 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any
 
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId
+
+
+def _clone_value(value: object) -> object:
+    if isinstance(value, Mapping):
+        return _clone_mapping(value)
+    if isinstance(value, list):
+        return tuple(_clone_value(item) for item in value)
+    if isinstance(value, tuple):
+        return tuple(_clone_value(item) for item in value)
+    return value
 
 
 def _clone_mapping(value: Mapping[str, object] | None) -> dict[str, object]:
@@ -12,12 +22,7 @@ def _clone_mapping(value: Mapping[str, object] | None) -> dict[str, object]:
         return {}
     cloned: dict[str, object] = {}
     for key, item in value.items():
-        if isinstance(item, Mapping):
-            cloned[str(key)] = _clone_mapping(item)
-        elif isinstance(item, list):
-            cloned[str(key)] = tuple(item)
-        else:
-            cloned[str(key)] = item
+        cloned[str(key)] = _clone_value(item)
     return cloned
 
 
@@ -26,6 +31,20 @@ def _clone_card_played(value: Mapping[str, object] | None) -> dict[str, object]:
     if "singerIds" in cloned and isinstance(cloned["singerIds"], list):
         cloned["singerIds"] = tuple(cloned["singerIds"])
     return cloned
+
+
+def _clone_continuation(value: object | None) -> object | None:
+    if not isinstance(value, Mapping):
+        return _clone_value(value) if value is not None else None
+    cloned = _clone_mapping(value)
+    staged = cloned.get("stagedSequence")
+    if isinstance(staged, Mapping):
+        cloned["stagedSequence"] = _clone_mapping(staged)
+    return cloned
+
+
+def _clone_selection_context(value: object | None) -> object | None:
+    return _clone_value(value) if value is not None else None
 
 
 @dataclass(frozen=True, slots=True)
@@ -54,16 +73,16 @@ class ActionResolutionInput:
             return cls()
         destinations = value.get("destinations")
         return cls(
-            targets=value.get("targets"),
-            slottedTargets=value.get("slottedTargets"),
-            currentTargets=value.get("currentTargets"),
-            contextTargets=value.get("contextTargets"),
+            targets=_clone_value(value.get("targets")),
+            slottedTargets=_clone_value(value.get("slottedTargets")),
+            currentTargets=_clone_value(value.get("currentTargets")),
+            contextTargets=_clone_value(value.get("contextTargets")),
             targetSelectionResolved=(
                 bool(value["targetSelectionResolved"])
                 if value.get("targetSelectionResolved") is not None
                 else None
             ),
-            amount=value.get("amount"),
+            amount=_clone_value(value.get("amount")),
             namedCard=str(value["namedCard"]).strip()
             if value.get("namedCard") is not None and str(value["namedCard"]).strip()
             else None,
@@ -85,7 +104,9 @@ class ActionResolutionInput:
                 if value.get("preventAutoResolveTriggeredEffects") is not None
                 else None
             ),
-            destinations=tuple(destinations) if isinstance(destinations, (list, tuple)) else None,
+            destinations=tuple(_clone_value(item) for item in destinations)
+            if isinstance(destinations, (list, tuple))
+            else None,
             eventSnapshot=_clone_mapping(value.get("eventSnapshot") if isinstance(value.get("eventSnapshot"), Mapping) else None),
             triggerContext=_clone_mapping(value.get("triggerContext") if isinstance(value.get("triggerContext"), Mapping) else None),
             chooserPlayerId=PlayerId(str(value["chooserPlayerId"]))
@@ -96,7 +117,12 @@ class ActionResolutionInput:
     def clone(self) -> "ActionResolutionInput":
         return replace(
             self,
-            destinations=tuple(self.destinations) if self.destinations is not None else None,
+            targets=_clone_value(self.targets),
+            slottedTargets=_clone_value(self.slottedTargets),
+            currentTargets=_clone_value(self.currentTargets),
+            contextTargets=_clone_value(self.contextTargets),
+            amount=_clone_value(self.amount),
+            destinations=tuple(_clone_value(item) for item in self.destinations) if self.destinations is not None else None,
             eventSnapshot=_clone_mapping(self.eventSnapshot),
             triggerContext=_clone_mapping(self.triggerContext),
         )
@@ -120,11 +146,11 @@ class ActionResolutionInput:
         ):
             value = getattr(self, key)
             if value is not None:
-                result[key] = value
+                result[key] = _clone_value(value)
         if self.eventSnapshot:
-            result["eventSnapshot"] = dict(self.eventSnapshot)
+            result["eventSnapshot"] = _clone_mapping(self.eventSnapshot)
         if self.triggerContext:
-            result["triggerContext"] = dict(self.triggerContext)
+            result["triggerContext"] = _clone_mapping(self.triggerContext)
         return result
 
     def merge(self, patch: object | None) -> "ActionResolutionInput":
@@ -181,8 +207,8 @@ class PendingActionEffect:
             effect=effect,
             resolutionInput=ActionResolutionInput.from_value(resolutionInput),
             abilityIndex=abilityIndex,
-            continuation=continuation,
-            selectionContext=selectionContext,
+            continuation=_clone_continuation(continuation),
+            selectionContext=_clone_selection_context(selectionContext),
             allowSuspendWithZeroTargetCandidates=allowSuspendWithZeroTargetCandidates,
         )
 

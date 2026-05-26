@@ -72,7 +72,7 @@ class ResolveBagMove:
         bag_id = _bag_id(context)
         if bag_id is None:
             return RuntimeValidationResult.fail("resolveBag requires a valid bag id", "RESOLVE_BAG_ID_REQUIRED")
-        validation = validate_resolve_bag(context, bag_id=bag_id, player_id=context.playerId)
+        validation = validate_resolve_bag(context, bag_id=bag_id, player_id=context.playerId, params=_params(context))
         if not validation.valid:
             return validation
         return _validate_params(context.args.get("params"))

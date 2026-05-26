@@ -338,6 +338,25 @@ def _trigger_matches_event(
         return False
     if not _subject_matches(target, state, candidate, event, trigger.get("on")):
         return False
+    source_filter = trigger.get("sourceFilter")
+    if isinstance(source_filter, Mapping):
+        card_type_filter = source_filter.get("cardType")
+        if isinstance(card_type_filter, Sequence) and not isinstance(card_type_filter, (str, bytes, bytearray)):
+            allowed_types = tuple(str(item) for item in card_type_filter)
+            source_card_type = event.get("sourceCardType")
+            if source_card_type not in allowed_types:
+                return False
+        source_controller = source_filter.get("sourceController")
+        trigger_source_id = event.get("triggerSourceCardId")
+        if isinstance(source_controller, str) and trigger_source_id is not None:
+            source_owner = _owner_for_card(state, InstanceId(str(trigger_source_id)))
+            if source_owner is not None:
+                controller = PlayerId(str(candidate.get("controllerId")))
+                source_is_opponent = source_owner != controller
+                if source_controller == "opponent" and not source_is_opponent:
+                    return False
+                if source_controller == "you" and source_is_opponent:
+                    return False
     return _restriction_matches(state, candidate, trigger)
 
 
@@ -372,10 +391,15 @@ def _build_resolution_input(
     event: Mapping[str, object],
 ) -> ActionResolutionInput:
     base = ActionResolutionInput.from_value(candidate.get("resolutionInput"))
+    raw_event_snapshot = event.get("eventSnapshot")
+    event_snapshot_payload = dict(raw_event_snapshot) if isinstance(raw_event_snapshot, Mapping) else {}
     event_snapshot = {
         **dict(base.eventSnapshot),
+        **event_snapshot_payload,
         "subjectCardId": event.get("subjectCardId"),
         "triggerSourceCardId": event.get("triggerSourceCardId"),
+        "sourceCardType": event.get("sourceCardType"),
+        "selectedTarget": event.get("selectedTarget"),
         "attackerId": event.get("attackerId"),
         "defenderId": event.get("defenderId"),
         "fromZone": event.get("fromZone"),
@@ -385,6 +409,8 @@ def _build_resolution_input(
         "playerId": event.get("playerId"),
         "subjectCardId": event.get("subjectCardId"),
         "triggerSourceCardId": event.get("triggerSourceCardId"),
+        "sourceCardType": event.get("sourceCardType"),
+        "selectedTarget": event.get("selectedTarget"),
         "attackerId": event.get("attackerId"),
         "defenderId": event.get("defenderId"),
     }

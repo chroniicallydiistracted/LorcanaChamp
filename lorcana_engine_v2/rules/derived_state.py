@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
-from dataclasses import dataclass
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, replace
 
 from lorcana_engine_v2.cards.models import CardDefinition
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId, ZoneId
@@ -157,6 +157,167 @@ def _derive_play_cost(
                 continue
         value += max(0, _number(payload.get("amount", 0)))
     return max(0, value)
+
+
+@dataclass(frozen=True, slots=True)
+class CostReductionApplication:
+    source: str
+    index: int | None
+    amount: int
+    consumeOnUse: bool = False
+
+
+def _is_song_card(definition: CardDefinition) -> bool:
+    return definition.card_type == "action" and definition.raw.get("actionSubtype") == "song"
+
+
+def _string_set(value: object) -> set[str] | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return {value}
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return {str(item) for item in value}
+    return {str(value)}
+
+
+def _matches_cost_reduction_entry(
+    entry: Mapping[str, object],
+    definition: CardDefinition,
+    play_method: str | None,
+    current_turn: int | None = None,
+) -> bool:
+    expires = entry.get("expiresAtTurn")
+    if current_turn is not None and isinstance(expires, int) and expires < current_turn:
+        return False
+    entry_method = entry.get("playMethod")
+    if entry_method not in {None, "either", play_method}:
+        return False
+    allowed_types = _string_set(entry.get("cardType"))
+    if allowed_types is not None:
+        if definition.card_type not in allowed_types and not (_is_song_card(definition) and "song" in allowed_types):
+            return False
+    classification = entry.get("classification")
+    if classification and not any(str(item).lower() == str(classification).lower() for item in definition.classifications):
+        return False
+    card_name = entry.get("cardName") or entry.get("name")
+    if card_name and str(card_name).lower() not in {definition.name.lower(), definition.full_name.lower()}:
+        return False
+    return True
+
+
+def get_pending_cost_reductions(
+    state: MatchState,
+    player_id: PlayerId | str,
+    definition: CardDefinition,
+    play_method: str | None = None,
+) -> tuple[int, tuple[CostReductionApplication, ...]]:
+    player = PlayerId(str(player_id))
+    current_turn = state.ctx.status.turn if isinstance(state.ctx.status.turn, int) and state.ctx.status.turn > 0 else 1
+    entries = tuple(state.G.turnMetadata.pendingCostReductionsByPlayer.get(player, ()))
+    total = 0
+    applications: list[CostReductionApplication] = []
+    for index, raw in enumerate(entries):
+        if not isinstance(raw, Mapping) or not _matches_cost_reduction_entry(raw, definition, play_method, current_turn):
+            continue
+        amount = raw.get("amount", raw.get("reduction", 0))
+        if isinstance(amount, int) and amount > 0:
+            total += amount
+            applications.append(
+                CostReductionApplication(
+                    source="pending",
+                    index=index,
+                    amount=amount,
+                    consumeOnUse=raw.get("consumeOnUse") is True,
+                )
+            )
+    return total, tuple(applications)
+
+
+def _static_cost_reductions(
+    registry: object | None,
+    player_id: PlayerId | str,
+    definition: CardDefinition,
+    play_method: str | None,
+) -> tuple[int, tuple[CostReductionApplication, ...]]:
+    total = 0
+    applications: list[CostReductionApplication] = []
+    for index, effect in enumerate(_effects_for_player(registry, player_id, "cost-reduction")):
+        payload = _payload(effect)
+        if not _matches_cost_reduction_entry(payload, definition, play_method):
+            continue
+        amount = payload.get("amount", payload.get("reduction", 0))
+        if isinstance(amount, int) and amount > 0:
+            total += amount
+            applications.append(CostReductionApplication("static", index, amount, False))
+    return total, tuple(applications)
+
+
+def get_static_cost_increase_amount(
+    *,
+    state: MatchState,
+    player_id: PlayerId | str,
+    definition: CardDefinition,
+    play_method: str | None = None,
+    registry: object | None = None,
+) -> int:
+    total = 0
+    for effect in tuple(getattr(registry, "globalEffects", ()) or ()):
+        if getattr(effect, "kind", None) != "cost-increase":
+            continue
+        payload = _payload(effect)
+        if not _matches_cost_reduction_entry(payload, definition, play_method):
+            continue
+        amount = payload.get("amount", payload.get("increase", 0))
+        if isinstance(amount, int):
+            total += max(0, amount)
+    return total
+
+
+def get_applied_cost_reductions(
+    *,
+    state: MatchState,
+    player_id: PlayerId | str,
+    definition: CardDefinition,
+    play_method: str | None = None,
+    registry: object | None = None,
+) -> tuple[int, tuple[CostReductionApplication, ...]]:
+    pending_total, pending_apps = get_pending_cost_reductions(state, player_id, definition, play_method)
+    static_total, static_apps = _static_cost_reductions(registry, player_id, definition, play_method)
+    return pending_total + static_total, pending_apps + static_apps
+
+
+def consume_applied_cost_reductions(
+    state: MatchState,
+    player_id: PlayerId | str,
+    applications: Sequence[CostReductionApplication],
+) -> MatchState:
+    player = PlayerId(str(player_id))
+    consume_indexes = {
+        app.index
+        for app in applications
+        if app.source == "pending" and app.consumeOnUse and app.index is not None
+    }
+    current_turn = state.ctx.status.turn if isinstance(state.ctx.status.turn, int) and state.ctx.status.turn > 0 else 1
+    current = tuple(state.G.turnMetadata.pendingCostReductionsByPlayer.get(player, ()))
+    remaining = tuple(
+        entry
+        for index, entry in enumerate(current)
+        if index not in consume_indexes
+        and not (
+            isinstance(entry, Mapping)
+            and isinstance(entry.get("expiresAtTurn"), int)
+            and entry.get("expiresAtTurn") < current_turn
+        )
+    )
+    pending_by_player = dict(state.G.turnMetadata.pendingCostReductionsByPlayer)
+    pending_by_player[player] = remaining
+    return MatchState(
+        G=state.G.with_updates(
+            turnMetadata=replace(state.G.turnMetadata, pendingCostReductionsByPlayer=pending_by_player)
+        ),
+        ctx=state.ctx,
+    )
 
 
 def _active_static_inkability_grant(
@@ -432,7 +593,12 @@ class DerivedState:
 
 
 __all__ = [
+    "CostReductionApplication",
     "DerivedState",
+    "consume_applied_cost_reductions",
     "derive_can_be_put_in_inkwell",
     "derive_runtime_card_fields",
+    "get_applied_cost_reductions",
+    "get_pending_cost_reductions",
+    "get_static_cost_increase_amount",
 ]

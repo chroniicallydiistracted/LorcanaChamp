@@ -9,7 +9,10 @@ from lorcana_engine_v2.core.zones import CardMeta, ZoneId, ZoneRef
 from lorcana_engine_v2.effects.triggered_abilities import (
     emit_triggered_lorcana_event,
     flush_triggered_events_to_bag,
+    snapshot_triggered_candidates_for_card,
 )
+from lorcana_engine_v2.effects.win_condition_effects import recompute_lore_to_win
+from lorcana_engine_v2.runtime_game.turn_metrics import record_banished_character_this_turn
 
 
 def _cards_under(meta: CardMeta | None) -> tuple[InstanceId, ...]:
@@ -123,36 +126,23 @@ def _move_stack_to_discard(context, card_id: InstanceId, player_id: PlayerId) ->
         context.framework.zones.moveCard(stacked_id, ZoneRef(zone=ZoneId("discard"), playerId=player_id))
     for stacked_id in _stacked_card_ids(context, card_id):
         context.cards.clearMeta(stacked_id)
+    recompute_lore_to_win(context)
 
 
 def _record_banished_character(context, card_id: InstanceId) -> None:
-    turn_metadata = context.state.G.turnMetadata
-    banished = turn_metadata.banishedCharactersThisTurn
-    if card_id not in banished:
-        banished = banished + (card_id,)
-    context.set_G(
-        context.state.G.with_updates(
-            turnMetadata=turn_metadata.__class__(
-                cardsPlayedThisTurn=turn_metadata.cardsPlayedThisTurn,
-                charactersQuesting=turn_metadata.charactersQuesting,
-                inkedThisTurn=turn_metadata.inkedThisTurn,
-                cardsPutIntoInkwellThisTurn=turn_metadata.cardsPutIntoInkwellThisTurn,
-                additionalInkwellActions=turn_metadata.additionalInkwellActions,
-                shiftPlayedThisTurn=turn_metadata.shiftPlayedThisTurn,
-                challengesByPlayerThisTurn=turn_metadata.challengesByPlayerThisTurn,
-                damagedCharactersByOwnerThisTurn=turn_metadata.damagedCharactersByOwnerThisTurn,
-                damageRemovedByPlayerThisTurn=turn_metadata.damageRemovedByPlayerThisTurn,
-                challengedCharactersThisTurn=turn_metadata.challengedCharactersThisTurn,
-                banishedCharactersThisTurn=banished,
-                banishedCharactersInChallengeByOwnerThisTurn=turn_metadata.banishedCharactersInChallengeByOwnerThisTurn,
-                discardCardsLeftThisTurn=turn_metadata.discardCardsLeftThisTurn,
-                cardsPutIntoDiscardThisTurnByOwner=turn_metadata.cardsPutIntoDiscardThisTurnByOwner,
-                pendingCostReductionsByPlayer=turn_metadata.pendingCostReductionsByPlayer,
-                cardsDrawnThisTurnByPlayer=turn_metadata.cardsDrawnThisTurnByPlayer,
-                cardsUnderThisTurn=turn_metadata.cardsUnderThisTurn,
-            )
-        )
-    )
+    record_banished_character_this_turn(context, card_id)
+
+
+def _keywords_before_banish(card_def: CardDefinition, meta: CardMeta | None) -> tuple[str, ...]:
+    keywords = [
+        str(ability.raw.get("keyword"))
+        for ability in card_def.abilities
+        if ability.kind == "keyword" and ability.raw.get("keyword")
+    ]
+    for keyword in (getattr(meta, "temporaryKeywords", None) or {}):
+        if str(keyword) not in keywords:
+            keywords.append(str(keyword))
+    return tuple(keywords)
 
 
 def execute_shift_play(
@@ -189,16 +179,24 @@ def execute_shift_play(
     else:
         effective_willpower = int(card_def.willpower or 0)
     if effective_willpower > 0 and inherited_damage >= effective_willpower:
+        trigger_candidates = snapshot_triggered_candidates_for_card(context, new_id)
+        keywords_before_banish = _keywords_before_banish(card_def, context.cards.getMeta(new_id))
         _move_stack_to_discard(context, new_id, player)
         emit_triggered_lorcana_event(
             context,
             "cardBanished",
-            {"cardId": new_id, "sourceId": None, "reason": "lethal damage"},
+            {
+                "cardId": new_id,
+                "sourceId": None,
+                "reason": "lethal damage",
+                "snapshot": {"damageDealt": 0, "keywordsBeforeBanish": keywords_before_banish},
+            },
             {
                 "event": "banish",
                 "playerId": player,
                 "subjectCardId": new_id,
                 "triggerSourceCardId": new_id,
+                "triggerCandidates": trigger_candidates,
             },
         )
         _record_banished_character(context, new_id)

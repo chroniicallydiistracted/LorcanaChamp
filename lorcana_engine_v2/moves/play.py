@@ -7,7 +7,9 @@ from lorcana_engine_v2.cards.models import CardDefinition
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId
 from lorcana_engine_v2.core.results import LogMessage, LogVisibility, ProjectedLogEntry, RuntimeValidationResult
 from lorcana_engine_v2.core.state import MatchState
+from lorcana_engine_v2.core.turn_owner import require_current_player_for_move, resolve_current_player_for_move
 from lorcana_engine_v2.core.zones import CardMeta, ZoneId, ZoneRef, base_zone_from_key, scoped_zone
+from lorcana_engine_v2.effects.win_condition_effects import recompute_lore_to_win
 from lorcana_engine_v2.effects.play_from_under_permissions import get_active_play_from_under_permissions
 from lorcana_engine_v2.effects.temporary_effects import (
     has_temporary_player_restriction,
@@ -19,7 +21,7 @@ from lorcana_engine_v2.effects.triggered_abilities import (
 )
 from lorcana_engine_v2.moves.shared.execute_shift_play import execute_shift_play
 from lorcana_engine_v2.resolution.action_effect_types import ActionResolutionInput
-from lorcana_engine_v2.resolution.action_effects import resolve_action_effect
+from lorcana_engine_v2.resolution.action_card_resolver import resolve_action_card_effects
 from lorcana_engine_v2.resolution.pending import (
     finalize_resolved_action_card,
     has_pending_action_effect_resolution,
@@ -40,7 +42,28 @@ from lorcana_engine_v2.rules.play_card_rules import (
     resolve_shift_target_candidates,
     validate_basic_cost,
 )
-from lorcana_engine_v2.registries.static_registry import StaticRegistry
+from lorcana_engine_v2.rules.derived_state import (
+    CostReductionApplication,
+    consume_applied_cost_reductions,
+    get_applied_cost_reductions,
+    get_static_cost_increase_amount,
+)
+from lorcana_engine_v2.rules.move_registry_cache import get_or_build_move_registry
+from lorcana_engine_v2.rules.static_ability_utils import (
+    has_opponent_static_play_restriction,
+    has_static_card_restriction,
+)
+from lorcana_engine_v2.targeting.runtime.target_analysis import (
+    TargetAnalysis,
+    analyze_effect_targets,
+    validate_and_normalize_target_selection,
+)
+from lorcana_engine_v2.targeting.slotted_targets import flatten_slotted_targets, is_slotted_target_input
+from lorcana_engine_v2.runtime_game.turn_metrics import (
+    record_card_played_this_turn,
+    record_discard_exit_this_turn,
+    record_shift_played_this_turn,
+)
 
 from .registry import MoveEnumerationContext, MoveExecutionContext, MoveValidationContext, input_card_id
 
@@ -49,7 +72,10 @@ PLAY_CARD = "playCard"
 
 
 def _current_player(context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext) -> PlayerId:
-    return PlayerId(str(context.framework.state.priority.holder or context.playerId))
+    resolved = resolve_current_player_for_move(_state_from_context(context), fallback_actor=context.playerId)
+    if resolved is None:
+        return PlayerId(str(context.playerId))
+    return resolved
 
 
 def _state_from_context(context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext) -> MatchState:
@@ -70,10 +96,10 @@ def _resources_from_context(context) -> object | None:
 
 
 def _static_registry(context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext):
-    query = getattr(context.cards, "_query", None)
-    if query is None:
+    try:
+        return get_or_build_move_registry(context)
+    except TypeError:
         return None
-    return StaticRegistry().build(_state_from_context(context), query)
 
 
 def _current_turn(context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext) -> int:
@@ -167,49 +193,36 @@ def _pending_cost_reductions(context, player_id: PlayerId, card_def: CardDefinit
     return total, tuple(consume_indexes)
 
 
-def _static_cost_delta(context, card_id: InstanceId, card_def: CardDefinition, play_method: str | None) -> tuple[int, int]:
+def _applied_cost_data(
+    context,
+    card_id: InstanceId,
+    card_def: CardDefinition,
+    play_method: str | None,
+) -> tuple[int, int, tuple[CostReductionApplication, ...]]:
     registry = _static_registry(context)
-    reduction = 0
-    increase = 0
-    if registry is not None:
-        for effect in registry.get_effects_for_player(_current_player(context), kind="cost-reduction"):
-            payload = getattr(effect, "payload", {})
-            if not isinstance(payload, Mapping):
-                continue
-            effect_method = payload.get("playMethod")
-            if effect_method not in {None, "either", play_method}:
-                continue
-            card_type = payload.get("cardType")
-            if card_type is not None:
-                allowed = {str(item) for item in card_type} if isinstance(card_type, Sequence) and not isinstance(card_type, (str, bytes, bytearray)) else {str(card_type)}
-                if card_def.card_type not in allowed and not (is_song_card(card_def) and "song" in allowed):
-                    continue
-            classification = payload.get("classification")
-            if classification and not any(str(item).lower() == str(classification).lower() for item in card_def.classifications):
-                continue
-            card_name = payload.get("cardName")
-            if card_name and str(card_name).lower() not in {card_def.name.lower(), card_def.full_name.lower()}:
-                continue
-            amount = payload.get("amount", payload.get("reduction", 0))
-            if isinstance(amount, int):
-                reduction += max(0, amount)
-        for effect in registry.globalEffects:
-            if getattr(effect, "kind", None) != "cost-increase":
-                continue
-            payload = getattr(effect, "payload", {})
-            if not isinstance(payload, Mapping):
-                continue
-            card_type = payload.get("cardType")
-            if card_type is not None:
-                allowed = {str(item) for item in card_type} if isinstance(card_type, Sequence) and not isinstance(card_type, (str, bytes, bytearray)) else {str(card_type)}
-                if card_def.card_type not in allowed and not (is_song_card(card_def) and "song" in allowed):
-                    continue
-            amount = payload.get("amount", 0)
-            if isinstance(amount, int):
-                increase += max(0, amount)
-    pending_reduction, _ = _pending_cost_reductions(context, _current_player(context), card_def, play_method)
     _ = card_id
-    return reduction + pending_reduction, increase
+    state = _state_from_context(context)
+    player_id = _current_player(context)
+    reduction, applications = get_applied_cost_reductions(
+        state=state,
+        player_id=player_id,
+        definition=card_def,
+        play_method=play_method,
+        registry=registry,
+    )
+    increase = get_static_cost_increase_amount(
+        state=state,
+        player_id=player_id,
+        definition=card_def,
+        play_method=play_method,
+        registry=registry,
+    )
+    return reduction, increase, applications
+
+
+def _static_cost_delta(context, card_id: InstanceId, card_def: CardDefinition, play_method: str | None) -> tuple[int, int]:
+    reduction, increase, _ = _applied_cost_data(context, card_id, card_def, play_method)
+    return reduction, increase
 
 
 def _effective_standard_cost(context, card_id: InstanceId, card_def: CardDefinition) -> BasicCost:
@@ -218,28 +231,11 @@ def _effective_standard_cost(context, card_id: InstanceId, card_def: CardDefinit
 
 
 def _consume_pending_cost_reductions(context: MoveExecutionContext, player_id: PlayerId, card_def: CardDefinition, play_method: str | None) -> None:
-    _, consume_indexes = _pending_cost_reductions(context, player_id, card_def, play_method)
-    if not consume_indexes:
+    _, _, applications = _applied_cost_data(context, InstanceId(""), card_def, play_method)
+    if not any(app.source == "pending" and app.consumeOnUse for app in applications):
         return
-    current_turn = _current_turn(context)
-    consume_set = set(consume_indexes)
-    current = tuple(context.state.G.turnMetadata.pendingCostReductionsByPlayer.get(player_id, ()))
-    remaining = tuple(
-        entry
-        for index, entry in enumerate(current)
-        if index not in consume_set
-        and not (isinstance(entry, Mapping) and isinstance(entry.get("expiresAtTurn"), int) and entry.get("expiresAtTurn") < current_turn)
-    )
-    pending_by_player = dict(context.state.G.turnMetadata.pendingCostReductionsByPlayer)
-    pending_by_player[player_id] = remaining
-    context.set_G(
-        context.state.G.with_updates(
-            turnMetadata=replace(
-                context.state.G.turnMetadata,
-                pendingCostReductionsByPlayer=pending_by_player,
-            )
-        )
-    )
+    next_state = consume_applied_cost_reductions(context.state, player_id, applications)
+    context._draft.set_state(next_state)
 
 
 def _sing_cost(singer: InstanceId, singer_def: CardDefinition | None) -> BasicCost:
@@ -310,45 +306,21 @@ def _source_is_playable(context: MoveValidationContext, card_id: InstanceId, pla
 
 
 def _has_static_player_restriction(context, player_id: PlayerId, restriction: str, card_def: CardDefinition) -> bool:
-    registry = _static_registry(context)
-    if registry is None:
-        return False
-    for effect in registry.get_effects_for_player(player_id, kind="restriction"):
-        payload = getattr(effect, "payload", {})
-        if isinstance(payload, Mapping) and payload.get("restriction") == restriction:
-            min_cost = payload.get("minCost")
-            if isinstance(min_cost, int) and card_def.cost < min_cost:
-                continue
-            card_type = payload.get("cardType")
-            if card_type is not None:
-                allowed = {str(item) for item in card_type} if isinstance(card_type, Sequence) and not isinstance(card_type, (str, bytes, bytearray)) else {str(card_type)}
-                if card_def.card_type not in allowed and not (is_song_card(card_def) and "song" in allowed):
-                    continue
-            return True
-    for effect in registry.globalEffects:
-        if getattr(effect, "kind", None) != "restriction":
-            continue
-        payload = getattr(effect, "payload", {})
-        if not isinstance(payload, Mapping) or payload.get("restriction") != restriction:
-            continue
-        card_type = payload.get("cardType")
-        if card_type is None:
-            return True
-        allowed = {str(item) for item in card_type} if isinstance(card_type, Sequence) and not isinstance(card_type, (str, bytes, bytearray)) else {str(card_type)}
-        if card_def.card_type in allowed or (is_song_card(card_def) and "song" in allowed):
-            return True
-    return False
+    return has_opponent_static_play_restriction(
+        state=_state_from_context(context),
+        playerId=player_id,
+        restriction=restriction,
+        cardDef=card_def,
+        registry=_static_registry(context),
+    )
 
 
 def _has_static_card_restriction(context, card_id: InstanceId, restriction: str) -> bool:
-    registry = _static_registry(context)
-    if registry is None:
-        return False
-    return any(
-        getattr(effect, "kind", None) == "restriction"
-        and isinstance(getattr(effect, "payload", {}), Mapping)
-        and getattr(effect, "payload", {}).get("restriction") == restriction
-        for effect in registry.get_effects_for_card(card_id, kind="restriction")
+    return has_static_card_restriction(
+        state=_state_from_context(context),
+        cardId=card_id,
+        restriction=restriction,
+        registry=_static_registry(context),
     )
 
 
@@ -495,6 +467,87 @@ def _validate_action_params(context: MoveValidationContext, card_def: CardDefini
             "INVALID_CHOICE_INDEX",
         )
     return RuntimeValidationResult.ok()
+
+
+def _action_target_input(context: MoveValidationContext | MoveExecutionContext) -> object | None:
+    if "targets" in context.args:
+        return context.args.get("targets")
+    if "slottedTargets" in context.args:
+        return context.args.get("slottedTargets")
+    return None
+
+
+def _flat_action_target_input(targets: object | None) -> object | None:
+    if is_slotted_target_input(targets):
+        return flatten_slotted_targets(targets)
+    return targets
+
+
+def _merge_target_analysis(left: TargetAnalysis, right: TargetAnalysis) -> TargetAnalysis:
+    return TargetAnalysis(
+        targetDsl=tuple((*left.targetDsl, *right.targetDsl)),
+        cardCandidates=tuple(dict.fromkeys((*left.cardCandidates, *right.cardCandidates))),
+        playerCandidates=tuple(dict.fromkeys((*left.playerCandidates, *right.playerCandidates))),
+        allowedZones=tuple(dict.fromkeys((*left.allowedZones, *right.allowedZones))),
+        minSelections=max(left.minSelections, right.minSelections),
+        maxSelections=max(left.maxSelections, right.maxSelections),
+        declaredMaxSelections=max(left.declaredMaxSelections or 0, right.declaredMaxSelections or 0),
+        requiresExplicitSelection=left.requiresExplicitSelection or right.requiresExplicitSelection,
+        allowsDeferredResolutionWithoutInitialSelection=(
+            left.allowsDeferredResolutionWithoutInitialSelection
+            or right.allowsDeferredResolutionWithoutInitialSelection
+        ),
+        allowDuplicateTargets=left.allowDuplicateTargets or right.allowDuplicateTargets,
+    )
+
+
+def _combined_action_target_analysis(
+    context: MoveValidationContext | MoveExecutionContext,
+    player_id: PlayerId,
+    card_id: InstanceId,
+    card_def: CardDefinition,
+) -> TargetAnalysis:
+    card_played = {
+        "playerId": player_id,
+        "cardId": card_id,
+        "cardType": card_def.card_type,
+        "costType": _cost(context),
+    }
+    combined = TargetAnalysis()
+    for ability in card_def.abilities:
+        if ability.kind != "action":
+            continue
+        combined = _merge_target_analysis(
+            combined,
+            analyze_effect_targets(ability.raw.get("effect"), context, card_played),
+        )
+    return combined
+
+
+def _validate_action_targets(
+    context: MoveValidationContext,
+    player_id: PlayerId,
+    card_id: InstanceId,
+    card_def: CardDefinition,
+) -> RuntimeValidationResult:
+    if card_def.card_type != "action":
+        return RuntimeValidationResult.ok()
+    if "targets" not in context.args and "slottedTargets" not in context.args:
+        return RuntimeValidationResult.ok()
+    analysis = _combined_action_target_analysis(context, player_id, card_id, card_def)
+    selection = validate_and_normalize_target_selection(
+        _flat_action_target_input(_action_target_input(context)),
+        analysis,
+        {"currentPlayer": player_id, "ctx": context},
+    )
+    if getattr(selection, "valid", False):
+        return RuntimeValidationResult.ok()
+    if isinstance(selection, RuntimeValidationResult):
+        return selection
+    return RuntimeValidationResult.fail(
+        getattr(selection, "error", None) or "Action target selection is invalid",
+        getattr(selection, "errorCode", None) or "INVALID_ACTION_TARGETS",
+    )
 
 
 def _validate_cost(context: MoveValidationContext, card_id: InstanceId, card_def: CardDefinition) -> RuntimeValidationResult:
@@ -671,37 +724,10 @@ def _validate_cost(context: MoveValidationContext, card_id: InstanceId, card_def
 
 
 def _record_card_played(context: MoveExecutionContext, card_id: InstanceId, *, shifted: bool = False) -> None:
-    turn_metadata = context.state.G.turnMetadata
-    cards_played = turn_metadata.cardsPlayedThisTurn
-    if card_id not in cards_played:
-        cards_played = cards_played + (card_id,)
-    shift_played = turn_metadata.shiftPlayedThisTurn
-    if shifted and card_id not in shift_played:
-        shift_played = shift_played + (card_id,)
-    context.set_G(
-        context.state.G.with_updates(
-            turnMetadata=turn_metadata.__class__(
-                cardsPlayedThisTurn=cards_played,
-                charactersQuesting=turn_metadata.charactersQuesting,
-                inkedThisTurn=turn_metadata.inkedThisTurn,
-                cardsPutIntoInkwellThisTurn=turn_metadata.cardsPutIntoInkwellThisTurn,
-                additionalInkwellActions=turn_metadata.additionalInkwellActions,
-                shiftPlayedThisTurn=shift_played,
-                challengesByPlayerThisTurn=turn_metadata.challengesByPlayerThisTurn,
-                damagedCharactersByOwnerThisTurn=turn_metadata.damagedCharactersByOwnerThisTurn,
-                damageRemovedByPlayerThisTurn=turn_metadata.damageRemovedByPlayerThisTurn,
-                challengedCharactersThisTurn=turn_metadata.challengedCharactersThisTurn,
-                banishedCharactersThisTurn=turn_metadata.banishedCharactersThisTurn,
-                banishedCharactersInChallengeByOwnerThisTurn=turn_metadata.banishedCharactersInChallengeByOwnerThisTurn,
-                discardCardsLeftThisTurn=turn_metadata.discardCardsLeftThisTurn,
-                cardsPutIntoDiscardThisTurnByOwner=turn_metadata.cardsPutIntoDiscardThisTurnByOwner,
-                pendingCostReductionsByPlayer=turn_metadata.pendingCostReductionsByPlayer,
-                cardsDrawnThisTurnByPlayer=turn_metadata.cardsDrawnThisTurnByPlayer,
-                cardsUnderThisTurn=turn_metadata.cardsUnderThisTurn,
-            ),
-            staticEffectsVersion=context.state.G.staticEffectsVersion + 1,
-        )
-    )
+    record_card_played_this_turn(context, card_id)
+    if shifted:
+        record_shift_played_this_turn(context, card_id)
+    context.set_G(context.state.G.with_updates(staticEffectsVersion=context.state.G.staticEffectsVersion + 1))
 
 
 def _card_played_payload(player_id: PlayerId, card_id: InstanceId, card_def: CardDefinition, cost: str, **extra) -> dict[str, object]:
@@ -744,55 +770,23 @@ def _resolve_action_card(context: MoveExecutionContext, card_played: Mapping[str
     resolution_input = ActionResolutionInput.from_value(
         {
             "targets": context.args.get("targets"),
+            "slottedTargets": context.args.get("slottedTargets"),
             "amount": context.args.get("amount"),
             "choiceIndex": context.args.get("choiceIndex"),
             "resolveOptional": context.args.get("resolveOptional"),
             "namedCard": context.args.get("namedCard"),
             "destinations": context.args.get("destinations"),
             "eventSnapshot": context.args.get("eventSnapshot"),
+            "preventAutoResolveTriggeredEffects": context.args.get("preventAutoResolveTriggeredEffects"),
         }
     )
-    for index, ability in enumerate(card_def.abilities):
-        if ability.kind != "action":
-            continue
-        condition = ability.raw.get("condition")
-        if condition is not None:
-            resources = _resources_from_context(context)
-            if resources is not None:
-                from lorcana_engine_v2.core.context import build_rules_context
-                from lorcana_engine_v2.rules.condition_evaluator import ConditionContext, ConditionEvaluator
-
-                if not ConditionEvaluator().evaluate(
-                    context.state,
-                    build_rules_context(resources),
-                    condition,
-                    ConditionContext(
-                        actor=PlayerId(str(card_played.get("playerId", context.playerId))),
-                        source_id=InstanceId(str(card_played.get("cardId", ""))),
-                        event_payload={"eventSnapshot": dict(resolution_input.eventSnapshot)},
-                    ),
-                ):
-                    continue
-        resolve_action_effect(
-            context,
-            card_played,
-            ability.raw.get("effect"),
-            resolution_input,
-            {"sourceAbilityIndex": index},
-        )
-        if has_pending_action_effect_resolution(context):
-            break
-    if has_pending_action_effect_resolution(context):
-        move_suspended_action_card_to_limbo(context, card_played)
-    else:
-        finalize_resolved_action_card(context, card_played)
-        flush_triggered_events_to_bag(context)
+    resolve_action_card_effects(context, card_played, card_def, resolution_input)
 
 
 @dataclass(frozen=True, slots=True)
 class PlayCardMove:
     serverOnly: bool = False
-    ignorePriority: bool = False
+    ignorePriority: bool = True
     ignoreStaleStateID: bool = False
 
     def available(self, context: MoveEnumerationContext) -> bool:
@@ -836,6 +830,9 @@ class PlayCardMove:
         pending = validate_no_pending_effects(context, action_label="play cards")
         if not pending.valid:
             return pending
+        current_player_validation = require_current_player_for_move(_state_from_context(context), context.playerId)
+        if not current_player_validation.valid:
+            return current_player_validation
         raw_card_id = input_card_id(context)
         if context.validationMode == "preflight" and raw_card_id is None:
             return RuntimeValidationResult.ok()
@@ -855,7 +852,10 @@ class PlayCardMove:
         cost_validation = _validate_cost(context, card_id, card_def)
         if not cost_validation.valid:
             return cost_validation
-        return _validate_action_params(context, card_def)
+        action_params = _validate_action_params(context, card_def)
+        if not action_params.valid:
+            return action_params
+        return _validate_action_targets(context, player_id, card_id, card_def)
 
     def execute(self, context: MoveExecutionContext) -> MatchState:
         card_id = InstanceId(input_card_id(context) or "")
@@ -916,6 +916,7 @@ class PlayCardMove:
                 ZoneRef(zone=ZoneId("deck"), playerId=player_id),
                 index=0,
             )
+            record_discard_exit_this_turn(context)
         else:
             raise RuntimeError(f"playCard execute: unrecognized or missing cost type: {cost!r}")
 
@@ -923,6 +924,7 @@ class PlayCardMove:
             _consume_pending_cost_reductions(context, player_id, card_def, cost)
         _detach_from_parent_if_playing_from_under(context, card_id)
         context.framework.zones.moveCard(card_id, ZoneRef(zone=ZoneId("play"), playerId=player_id))
+        recompute_lore_to_win(context)
         context.framework.log(
             ProjectedLogEntry(
                 category="action",

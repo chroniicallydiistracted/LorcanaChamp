@@ -72,3 +72,61 @@ def test_validate_pending_choice_and_move_suspended_real_action_to_limbo():
 
     assert state.ctx.zones.private.cardIndex[InstanceId("action")].zoneKey == scoped_zone("limbo", "p0")
     assert state.ctx.zones.private.cardMeta[InstanceId("action")].publicFaceState == "faceUp"
+
+
+def test_pending_action_effect_clones_resolution_input_selection_context_and_continuation():
+    resources = resources_for({"action": "YDE"})
+    state = state_with_play(resources, p0=("action",))
+    resolution_input = {
+        "targets": ["a"],
+        "eventSnapshot": {
+            "revealedCardIds": ["r1"],
+            "revealWindowIds": ["w1"],
+            "previouslyTargetedCardIds": ["p1"],
+        },
+        "destinations": [{"zone": "deck-bottom", "cards": ["a"]}],
+        "triggerContext": {"nested": {"cardIds": ["t1"]}},
+    }
+    continuation = {
+        "remainingEffects": [{"type": "draw", "amount": 1}],
+        "stagedSequence": {
+            "collectedTargets": ["a"],
+            "collectedTargetCounts": [1],
+            "remainingSteps": [{"type": "gain-lore", "amount": 1}],
+        },
+    }
+    selection_context = {
+        "kind": "target-selection",
+        "currentSelection": {"targets": ["a"]},
+        "cardCandidateIds": ["a"],
+    }
+
+    pending = create_pending_action_effect(
+        state,
+        kind="target-selection",
+        sourceCardId="action",
+        controllerId="p0",
+        chooserId="p0",
+        cardPlayed={
+            "playerId": PlayerId("p0"),
+            "cardId": InstanceId("action"),
+            "cardType": "action",
+            "costType": "ink",
+        },
+        effect={"type": "draw", "amount": 1},
+        resolutionInput=resolution_input,
+        continuation=continuation,
+        selectionContext=selection_context,
+    )
+    resolution_input["targets"].append("mutated")
+    resolution_input["eventSnapshot"]["revealedCardIds"].append("mutated")
+    resolution_input["destinations"][0]["cards"].append("mutated")
+    continuation["remainingEffects"][0]["amount"] = 99
+    selection_context["cardCandidateIds"].append("mutated")
+
+    assert pending.resolutionInput.targets == ("a",)
+    assert pending.resolutionInput.eventSnapshot["revealedCardIds"] == ("r1",)
+    assert pending.resolutionInput.destinations == ({"zone": "deck-bottom", "cards": ("a",)},)
+    assert pending.resolutionInput.triggerContext == {"nested": {"cardIds": ("t1",)}}
+    assert pending.continuation["remainingEffects"] == ({"type": "draw", "amount": 1},)
+    assert pending.selectionContext["cardCandidateIds"] == ("a",)

@@ -7,6 +7,7 @@ from lorcana_engine_v2.core.ids import InstanceId, PlayerId
 from lorcana_engine_v2.core.results import RuntimeValidationResult
 from lorcana_engine_v2.core.state import MatchState
 from lorcana_engine_v2.effects.triggered_abilities import flush_triggered_events_to_bag
+from lorcana_engine_v2.effects.be_chosen import emit_be_chosen_events_for_pending_selection
 from lorcana_engine_v2.resolution.action_effect_types import PendingActionEffect
 from lorcana_engine_v2.resolution.action_effects import resolve_action_effect
 from lorcana_engine_v2.resolution.pending import (
@@ -113,6 +114,21 @@ def _validate_params_shape(params: object) -> RuntimeValidationResult:
     return RuntimeValidationResult.ok()
 
 
+def _validate_no_legacy_top_level_inputs(context: MoveValidationContext) -> RuntimeValidationResult:
+    legacy = {
+        "targets",
+        "amount",
+        "choiceIndex",
+        "resolveOptional",
+        "enterPlayExerted",
+        "destinations",
+        "namedCard",
+    }
+    if any(key in context.args for key in legacy):
+        return RuntimeValidationResult.fail("resolveEffect resolution input must be supplied under args.params", "RESOLVE_EFFECT_PARAMS_REQUIRED")
+    return RuntimeValidationResult.ok()
+
+
 def _validate_target_legality(
     context: MoveValidationContext | MoveExecutionContext,
     pending: PendingActionEffect,
@@ -190,6 +206,9 @@ class ResolveEffectMove:
         effect_id = _effect_id(context)
         if effect_id is None:
             return RuntimeValidationResult.fail("resolveEffect requires a valid effect id", "RESOLVE_EFFECT_ID_REQUIRED")
+        legacy_shape = _validate_no_legacy_top_level_inputs(context)
+        if not legacy_shape.valid:
+            return legacy_shape
         pending_choice = context.framework.state.priority.pendingChoice
         if pending_choice is None or pending_choice.type != "action-effect" or pending_choice.requestID != effect_id:
             return RuntimeValidationResult.fail("No matching pending effect is available to resolve", "RESOLVE_EFFECT_NOT_PENDING")
@@ -240,6 +259,8 @@ class ResolveEffectMove:
         )
         if result.status not in {"resolved", "suspended"}:
             raise RuntimeError(f"Failed to resolve pending action effect: {result.status}")
+        if result.pendingEffect is not None:
+            emit_be_chosen_events_for_pending_selection(context, result.pendingEffect, result.resolutionInput)
         if result.status == "resolved" and result.pendingEffect is not None:
             continuation = result.pendingEffect.continuation
             remaining = ()
@@ -263,6 +284,16 @@ class ResolveEffectMove:
             card_played = result.pendingEffect.cardPlayed if result.pendingEffect is not None else {}
             finalize_resolved_action_card(context, card_played)
             flush_triggered_events_to_bag(context)
+            turn_owner = context.state.ctx.status.turnOwnerId
+            if turn_owner is not None:
+                context._draft.set_state(
+                    MatchState(
+                        G=context.state.G,
+                        ctx=context.state.ctx.with_updates(
+                            priority=context.state.ctx.priority.with_updates(holder=turn_owner)
+                        ),
+                    )
+                )
         return context.state
 
 
