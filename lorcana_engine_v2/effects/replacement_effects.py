@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from typing import Any
 
+from lorcana_engine_v2.core.turn_owner import resolve_turn_owner_id
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId
 from lorcana_engine_v2.core.state import MatchState, ReplacementEffectsState, ReplacementUsageLedger
 from lorcana_engine_v2.core.zones import base_zone_from_key
@@ -86,7 +87,7 @@ def _definition_for_card(target: MatchState | object, state: MatchState, card_id
 
 
 def _turn_player(state: MatchState) -> PlayerId | None:
-    return state.ctx.status.turnOwnerId or state.ctx.priority.holder
+    return resolve_turn_owner_id(state)
 
 
 def _condition_matches(state: MatchState, controller_id: PlayerId, condition: object) -> bool:

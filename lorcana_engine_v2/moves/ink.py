@@ -11,6 +11,10 @@ from lorcana_engine_v2.effects.triggered_abilities import (
     emit_triggered_lorcana_event,
     flush_triggered_events_to_bag,
 )
+from lorcana_engine_v2.core.turn_owner import (
+    require_current_player_for_move,
+    resolve_current_player_for_move,
+)
 from lorcana_engine_v2.resolution.pending import has_any_pending_effects, validate_no_pending_effects
 
 from .registry import MoveEnumerationContext, MoveExecutionContext, MoveValidationContext, input_card_id
@@ -29,7 +33,10 @@ INKWELL_CANDIDATE_QUERY_DSL = {
 def _current_player(
     context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext,
 ) -> PlayerId:
-    return PlayerId(str(context.framework.state.priority.holder or context.playerId))
+    resolved = resolve_current_player_for_move(context, context.G)
+    if resolved is None:
+        raise RuntimeError("putCardIntoInkwell could not resolve the current turn player")
+    return resolved
 
 
 def _zone_is_play(zone_key: object) -> bool:
@@ -176,6 +183,10 @@ class PutCardIntoInkwellMove:
         pending_failure = validate_no_pending_effects(context, action_label="ink cards")
         if not pending_failure.valid:
             return pending_failure
+        
+        current_player_validation = require_current_player_for_move(context, context.playerId, context.G)
+        if not current_player_validation.valid:
+            return current_player_validation
 
         current_player = _current_player(context)
 

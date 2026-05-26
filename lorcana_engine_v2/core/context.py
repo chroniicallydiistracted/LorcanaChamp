@@ -4,8 +4,10 @@ from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 
+
 from .commands import MoveInput
 from .events import GameEvent
+from .turn_owner import resolve_turn_owner_id
 from .ids import InstanceId, PlayerId, ZoneId
 from .random import RandomAPI, create_random_api_for_ctx
 from .results import GameEndResult, LogMessage, LogVisibility, ProjectedLogEntry, RuntimeValidationResult
@@ -118,7 +120,7 @@ def create_framework_state_snapshot(state: MatchState, game_ended: bool = False)
         phase=state.ctx.status.phase,
         step=state.ctx.status.step,
         gameSegment=state.ctx.status.gameSegment,
-        currentPlayer=state.ctx.status.turnOwnerId or state.ctx.priority.holder,
+        currentPlayer=resolve_turn_owner_id(state, state.G),
         stateID=state.ctx._stateID,
         matchID=state.ctx.matchID,
         gameID=state.ctx.gameID,

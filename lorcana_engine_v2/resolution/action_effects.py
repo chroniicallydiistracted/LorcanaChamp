@@ -5,6 +5,7 @@ from dataclasses import replace
 
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId
 from lorcana_engine_v2.core.state import MatchState
+from lorcana_engine_v2.core.turn_owner import resolve_turn_owner_id
 from lorcana_engine_v2.core.zones import (
     CardMeta,
     ZoneRef,
@@ -248,7 +249,7 @@ def _player_targets(state: MatchState, controller_id: PlayerId, raw_target: obje
     if normalized in {"ALL_PLAYERS", "EACH_PLAYER", "ANY_PLAYER"}:
         return state.ctx.playerIds
     if normalized == "CURRENT_TURN":
-        return (state.ctx.status.turnOwnerId or state.ctx.priority.holder or controller_id,)
+        return (resolve_turn_owner_id(state) or controller_id,)
     return (controller_id,)
 
 

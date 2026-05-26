@@ -72,9 +72,9 @@ PLAY_CARD = "playCard"
 
 
 def _current_player(context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext) -> PlayerId:
-    resolved = resolve_current_player_for_move(_state_from_context(context), fallback_actor=context.playerId)
+    resolved = resolve_current_player_for_move(context, context.G)
     if resolved is None:
-        return PlayerId(str(context.playerId))
+        raise RuntimeError("playCard could not resolve the current turn player")
     return resolved
 
 
@@ -830,7 +830,7 @@ class PlayCardMove:
         pending = validate_no_pending_effects(context, action_label="play cards")
         if not pending.valid:
             return pending
-        current_player_validation = require_current_player_for_move(_state_from_context(context), context.playerId)
+        current_player_validation = require_current_player_for_move(context, context.playerId, context.G)
         if not current_player_validation.valid:
             return current_player_validation
         raw_card_id = input_card_id(context)

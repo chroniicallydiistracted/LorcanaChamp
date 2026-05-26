@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
+from lorcana_engine_v2.core.turn_owner import resolve_turn_owner_id
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId
 from lorcana_engine_v2.core.state import MatchState
 from lorcana_engine_v2.core.zones import base_zone_from_key
@@ -96,7 +97,7 @@ def resolve_target_player_ids(
     if normalized in {"ALL_PLAYERS", "EACH_PLAYER", "ANY_PLAYER"}:
         return state.ctx.playerIds
     if normalized == "CURRENT_TURN":
-        return (state.ctx.status.turnOwnerId or state.ctx.priority.holder or controller,)
+        return (resolve_turn_owner_id(state) or controller,)
     return ()
 
 

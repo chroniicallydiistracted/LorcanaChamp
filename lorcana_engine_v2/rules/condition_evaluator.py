@@ -5,6 +5,7 @@ from typing import Any, Mapping
 
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId, ZoneId
 from lorcana_engine_v2.core.zones import base_zone_from_key
+from lorcana_engine_v2.core.turn_owner import resolve_turn_owner_id
 
 
 @dataclass(frozen=True, slots=True)
@@ -173,7 +174,7 @@ class ConditionEvaluator:
 
     def _evaluate_turn_condition(self, state, raw_condition: Mapping[str, Any], context: ConditionContext) -> bool:
         whose = raw_condition.get("whose")
-        turn_owner = state.ctx.status.turnOwnerId or state.ctx.priority.holder
+        turn_owner = resolve_turn_owner_id(state)
         if whose in {"your", "you", "controller"}:
             return turn_owner == context.actor_id
         if whose == "opponent":
