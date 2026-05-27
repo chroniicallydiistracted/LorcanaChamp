@@ -50,6 +50,7 @@ from lorcana_engine_v2.rules.derived_state import (
 )
 from lorcana_engine_v2.rules.move_registry_cache import get_or_build_move_registry
 from lorcana_engine_v2.rules.static_ability_utils import (
+    evaluate_static_condition,
     has_opponent_static_play_restriction,
     has_static_card_restriction,
 )
@@ -90,16 +91,8 @@ def _state_from_context(context: MoveValidationContext | MoveEnumerationContext 
     raise TypeError("playCard requires a Lorcanito runtime state context")
 
 
-def _resources_from_context(context) -> object | None:
-    query = getattr(context.cards, "_query", None)
-    return getattr(query, "resources", None)
-
-
 def _static_registry(context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext):
-    try:
-        return get_or_build_move_registry(context)
-    except TypeError:
-        return None
+    return get_or_build_move_registry(context)
 
 
 def _current_turn(context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext) -> int:
@@ -153,85 +146,63 @@ def _controlled_characters_in_play(context, player_id: PlayerId) -> tuple[Instan
     )
 
 
-def _standard_cost(card_def: CardDefinition) -> BasicCost:
-    return BasicCost(ink=max(0, int(card_def.cost)))
-
-
-def _shift_cost(card_def: CardDefinition, reduction: int = 0) -> BasicCost:
-    rules = get_shift_rules(card_def)
-    return BasicCost(ink=max(0, int(rules.inkCost or 0) - reduction) if rules is not None else 0)
-
-
-def _pending_cost_reductions(context, player_id: PlayerId, card_def: CardDefinition, play_method: str | None) -> tuple[int, tuple[int, ...]]:
-    entries = tuple(context.G.turnMetadata.pendingCostReductionsByPlayer.get(player_id, ()))
-    current_turn = _current_turn(context)
-    total = 0
-    consume_indexes: list[int] = []
-    for index, raw in enumerate(entries):
-        if not isinstance(raw, Mapping):
-            continue
-        expires = raw.get("expiresAtTurn")
-        if isinstance(expires, int) and expires < current_turn:
-            continue
-        card_type = raw.get("cardType")
-        if card_type is not None:
-            allowed = {str(item) for item in card_type} if isinstance(card_type, Sequence) and not isinstance(card_type, (str, bytes, bytearray)) else {str(card_type)}
-            is_song = is_song_card(card_def)
-            if card_def.card_type not in allowed and not (is_song and "song" in allowed):
-                continue
-        classification = raw.get("classification")
-        if classification and not any(str(item).lower() == str(classification).lower() for item in card_def.classifications):
-            continue
-        entry_method = raw.get("playMethod")
-        if entry_method not in {None, "either", play_method}:
-            continue
-        amount = raw.get("amount")
-        if isinstance(amount, int):
-            total += max(0, amount)
-            if raw.get("consumeOnUse") is True:
-                consume_indexes.append(index)
-    return total, tuple(consume_indexes)
-
-
-def _applied_cost_data(
-    context,
-    card_id: InstanceId,
+def _compute_cost_reduction(
+    context: MoveValidationContext | MoveExecutionContext,
     card_def: CardDefinition,
     play_method: str | None,
-) -> tuple[int, int, tuple[CostReductionApplication, ...]]:
-    registry = _static_registry(context)
-    _ = card_id
-    state = _state_from_context(context)
-    player_id = _current_player(context)
-    reduction, applications = get_applied_cost_reductions(
-        state=state,
-        player_id=player_id,
+) -> tuple[int, tuple[CostReductionApplication, ...]]:
+    return get_applied_cost_reductions(
+        state=_state_from_context(context),
+        player_id=_current_player(context),
         definition=card_def,
         play_method=play_method,
-        registry=registry,
+        registry=_static_registry(context),
     )
-    increase = get_static_cost_increase_amount(
-        state=state,
-        player_id=player_id,
+
+
+def _compute_cost_increase(
+    context: MoveValidationContext | MoveExecutionContext,
+    card_def: CardDefinition,
+    play_method: str | None,
+) -> int:
+    return get_static_cost_increase_amount(
+        state=_state_from_context(context),
+        player_id=_current_player(context),
         definition=card_def,
         play_method=play_method,
-        registry=registry,
+        registry=_static_registry(context),
     )
-    return reduction, increase, applications
 
 
-def _static_cost_delta(context, card_id: InstanceId, card_def: CardDefinition, play_method: str | None) -> tuple[int, int]:
-    reduction, increase, _ = _applied_cost_data(context, card_id, card_def, play_method)
-    return reduction, increase
+def _standard_play_basic_cost(
+    context: MoveValidationContext | MoveExecutionContext,
+    card_def: CardDefinition,
+) -> BasicCost:
+    reduction_amount, _ = _compute_cost_reduction(context, card_def, "standard")
+    increase_amount = _compute_cost_increase(context, card_def, "standard")
+    return BasicCost(ink=max(0, int(card_def.cost) - reduction_amount + increase_amount))
 
 
-def _effective_standard_cost(context, card_id: InstanceId, card_def: CardDefinition) -> BasicCost:
-    reduction, increase = _static_cost_delta(context, card_id, card_def, "standard")
-    return BasicCost(ink=max(0, int(card_def.cost) - reduction + increase))
+def _shift_play_basic_cost(
+    context: MoveValidationContext | MoveExecutionContext,
+    card_def: CardDefinition,
+) -> BasicCost:
+    rules = get_shift_rules(card_def)
+    reduction_amount, _ = _compute_cost_reduction(context, card_def, "shift")
+    return BasicCost(
+        ink=max(0, int(rules.inkCost or 0) - reduction_amount)
+        if rules is not None and rules.inkCost is not None
+        else 0
+    )
 
 
-def _consume_pending_cost_reductions(context: MoveExecutionContext, player_id: PlayerId, card_def: CardDefinition, play_method: str | None) -> None:
-    _, _, applications = _applied_cost_data(context, InstanceId(""), card_def, play_method)
+def _consume_applied_cost_reductions(
+    context: MoveExecutionContext,
+    player_id: PlayerId,
+    card_def: CardDefinition,
+    play_method: str | None,
+) -> None:
+    _, applications = _compute_cost_reduction(context, card_def, play_method)
     if not any(app.source == "pending" and app.consumeOnUse for app in applications):
         return
     next_state = consume_applied_cost_reductions(context.state, player_id, applications)
@@ -324,14 +295,12 @@ def _has_static_card_restriction(context, card_id: InstanceId, restriction: str)
     )
 
 
-def _self_play_condition_error(context: MoveValidationContext, player_id: PlayerId, card_id: InstanceId, card_def: CardDefinition) -> RuntimeValidationResult | None:
-    resources = _resources_from_context(context)
-    if resources is None:
-        return None
-    from lorcana_engine_v2.core.context import build_rules_context
-    from lorcana_engine_v2.rules.condition_evaluator import ConditionContext, ConditionEvaluator
-
-    rules_ctx = build_rules_context(resources)
+def _self_play_condition_error(
+    context: MoveValidationContext,
+    player_id: PlayerId,
+    card_id: InstanceId,
+    card_def: CardDefinition,
+) -> RuntimeValidationResult | None:
     for ability in card_def.abilities:
         if ability.kind != "static":
             continue
@@ -341,38 +310,44 @@ def _self_play_condition_error(context: MoveValidationContext, player_id: Player
         condition = ability.raw.get("condition")
         if condition is None:
             continue
-        if not ConditionEvaluator().evaluate(
-            _state_from_context(context),
-            rules_ctx,
-            condition,
-            ConditionContext(actor=player_id, source_id=card_id),
+        if not evaluate_static_condition(
+            condition=condition,
+            state=_state_from_context(context),
+            controllerId=player_id,
+            sourceId=card_id,
+            getDefinitionByInstanceId=lambda candidate_id: _card_definition(context, candidate_id),
         ):
-            return RuntimeValidationResult.fail("Card cannot be played: play condition not met", "SELF_PLAY_CONDITION_NOT_MET")
+            return RuntimeValidationResult.fail(
+                "Card cannot be played: play condition not met",
+                "SELF_PLAY_CONDITION_NOT_MET",
+            )
     return None
 
 
-def _can_use_shift_ability(context: MoveValidationContext, player_id: PlayerId, card_id: InstanceId, card_def: CardDefinition) -> bool:
+def _can_use_shift_ability(
+    context: MoveValidationContext,
+    player_id: PlayerId,
+    card_id: InstanceId,
+    card_def: CardDefinition,
+) -> bool:
     shift_ability = next(
         (
             ability
             for ability in card_def.abilities
-            if ability.kind == "keyword" and ability.raw.get("keyword") == "Shift" and ability.raw.get("condition") is not None
+            if ability.kind == "keyword"
+            and ability.raw.get("keyword") == "Shift"
+            and ability.raw.get("condition") is not None
         ),
         None,
     )
     if shift_ability is None:
         return True
-    resources = _resources_from_context(context)
-    if resources is None:
-        return False
-    from lorcana_engine_v2.core.context import build_rules_context
-    from lorcana_engine_v2.rules.condition_evaluator import ConditionContext, ConditionEvaluator
-
-    return ConditionEvaluator().evaluate(
-        _state_from_context(context),
-        build_rules_context(resources),
-        shift_ability.raw.get("condition"),
-        ConditionContext(actor=player_id, source_id=card_id),
+    return evaluate_static_condition(
+        condition=shift_ability.raw.get("condition"),
+        state=_state_from_context(context),
+        controllerId=player_id,
+        sourceId=card_id,
+        getDefinitionByInstanceId=lambda candidate_id: _card_definition(context, candidate_id),
     )
 
 
@@ -556,7 +531,7 @@ def _validate_cost(context: MoveValidationContext, card_id: InstanceId, card_def
     characters = _controlled_characters_in_play(context, player_id)
 
     if cost == "standard":
-        return validate_basic_cost(context, _effective_standard_cost(context, card_id, card_def))
+        return validate_basic_cost(context, _standard_play_basic_cost(context, card_def))
 
     if cost == "shift":
         rules = get_shift_rules(card_def)
@@ -573,8 +548,7 @@ def _validate_cost(context: MoveValidationContext, card_id: InstanceId, card_def
         else:
             if rules.inkCost is None:
                 return RuntimeValidationResult.fail("Shift cost could not be resolved", "INVALID_SHIFT_COST")
-            shift_reduction, _ = _static_cost_delta(context, card_id, card_def, "shift")
-            cost_validation = validate_basic_cost(context, _shift_cost(card_def, shift_reduction))
+            cost_validation = validate_basic_cost(context, _shift_play_basic_cost(context, card_def))
             if not cost_validation.valid:
                 return cost_validation
         shift_target = _input_instance(context, "shiftTarget")
@@ -866,7 +840,7 @@ class PlayCardMove:
         singer_ids: tuple[InstanceId, ...] = ()
 
         if cost == "standard":
-            paid = pay_basic_cost(context, _effective_standard_cost(context, card_id, card_def))
+            paid = pay_basic_cost(context, _standard_play_basic_cost(context, card_def))
             if not paid.success:
                 raise RuntimeError(f"Failed to pay play cost: {paid.error} ({paid.errorCode})")
             ink_paid = paid.inkPaid
@@ -880,8 +854,7 @@ class PlayCardMove:
                     context.framework.zones.moveCard(discard_id, ZoneRef(zone=ZoneId("discard"), playerId=player_id))
                 ink_paid = 0
             else:
-                shift_reduction, _ = _static_cost_delta(context, card_id, card_def, "shift")
-                paid = pay_basic_cost(context, _shift_cost(card_def, shift_reduction))
+                paid = pay_basic_cost(context, _shift_play_basic_cost(context, card_def))
                 if not paid.success:
                     raise RuntimeError(f"Failed to pay play cost: {paid.error} ({paid.errorCode})")
                 ink_paid = paid.inkPaid
@@ -921,7 +894,7 @@ class PlayCardMove:
             raise RuntimeError(f"playCard execute: unrecognized or missing cost type: {cost!r}")
 
         if cost in {"standard", "shift"}:
-            _consume_pending_cost_reductions(context, player_id, card_def, cost)
+            _consume_applied_cost_reductions(context, player_id, card_def, cost)
         _detach_from_parent_if_playing_from_under(context, card_id)
         context.framework.zones.moveCard(card_id, ZoneRef(zone=ZoneId("play"), playerId=player_id))
         recompute_lore_to_win(context)
