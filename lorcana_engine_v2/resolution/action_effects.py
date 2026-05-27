@@ -285,6 +285,10 @@ def _clear_card_meta(zones, card_id: InstanceId):
     )
 
 
+def _metric_target(target: MatchState | object, state: MatchState) -> MatchState | object:
+    return state if isinstance(target, MatchState) else target
+
+
 def _duration_window(state: MatchState, controller_id: PlayerId, card_id: InstanceId | None, duration: object):
     owner = None
     if card_id is not None:
@@ -552,8 +556,9 @@ def resolve_draw_effect(
         0,
     )
     total_drawn = 0
+    target_player_ids = _player_targets(state, controller_id, effect.get("target"))
 
-    for player_id in _player_targets(state, controller_id, effect.get("target")):
+    for player_id in target_player_ids:
         if amount <= 0:
             continue
 
@@ -563,21 +568,22 @@ def resolve_draw_effect(
                 to_zone=ZoneRef(zone="hand", playerId=player_id),
                 count=amount,
             )
+            state = _state_of(target)
         else:
-            zones = _state_of(target).ctx.zones
+            zones = state.ctx.zones
             from_zone = scoped_zone("deck", player_id)
             to_zone = scoped_zone("hand", player_id)
             source_cards = list(reversed(zones.private.zoneCards.get(from_zone, ())))
             drawn = tuple(source_cards[: max(0, min(amount, len(source_cards)))])
             for card_id in drawn:
                 zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=to_zone)
-            _write_zones(target, _state_of(target), zones)
+            state = _write_zones(target, state, zones)
 
         drawn_cards = tuple(drawn)
         total_drawn += len(drawn_cards)
 
         for card_id in drawn_cards:
-            record_card_drawn_this_turn(target, player_id)
+            state = record_card_drawn_this_turn(_metric_target(target, state), player_id)
             if hasattr(target, "framework"):
                 draw_count = int(
                     _state_of(target).G.turnMetadata.cardsDrawnThisTurnByPlayer.get(player_id, 0)
@@ -599,7 +605,7 @@ def resolve_draw_effect(
         resolution_input.eventSnapshot.get("drawnCount", 0)
     ) + total_drawn
     resolution_input.eventSnapshot["lastEffectPerformed"] = total_drawn > 0
-    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+    return PendingResolutionResult(status="resolved", state=_state_of(target) if not isinstance(target, MatchState) else state, resolutionInput=resolution_input)
 
 
 def _discard_candidates(state: MatchState, target_player_id: PlayerId, zone: str) -> tuple[InstanceId, ...]:
@@ -718,22 +724,20 @@ def resolve_banish_effect(
         zones = _clear_card_meta(zones, card_id)
         banished.append(card_id)
 
-    _write_zones(target, state, zones)
+    state = _write_zones(target, state, zones)
 
     if banished:
-        _write_state(
-            target,
+        state = _write_state(
+            _metric_target(target, state),
             MatchState(
-                G=_state_of(target).G.with_updates(
-                    staticEffectsVersion=_state_of(target).G.staticEffectsVersion + 1
-                ),
-                ctx=_state_of(target).ctx,
+                G=state.G.with_updates(staticEffectsVersion=state.G.staticEffectsVersion + 1),
+                ctx=state.ctx,
             ),
         )
         for card_id in banished:
             owner_id = owner_by_card[card_id]
-            record_card_put_into_discard_this_turn(target, owner_id)
-            record_banished_character_this_turn(target, card_id)
+            state = record_card_put_into_discard_this_turn(_metric_target(target, state), owner_id)
+            state = record_banished_character_this_turn(_metric_target(target, state), card_id)
 
             if hasattr(target, "framework"):
                 emit_triggered_lorcana_event(
@@ -754,7 +758,7 @@ def resolve_banish_effect(
 
     resolution_input.eventSnapshot["triggerAmount"] = len(banished)
     resolution_input.eventSnapshot["lastEffectPerformed"] = bool(banished)
-    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+    return PendingResolutionResult(status="resolved", state=_state_of(target) if not isinstance(target, MatchState) else state, resolutionInput=resolution_input)
 
 
 def resolve_damage_effect(
@@ -769,6 +773,7 @@ def resolve_damage_effect(
     amount = resolve_variable_amount(resolution_input.amount if resolution_input.amount is not None else effect.get("amount"), 0)
     effect_type = str(effect.get("type"))
     damaged_any = False
+
     for original_target in targets:
         event = apply_replacement_effects(
             target,
@@ -785,17 +790,31 @@ def resolve_damage_effect(
         effective_amount = resolve_variable_amount(event.get("amount"), 0)
         if effective_amount <= 0:
             continue
-        current_state = _state_of(target)
+
+        current_state = _state_of(target) if not isinstance(target, MatchState) else state
         meta = current_state.ctx.zones.private.cardMeta.get(target_id, CardMeta())
         next_damage = int(meta.damage or 0) + effective_amount
-        current_state = _patch_card_meta(target, current_state, target_id, meta.with_updates(damage=next_damage))
-        record_damaged_character_this_turn(target, target_id)
+        state = _patch_card_meta(
+            _metric_target(target, current_state),
+            current_state,
+            target_id,
+            meta.with_updates(damage=next_damage),
+        )
+        state = record_damaged_character_this_turn(_metric_target(target, state), target_id)
         damaged_any = True
-        definition = _definition(target, current_state, target_id)
+
+        definition = _definition(target if not isinstance(target, MatchState) else state, state, target_id)
         willpower = getattr(definition, "willpower", None)
         card_type = getattr(definition, "card_type", None)
         if isinstance(willpower, int) and card_type in {"character", "location"} and next_damage >= willpower:
-            resolve_banish_effect(target, card_played, {"type": "banish", "target": "CHOSEN_CARD"}, ActionResolutionInput(targets=(str(target_id),)))
+            banish_result = resolve_banish_effect(
+                target if not isinstance(target, MatchState) else state,
+                card_played,
+                {"type": "banish", "target": "CHOSEN_CARD"},
+                ActionResolutionInput(targets=(str(target_id),)),
+            )
+            state = banish_result.state
+
         if hasattr(target, "framework"):
             emit_triggered_lorcana_event(
                 target,
@@ -812,10 +831,11 @@ def resolve_damage_effect(
                     {"event": "deal-damage", "subjectCardId": target_id, "triggerSourceCardId": _card_played_card_id(card_played)},
                 ],
             )
+
     resolution_input.eventSnapshot["lastEffectPerformed"] = damaged_any
     if damaged_any:
         resolution_input.eventSnapshot["triggerAmount"] = amount
-    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+    return PendingResolutionResult(status="resolved", state=_state_of(target) if not isinstance(target, MatchState) else state, resolutionInput=resolution_input)
 
 
 def resolve_ready_effect(
@@ -984,6 +1004,7 @@ def resolve_put_under_effect(
         selected = tuple(reversed(state.ctx.zones.private.zoneCards.get(scoped_zone("deck", controller_id), ())))[:amount]
     else:
         selected = _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input)
+
     zones = state.ctx.zones
     moved: list[InstanceId] = []
     for card_id in selected:
@@ -992,12 +1013,14 @@ def resolve_put_under_effect(
             continue
         zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=scoped_zone("limbo", entry.ownerID))
         moved.append(card_id)
+
     card_meta = dict(zones.private.cardMeta)
     destination_meta = card_meta.get(destination_id, CardMeta())
     cards_under = tuple(destination_meta.cardsUnder or ()) + tuple(moved)
     card_meta[destination_id] = destination_meta.with_updates(cardsUnder=cards_under or None)
     for card_id in moved:
         card_meta[card_id] = card_meta.get(card_id, CardMeta()).with_updates(stackParentId=destination_id)
+
     zones = ZoneRuntimeState(
         public=zones.public,
         reveals=zones.reveals,
@@ -1007,13 +1030,14 @@ def resolve_put_under_effect(
             cardMeta=card_meta,
         ),
     )
-    _write_zones(target, state, zones)
-    if moved:
-        for moved_id in moved:
-            record_card_put_under_this_turn(target, destination_id, moved_id)
+    state = _write_zones(target, state, zones)
+
+    for moved_id in moved:
+        state = record_card_put_under_this_turn(_metric_target(target, state), destination_id, moved_id)
+
     resolution_input.eventSnapshot["cardsUnder"] = tuple(str(card_id) for card_id in moved)
     resolution_input.eventSnapshot["lastEffectPerformed"] = bool(moved)
-    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+    return PendingResolutionResult(status="resolved", state=_state_of(target) if not isinstance(target, MatchState) else state, resolutionInput=resolution_input)
 
 
 def resolve_remove_damage_effect(
@@ -1039,7 +1063,7 @@ def resolve_remove_damage_effect(
         effect.get("target"),
         resolution_input,
     ):
-        current = _state_of(target)
+        current = _state_of(target) if not isinstance(target, MatchState) else state
         meta = current.ctx.zones.private.cardMeta.get(card_id, CardMeta())
         current_damage = int(meta.damage or 0)
         remove_amount = current_damage if effect.get("amount") == "all" else min(amount, current_damage)
@@ -1058,8 +1082,8 @@ def resolve_remove_damage_effect(
         if effective <= 0:
             continue
 
-        _patch_card_meta(
-            target,
+        state = _patch_card_meta(
+            _metric_target(target, current),
             current,
             card_id,
             meta.with_updates(damage=max(0, current_damage - effective)),
@@ -1068,11 +1092,15 @@ def resolve_remove_damage_effect(
         changed = True
 
     if removed_total > 0:
-        record_damage_removed_this_turn(target, _card_played_player_id(card_played), removed_total)
+        state = record_damage_removed_this_turn(
+            _metric_target(target, state),
+            _card_played_player_id(card_played),
+            removed_total,
+        )
 
     resolution_input.eventSnapshot["healedAmount"] = removed_total
     resolution_input.eventSnapshot["lastEffectPerformed"] = changed
-    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+    return PendingResolutionResult(status="resolved", state=_state_of(target) if not isinstance(target, MatchState) else state, resolutionInput=resolution_input)
 
 
 def resolve_move_damage_effect(
@@ -1100,38 +1128,39 @@ def resolve_move_damage_effect(
         resolution_input.eventSnapshot["lastEffectPerformed"] = False
         return PendingResolutionResult(status="resolved", state=state, resolutionInput=resolution_input)
 
-    _patch_card_meta(
-        target,
+    state = _patch_card_meta(
+        _metric_target(target, state),
         state,
         source_id,
         source_meta.with_updates(damage=max(0, int(source_meta.damage or 0) - moved)),
     )
-    record_damage_removed_this_turn(target, _card_played_player_id(card_played), moved)
+    state = record_damage_removed_this_turn(_metric_target(target, state), _card_played_player_id(card_played), moved)
 
-    current = _state_of(target)
+    current = _state_of(target) if not isinstance(target, MatchState) else state
     destination_meta = current.ctx.zones.private.cardMeta.get(destination_id, CardMeta())
     new_damage = int(destination_meta.damage or 0) + moved
-    _patch_card_meta(
-        target,
+    state = _patch_card_meta(
+        _metric_target(target, current),
         current,
         destination_id,
         destination_meta.with_updates(damage=new_damage),
     )
 
-    destination_definition = _definition(target, _state_of(target), destination_id)
+    destination_definition = _definition(target if not isinstance(target, MatchState) else state, state, destination_id)
     destination_willpower = getattr(destination_definition, "willpower", None)
     destination_type = getattr(destination_definition, "card_type", None) or getattr(destination_definition, "cardType", None)
     if isinstance(destination_willpower, int) and destination_willpower > 0 and new_damage >= destination_willpower and destination_type in {"character", "location"}:
-        resolve_banish_effect(
-            target,
+        banish_result = resolve_banish_effect(
+            target if not isinstance(target, MatchState) else state,
             card_played,
             {"type": "banish", "target": "CHOSEN_CARD"},
             ActionResolutionInput(targets=(str(destination_id),)),
         )
+        state = banish_result.state
 
     resolution_input.eventSnapshot["healedAmount"] = moved
     resolution_input.eventSnapshot["lastEffectPerformed"] = True
-    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+    return PendingResolutionResult(status="resolved", state=_state_of(target) if not isinstance(target, MatchState) else state, resolutionInput=resolution_input)
 
 def resolve_create_replacement_effect(
     target: MatchState | object,
