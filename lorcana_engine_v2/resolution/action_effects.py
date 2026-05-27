@@ -41,6 +41,7 @@ from lorcana_engine_v2.runtime_game.turn_metrics import (
     record_banished_character_this_turn,
     record_card_drawn_this_turn,
     record_card_put_into_discard_this_turn,
+    record_card_put_into_inkwell_this_turn,
     record_card_put_under_this_turn,
     record_damage_removed_this_turn,
     record_damaged_character_this_turn,
@@ -1013,6 +1014,203 @@ def resolve_move_card_effect(
     )
 
 
+_PUT_INTO_INKWELL_PLAYER_TARGETS = {
+    "SELF",
+    "YOU",
+    "CONTROLLER",
+    "OPPONENT",
+    "OPPONENTS",
+    "EACH_OPPONENT",
+    "ALL_PLAYERS",
+    "EACH_PLAYER",
+    "CURRENT_TURN",
+}
+
+
+def _put_into_inkwell_is_player_target(raw_target: object) -> bool:
+    return isinstance(raw_target, str) and raw_target.upper() in _PUT_INTO_INKWELL_PLAYER_TARGETS
+
+
+def _put_into_inkwell_selected_targets(
+    resolution_input: ActionResolutionInput,
+    consumed: set[InstanceId],
+) -> tuple[InstanceId, ...]:
+    return tuple(card_id for card_id in _selected_card_ids(resolution_input) if card_id not in consumed)
+
+
+def _put_into_inkwell_cards_in_zone(
+    state: MatchState,
+    zone_name: str,
+    player_id: PlayerId,
+) -> tuple[InstanceId, ...]:
+    return tuple(state.ctx.zones.private.zoneCards.get(scoped_zone(zone_name, player_id), ()))
+
+
+def _put_into_inkwell_source_cards(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    state: MatchState,
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+    destination_player_id: PlayerId,
+    consumed: set[InstanceId],
+) -> tuple[InstanceId, ...]:
+    source = effect.get("source", "top-of-deck")
+    selected = _put_into_inkwell_selected_targets(resolution_input, consumed)
+
+    if source == "this-card":
+        return (_card_played_card_id(card_played),)
+
+    if source == "revealed":
+        revealed = resolution_input.eventSnapshot.get("revealedCardIds", ())
+        if isinstance(revealed, Sequence) and not isinstance(revealed, (str, bytes, bytearray)):
+            return tuple(InstanceId(str(card_id)) for card_id in revealed if InstanceId(str(card_id)) not in consumed)
+        return ()
+
+    if isinstance(source, Mapping):
+        return _candidate_cards_from_target(
+            target,
+            card_played,
+            state,
+            destination_player_id,
+            source,
+            resolution_input,
+        )
+
+    if source in {"chosen-card-in-play", "chosen-character"}:
+        if selected:
+            return selected
+        return _candidate_cards_from_target(
+            target,
+            card_played,
+            state,
+            destination_player_id,
+            effect.get("target"),
+            resolution_input,
+        )
+
+    if source == "top-of-deck":
+        # v2 stores deck order with the effective top read from the reversed zone tuple,
+        # matching existing v2 draw/mill resolver convention.
+        return tuple(reversed(_put_into_inkwell_cards_in_zone(state, "deck", destination_player_id)))[:1]
+
+    if source in {"deck", "hand", "discard"}:
+        zone_cards = set(_put_into_inkwell_cards_in_zone(state, str(source), destination_player_id))
+        return tuple(card_id for card_id in selected if card_id in zone_cards)
+
+    return ()
+
+
+def resolve_put_into_inkwell_effect(
+    target: MatchState | object,
+    card_played: Mapping[str, object],
+    effect: Mapping[str, object],
+    resolution_input: ActionResolutionInput,
+) -> PendingResolutionResult:
+    state = _state_of(target)
+    controller_id = _card_played_player_id(card_played)
+    consumed: set[InstanceId] = set()
+    moved_any = False
+    zones = state.ctx.zones
+    metric_card_ids: list[InstanceId] = []
+    discard_exit_count = 0
+
+    state_value = "ready" if effect.get("exerted") is False else "exerted"
+    public_face_state = "faceUp" if effect.get("facedown") is False else "faceDown"
+
+    source = effect.get("source", "top-of-deck")
+    target_is_player_target = _put_into_inkwell_is_player_target(effect.get("target"))
+
+    if source in {"chosen-card-in-play", "chosen-character"} and not target_is_player_target:
+        source_cards = _put_into_inkwell_source_cards(
+            target,
+            card_played,
+            state,
+            effect,
+            resolution_input,
+            controller_id,
+            consumed,
+        )
+        destination_pairs: list[tuple[InstanceId, PlayerId]] = []
+        for card_id in dict.fromkeys(source_cards):
+            entry = zones.private.cardIndex.get(card_id)
+            if entry is None:
+                continue
+            destination_pairs.append((card_id, entry.ownerID))
+    else:
+        destination_players = (
+            _player_targets(state, controller_id, effect.get("target"))
+            if target_is_player_target
+            else (controller_id,)
+        )
+        if not destination_players:
+            destination_players = (controller_id,)
+
+        destination_pairs = []
+        for destination_player_id in destination_players:
+            source_cards = _put_into_inkwell_source_cards(
+                target,
+                card_played,
+                state,
+                effect,
+                resolution_input,
+                destination_player_id,
+                consumed,
+            )
+            for card_id in dict.fromkeys(source_cards):
+                destination_pairs.append((card_id, destination_player_id))
+
+    for card_id, destination_player_id in destination_pairs:
+        if card_id in consumed:
+            continue
+
+        entry = zones.private.cardIndex.get(card_id)
+        if entry is None:
+            continue
+
+        source_zone = str(entry.zoneKey)
+        source_base_zone = str(base_zone_from_key(entry.zoneKey))
+        zones = move_card_to_zone(
+            zones,
+            card_id=card_id,
+            destination_zone_key=scoped_zone("inkwell", destination_player_id),
+        )
+        meta = zones.private.cardMeta.get(card_id, CardMeta())
+        zones = patch_card_meta(
+            zones,
+            card_id,
+            meta.with_updates(state=state_value, publicFaceState=public_face_state),
+        )
+
+        moved_any = True
+        consumed.add(card_id)
+
+        if source_base_zone == "play":
+            # Lorcanito's from-play branch does not record cardsPutIntoInkwellThisTurn.
+            # Full shifted-stack movement for cardsUnder is handled by the separate
+            # moveCardOutOfPlayWithStack drift.
+            continue
+
+        metric_card_ids.append(card_id)
+        if is_discard_zone_key(source_zone):
+            discard_exit_count += 1
+
+    state = _write_zones(_metric_target(target, state), state, zones)
+
+    for card_id in metric_card_ids:
+        state = record_card_put_into_inkwell_this_turn(_metric_target(target, state), card_id)
+
+    if discard_exit_count > 0:
+        state = record_discard_exit_this_turn(_metric_target(target, state), discard_exit_count)
+
+    resolution_input.eventSnapshot["lastEffectPerformed"] = moved_any
+    return PendingResolutionResult(
+        status="resolved",
+        state=_state_of(target) if not isinstance(target, MatchState) else state,
+        resolutionInput=resolution_input,
+    )
+
+
 def resolve_put_under_effect(
     target: MatchState | object,
     card_played: Mapping[str, object],
@@ -1575,7 +1773,9 @@ def resolve_action_effect(
         return resolve_keyword_effect(target, card_played, effect_mapping, resolved_input)
     if effect_type in {"lose-keyword", "remove-keyword"}:
         return resolve_keyword_effect(target, card_played, effect_mapping, resolved_input, lose=True)
-    if effect_type in {"return-to-hand", "move-card", "put-into-discard", "put-into-inkwell", "put-on-top", "put-on-bottom", "return-from-discard", "move-to-location"}:
+    if effect_type == "put-into-inkwell":
+        return resolve_put_into_inkwell_effect(target, card_played, effect_mapping, resolved_input)
+    if effect_type in {"return-to-hand", "move-card", "put-into-discard", "put-on-top", "put-on-bottom", "return-from-discard", "move-to-location"}:
         if effect_type == "put-on-top":
             effect_mapping = {**effect_mapping, "to": "deck", "index": "top"}
         elif effect_type == "put-on-bottom":

@@ -323,3 +323,78 @@ def test_shuffle_into_deck_from_discard_can_shuffle_into_controller_deck_and_rec
     assert InstanceId("returning") in result.state.ctx.zones.private.zoneCards[scoped_zone("deck", "p0")]
     assert InstanceId("returning") not in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p1")]
     assert result.state.G.turnMetadata.discardCardsLeftThisTurn == 1
+
+
+def test_put_into_inkwell_effect_from_hand_moves_to_inkwell_and_records_inkwell_metric():
+    resources = resources_for({"source": "ZTM", "target": "Y1z"})
+    state = _state(resources, p0_play=("source",), p0_hand=("target",))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "put-into-inkwell", "source": "hand", "target": "CONTROLLER"},
+        ActionResolutionInput(targets=("target",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("target") in result.state.ctx.zones.private.zoneCards[scoped_zone("inkwell", "p0")]
+    assert InstanceId("target") not in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p0")]
+    assert result.state.G.turnMetadata.cardsPutIntoInkwellThisTurn == (InstanceId("target"),)
+    assert result.state.G.turnMetadata.discardCardsLeftThisTurn == 0
+    assert result.state.ctx.zones.private.cardMeta[InstanceId("target")].state == "exerted"
+    assert result.state.ctx.zones.private.cardMeta[InstanceId("target")].publicFaceState == "faceDown"
+
+
+def test_put_into_inkwell_effect_from_discard_records_inkwell_metric_and_discard_exit():
+    resources = resources_for({"source": "ZTM", "target": "Y1z"})
+    state = _state(resources, p0_play=("source",), p0_hand=("target",))
+    zones = move_card_to_zone(
+        state.ctx.zones,
+        card_id="target",
+        destination_zone_key=scoped_zone("discard", "p0"),
+    )
+    state = MatchState(G=state.G, ctx=state.ctx.with_updates(zones=zones))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "put-into-inkwell", "source": "discard", "target": "CONTROLLER"},
+        ActionResolutionInput(targets=("target",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("target") in result.state.ctx.zones.private.zoneCards[scoped_zone("inkwell", "p0")]
+    assert InstanceId("target") not in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p0")]
+    assert result.state.G.turnMetadata.cardsPutIntoInkwellThisTurn == (InstanceId("target"),)
+    assert result.state.G.turnMetadata.discardCardsLeftThisTurn == 1
+
+
+def test_put_into_inkwell_effect_from_top_of_deck_records_inkwell_metric():
+    resources = resources_for({"source": "ZTM", "top": "Y1z"})
+    state = _state(resources, p0_play=("source",), p0_deck=("top",))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "put-into-inkwell", "target": "CONTROLLER"},
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("top") in result.state.ctx.zones.private.zoneCards[scoped_zone("inkwell", "p0")]
+    assert result.state.G.turnMetadata.cardsPutIntoInkwellThisTurn == (InstanceId("top"),)
+
+
+def test_put_into_inkwell_effect_from_play_does_not_record_cards_put_into_inkwell_metric():
+    resources = resources_for({"source": "ZTM", "target": "Y1z"})
+    state = _state(resources, p0_play=("source", "target"))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "put-into-inkwell", "source": "chosen-card-in-play", "target": "CHOSEN_CARD"},
+        ActionResolutionInput(targets=("target",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("target") in result.state.ctx.zones.private.zoneCards[scoped_zone("inkwell", "p0")]
+    assert result.state.G.turnMetadata.cardsPutIntoInkwellThisTurn == ()
