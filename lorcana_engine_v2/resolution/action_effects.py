@@ -642,14 +642,17 @@ def resolve_discard_effect(
         )
         if replacement.get("prevented") is True:
             continue
+
+        current_state = _state_of(target) if not isinstance(target, MatchState) else state
         candidates = tuple(
             card_id
-            for card_id in _discard_candidates(_state_of(target), target_player_id, source_zone)
+            for card_id in _discard_candidates(current_state, target_player_id, source_zone)
             if card_id != _card_played_card_id(card_played)
-            and _matches_filter(target, _state_of(target), card_id, effect.get("filter"))
+            and _matches_filter(target if not isinstance(target, MatchState) else current_state, current_state, card_id, effect.get("filter"))
         )
         effective_amount = len(candidates) if discard_all else min(amount, len(candidates))
         selected_from_candidates = tuple(card_id for card_id in selected if card_id in candidates)
+
         if source_zone == "hand" and effect.get("random") is not True and len(selected_from_candidates) < effective_amount:
             chooser_id = (
                 controller_id
@@ -666,12 +669,25 @@ def resolve_discard_effect(
                 resolution_input=replace(resolution_input, chooserPlayerId=chooser_id),
                 ability_index=_ability_index(options),
             )
+
         cards_to_discard = selected_from_candidates[:effective_amount] if selected_from_candidates else candidates[:effective_amount]
-        zones = _state_of(target).ctx.zones
+        zones = current_state.ctx.zones
         for card_id in cards_to_discard:
-            zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=scoped_zone("discard", target_player_id))
+            zones = move_card_to_zone(
+                zones,
+                card_id=card_id,
+                destination_zone_key=scoped_zone("discard", target_player_id),
+            )
             discarded.append(card_id)
-        _write_zones(target, _state_of(target), zones)
+
+        state = _write_zones(_metric_target(target, current_state), current_state, zones)
+
+        for card_id in cards_to_discard:
+            state = record_card_put_into_discard_this_turn(
+                _metric_target(target, state),
+                target_player_id,
+            )
+
         if hasattr(target, "framework"):
             for card_id in cards_to_discard:
                 emit_triggered_lorcana_event(
@@ -685,9 +701,14 @@ def resolve_discard_effect(
                         "triggerSourceCardId": _card_played_card_id(card_played),
                     },
                 )
+
     resolution_input.eventSnapshot["triggerAmount"] = len(discarded)
     resolution_input.eventSnapshot["lastEffectPerformed"] = bool(discarded)
-    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+    return PendingResolutionResult(
+        status="resolved",
+        state=_state_of(target) if not isinstance(target, MatchState) else state,
+        resolutionInput=resolution_input,
+    )
 
 
 def resolve_banish_effect(
@@ -977,15 +998,19 @@ def resolve_move_card_effect(
         if from_zone == "discard" and not is_discard_zone_key(to_zone):
             discard_exit_count += 1
 
-    _write_zones(target, state, zones)
+    state = _write_zones(_metric_target(target, state), state, zones)
 
     for owner_id in discard_entry_owners:
-        record_card_put_into_discard_this_turn(target, owner_id)
+        state = record_card_put_into_discard_this_turn(_metric_target(target, state), owner_id)
     if discard_exit_count > 0:
-        record_discard_exit_this_turn(target, discard_exit_count)
+        state = record_discard_exit_this_turn(_metric_target(target, state), discard_exit_count)
 
     resolution_input.eventSnapshot["lastEffectPerformed"] = moved
-    return PendingResolutionResult(status="resolved", state=_state_of(target), resolutionInput=resolution_input)
+    return PendingResolutionResult(
+        status="resolved",
+        state=_state_of(target) if not isinstance(target, MatchState) else state,
+        resolutionInput=resolution_input,
+    )
 
 
 def resolve_put_under_effect(
