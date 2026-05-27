@@ -233,7 +233,7 @@ def test_inkwell_rejects_priority_holder_when_not_turn_owner():
     assert result.errorCode == "NOT_CURRENT_PLAYER"
 
 
-def test_inkwell_allows_turn_owner_when_priority_holder_is_temporarily_different():
+def test_inkwell_rejects_turn_owner_when_priority_holder_is_temporarily_different():
     resources = resources_for({"card": "Y1z"})
     state = _main_state(resources, hand=("card",))
     state = MatchState(
@@ -252,5 +252,6 @@ def test_inkwell_allows_turn_owner_when_priority_holder_is_temporarily_different
         actor_role="player",
     )
 
-    assert result.success is True
-    assert InstanceId("card") in result.state.ctx.zones.private.zoneCards[scoped_zone("inkwell", "p0")]
+    assert result.success is False
+    assert result.errorCode == "NOT_PRIORITY_HOLDER"
+    assert InstanceId("card") in runtime.get_state().ctx.zones.private.zoneCards[scoped_zone("hand", "p0")]
