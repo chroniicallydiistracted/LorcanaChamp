@@ -996,14 +996,34 @@ def resolve_put_under_effect(
 ) -> PendingResolutionResult:
     state = _state_of(target)
     controller_id = _card_played_player_id(card_played)
-    under_target_ids = _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("under", "SELF"), resolution_input)
-    destination_id = under_target_ids[0] if under_target_ids else _card_played_card_id(card_played)
+
+    raw_under = effect.get("under", "SELF")
+    if isinstance(raw_under, str) and raw_under.upper() in {"SELF", "SOURCE"}:
+        destination_id = _card_played_card_id(card_played)
+    else:
+        under_target_ids = _candidate_cards_from_target(
+            target,
+            card_played,
+            state,
+            controller_id,
+            raw_under,
+            ActionResolutionInput(),
+        )
+        destination_id = under_target_ids[0] if under_target_ids else _card_played_card_id(card_played)
+
     source_zone = str(effect.get("source") or effect.get("from") or "chosen")
     if source_zone == "top-of-deck":
         amount = resolve_variable_amount(effect.get("amount"), 1)
         selected = tuple(reversed(state.ctx.zones.private.zoneCards.get(scoped_zone("deck", controller_id), ())))[:amount]
     else:
-        selected = _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input)
+        selected = _candidate_cards_from_target(
+            target,
+            card_played,
+            state,
+            controller_id,
+            effect.get("target"),
+            resolution_input,
+        )
 
     zones = state.ctx.zones
     moved: list[InstanceId] = []
@@ -1011,13 +1031,18 @@ def resolve_put_under_effect(
         entry = zones.private.cardIndex.get(card_id)
         if entry is None or card_id == destination_id:
             continue
-        zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=scoped_zone("limbo", entry.ownerID))
+        zones = move_card_to_zone(
+            zones,
+            card_id=card_id,
+            destination_zone_key=scoped_zone("limbo", entry.ownerID),
+        )
         moved.append(card_id)
 
     card_meta = dict(zones.private.cardMeta)
     destination_meta = card_meta.get(destination_id, CardMeta())
     cards_under = tuple(destination_meta.cardsUnder or ()) + tuple(moved)
     card_meta[destination_id] = destination_meta.with_updates(cardsUnder=cards_under or None)
+
     for card_id in moved:
         card_meta[card_id] = card_meta.get(card_id, CardMeta()).with_updates(stackParentId=destination_id)
 
@@ -1030,14 +1055,20 @@ def resolve_put_under_effect(
             cardMeta=card_meta,
         ),
     )
+
     state = _write_zones(target, state, zones)
 
     for moved_id in moved:
-        state = record_card_put_under_this_turn(_metric_target(target, state), destination_id, moved_id)
+        metric_target = state if isinstance(target, MatchState) else target
+        state = record_card_put_under_this_turn(metric_target, destination_id, moved_id)
 
     resolution_input.eventSnapshot["cardsUnder"] = tuple(str(card_id) for card_id in moved)
     resolution_input.eventSnapshot["lastEffectPerformed"] = bool(moved)
-    return PendingResolutionResult(status="resolved", state=_state_of(target) if not isinstance(target, MatchState) else state, resolutionInput=resolution_input)
+    return PendingResolutionResult(
+        status="resolved",
+        state=_state_of(target) if not isinstance(target, MatchState) else state,
+        resolutionInput=resolution_input,
+    )
 
 
 def resolve_remove_damage_effect(
