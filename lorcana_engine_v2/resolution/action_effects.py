@@ -1384,17 +1384,36 @@ def resolve_mill_effect(
     controller_id = _card_played_player_id(card_played)
     amount = resolve_variable_amount(effect.get("amount"), 1)
     moved = 0
+    moved_by_player: dict[PlayerId, int] = {}
     zones = state.ctx.zones
+
     for player_id in _player_targets(state, controller_id, effect.get("target")):
         cards = tuple(reversed(zones.private.zoneCards.get(scoped_zone("deck", player_id), ())))[:amount]
         for card_id in cards:
-            zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=scoped_zone("discard", player_id))
+            zones = move_card_to_zone(
+                zones,
+                card_id=card_id,
+                destination_zone_key=scoped_zone("discard", player_id),
+            )
             moved += 1
-    next_state = _write_zones(target, state, zones)
+            moved_by_player[player_id] = moved_by_player.get(player_id, 0) + 1
+
+    state = _write_zones(_metric_target(target, state), state, zones)
+
+    for player_id, count in moved_by_player.items():
+        state = record_card_put_into_discard_this_turn(
+            _metric_target(target, state),
+            player_id,
+            count,
+        )
+
     resolution_input.eventSnapshot["triggerAmount"] = moved
     resolution_input.eventSnapshot["lastEffectPerformed"] = moved > 0
-    return PendingResolutionResult(status="resolved", state=next_state, resolutionInput=resolution_input)
-
+    return PendingResolutionResult(
+        status="resolved",
+        state=_state_of(target) if not isinstance(target, MatchState) else state,
+        resolutionInput=resolution_input,
+    )
 
 def resolve_shuffle_into_deck_effect(
     target: MatchState | object,

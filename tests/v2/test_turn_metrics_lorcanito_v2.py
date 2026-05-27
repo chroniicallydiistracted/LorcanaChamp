@@ -255,3 +255,22 @@ def test_return_from_discard_records_discard_exit_metric_for_pure_move_card_path
     assert InstanceId("returning") in result.state.ctx.zones.private.zoneCards[scoped_zone("hand", "p0")]
     assert InstanceId("returning") not in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p0")]
     assert result.state.G.turnMetadata.discardCardsLeftThisTurn == 1
+
+
+def test_mill_effect_records_discard_entry_metric_for_milled_cards():
+    resources = resources_for(
+        {"source": "ZTM", "d1": "Y1z", "d2": "XGm"},
+        owners={"p0": ("source",), "p1": ("d1", "d2")},
+    )
+    state = _state(resources, p0_play=("source",), p1_deck=("d1", "d2"))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "mill", "target": "OPPONENT", "amount": 2},
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("d1") in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p1")]
+    assert InstanceId("d2") in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p1")]
+    assert result.state.G.turnMetadata.cardsPutIntoDiscardThisTurnByOwner[PlayerId("p1")] == 2
