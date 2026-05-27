@@ -196,3 +196,62 @@ def test_put_under_effect_records_cards_under_turn_metric():
 
     assert result.status == "resolved"
     assert result.state.G.turnMetadata.cardsUnderThisTurn[InstanceId("parent")] == (InstanceId("child"),)
+
+
+def test_discard_effect_records_discard_entry_metric_for_discarded_card():
+    resources = resources_for(
+        {"source": "ZTM", "victim": "Y1z"},
+        owners={"p0": ("source",), "p1": ("victim",)},
+    )
+    state = _state(resources, p0_play=("source",), p1_hand=("victim",))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "discard", "target": "OPPONENT", "amount": 1},
+        ActionResolutionInput(targets=("victim",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("victim") in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p1")]
+    assert InstanceId("victim") not in result.state.ctx.zones.private.zoneCards[scoped_zone("hand", "p1")]
+    assert result.state.G.turnMetadata.cardsPutIntoDiscardThisTurnByOwner[PlayerId("p1")] == 1
+
+
+def test_move_card_effect_records_discard_entry_metric_when_card_moves_to_discard():
+    resources = resources_for({"source": "ZTM", "target": "Y1z"})
+    state = _state(resources, p0_play=("source",), p0_hand=("target",))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "put-into-discard", "target": "CHOSEN_CARD"},
+        ActionResolutionInput(targets=("target",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("target") in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p0")]
+    assert result.state.G.turnMetadata.cardsPutIntoDiscardThisTurnByOwner[PlayerId("p0")] == 1
+
+
+def test_return_from_discard_records_discard_exit_metric_for_pure_move_card_path():
+    resources = resources_for({"source": "ZTM", "returning": "Y1z"})
+    state = _state(resources, p0_play=("source",), p0_hand=("returning",))
+    zones = move_card_to_zone(
+        state.ctx.zones,
+        card_id="returning",
+        destination_zone_key=scoped_zone("discard", "p0"),
+    )
+    state = MatchState(G=state.G, ctx=state.ctx.with_updates(zones=zones))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "return-from-discard", "target": "CHOSEN_CARD"},
+        ActionResolutionInput(targets=("returning",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("returning") in result.state.ctx.zones.private.zoneCards[scoped_zone("hand", "p0")]
+    assert InstanceId("returning") not in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p0")]
+    assert result.state.G.turnMetadata.discardCardsLeftThisTurn == 1
