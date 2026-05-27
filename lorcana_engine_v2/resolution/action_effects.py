@@ -1425,15 +1425,47 @@ def resolve_shuffle_into_deck_effect(
     controller_id = _card_played_player_id(card_played)
     zones = state.ctx.zones
     moved = False
-    for card_id in _candidate_cards_from_target(target, card_played, state, controller_id, effect.get("target"), resolution_input, default_zone=str(effect.get("from") or "discard")):
+    discard_exit_count = 0
+
+    for card_id in _candidate_cards_from_target(
+        target,
+        card_played,
+        state,
+        controller_id,
+        effect.get("target"),
+        resolution_input,
+        default_zone=str(effect.get("from") or "discard"),
+    ):
         entry = zones.private.cardIndex.get(card_id)
         if entry is None:
             continue
-        zones = move_card_to_zone(zones, card_id=card_id, destination_zone_key=scoped_zone("deck", entry.ownerID))
+
+        source_zone = str(entry.zoneKey)
+        deck_player_id = controller_id if effect.get("intoDeck") == "controller" else entry.ownerID
+        zones = move_card_to_zone(
+            zones,
+            card_id=card_id,
+            destination_zone_key=scoped_zone("deck", deck_player_id),
+        )
         moved = True
-    next_state = _write_zones(target, state, zones)
+
+        if is_discard_zone_key(source_zone):
+            discard_exit_count += 1
+
+    state = _write_zones(_metric_target(target, state), state, zones)
+
+    if discard_exit_count > 0:
+        state = record_discard_exit_this_turn(
+            _metric_target(target, state),
+            discard_exit_count,
+        )
+
     resolution_input.eventSnapshot["lastEffectPerformed"] = moved
-    return PendingResolutionResult(status="resolved", state=next_state, resolutionInput=resolution_input)
+    return PendingResolutionResult(
+        status="resolved",
+        state=_state_of(target) if not isinstance(target, MatchState) else state,
+        resolutionInput=resolution_input,
+    )
 
 
 def resolve_draw_until_hand_size_effect(

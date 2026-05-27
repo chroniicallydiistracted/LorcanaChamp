@@ -274,3 +274,52 @@ def test_mill_effect_records_discard_entry_metric_for_milled_cards():
     assert InstanceId("d1") in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p1")]
     assert InstanceId("d2") in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p1")]
     assert result.state.G.turnMetadata.cardsPutIntoDiscardThisTurnByOwner[PlayerId("p1")] == 2
+
+
+def test_shuffle_into_deck_from_discard_records_discard_exit_metric():
+    resources = resources_for({"source": "ZTM", "returning": "Y1z"})
+    state = _state(resources, p0_play=("source",), p0_hand=("returning",))
+    zones = move_card_to_zone(
+        state.ctx.zones,
+        card_id="returning",
+        destination_zone_key=scoped_zone("discard", "p0"),
+    )
+    state = MatchState(G=state.G, ctx=state.ctx.with_updates(zones=zones))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "shuffle-into-deck", "target": "CHOSEN_CARD"},
+        ActionResolutionInput(targets=("returning",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("returning") in result.state.ctx.zones.private.zoneCards[scoped_zone("deck", "p0")]
+    assert InstanceId("returning") not in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p0")]
+    assert result.state.G.turnMetadata.discardCardsLeftThisTurn == 1
+
+
+def test_shuffle_into_deck_from_discard_can_shuffle_into_controller_deck_and_record_discard_exit():
+    resources = resources_for(
+        {"source": "ZTM", "returning": "Y1z"},
+        owners={"p0": ("source",), "p1": ("returning",)},
+    )
+    state = _state(resources, p0_play=("source",), p1_hand=("returning",))
+    zones = move_card_to_zone(
+        state.ctx.zones,
+        card_id="returning",
+        destination_zone_key=scoped_zone("discard", "p1"),
+    )
+    state = MatchState(G=state.G, ctx=state.ctx.with_updates(zones=zones))
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "shuffle-into-deck", "target": "CHOSEN_CARD", "intoDeck": "controller"},
+        ActionResolutionInput(targets=("returning",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("returning") in result.state.ctx.zones.private.zoneCards[scoped_zone("deck", "p0")]
+    assert InstanceId("returning") not in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p1")]
+    assert result.state.G.turnMetadata.discardCardsLeftThisTurn == 1
