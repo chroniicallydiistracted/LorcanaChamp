@@ -398,3 +398,113 @@ def test_put_into_inkwell_effect_from_play_does_not_record_cards_put_into_inkwel
     assert result.status == "resolved"
     assert InstanceId("target") in result.state.ctx.zones.private.zoneCards[scoped_zone("inkwell", "p0")]
     assert result.state.G.turnMetadata.cardsPutIntoInkwellThisTurn == ()
+
+
+def _with_shift_stack(state, *, top: str, under: str, player_id: str = "p0"):
+    zones = move_card_to_zone(
+        state.ctx.zones,
+        card_id=under,
+        destination_zone_key=scoped_zone("limbo", player_id),
+    )
+    zones = patch_card_meta(
+        zones,
+        top,
+        zones.private.cardMeta.get(InstanceId(top), CardMeta()).with_updates(
+            cardsUnder=(InstanceId(under),)
+        ),
+    )
+    zones = patch_card_meta(
+        zones,
+        under,
+        CardMeta(stackParentId=InstanceId(top)),
+    )
+    return MatchState(G=state.G, ctx=state.ctx.with_updates(zones=zones))
+
+
+def test_banish_effect_moves_full_shift_stack_to_discard_and_counts_each_discard_entry():
+    resources = resources_for(
+        {"source": "ZTM", "top": "Y1z", "under": "XGm"},
+        owners={"p0": ("source",), "p1": ("top", "under")},
+    )
+    state = _state(resources, p0_play=("source",), p1_play=("top",), p1_hand=("under",))
+    state = _with_shift_stack(state, top="top", under="under", player_id="p1")
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "banish", "target": "CHOSEN_CARD"},
+        ActionResolutionInput(targets=("top",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("top") in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p1")]
+    assert InstanceId("under") in result.state.ctx.zones.private.zoneCards[scoped_zone("discard", "p1")]
+    assert result.state.G.turnMetadata.cardsPutIntoDiscardThisTurnByOwner[PlayerId("p1")] == 2
+    assert InstanceId("top") in result.state.G.turnMetadata.banishedCharactersThisTurn
+    assert InstanceId("under") not in result.state.G.turnMetadata.banishedCharactersThisTurn
+
+
+def test_return_to_hand_from_play_moves_full_shift_stack_and_clears_stack_meta():
+    resources = resources_for(
+        {"source": "ZTM", "top": "Y1z", "under": "XGm"},
+        owners={"p0": ("source",), "p1": ("top", "under")},
+    )
+    state = _state(resources, p0_play=("source",), p1_play=("top",), p1_hand=("under",))
+    state = _with_shift_stack(state, top="top", under="under", player_id="p1")
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "return-to-hand", "target": "CHOSEN_CARD"},
+        ActionResolutionInput(targets=("top",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("top") in result.state.ctx.zones.private.zoneCards[scoped_zone("hand", "p1")]
+    assert InstanceId("under") in result.state.ctx.zones.private.zoneCards[scoped_zone("hand", "p1")]
+    assert result.state.ctx.zones.private.cardMeta.get(InstanceId("top"), CardMeta()).cardsUnder is None
+    assert result.state.ctx.zones.private.cardMeta.get(InstanceId("under"), CardMeta()).stackParentId is None
+    assert result.state.G.turnMetadata.discardCardsLeftThisTurn == 0
+
+
+def test_shuffle_into_deck_from_play_moves_full_shift_stack_without_discard_exit_metric():
+    resources = resources_for(
+        {"source": "ZTM", "top": "Y1z", "under": "XGm"},
+        owners={"p0": ("source",), "p1": ("top", "under")},
+    )
+    state = _state(resources, p0_play=("source",), p1_play=("top",), p1_hand=("under",))
+    state = _with_shift_stack(state, top="top", under="under", player_id="p1")
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "shuffle-into-deck", "target": "CHOSEN_CARD"},
+        ActionResolutionInput(targets=("top",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("top") in result.state.ctx.zones.private.zoneCards[scoped_zone("deck", "p1")]
+    assert InstanceId("under") in result.state.ctx.zones.private.zoneCards[scoped_zone("deck", "p1")]
+    assert result.state.G.turnMetadata.discardCardsLeftThisTurn == 0
+
+
+def test_put_into_inkwell_from_play_moves_full_shift_stack_but_does_not_record_inkwell_metric():
+    resources = resources_for({"source": "ZTM", "top": "Y1z", "under": "XGm"})
+    state = _state(resources, p0_play=("source", "top"), p0_hand=("under",))
+    state = _with_shift_stack(state, top="top", under="under", player_id="p0")
+
+    result = resolve_action_effect(
+        state,
+        {"playerId": PlayerId("p0"), "cardId": "source", "cardType": "character", "costType": "free"},
+        {"type": "put-into-inkwell", "source": "chosen-card-in-play", "target": "CHOSEN_CARD"},
+        ActionResolutionInput(targets=("top",)),
+    )
+
+    assert result.status == "resolved"
+    assert InstanceId("top") in result.state.ctx.zones.private.zoneCards[scoped_zone("inkwell", "p0")]
+    assert InstanceId("under") in result.state.ctx.zones.private.zoneCards[scoped_zone("inkwell", "p0")]
+    assert result.state.G.turnMetadata.cardsPutIntoInkwellThisTurn == ()
+    assert result.state.ctx.zones.private.cardMeta[InstanceId("top")].state == "exerted"
+    assert result.state.ctx.zones.private.cardMeta[InstanceId("under")].state == "exerted"
+    assert result.state.ctx.zones.private.cardMeta[InstanceId("top")].publicFaceState == "faceDown"
+    assert result.state.ctx.zones.private.cardMeta[InstanceId("under")].publicFaceState == "faceDown"

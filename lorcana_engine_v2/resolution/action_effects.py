@@ -6,6 +6,8 @@ from dataclasses import replace
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId
 from lorcana_engine_v2.core.state import MatchState
 from lorcana_engine_v2.core.turn_owner import resolve_turn_owner_id
+from lorcana_engine_v2.effects.win_condition_effects import recompute_lore_to_win
+from lorcana_engine_v2.moves.shared.shift_stack import move_card_out_of_play_with_stack_zones
 from lorcana_engine_v2.core.zones import (
     CardMeta,
     ZoneRef,
@@ -140,6 +142,13 @@ def _definition(target: MatchState | object, state: MatchState, card_id: Instanc
 def _card_type(target: MatchState | object, state: MatchState, card_id: InstanceId) -> str | None:
     definition = _definition(target, state, card_id)
     return getattr(definition, "card_type", None)
+
+def _is_location_card(target: MatchState | object, state: MatchState, card_id: InstanceId) -> bool:
+    return _card_type(target, state, card_id) == "location"
+
+
+def _is_character_card_type(target: MatchState | object, state: MatchState, card_id: InstanceId) -> bool:
+    return _card_type(target, state, card_id) == "character"
 
 
 def _card_cost(target: MatchState | object, state: MatchState, card_id: InstanceId) -> int | None:
@@ -730,23 +739,50 @@ def resolve_banish_effect(
     )
     banished: list[InstanceId] = []
     owner_by_card: dict[InstanceId, PlayerId] = {}
+    discard_entry_owners: list[PlayerId] = []
     zones = state.ctx.zones
+    recompute_after_stack_move = False
 
     for card_id in targets:
         entry = zones.private.cardIndex.get(card_id)
         if entry is None:
             continue
+
         owner_id = entry.ownerID
         owner_by_card[card_id] = owner_id
-        zones = move_card_to_zone(
-            zones,
-            card_id=card_id,
-            destination_zone_key=scoped_zone("discard", owner_id),
-        )
-        zones = _clear_card_meta(zones, card_id)
+        stack_owner_by_id = {
+            stacked_id: zones.private.cardIndex[stacked_id].ownerID
+            for stacked_id in move_card_out_of_play_with_stack_zones.__globals__["stacked_card_ids_from_zones"](zones, card_id)
+            if stacked_id in zones.private.cardIndex
+        }
+
+        if str(base_zone_from_key(entry.zoneKey)) == "play":
+            zones, moved_ids = move_card_out_of_play_with_stack_zones(
+                zones,
+                card_id,
+                destination_zone="discard",
+                destination_player_id=owner_id,
+                is_location_card=lambda cid: _is_location_card(target, state, cid),
+                is_character_card=lambda cid: _is_character_card_type(target, state, cid),
+            )
+            recompute_after_stack_move = True
+        else:
+            zones = move_card_to_zone(
+                zones,
+                card_id=card_id,
+                destination_zone_key=scoped_zone("discard", owner_id),
+            )
+            zones = _clear_card_meta(zones, card_id)
+            moved_ids = (card_id,)
+
+        for moved_id in moved_ids:
+            discard_entry_owners.append(stack_owner_by_id.get(moved_id, owner_id))
         banished.append(card_id)
 
     state = _write_zones(target, state, zones)
+
+    if recompute_after_stack_move:
+        state = recompute_lore_to_win(_metric_target(target, state))
 
     if banished:
         state = _write_state(
@@ -756,9 +792,11 @@ def resolve_banish_effect(
                 ctx=state.ctx,
             ),
         )
+        for owner_id in discard_entry_owners:
+            state = record_card_put_into_discard_this_turn(_metric_target(target, state), owner_id)
+
         for card_id in banished:
             owner_id = owner_by_card[card_id]
-            state = record_card_put_into_discard_this_turn(_metric_target(target, state), owner_id)
             state = record_banished_character_this_turn(_metric_target(target, state), card_id)
 
             if hasattr(target, "framework"):
@@ -780,7 +818,11 @@ def resolve_banish_effect(
 
     resolution_input.eventSnapshot["triggerAmount"] = len(banished)
     resolution_input.eventSnapshot["lastEffectPerformed"] = bool(banished)
-    return PendingResolutionResult(status="resolved", state=_state_of(target) if not isinstance(target, MatchState) else state, resolutionInput=resolution_input)
+    return PendingResolutionResult(
+        status="resolved",
+        state=_state_of(target) if not isinstance(target, MatchState) else state,
+        resolutionInput=resolution_input,
+    )
 
 
 def resolve_damage_effect(
@@ -971,6 +1013,7 @@ def resolve_move_card_effect(
     discard_entry_owners: list[PlayerId] = []
     discard_exit_count = 0
     zones = state.ctx.zones
+    recompute_after_stack_move = False
 
     for card_id in _candidate_cards_from_target(
         target,
@@ -986,20 +1029,44 @@ def resolve_move_card_effect(
 
         from_zone = str(base_zone_from_key(entry.zoneKey))
         destination_owner = entry.ownerID if to_zone in {"hand", "deck", "discard", "inkwell", "limbo"} else entry.controllerID
-        zones = move_card_to_zone(
-            zones,
-            card_id=card_id,
-            destination_zone_key=scoped_zone(to_zone, destination_owner),
-            index=move_index,
-        )
+        stack_owner_by_id = {
+            stacked_id: zones.private.cardIndex[stacked_id].ownerID
+            for stacked_id in move_card_out_of_play_with_stack_zones.__globals__["stacked_card_ids_from_zones"](zones, card_id)
+            if stacked_id in zones.private.cardIndex
+        }
+
+        if from_zone == "play" and to_zone in {"hand", "deck", "discard", "inkwell", "limbo"}:
+            zones, moved_ids = move_card_out_of_play_with_stack_zones(
+                zones,
+                card_id,
+                destination_zone=to_zone,
+                destination_player_id=destination_owner,
+                index=move_index,
+                is_location_card=lambda cid: _is_location_card(target, state, cid),
+                is_character_card=lambda cid: _is_character_card_type(target, state, cid),
+            )
+            recompute_after_stack_move = True
+        else:
+            zones = move_card_to_zone(
+                zones,
+                card_id=card_id,
+                destination_zone_key=scoped_zone(to_zone, destination_owner),
+                index=move_index,
+            )
+            moved_ids = (card_id,)
+
         moved = True
 
         if is_discard_zone_key(to_zone):
-            discard_entry_owners.append(destination_owner)
+            for moved_id in moved_ids:
+                discard_entry_owners.append(stack_owner_by_id.get(moved_id, destination_owner))
         if from_zone == "discard" and not is_discard_zone_key(to_zone):
             discard_exit_count += 1
 
     state = _write_zones(_metric_target(target, state), state, zones)
+
+    if recompute_after_stack_move:
+        state = recompute_lore_to_win(_metric_target(target, state))
 
     for owner_id in discard_entry_owners:
         state = record_card_put_into_discard_this_turn(_metric_target(target, state), owner_id)
@@ -1012,19 +1079,6 @@ def resolve_move_card_effect(
         state=_state_of(target) if not isinstance(target, MatchState) else state,
         resolutionInput=resolution_input,
     )
-
-
-_PUT_INTO_INKWELL_PLAYER_TARGETS = {
-    "SELF",
-    "YOU",
-    "CONTROLLER",
-    "OPPONENT",
-    "OPPONENTS",
-    "EACH_OPPONENT",
-    "ALL_PLAYERS",
-    "EACH_PLAYER",
-    "CURRENT_TURN",
-}
 
 
 def _put_into_inkwell_is_player_target(raw_target: object) -> bool:
@@ -1170,6 +1224,28 @@ def resolve_put_into_inkwell_effect(
 
         source_zone = str(entry.zoneKey)
         source_base_zone = str(base_zone_from_key(entry.zoneKey))
+        if source_base_zone == "play":
+            zones, moved_ids = move_card_out_of_play_with_stack_zones(
+                zones,
+                card_id,
+                destination_zone="inkwell",
+                destination_player_id=destination_player_id,
+                is_location_card=lambda cid: _is_location_card(target, state, cid),
+                is_character_card=lambda cid: _is_character_card_type(target, state, cid),
+            )
+            for moved_id in moved_ids:
+                meta = zones.private.cardMeta.get(moved_id, CardMeta())
+                zones = patch_card_meta(
+                    zones,
+                    moved_id,
+                    meta.with_updates(state=state_value, publicFaceState=public_face_state),
+                )
+
+            moved_any = True
+            consumed.add(card_id)
+            # Lorcanito's from-play branch does not record cardsPutIntoInkwellThisTurn.
+            continue
+
         zones = move_card_to_zone(
             zones,
             card_id=card_id,
@@ -1185,17 +1261,19 @@ def resolve_put_into_inkwell_effect(
         moved_any = True
         consumed.add(card_id)
 
-        if source_base_zone == "play":
-            # Lorcanito's from-play branch does not record cardsPutIntoInkwellThisTurn.
-            # Full shifted-stack movement for cardsUnder is handled by the separate
-            # moveCardOutOfPlayWithStack drift.
-            continue
-
         metric_card_ids.append(card_id)
         if is_discard_zone_key(source_zone):
             discard_exit_count += 1
 
     state = _write_zones(_metric_target(target, state), state, zones)
+
+    if any(
+        str(base_zone_from_key(state.ctx.zones.private.cardIndex.get(card_id).zoneKey))
+        == "inkwell"
+        for card_id in consumed
+        if state.ctx.zones.private.cardIndex.get(card_id) is not None
+    ):
+        state = recompute_lore_to_win(_metric_target(target, state))
 
     for card_id in metric_card_ids:
         state = record_card_put_into_inkwell_this_turn(_metric_target(target, state), card_id)
@@ -1624,6 +1702,7 @@ def resolve_shuffle_into_deck_effect(
     zones = state.ctx.zones
     moved = False
     discard_exit_count = 0
+    recompute_after_stack_move = False
 
     for card_id in _candidate_cards_from_target(
         target,
@@ -1639,12 +1718,26 @@ def resolve_shuffle_into_deck_effect(
             continue
 
         source_zone = str(entry.zoneKey)
+        source_base_zone = str(base_zone_from_key(entry.zoneKey))
         deck_player_id = controller_id if effect.get("intoDeck") == "controller" else entry.ownerID
-        zones = move_card_to_zone(
-            zones,
-            card_id=card_id,
-            destination_zone_key=scoped_zone("deck", deck_player_id),
-        )
+
+        if source_base_zone == "play":
+            zones, _moved_ids = move_card_out_of_play_with_stack_zones(
+                zones,
+                card_id,
+                destination_zone="deck",
+                destination_player_id=deck_player_id,
+                is_location_card=lambda cid: _is_location_card(target, state, cid),
+                is_character_card=lambda cid: _is_character_card_type(target, state, cid),
+            )
+            recompute_after_stack_move = True
+        else:
+            zones = move_card_to_zone(
+                zones,
+                card_id=card_id,
+                destination_zone_key=scoped_zone("deck", deck_player_id),
+            )
+
         moved = True
 
         if is_discard_zone_key(source_zone):
@@ -1652,11 +1745,11 @@ def resolve_shuffle_into_deck_effect(
 
     state = _write_zones(_metric_target(target, state), state, zones)
 
+    if recompute_after_stack_move:
+        state = recompute_lore_to_win(_metric_target(target, state))
+
     if discard_exit_count > 0:
-        state = record_discard_exit_this_turn(
-            _metric_target(target, state),
-            discard_exit_count,
-        )
+        state = record_discard_exit_this_turn(_metric_target(target, state), discard_exit_count)
 
     resolution_input.eventSnapshot["lastEffectPerformed"] = moved
     return PendingResolutionResult(

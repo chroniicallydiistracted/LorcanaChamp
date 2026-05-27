@@ -1,3 +1,8 @@
+from lorcana_engine_v2.moves.shared.shift_stack import (
+    move_card_out_of_play_with_stack_context,
+    stacked_card_ids_from_context,
+)
+
 from __future__ import annotations
 
 from dataclasses import replace
@@ -116,19 +121,6 @@ def _retarget_continuous_effects(context, old_top_id: InstanceId, new_top_id: In
     )
 
 
-def _stacked_card_ids(context, card_id: InstanceId) -> tuple[InstanceId, ...]:
-    meta = context.cards.getMeta(card_id)
-    return (card_id,) + tuple(meta.cardsUnder or ())
-
-
-def _move_stack_to_discard(context, card_id: InstanceId, player_id: PlayerId) -> None:
-    for stacked_id in _stacked_card_ids(context, card_id):
-        context.framework.zones.moveCard(stacked_id, ZoneRef(zone=ZoneId("discard"), playerId=player_id))
-    for stacked_id in _stacked_card_ids(context, card_id):
-        context.cards.clearMeta(stacked_id)
-    recompute_lore_to_win(context)
-
-
 def _record_banished_character(context, card_id: InstanceId) -> None:
     record_banished_character_this_turn(context, card_id)
 
@@ -181,7 +173,12 @@ def execute_shift_play(
     if effective_willpower > 0 and inherited_damage >= effective_willpower:
         trigger_candidates = snapshot_triggered_candidates_for_card(context, new_id)
         keywords_before_banish = _keywords_before_banish(card_def, context.cards.getMeta(new_id))
-        _move_stack_to_discard(context, new_id, player)
+        move_card_out_of_play_with_stack_context(
+            context,
+            new_id,
+            ZoneRef(zone=ZoneId("discard"), playerId=player),
+        )
+        recompute_lore_to_win(context)
         emit_triggered_lorcana_event(
             context,
             "cardBanished",
