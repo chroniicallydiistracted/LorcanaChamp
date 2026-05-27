@@ -256,18 +256,25 @@ def _static_cost_reductions(
 def get_static_cost_increase_amount(
     *,
     state: MatchState,
-    player_id: PlayerId | str,
     definition: CardDefinition,
-    play_method: str | None = None,
     registry: object | None = None,
 ) -> int:
+    _ = state
     total = 0
     for effect in tuple(getattr(registry, "globalEffects", ()) or ()):
         if getattr(effect, "kind", None) != "cost-increase":
             continue
         payload = _payload(effect)
-        if not _matches_cost_reduction_entry(payload, definition, play_method):
-            continue
+        card_type = payload.get("cardType")
+        if card_type is not None:
+            allowed_types = (
+                {str(item) for item in card_type}
+                if isinstance(card_type, Sequence) and not isinstance(card_type, (str, bytes, bytearray))
+                else {str(card_type)}
+            )
+            is_song = _is_song_card(definition)
+            if definition.card_type not in allowed_types and not (is_song and "song" in allowed_types):
+                continue
         amount = payload.get("amount", payload.get("increase", 0))
         if isinstance(amount, int):
             total += max(0, amount)

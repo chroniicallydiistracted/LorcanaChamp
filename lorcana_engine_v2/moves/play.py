@@ -163,13 +163,10 @@ def _compute_cost_reduction(
 def _compute_cost_increase(
     context: MoveValidationContext | MoveExecutionContext,
     card_def: CardDefinition,
-    play_method: str | None,
 ) -> int:
     return get_static_cost_increase_amount(
         state=_state_from_context(context),
-        player_id=_current_player(context),
         definition=card_def,
-        play_method=play_method,
         registry=_static_registry(context),
     )
 
@@ -179,7 +176,7 @@ def _standard_play_basic_cost(
     card_def: CardDefinition,
 ) -> BasicCost:
     reduction_amount, _ = _compute_cost_reduction(context, card_def, "standard")
-    increase_amount = _compute_cost_increase(context, card_def, "standard")
+    increase_amount = _compute_cost_increase(context, card_def)
     return BasicCost(ink=max(0, int(card_def.cost) - reduction_amount + increase_amount))
 
 
