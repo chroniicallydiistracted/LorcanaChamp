@@ -6,14 +6,11 @@ from typing import Callable
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId, ZoneId
 from lorcana_engine_v2.core.results import LogMessage, LogVisibility, ProjectedLogEntry, RuntimeValidationResult
 from lorcana_engine_v2.core.state import MatchState, TurnMetadata
+from lorcana_engine_v2.core.turn_owner import resolve_priority_holder_id
 from lorcana_engine_v2.core.zones import ZoneRef, base_zone_from_key, scoped_zone
 from lorcana_engine_v2.effects.triggered_abilities import (
     emit_triggered_lorcana_event,
     flush_triggered_events_to_bag,
-)
-from lorcana_engine_v2.core.turn_owner import (
-    require_current_player_for_move,
-    resolve_current_player_for_move,
 )
 from lorcana_engine_v2.resolution.pending import has_any_pending_effects, validate_no_pending_effects
 
@@ -33,10 +30,10 @@ INKWELL_CANDIDATE_QUERY_DSL = {
 def _current_player(
     context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext,
 ) -> PlayerId:
-    resolved = resolve_current_player_for_move(context, context.G)
-    if resolved is None:
-        raise RuntimeError("putCardIntoInkwell could not resolve the current turn player")
-    return resolved
+    resolved = resolve_priority_holder_id(context)
+    if resolved is not None:
+        return resolved
+    return PlayerId(str(context.playerId))
 
 
 def _zone_is_play(zone_key: object) -> bool:
@@ -183,10 +180,6 @@ class PutCardIntoInkwellMove:
         pending_failure = validate_no_pending_effects(context, action_label="ink cards")
         if not pending_failure.valid:
             return pending_failure
-        
-        current_player_validation = require_current_player_for_move(context, context.playerId, context.G)
-        if not current_player_validation.valid:
-            return current_player_validation
 
         current_player = _current_player(context)
 

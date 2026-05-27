@@ -1,5 +1,3 @@
-from dataclasses import replace
-
 from lorcana_engine_v2.core.commands import CommandEnvelope, MoveInput
 from lorcana_engine_v2.core.context import create_framework_state_snapshot
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId
@@ -201,7 +199,7 @@ def test_play_card_rejects_non_turn_owner_even_when_they_hold_priority():
     assert result.errorCode == "NOT_CURRENT_PLAYER"
 
 
-def test_inkwell_rejects_priority_holder_when_not_turn_owner():
+def test_inkwell_uses_priority_holder_as_actor_like_lorcanito():
     resources = resources_for(
         {"p0_card": "XGm", "p1_card": "Y1z"},
         owners={"p0": ("p0_card",), "p1": ("p1_card",)},
@@ -229,8 +227,8 @@ def test_inkwell_rejects_priority_holder_when_not_turn_owner():
         actor_role="player",
     )
 
-    assert result.success is False
-    assert result.errorCode == "NOT_CURRENT_PLAYER"
+    assert result.success is True
+    assert InstanceId("p1_card") in result.state.ctx.zones.private.zoneCards[scoped_zone("inkwell", "p1")]
 
 
 def test_inkwell_rejects_turn_owner_when_priority_holder_is_temporarily_different():
