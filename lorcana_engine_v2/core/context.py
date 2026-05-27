@@ -3,6 +3,10 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+from lorcana_engine_v2.runtime_game.turn_metrics import (
+    is_discard_zone_key,
+    record_card_put_into_discard_this_turn,
+)
 
 
 from .commands import MoveInput
@@ -738,13 +742,22 @@ def build_lifecycle_context(
     draft = StateDraft(state)
     random_api = create_random_api_for_ctx(state.ctx.random)
     cards = CardRuntimeAPI(draft, static_resources, actor_player_id=player_id)
+
+    def _emit_zone_event(raw: Mapping[str, object]) -> None:
+        if raw.get("kind") == "CARD_ENTERED_ZONE" and is_discard_zone_key(raw.get("toZone")):
+            owner_id = raw.get("ownerId")
+            if owner_id is not None:
+                record_card_put_into_discard_this_turn(draft, owner_id)
+        emit(GameEvent.from_mapping(raw))
+
     raw_zones = create_zone_operations(
         draft.state.ctx.zones,
         _zone_registry_for(config, draft.state),
-        emit_event=lambda raw: emit(GameEvent.from_mapping(raw)),
+        emit_event=_emit_zone_event,
         random_float=random_api.random,
         current_state_id=draft.state.ctx._stateID,
     )
+
     framework = FrameworkWriteAPI(
         state=create_framework_state_snapshot(draft.state, game_ended),
         zones=DraftZoneOperations(draft, raw_zones),

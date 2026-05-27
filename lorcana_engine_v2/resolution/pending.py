@@ -21,6 +21,10 @@ from lorcana_engine_v2.resolution.action_effect_types import (
     PendingActionEffect,
     PendingResolutionResult,
 )
+from lorcana_engine_v2.runtime_game.turn_metrics import (
+    is_discard_zone_key,
+    record_card_put_into_discard_this_turn,
+)
 
 
 EFFECT_PENDING_ERROR_CODE = "EFFECT_PENDING"
@@ -338,6 +342,8 @@ def move_suspended_action_card_to_limbo(
     meta = zones.private.cardMeta.get(card_id, CardMeta())
     zones = patch_card_meta(zones, card_id, meta.with_updates(publicFaceState="faceUp"))
     next_state = MatchState(G=state.G, ctx=state.ctx.with_updates(zones=zones))
+    if is_discard_zone_key(destination_zone):
+        next_state = record_card_put_into_discard_this_turn(next_state, player_id)
     return _write_state(target, next_state)
 
 

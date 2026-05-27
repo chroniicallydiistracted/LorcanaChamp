@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Callable
 
 from lorcana_engine_v2.core.ids import InstanceId, PlayerId, ZoneId
 from lorcana_engine_v2.core.results import LogMessage, LogVisibility, ProjectedLogEntry, RuntimeValidationResult
-from lorcana_engine_v2.core.state import MatchState, TurnMetadata
+from lorcana_engine_v2.core.state import MatchState
 from lorcana_engine_v2.core.turn_owner import resolve_priority_holder_id
 from lorcana_engine_v2.core.zones import ZoneRef, base_zone_from_key, scoped_zone
+from lorcana_engine_v2.runtime_game.turn_metrics import record_card_put_into_inkwell_this_turn
 from lorcana_engine_v2.effects.triggered_abilities import (
     emit_triggered_lorcana_event,
     flush_triggered_events_to_bag,
@@ -135,13 +136,6 @@ def can_ink_this_turn(
     return len(turn_metadata.inkedThisTurn) < get_turn_action_ink_limit(context, player_id=player_id)
 
 
-def record_card_put_into_inkwell_this_turn(
-    turn_metadata: TurnMetadata,
-    card_id: InstanceId | str,
-) -> TurnMetadata:
-    return turn_metadata.record_ink(card_id)
-
-
 def _candidate_cards(
     context: MoveValidationContext | MoveEnumerationContext | MoveExecutionContext,
     player_id: PlayerId,
@@ -229,12 +223,13 @@ class PutCardIntoInkwellMove:
 
         context.set_G(
             context.state.G.with_updates(
-                turnMetadata=record_card_put_into_inkwell_this_turn(
+                turnMetadata=replace(
                     context.state.G.turnMetadata,
-                    card_id,
-                ),
+                    inkedThisTurn=context.state.G.turnMetadata.inkedThisTurn + (card_id,),
+                )
             )
         )
+        record_card_put_into_inkwell_this_turn(context, card_id)
 
         emit_triggered_lorcana_event(
             context,
